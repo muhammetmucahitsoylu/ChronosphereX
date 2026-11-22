@@ -134,7 +134,7 @@ export default {
       <li><b>Lexikonkarten:</b> Wikipedia, mit einem Link zum Artikel gezeigt.</li>
     </ul>
     <h2>Der Code</h2>
-    <p>Der Code ist auf GitHub lesbar: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Alle Rechte vorbehalten: Ohne Erlaubnis des Teams darf er nicht kopiert, weiterverwendet oder anderswo veröffentlicht werden. Versionen vor dem 22. November 2026 wurden unter der GPL-3.0 veröffentlicht.</p>
+    <p>Der Code ist auf GitHub lesbar: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Alle Rechte vorbehalten: Ohne Erlaubnis des Teams darf er nicht kopiert, weiterverwendet oder anderswo veröffentlicht werden.</p>
     <p>Neue Bilder und kurze Filme gibt es auf Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Einsatz von KI</h2>
     <p>Die Software wurde während der Veranstaltung mit einem KI-Programmierassistenten geschrieben. Das Team hat den Ansatz gewählt, die Ergebnisse an Katalogwerten und unabhängigen Werkzeugen geprüft und ist für den Inhalt verantwortlich. Es werden keine KI-erzeugten Bilder, Töne oder Videos verwendet: Jedes gezeigte Bild sind Teleskopdaten.</p>

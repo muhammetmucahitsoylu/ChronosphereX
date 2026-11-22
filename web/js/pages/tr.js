@@ -134,7 +134,7 @@ export default {
       <li><b>Ansiklopedi kartları:</b> Wikipedia; maddeye bağlantıyla birlikte gösterilir.</li>
     </ul>
     <h2>Kod</h2>
-    <p>Kodu GitHub’da okuyabilirsiniz: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Tüm hakları saklıdır: ekibin izni olmadan kopyalanamaz, başka yerde kullanılamaz ya da yayınlanamaz. 22 Kasım 2026’dan önceki sürümler GPL-3.0 lisansıyla yayınlanmıştı.</p>
+    <p>Kodu GitHub’da okuyabilirsiniz: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Tüm hakları saklıdır: ekibin izni olmadan kopyalanamaz, başka yerde kullanılamaz ya da yayınlanamaz.</p>
     <p>Yeni görüntüler ve kısa filmler Instagram’da: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Yapay zekâ kullanımı</h2>
     <p>Yazılım, etkinlik sırasında bir yapay zekâ kodlama yardımcısıyla yazıldı. Yaklaşımı takım seçti, sonuçları katalog değerleriyle ve bağımsız araçlarla karşılaştırdı ve içerikten takım sorumludur. Yapay zekâyla üretilmiş görüntü, ses ya da video kullanılmadı: gösterilen her görüntü teleskop verisidir.</p>

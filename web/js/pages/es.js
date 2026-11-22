@@ -134,7 +134,7 @@ export default {
       <li><b>Fichas de enciclopedia:</b> Wikipedia, mostradas con un enlace al artículo.</li>
     </ul>
     <h2>El código</h2>
-    <p>El código puede leerse en GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Todos los derechos reservados: no puede copiarse, reutilizarse ni publicarse en otro sitio sin permiso del equipo. Las versiones anteriores al 22 de noviembre de 2026 se publicaron bajo la GPL-3.0.</p>
+    <p>El código puede leerse en GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Todos los derechos reservados: no puede copiarse, reutilizarse ni publicarse en otro sitio sin permiso del equipo.</p>
     <p>Imágenes nuevas y películas cortas, en Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Uso de IA</h2>
     <p>El software se escribió con un asistente de programación de IA durante el evento. El equipo eligió el enfoque, comprobó los resultados con valores de catálogo y con herramientas independientes, y es responsable del contenido. No se usan imágenes, audio ni vídeo generados por IA: cada imagen mostrada son datos de telescopio.</p>

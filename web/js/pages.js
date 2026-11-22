@@ -162,7 +162,7 @@ const ENGLISH = {
       <li><b>Encyclopedia cards:</b> Wikipedia, shown with a link to the article.</li>
     </ul>
     <h2>The code</h2>
-    <p>The code can be read on GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. All rights reserved: it may not be copied, reused or published elsewhere without the team’s permission. Versions before 22 November 2026 were released under the GPL-3.0.</p>
+    <p>The code can be read on GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. All rights reserved: it may not be copied, reused or published elsewhere without the team’s permission.</p>
     <p>New pictures and short films are on Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Use of AI</h2>
     <p>The software was written with an AI coding assistant during the event. The team chose the approach, checked the results against catalogue values and independent tools, and is responsible for the content. No AI-generated images, audio or video are used: every image shown is telescope data.</p>
