@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0908">
-<title>Find the star that moved · Chronosphere</title>
+<title>Find the star that moved · ChronosphereX</title>
 <meta name="description" content="A game played on real telescope images: two pictures of the same patch of sky, taken years apart by NASA's WISE, flip back and forth. One star has moved. Find it, the way Pluto was found in 1930. Ten levels, each harder than the last.">
 <link rel="canonical" href="https://chronospherex.com/play.html">
-<meta property="og:title" content="Find the star that moved · Chronosphere">
+<meta property="og:title" content="Find the star that moved · ChronosphereX">
 <meta property="og:description" content="Two real images of the same sky, years apart. One star has moved. Can you find it? Ten levels, each harder.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://chronospherex.com/play.html">
 <meta property="og:image" content="https://chronospherex.com/share.jpg">
-<meta property="og:site_name" content="Chronosphere">
+<meta property="og:site_name" content="ChronosphereX">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -70,7 +70,7 @@
 <body>
 <div class="wrap">
   <header>
-    <a class="logo" href="./"><i></i>Chronosphere</a>
+    <a class="logo" href="./"><i></i>ChronosphereX</a>
     <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pl">Polski</option></select>
   </header>
   <main>
@@ -173,7 +173,7 @@ try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private m
 if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
 const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 const secs = ms => (ms / 1000).toFixed(1).replace('.', T.dec);
-document.documentElement.lang = lang; document.title = `${T.title} · Chronosphere`;
+document.documentElement.lang = lang; document.title = `${T.title} · ChronosphereX`;
 $('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
 for (const [id, key] of [['title', 'title'], ['intro', 'intro'], ['cardtitle', 'cardTitle'], ['cardbody', 'cardBody'], ['cardgo', 'cardGo'], ['show', 'show'], ['how', 'how'], ['credit', 'credit'], ['share', 'share'], ['again', 'again'], ['tool', 'tool']]) $(id).textContent = T[key];
 $('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?lang=${lang}`;

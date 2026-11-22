@@ -1678,7 +1678,7 @@ function closePanel() {
   document.title = HOME_TITLE;
 }
 /** The page's own title, in the language in use. */
-const HOME_TITLE = Lang.lang === 'en' ? document.title : `Chronosphere — ${T('hero.title').replace(/\.$/, '')}`;
+const HOME_TITLE = Lang.lang === 'en' ? document.title : `ChronosphereX — ${T('hero.title').replace(/\.$/, '')}`;
 
 /** Find out what the selected spot is, then look for an encyclopedia card. */
 async function loadInfo(gen) {
@@ -1724,7 +1724,7 @@ function fmtDistance(plx, err) {
 function renderAbout() {
   const t = S.target, k = S.track, i = S.info, el = $('about');
   const name = t ? nameOf(t) : i ? i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
-  document.title = `${name} · Chronosphere`;          // the tab, the history and a bookmark say which object this is
+  document.title = `${name} · ChronosphereX`;          // the tab, the history and a bookmark say which object this is
   const sp = t?.sp || i?.sptype;
   const spHtml = sp ? G` · spectral type <span class="asis">${esc(sp)}</span>` : '';
   const kind = t?.type ? `${esc(G(t.type))}${spHtml}` : i ? `${esc(G(i.type))}${spHtml}`
@@ -2831,7 +2831,7 @@ $('savecsv').onclick = () => {
   const [sra, sdec] = trail ? C.gridToSky(S.grid, trail.sightings[0].x, trail.sightings[0].y) : own ? [S.ra, S.dec] : C.gridToSky(S.grid, S.sel.x, S.sel.y);
   const what = trail ? `${bodyLabel(trail)}, a body of the solar system passing through the field of ${slugOf()}, followed from stop to stop; the position is where it was first seen`
     : own ? `${slugOf()}${path ? ', followed along its orbit' : S.sel?.follow ? ', following its catalogued motion' : ''}` : `a spot in the field of ${slugOf()}`;
-  const pos = `# Chronosphere: ${what}. RA ${sra.toFixed(6)} Dec ${sdec.toFixed(6)} (ICRS). SPHEREx level-2 exposures from NASA/IPAC IRSA.\n# ${location.href}\n`;
+  const pos = `# ChronosphereX: ${what}. RA ${sra.toFixed(6)} Dec ${sdec.toFixed(6)} (ICRS). SPHEREx level-2 exposures from NASA/IPAC IRSA.\n# ${location.href}\n`;
   const name = own ? slugOf() : `${sra.toFixed(5)}_${sdec >= 0 ? '+' : ''}${sdec.toFixed(5)}`;
   download(new Blob([pos + head.join(',') + '\n' + rows.join('\n') + '\n'], { type: 'text/csv' }), `chronosphere_${name}_measurements.csv`);
   exportNote(G`${pts.length} measurements saved.`);
@@ -2877,7 +2877,7 @@ async function saveReport() {
   const own = t.body?.own ? S.target?.body || S.track?.body : null, first = [...obs].sort((a, b) => a.mjd - b.mjd)[0];
   const id = Bodies.reportId(own ? { num: own.number, name: S.track?.name, code: own.code } : t.body, first.ra, first.dec, first.mjd);
   const text = Bodies.ades(id, obs, who || 'NAME OF THE PERSON WHO MEASURED (initials and surname)', [
-    'Measured with Chronosphere (chronospherex.com) in SPHEREx level-2 exposures from NASA/IPAC IRSA.',
+    'Measured with ChronosphereX (chronospherex.com) in SPHEREx level-2 exposures from NASA/IPAC IRSA.',
     'Places: centroids in exposures resampled to 3.1 arcsec pixels. Astrometry of each exposure by the SPHEREx pipeline, tied to Gaia DR3.',
     'pos1 to pos3: the spacecraft at mid-exposure, from the keywords X_SC, Y_SC, Z_SC of each exposure.',
     'Archival data: the Minor Planet Center asks to be contacted before such observations are submitted.']);

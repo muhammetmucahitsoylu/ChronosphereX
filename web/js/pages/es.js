@@ -22,7 +22,7 @@ export default {
     <h2>102 colores sin rueda de filtros</h2>
     <p>La mayoría de las cámaras toman un color cada vez. SPHEREx mira a través de filtros cuyo color cambia suavemente de un borde al otro. A medida que el telescopio avanza por el cielo, cada estrella cae en una parte distinta del filtro en cada exposición y queda registrada en un color distinto.</p>
     ${figure}
-    <p>Reúne suficientes exposiciones de una estrella y tendrás su espectro completo. Por eso, en Chronosphere, avanzar en el tiempo y construir un espectro son el mismo acto.</p>
+    <p>Reúne suficientes exposiciones de una estrella y tendrás su espectro completo. Por eso, en ChronosphereX, avanzar en el tiempo y construir un espectro son el mismo acto.</p>
     <h2>Para qué se construyó</h2>
     <ul>
       <li><b>El primer instante del universo.</b> Al cartografiar más de 450 millones de galaxias en tres dimensiones, pone a prueba las ideas sobre lo que ocurrió en el primer momento después del Big Bang.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Decir qué es.</b> Se pregunta al catálogo SIMBAD qué hay en esa posición. Los catálogos guardan dónde estaba una estrella en el año 2000, así que las estrellas cercanas que se han desplazado desde entonces se llevan a la fecha de hoy antes de compararlas.</li>
     </ol>
     <h2>Sin servidor, y funciona sin conexión</h2>
-    <p>Chronosphere no tiene servidor propio. La página es un conjunto de archivos estáticos; todo lo demás es tu navegador hablando directamente con los datos abiertos de la NASA. Eso significa que no hay nada que mantener en marcha ni nada que pueda caerse por nuestra parte. Todo lo que hayas abierto una vez, incluida la visita guiada completa, queda guardado en tu dispositivo y sigue funcionando sin conexión.</p>
+    <p>ChronosphereX no tiene servidor propio. La página es un conjunto de archivos estáticos; todo lo demás es tu navegador hablando directamente con los datos abiertos de la NASA. Eso significa que no hay nada que mantener en marcha ni nada que pueda caerse por nuestra parte. Todo lo que hayas abierto una vez, incluida la visita guiada completa, queda guardado en tu dispositivo y sigue funcionando sin conexión.</p>
     <h2>Cómo leer lo que ves</h2>
     <ul>
       <li><b>Visitas.</b> SPHEREx vuelve a la mayor parte del cielo cada seis meses aproximadamente, y cada visita dura de unos días a unas semanas. Una imagen sumada por visita, mostradas una tras otra, hace que un pequeño desplazamiento sea fácil de ver. Cerca de los polos del plano del sistema solar mira casi en cada órbita, así que allí las imágenes se agrupan por meses.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Acerca de</p>
     <h1>Hecho para que más gente pueda mirar</h1>
-    <p class="lead">Chronosphere nació el 14 y el 15 de noviembre de 2026 en el NASA Space Apps Challenge, para el reto <i>Planet X and SPHEREx</i>, de la mano del equipo ${TEAM.name}, y desde entonces seguimos construyéndolo. En la semana siguiente llegaron la búsqueda de asteroides y cometas que cruzan un campo, la caza de asteroides con un informe listo para el Minor Planet Center, el cometa 3I/ATLAS y la vista «Años», que reúne 27 años de imágenes de 2MASS, WISE y SPHEREx en una misma cuadrícula.</p>
+    <p class="lead">ChronosphereX nació el 14 y el 15 de noviembre de 2026 en el NASA Space Apps Challenge, para el reto <i>Planet X and SPHEREx</i>, de la mano del equipo ${TEAM.name}, y desde entonces seguimos construyéndolo. En la semana siguiente llegaron la búsqueda de asteroides y cometas que cruzan un campo, la caza de asteroides con un informe listo para el Minor Planet Center, el cometa 3I/ATLAS y la vista «Años», que reúne 27 años de imágenes de 2MASS, WISE y SPHEREx en una misma cuadrícula.</p>
     ${team('El equipo')}
     <h2>Por qué lo hicimos</h2>
     <p>Plutón fue encontrado en 1930 por una persona que comparaba dos fotografías. Todavía hoy se encuentran mundos nuevos de esa manera. Voluntarios han localizado la mayoría de los más de 5000 cometas descubiertos en las imágenes de la nave SOHO, y unas 3000 candidatas a enana marrón en las imágenes del telescopio WISE de la NASA. SPHEREx está fotografiando ahora cientos de millones de objetos, una y otra vez: más de lo que cualquier grupo de profesionales puede inspeccionar.</p>

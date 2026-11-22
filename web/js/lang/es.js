@@ -263,7 +263,7 @@ export default {
   "A pair of very cool dwarfs on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Una pareja de enanas muy frías, en el límite entre las estrellas más pequeñas y las enanas marrones, más brillantes en infrarrojo.",
   "A very cool dwarf on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Una enana muy fría, en el límite entre las estrellas más pequeñas y las enanas marrones, más brillante en infrarrojo.",
   "No data": "Sin datos",
-  "Chronosphere, home": "Chronosphere, inicio",
+  "ChronosphereX, home": "ChronosphereX, inicio",
   "Search": "Buscar",
   "About this site": "Sobre este sitio",
   "Menu": "Menú",

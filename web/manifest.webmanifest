@@ -1,6 +1,6 @@
 {
-  "name": "Chronosphere",
-  "short_name": "Chronosphere",
+  "name": "ChronosphereX",
+  "short_name": "ChronosphereX",
   "description": "Fly over the whole sky as NASA's SPHEREx sees it, pick any point, and watch that spot change over time.",
   "start_url": "./",
   "scope": "./",

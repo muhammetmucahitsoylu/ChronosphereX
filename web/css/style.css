@@ -1,4 +1,4 @@
-/* Chronosphere. Infrared is heat, so the palette is warm: ember on near-black. */
+/* ChronosphereX. Infrared is heat, so the palette is warm: ember on near-black. */
 :root {
   --bg: #0a0908; --surface: #141210; --surface-2: #1e1b18; --line: #2f2a25; --line-2: #453d35;
   --ink: #f3eee6; --ink-2: #b0a79a; --ink-3: #8a8175;
@@ -653,6 +653,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .transport { gap: 6px; }
   .transport .playbtn { min-width: 84px; padding: 0 10px; }
 }
+@media (max-width: 340px) { .brand span { font-size: 19px; } }          /* "ChronosphereX" and the tour button on one line at 320 px */
 /* phones held sideways: the map and the panel side by side would be too cramped, so keep one column but shorten the map */
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .app[data-panel=open] .mapstage { height: 60vh; height: 60dvh; min-height: 0; }

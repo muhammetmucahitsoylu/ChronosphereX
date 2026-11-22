@@ -22,7 +22,7 @@ export default {
     <h2>Filtre tekerleği olmadan 102 renk</h2>
     <p>Çoğu kamera bir seferde tek bir renk çeker. SPHEREx ise rengi bir kenarından ötekine yumuşakça değişen filtrelerin ardından bakar. Teleskop gökyüzünde adım adım ilerledikçe her yıldız her pozda filtrenin başka bir yerine düşer ve başka bir renkte kaydedilir.</p>
     ${figure}
-    <p>Bir yıldızın yeterince pozunu toplayınca bütün tayfı elinizde olur. Chronosphere’de zamanda ilerlemekle tayf oluşturmanın aynı iş olması bundandır.</p>
+    <p>Bir yıldızın yeterince pozunu toplayınca bütün tayfı elinizde olur. ChronosphereX’te zamanda ilerlemekle tayf oluşturmanın aynı iş olması bundandır.</p>
     <h2>Ne için yapıldı</h2>
     <ul>
       <li><b>Evrenin ilk anı.</b> 450 milyondan fazla gökadayı üç boyutlu haritalayarak Büyük Patlama’dan sonraki ilk anda neler olduğuna dair düşünceleri sınar.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Ne olduğunu söyleme.</b> SIMBAD kataloğuna o konumda ne bulunduğu sorulur. Kataloglar bir yıldızın 2000 yılında nerede olduğunu saklar; bu yüzden o zamandan beri yer değiştirmiş yakın yıldızlar eşleştirmeden önce bugünün tarihine taşınır.</li>
     </ol>
     <h2>Sunucu yok, çevrimdışı da çalışır</h2>
-    <p>Chronosphere’in kendi sunucusu yoktur. Sayfa bir dizi sabit dosyadan oluşur; geri kalan her şey tarayıcınızın doğrudan NASA’nın açık verisiyle konuşmasıdır. Yani bizim tarafımızda çalışır durumda tutulacak ya da çökebilecek bir şey yok. Bir kez açtığınız her şey, rehberli turun tamamı da içinde, cihazınıza kaydedilir ve bağlantı olmadan çalışmayı sürdürür.</p>
+    <p>ChronosphereX’in kendi sunucusu yoktur. Sayfa bir dizi sabit dosyadan oluşur; geri kalan her şey tarayıcınızın doğrudan NASA’nın açık verisiyle konuşmasıdır. Yani bizim tarafımızda çalışır durumda tutulacak ya da çökebilecek bir şey yok. Bir kez açtığınız her şey, rehberli turun tamamı da içinde, cihazınıza kaydedilir ve bağlantı olmadan çalışmayı sürdürür.</p>
     <h2>Gördüklerinizi nasıl okumalı</h2>
     <ul>
       <li><b>Ziyaretler.</b> SPHEREx gökyüzünün çoğu bölümüne yaklaşık altı ayda bir geri gelir ve her ziyaret birkaç günden birkaç haftaya kadar sürer. Her ziyaret için üst üste toplanmış tek bir görüntü sırayla gösterilince küçük bir kayma kolayca görülür. Güneş sistemi düzleminin kutuplarına yakın yerlere neredeyse her yörüngede baktığı için orada görüntüler aylara göre gruplanır.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Hakkında</p>
     <h1>Daha çok insan bakabilsin diye yapıldı</h1>
-    <p class="lead">Chronosphere’e 14 ve 15 Kasım 2026’da NASA Space Apps Challenge’da, <i>Planet X and SPHEREx</i> görevi için ${TEAM.name} takımı olarak başladık ve o günden beri geliştirmeye devam ediyoruz. Sonraki hafta bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini tek bir ızgarada birleştiren Yıllar görünümü eklendi.</p>
+    <p class="lead">ChronosphereX’e 14 ve 15 Kasım 2026’da NASA Space Apps Challenge’da, <i>Planet X and SPHEREx</i> görevi için ${TEAM.name} takımı olarak başladık ve o günden beri geliştirmeye devam ediyoruz. Sonraki hafta bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini tek bir ızgarada birleştiren Yıllar görünümü eklendi.</p>
     ${team('Ekip')}
     <h2>Neden yaptık</h2>
     <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor: hiçbir uzman grubunun inceleyebileceğinden çok fazlası.</p>

@@ -263,7 +263,7 @@ export default {
   "A pair of very cool dwarfs on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Para bardzo chłodnych karłów na granicy między najmniejszymi gwiazdami a brązowymi karłami, najjaśniejszych w podczerwieni.",
   "A very cool dwarf on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Bardzo chłodny karzeł na granicy między najmniejszymi gwiazdami a brązowymi karłami, najjaśniejszy w podczerwieni.",
   "No data": "Brak danych",
-  "Chronosphere, home": "Chronosphere, strona główna",
+  "ChronosphereX, home": "ChronosphereX, strona główna",
   "Search": "Szukaj",
   "About this site": "O tej stronie",
   "Menu": "Menu",

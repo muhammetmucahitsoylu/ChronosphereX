@@ -263,7 +263,7 @@ export default {
   "A pair of very cool dwarfs on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Une paire de naines très froides, à la limite entre les plus petites étoiles et les naines brunes, surtout brillantes dans l’infrarouge.",
   "A very cool dwarf on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Une naine très froide, à la limite entre les plus petites étoiles et les naines brunes, surtout brillante dans l’infrarouge.",
   "No data": "Pas de données",
-  "Chronosphere, home": "Chronosphere, accueil",
+  "ChronosphereX, home": "ChronosphereX, accueil",
   "Search": "Rechercher",
   "About this site": "À propos de ce site",
   "Menu": "Menu",

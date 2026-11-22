@@ -263,7 +263,7 @@ export default {
   "A pair of very cool dwarfs on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Ein Paar sehr kühler Zwerge an der Grenze zwischen den kleinsten Sternen und Braunen Zwergen, am hellsten im Infrarot.",
   "A very cool dwarf on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "Ein sehr kühler Zwerg an der Grenze zwischen den kleinsten Sternen und Braunen Zwergen, am hellsten im Infrarot.",
   "No data": "Keine Daten",
-  "Chronosphere, home": "Chronosphere, Startseite",
+  "ChronosphereX, home": "ChronosphereX, Startseite",
   "Search": "Suchen",
   "About this site": "Über diese Seite",
   "Menu": "Menü",

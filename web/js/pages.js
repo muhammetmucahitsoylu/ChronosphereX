@@ -50,7 +50,7 @@ const ENGLISH = {
     <h2>102 colours without a filter wheel</h2>
     <p>Most cameras take one colour at a time. SPHEREx looks through filters whose colour changes smoothly from one edge to the other. As the telescope steps across the sky, each star lands on a different part of the filter in every exposure, and is recorded in a different colour.</p>
     ${figure}
-    <p>Collect enough exposures of one star and you have its whole spectrum. That is why, in Chronosphere, stepping through time and building a spectrum are the same act.</p>
+    <p>Collect enough exposures of one star and you have its whole spectrum. That is why, in ChronosphereX, stepping through time and building a spectrum are the same act.</p>
     <h2>What it was built for</h2>
     <ul>
       <li><b>The first instant of the universe.</b> By mapping more than 450 million galaxies in three dimensions, it tests ideas about what happened in the first moment after the Big Bang.</li>
@@ -74,7 +74,7 @@ const ENGLISH = {
       <li><b>Say what it is.</b> The SIMBAD catalogue is asked what lies at that position. Catalogues store where a star was in the year 2000, so nearby stars that have drifted since are moved to today's date before matching.</li>
     </ol>
     <h2>No server, and it works offline</h2>
-    <p>Chronosphere has no server of its own. The page is a set of static files; everything else is your browser talking directly to NASA's open data. That means there is nothing to keep running and nothing that can go down on our side. Whatever you have opened once, including the whole guided tour, is saved on your device and keeps working without a connection.</p>
+    <p>ChronosphereX has no server of its own. The page is a set of static files; everything else is your browser talking directly to NASA's open data. That means there is nothing to keep running and nothing that can go down on our side. Whatever you have opened once, including the whole guided tour, is saved on your device and keeps working without a connection.</p>
     <h2>How to read what you see</h2>
     <ul>
       <li><b>Visits.</b> SPHEREx comes back to most parts of the sky about every six months, and each visit lasts from a few days to a few weeks. One stacked image per visit, shown in turn, makes a small shift easy to see. Near the poles of the solar system's plane it looks almost every orbit, so there the images are grouped by month instead.</li>
@@ -140,7 +140,7 @@ const ENGLISH = {
   about: () => `
     <p class="eyebrow">About</p>
     <h1>Built so that more people can look</h1>
-    <p class="lead">Chronosphere began on 14 and 15 November 2026 at the NASA Space Apps Challenge, for the challenge <i>Planet X and SPHEREx</i>, by the team ${TEAM.name}, and we have kept building it since. In the week that followed came the search for asteroids and comets crossing a field, the asteroid hunt with a report ready for the Minor Planet Center, the comet 3I/ATLAS, and the Years view, which lays 27 years of images from 2MASS, WISE and SPHEREx on one grid.</p>
+    <p class="lead">ChronosphereX began on 14 and 15 November 2026 at the NASA Space Apps Challenge, for the challenge <i>Planet X and SPHEREx</i>, by the team ${TEAM.name}, and we have kept building it since. In the week that followed came the search for asteroids and comets crossing a field, the asteroid hunt with a report ready for the Minor Planet Center, the comet 3I/ATLAS, and the Years view, which lays 27 years of images from 2MASS, WISE and SPHEREx on one grid.</p>
     ${team('The team')}
     <h2>Why we built it</h2>
     <p>Pluto was found in 1930 by a person comparing two photographs. People still find new worlds that way. Volunteers have spotted most of the more than 5,000 comets discovered in images from the SOHO spacecraft, and about 3,000 candidate brown dwarfs in images from NASA's WISE telescope. SPHEREx is now photographing hundreds of millions of objects, again and again: more than any group of professionals can inspect.</p>

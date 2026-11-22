@@ -22,7 +22,7 @@ export default {
     <h2>102 kolory bez koła filtrów</h2>
     <p>Większość kamer rejestruje jeden kolor naraz. SPHEREx patrzy przez filtry, których kolor zmienia się płynnie od jednej krawędzi do drugiej. Gdy teleskop przesuwa się po niebie, każda gwiazda w każdej ekspozycji trafia na inną część filtra i zostaje zapisana w innym kolorze.</p>
     ${figure}
-    <p>Wystarczy zebrać dość ekspozycji jednej gwiazdy, by mieć całe jej widmo. Dlatego w Chronosphere przechodzenie przez czas i budowanie widma to ta sama czynność.</p>
+    <p>Wystarczy zebrać dość ekspozycji jednej gwiazdy, by mieć całe jej widmo. Dlatego w ChronosphereX przechodzenie przez czas i budowanie widma to ta sama czynność.</p>
     <h2>Do czego go zbudowano</h2>
     <ul>
       <li><b>Pierwsza chwila Wszechświata.</b> Tworząc trójwymiarową mapę ponad 450 milionów galaktyk, sprawdza hipotezy o tym, co wydarzyło się w pierwszym momencie po Wielkim Wybuchu.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Powiedzenie, co to jest.</b> Katalog SIMBAD jest pytany, co leży w tym położeniu. Katalogi przechowują miejsce, w którym gwiazda była w roku 2000, więc bliskie gwiazdy, które od tamtej pory się przesunęły, są przed dopasowaniem przenoszone na dzisiejszą datę.</li>
     </ol>
     <h2>Bez serwera, działa też offline</h2>
-    <p>Chronosphere nie ma własnego serwera. Strona to zestaw statycznych plików; cała reszta to twoja przeglądarka rozmawiająca bezpośrednio z otwartymi danymi NASA. Po naszej stronie nie ma więc niczego, co trzeba utrzymywać w ruchu, ani niczego, co mogłoby przestać działać. Wszystko, co raz otworzysz, łącznie z całą wycieczką, zapisuje się na twoim urządzeniu i działa dalej bez połączenia.</p>
+    <p>ChronosphereX nie ma własnego serwera. Strona to zestaw statycznych plików; cała reszta to twoja przeglądarka rozmawiająca bezpośrednio z otwartymi danymi NASA. Po naszej stronie nie ma więc niczego, co trzeba utrzymywać w ruchu, ani niczego, co mogłoby przestać działać. Wszystko, co raz otworzysz, łącznie z całą wycieczką, zapisuje się na twoim urządzeniu i działa dalej bez połączenia.</p>
     <h2>Jak czytać to, co widzisz</h2>
     <ul>
       <li><b>Wizyty.</b> SPHEREx wraca do większości obszarów nieba mniej więcej co sześć miesięcy, a każda wizyta trwa od kilku dni do kilku tygodni. Jeden zsumowany obraz na wizytę, pokazywane po kolei, sprawiają, że małe przesunięcie łatwo dostrzec. W pobliżu biegunów płaszczyzny Układu Słonecznego patrzy niemal przy każdym okrążeniu, więc tam obrazy są grupowane według miesięcy.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">O projekcie</p>
     <h1>Zrobione po to, by mogło patrzeć więcej osób</h1>
-    <p class="lead">Chronosphere powstał 14 i 15 listopada 2026 roku podczas NASA Space Apps Challenge, w ramach wyzwania <i>Planet X and SPHEREx</i>; zaczął go zespół ${TEAM.name} i od tamtej pory dalej go rozwijamy. W kolejnym tygodniu doszły wyszukiwanie planetoid i komet przecinających pole, polowanie na planetoidy z gotowym raportem dla Minor Planet Center, kometa 3I/ATLAS oraz widok „Lata”, który układa 27 lat obrazów z 2MASS, WISE i SPHEREx na jednej siatce.</p>
+    <p class="lead">ChronosphereX powstał 14 i 15 listopada 2026 roku podczas NASA Space Apps Challenge, w ramach wyzwania <i>Planet X and SPHEREx</i>; zaczął go zespół ${TEAM.name} i od tamtej pory dalej go rozwijamy. W kolejnym tygodniu doszły wyszukiwanie planetoid i komet przecinających pole, polowanie na planetoidy z gotowym raportem dla Minor Planet Center, kometa 3I/ATLAS oraz widok „Lata”, który układa 27 lat obrazów z 2MASS, WISE i SPHEREx na jednej siatce.</p>
     ${team('Zespół')}
     <h2>Dlaczego to zbudowaliśmy</h2>
     <p>Plutona odnalazł w 1930 roku człowiek porównujący dwie fotografie. Ludzie wciąż znajdują w ten sposób nowe światy. Wolontariusze wypatrzyli większość z ponad 5000 komet odkrytych na zdjęciach z sondy SOHO oraz około 3000 kandydatów na brązowe karły na zdjęciach z teleskopu WISE należącego do NASA. SPHEREx fotografuje teraz setki milionów obiektów, raz za razem: więcej, niż jakakolwiek grupa zawodowców zdoła przejrzeć.</p>

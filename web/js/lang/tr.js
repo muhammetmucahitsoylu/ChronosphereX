@@ -263,7 +263,7 @@ export default {
   "A pair of very cool dwarfs on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "En küçük yıldızlarla kahverengi cüceler arasındaki sınırda, kızılötesinde en parlak olan bir çift çok soğuk cüce.",
   "A very cool dwarf on the borderline between the smallest stars and brown dwarfs, brightest in infrared.": "En küçük yıldızlarla kahverengi cüceler arasındaki sınırda, kızılötesinde en parlak olan çok soğuk bir cüce.",
   "No data": "Veri yok",
-  "Chronosphere, home": "Chronosphere, ana sayfa",
+  "ChronosphereX, home": "ChronosphereX, ana sayfa",
   "Search": "Ara",
   "About this site": "Bu site hakkında",
   "Menu": "Menü",

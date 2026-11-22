@@ -22,7 +22,7 @@ export default {
     <h2>102 Farben ohne Filterrad</h2>
     <p>Die meisten Kameras nehmen eine Farbe nach der anderen auf. SPHEREx blickt durch Filter, deren Farbe sich von einem Rand zum anderen gleichmäßig ändert. Während das Teleskop über den Himmel rückt, fällt jeder Stern in jeder Aufnahme auf eine andere Stelle des Filters und wird in einer anderen Farbe aufgezeichnet.</p>
     ${figure}
-    <p>Wer genug Aufnahmen eines Sterns sammelt, hat sein ganzes Spektrum. Deshalb sind in Chronosphere das Voranschreiten in der Zeit und der Aufbau eines Spektrums ein und derselbe Vorgang.</p>
+    <p>Wer genug Aufnahmen eines Sterns sammelt, hat sein ganzes Spektrum. Deshalb sind in ChronosphereX das Voranschreiten in der Zeit und der Aufbau eines Spektrums ein und derselbe Vorgang.</p>
     <h2>Wofür es gebaut wurde</h2>
     <ul>
       <li><b>Der erste Augenblick des Universums.</b> Mit einer dreidimensionalen Karte von mehr als 450 Millionen Galaxien prüft es Vorstellungen davon, was im ersten Moment nach dem Urknall geschah.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Sagen, was es ist.</b> Der SIMBAD-Katalog wird gefragt, was an dieser Position liegt. Kataloge speichern, wo ein Stern im Jahr 2000 stand; nahe Sterne, die seitdem weitergewandert sind, werden deshalb vor dem Abgleich auf das heutige Datum gebracht.</li>
     </ol>
     <h2>Kein Server, und es funktioniert offline</h2>
-    <p>Chronosphere hat keinen eigenen Server. Die Seite ist ein Satz statischer Dateien; alles andere ist Ihr Browser, der direkt mit den offenen Daten der NASA spricht. Auf unserer Seite gibt es also nichts, was laufen muss, und nichts, was ausfallen kann. Was Sie einmal geöffnet haben, einschließlich der gesamten Führung, wird auf Ihrem Gerät gespeichert und funktioniert auch ohne Verbindung weiter.</p>
+    <p>ChronosphereX hat keinen eigenen Server. Die Seite ist ein Satz statischer Dateien; alles andere ist Ihr Browser, der direkt mit den offenen Daten der NASA spricht. Auf unserer Seite gibt es also nichts, was laufen muss, und nichts, was ausfallen kann. Was Sie einmal geöffnet haben, einschließlich der gesamten Führung, wird auf Ihrem Gerät gespeichert und funktioniert auch ohne Verbindung weiter.</p>
     <h2>Wie man liest, was man sieht</h2>
     <ul>
       <li><b>Besuche.</b> SPHEREx kehrt zu den meisten Teilen des Himmels etwa alle sechs Monate zurück, und jeder Besuch dauert einige Tage bis einige Wochen. Ein aufsummiertes Bild pro Besuch, nacheinander gezeigt, macht eine kleine Verschiebung leicht sichtbar. Nahe den Polen der Ebene des Sonnensystems schaut es fast bei jedem Umlauf hin; dort werden die Bilder deshalb nach Monaten gruppiert.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Über uns</p>
     <h1>Gemacht, damit mehr Menschen hinsehen können</h1>
-    <p class="lead">Chronosphere entstand am 14. und 15. November 2026 bei der NASA Space Apps Challenge, für die Aufgabe <i>Planet X and SPHEREx</i>, begonnen vom Team ${TEAM.name}, und wir arbeiten seitdem weiter daran. In der Woche danach kamen die Suche nach Asteroiden und Kometen, die ein Feld durchqueren, die Asteroidenjagd mit einem fertigen Bericht für das Minor Planet Center, der Komet 3I/ATLAS und die Ansicht „Jahre“ hinzu, die 27 Jahre an Bildern von 2MASS, WISE und SPHEREx auf ein Raster legt.</p>
+    <p class="lead">ChronosphereX entstand am 14. und 15. November 2026 bei der NASA Space Apps Challenge, für die Aufgabe <i>Planet X and SPHEREx</i>, begonnen vom Team ${TEAM.name}, und wir arbeiten seitdem weiter daran. In der Woche danach kamen die Suche nach Asteroiden und Kometen, die ein Feld durchqueren, die Asteroidenjagd mit einem fertigen Bericht für das Minor Planet Center, der Komet 3I/ATLAS und die Ansicht „Jahre“ hinzu, die 27 Jahre an Bildern von 2MASS, WISE und SPHEREx auf ein Raster legt.</p>
     ${team('Das Team')}
     <h2>Warum wir es gebaut haben</h2>
     <p>Pluto wurde 1930 von einem Menschen gefunden, der zwei Fotografien verglich. Noch heute werden neue Welten auf diese Weise gefunden. Freiwillige haben die meisten der mehr als 5000 Kometen entdeckt, die in Bildern der Raumsonde SOHO gefunden wurden, und rund 3000 Kandidaten für Braune Zwerge in Bildern des NASA-Teleskops WISE. SPHEREx fotografiert nun Hunderte Millionen Objekte, immer wieder: mehr, als irgendeine Gruppe von Fachleuten durchsehen kann.</p>
