@@ -1,4 +1,4 @@
-# Chronosphere
+# ChronosphereX
 
 The website at **https://chronospherex.com/**: watch any spot of the infrared sky change over a quarter of a
 century, in real images from NASA's SPHEREx, WISE/NEOWISE and 2MASS, with its motion, brightness and spectrum
