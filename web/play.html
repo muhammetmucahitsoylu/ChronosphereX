@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<title>Find the star that moved · Chronosphere</title>
+<meta name="description" content="A game played on real telescope images: two pictures of the same patch of sky, taken years apart by NASA's WISE, flip back and forth. One star has moved. Find it, the way Pluto was found in 1930. Ten levels, each harder than the last.">
+<link rel="canonical" href="https://chronospherex.com/play.html">
+<meta property="og:title" content="Find the star that moved · Chronosphere">
+<meta property="og:description" content="Two real images of the same sky, years apart. One star has moved. Can you find it? Ten levels, each harder.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/play.html">
+<meta property="og:image" content="https://chronospherex.com/share.jpg">
+<meta property="og:site_name" content="Chronosphere">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<style>
+  :root { --bg: #0a0908; --surface: #141210; --line: #2f2a25; --ink: #f3eee6; --ink-2: #b0a79a; --ink-3: #8a8175; --ember: #ff7b39; --mint: #5fe0b0; --gold: #f2c14e;
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif; --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; }
+  a { color: inherit; }
+  .wrap { max-width: 600px; margin: 0 auto; padding: 14px 16px 40px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo { font: 26px/1 var(--serif); font-style: italic; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; }
+  .logo i { width: 15px; height: 15px; border-radius: 50%; background: var(--ember); display: inline-block; }
+  select { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font: 14px var(--sans); }
+  h1 { font: 400 38px/1.08 var(--serif); margin: 22px 0 8px; }
+  .lede { color: var(--ink-2); margin: 0 0 16px; font-size: 15.5px; }
+  .bar { display: flex; justify-content: space-between; align-items: baseline; font: 500 14px var(--mono); color: var(--ink-2); margin-bottom: 8px; letter-spacing: .02em; }
+  .bar b { color: var(--gold); font-weight: 500; }
+  #clock { color: var(--ink); font-size: 17px; min-width: 4.5em; text-align: right; }
+  #lives { display: inline-flex; gap: 6px; align-items: center; }
+  #lives i { width: 10px; height: 10px; border-radius: 50%; background: var(--mint); display: inline-block; }
+  #lives i.gone { background: none; box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+  .stage { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; touch-action: manipulation; }
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 1; cursor: crosshair; }
+  #year { position: absolute; left: 12px; bottom: 8px; font: 500 44px/1 var(--mono); text-shadow: 0 0 6px #000, 0 0 2px #000; pointer-events: none; }
+  #tel { position: absolute; left: 14px; bottom: 56px; font: 600 12px var(--sans); letter-spacing: .08em; color: #4cc9f0; text-shadow: 0 0 5px #000; pointer-events: none; }
+  #card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 10px; padding: 22px; background: rgba(10, 9, 8, .62); }
+  #card b { font: 400 30px/1.12 var(--serif); font-weight: 400; }
+  #card p { margin: 0; color: var(--ink); font-size: 15.5px; text-shadow: 0 0 6px #000; }
+  #card button { margin-top: 6px; }
+  @media (max-width: 380px) { #card { padding: 14px 16px; gap: 6px; } #card b { font-size: 24px; } #card p { font-size: 14px; line-height: 1.42; } #card button { min-height: 42px; padding: 9px 18px; } }
+  #say { min-height: 3.2em; margin: 12px 0 4px; font-size: 16px; }
+  #say b { color: var(--gold); font-weight: 600; }
+  #say .name { font: 400 30px/1.15 var(--serif); display: block; color: var(--ink); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  button, .btn { font: 600 15px var(--sans); border-radius: 999px; padding: 11px 20px; min-height: 46px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  button.go, .btn.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; }
+  button.quiet { color: var(--ink-2); }
+  button:focus-visible, .btn:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  #sum h2 { font: 400 34px/1.1 var(--serif); margin: 20px 0 4px; }
+  #sum p { margin: 0 0 14px; color: var(--ink-2); }
+  #sum ol { list-style: none; padding: 0; margin: 0 0 6px; border-top: 1px solid var(--line); }
+  #sum li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  #sum li span:last-child { font-family: var(--mono); color: var(--ink-2); white-space: nowrap; }
+  #sum li.hit span:last-child { color: var(--mint); }
+  .fine { color: var(--ink-3); font-size: 13.5px; margin-top: 26px; }
+  .shake { animation: shake .3s; }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  @media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="./"><i></i>Chronosphere</a>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pl">Polski</option></select>
+  </header>
+  <main>
+    <h1 id="title">Find the star that moved</h1>
+    <p class="lede" id="intro"></p>
+    <div id="game">
+      <div class="bar"><span id="level"></span><span id="lives" role="img"></span><span id="clock"></span></div>
+      <div class="stage" id="stage"><canvas id="cv" width="600" height="600"></canvas><span id="tel">NASA WISE</span><span id="year"></span>
+        <div id="card" hidden><b id="cardtitle"></b><p id="cardbody"></p><button type="button" class="go" id="cardgo"></button></div></div>
+      <p id="say" role="status" aria-live="polite"></p>
+      <div class="btns">
+        <button type="button" class="go" id="next" hidden></button>
+        <a class="btn" id="open" hidden></a>
+        <button type="button" class="quiet" id="show"></button>
+      </div>
+    </div>
+    <section id="sum" hidden>
+      <h2 id="sumtitle"></h2>
+      <p id="sumtotal"></p>
+      <ol id="sumlist"></ol>
+      <div class="btns">
+        <button type="button" class="go" id="share"></button>
+        <button type="button" id="again"></button>
+        <a class="btn" id="tool" href="./"></a>
+      </div>
+    </section>
+    <p class="fine" id="how"></p>
+    <p class="fine" id="credit"></p>
+    <p class="fine"><a href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram: @chronospherex_official</a></p>
+  </main>
+</div>
+<script>
+// The game: two real images of one patch of sky flip back and forth; the visitor presses the star that moved.
+// The pictures and the star's place in each come from scripts/build_game.py (game/levels.json, game/<slug>.webp).
+const STR = {
+  en: { title: 'Find the star that moved', intro: 'Two real images of the same patch of sky, taken years apart by NASA’s WISE telescope, flip back and forth. One star has moved. Tap it. Each level is harder: the star gets fainter or hides in a crowd, and from level 6 a dark frame comes between the two pictures, so the jump no longer catches your eye. Three wrong taps and the level is lost.',
+    level: 'Level {k} of {n}', wrong: 'Not that one. Look again.', out: 'Three wrong taps.', pair: 'These two pictures are from {a} and {b}.', dark: 'A dark frame now comes between them: compare the stars one by one.', cardTitle: 'From here, the pictures blink', cardBody: 'Between the two pictures the screen goes dark for a moment. That is on purpose, not the game hanging: the jump no longer catches your eye, so you have to compare the stars one by one.', cardGo: 'Start', lives: 'Tries left: {n}', show: 'Show me', found: 'Found in <b>{s} s</b>', shown: 'Here it is',
+    walk: 'Its walk through all {n} visits, {a} to {b}.', next: 'Next level', result: 'See your result', open: 'See its 27 years and measure its speed',
+    sum: 'You found {k} of {n}', total: 'Total time: {s} s', share: 'Share your result', copied: 'Copied', shareText: 'I found {k} of {n} moving stars in {s} seconds. Can you?',
+    again: 'Play again', tool: 'Open the full tool', dash: 'shown',
+    how: 'This is how Clyde Tombaugh found Pluto in 1930: by comparing two photographs. Cold worlds near the Sun are still found this way.',
+    credit: 'Images: NASA WISE and NEOWISE, from the NASA/IPAC Infrared Science Archive.', dec: '.',
+    names: { barnard: 'Barnard’s Star', kapteyn: 'Kapteyn’s Star', wolf359: 'Wolf 359', teegarden: 'Teegarden’s Star', proxima: 'Proxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'No star crosses our sky faster.', kapteyn: 'The second-fastest star in the sky.', wolf359: 'A neighbour of the Sun, 7.9 light-years away.', teegarden: '12.5 light-years away, found only in 2003.',
+      proxima: 'The nearest star to the Sun.', epsindib: 'Two brown dwarfs that look like one dot.', luhman16: 'The nearest pair of brown dwarfs.', wise0855: 'The coldest brown dwarf known.', 'barnard-1yr': 'No star crosses our sky faster, and in one year even it moved only this much.', 'wise0855-2yr': 'The coldest brown dwarf again, two years apart. It was found in 2014 just like this: a faint dot that had moved.', ugps0722: 'A brown dwarf 13 light-years away, found only in 2010.', wise1639: 'A brown dwarf 16 light-years away, one of the coldest known.', twomass0415: 'A brown dwarf 19 light-years away, found in 2002.', wise1506: 'A brown dwarf 16.8 light-years away, found in 2011 in NASA’s WISE images.', twomass0939: 'A brown dwarf 16.6 light-years away, found in 2005.', wise1741: 'A brown dwarf 18.5 light-years away, found in 2011 in NASA’s WISE images.', wise0254: 'A brown dwarf 17.6 light-years away, found in 2011 in NASA’s WISE images.', wise0410: 'A brown dwarf 21.6 light-years away: one of the first Y dwarfs, the coldest kind, found in 2011.' } },
+  tr: { title: 'Hareket eden yıldızı bul', intro: 'Aynı gökyüzü parçasının, NASA’nın WISE teleskobuyla yıllar arayla çekilmiş iki gerçek görüntüsü sırayla gösteriliyor. Yıldızlardan biri yer değiştirdi. Ona dokun. Her seviye daha zor: yıldız sönükleşiyor ya da kalabalığın içinde saklanıyor; 6. seviyeden sonra da iki görüntünün arasına karanlık bir kare giriyor, sıçrama artık gözüne kendiliğinden çarpmıyor. Üç yanlış dokunuşta seviye yanar.',
+    level: 'Seviye {k} / {n}', wrong: 'O değil. Bir daha bak.', out: 'Üç yanlış dokunuş.', pair: 'Bu iki görüntü {a} ve {b} yıllarından.', dark: 'Artık aralarına karanlık bir kare giriyor: yıldızları tek tek karşılaştır.', cardTitle: 'Bundan sonra resimler göz kırpıyor', cardBody: 'İki resmin arasında ekran bir anlığına kararıyor. Bu oyunun takılması değil, bilerek böyle: sıçrama artık gözüne kendiliğinden çarpmıyor, yıldızları tek tek karşılaştırman gerekiyor.', cardGo: 'Başla', lives: 'Kalan hak: {n}', show: 'Göster', found: '<b>{s} saniyede</b> buldun', shown: 'İşte burada',
+    walk: '{a}–{b} arasındaki {n} ziyaretin hepsinde yürüyüşü.', next: 'Sıradaki seviye', result: 'Sonucunu gör', open: '27 yılını gör, hızını ölç',
+    sum: '{n} yıldızın {k} tanesini buldun', total: 'Toplam süre: {s} sn', share: 'Sonucunu paylaş', copied: 'Kopyalandı', shareText: 'Hareket eden {n} yıldızın {k} tanesini {s} saniyede buldum. Sen bulabilir misin?',
+    again: 'Yeniden oyna', tool: 'Aracın tamamını aç', dash: 'gösterildi',
+    how: 'Clyde Tombaugh 1930’da Plüton’u böyle buldu: iki fotoğrafı karşılaştırarak. Güneş’e yakın soğuk dünyalar bugün de böyle bulunuyor.',
+    credit: 'Görüntüler: NASA WISE ve NEOWISE; NASA/IPAC Kızılötesi Bilim Arşivi’nden.', dec: ',',
+    names: { barnard: 'Barnard Yıldızı', kapteyn: 'Kapteyn Yıldızı', wolf359: 'Wolf 359', teegarden: 'Teegarden Yıldızı', proxima: 'Proxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'Gökyüzünde en hızlı yer değiştiren yıldız.', kapteyn: 'Gökyüzünde en hızlı ikinci yıldız.', wolf359: 'Güneş’in 7,9 ışık yılı uzaktaki komşusu.', teegarden: '12,5 ışık yılı uzakta; ancak 2003’te bulundu.',
+      proxima: 'Güneş’e en yakın yıldız.', epsindib: 'Tek nokta gibi görünen iki kahverengi cüce.', luhman16: 'Güneş’e en yakın kahverengi cüce çifti.', wise0855: 'Bilinen en soğuk kahverengi cüce.', 'barnard-1yr': 'Gökyüzünde en hızlı yer değiştiren yıldız; o bile bir yılda ancak bu kadar yer değiştiriyor.', 'wise0855-2yr': 'En soğuk kahverengi cüce, bu kez iki yıl arayla. 2014’te tam böyle bulundu: yer değiştirmiş sönük bir nokta.', ugps0722: '13 ışık yılı uzakta bir kahverengi cüce; ancak 2010’da bulundu.', wise1639: '16 ışık yılı uzakta, bilinen en soğuk kahverengi cücelerden biri.', twomass0415: '19 ışık yılı uzakta bir kahverengi cüce; 2002’de bulundu.', wise1506: '16,8 ışık yılı uzakta bir kahverengi cüce; 2011’de NASA’nın WISE görüntülerinde bulundu.', twomass0939: '16,6 ışık yılı uzakta bir kahverengi cüce; 2005’te bulundu.', wise1741: '18,5 ışık yılı uzakta bir kahverengi cüce; 2011’de NASA’nın WISE görüntülerinde bulundu.', wise0254: '17,6 ışık yılı uzakta bir kahverengi cüce; 2011’de NASA’nın WISE görüntülerinde bulundu.', wise0410: '21,6 ışık yılı uzakta bir kahverengi cüce: en soğuk tür olan Y cücelerinin ilk bulunanlarından, 2011’de bulundu.' } },
+  es: { title: 'Encuentra la estrella que se movió', intro: 'Dos imágenes reales del mismo trozo de cielo, tomadas con años de diferencia por el telescopio WISE de la NASA, se alternan. Una estrella se ha movido. Tócala. Cada nivel es más difícil: la estrella es más tenue o se esconde entre muchas, y desde el nivel 6 aparece un cuadro oscuro entre las dos imágenes, así que el salto ya no salta a la vista. Con tres toques equivocados se pierde el nivel.',
+    level: 'Nivel {k} de {n}', wrong: 'Esa no. Mira otra vez.', out: 'Tres toques equivocados.', pair: 'Estas dos imágenes son de {a} y {b}.', dark: 'Ahora un cuadro oscuro se interpone entre ellas: compara las estrellas una por una.', cardTitle: 'A partir de aquí, las imágenes parpadean', cardBody: 'Entre las dos imágenes la pantalla se oscurece un instante. Es a propósito, el juego no se ha colgado: el salto ya no salta a la vista y hay que comparar las estrellas una por una.', cardGo: 'Empezar', lives: 'Intentos restantes: {n}', show: 'Muéstramela', found: 'Encontrada en <b>{s} s</b>', shown: 'Aquí está',
+    walk: 'Su camino por las {n} visitas, de {a} a {b}.', next: 'Siguiente nivel', result: 'Ver tu resultado', open: 'Mira sus 27 años y mide su velocidad',
+    sum: 'Encontraste {k} de {n}', total: 'Tiempo total: {s} s', share: 'Comparte tu resultado', copied: 'Copiado', shareText: 'Encontré {k} de {n} estrellas que se mueven en {s} segundos. ¿Y tú?',
+    again: 'Jugar de nuevo', tool: 'Abrir la herramienta completa', dash: 'mostrada',
+    how: 'Así encontró Clyde Tombaugh a Plutón en 1930: comparando dos fotografías. Los mundos fríos cercanos al Sol se siguen encontrando así.',
+    credit: 'Imágenes: WISE y NEOWISE de la NASA, del NASA/IPAC Infrared Science Archive.', dec: ',',
+    names: { barnard: 'Estrella de Barnard', kapteyn: 'Estrella de Kapteyn', wolf359: 'Wolf 359', teegarden: 'Estrella de Teegarden', proxima: 'Próxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'Ninguna estrella cruza nuestro cielo más deprisa.', kapteyn: 'La segunda estrella más rápida del cielo.', wolf359: 'Una vecina del Sol, a 7,9 años luz.', teegarden: 'A 12,5 años luz; hallada apenas en 2003.',
+      proxima: 'La estrella más cercana al Sol.', epsindib: 'Dos enanas marrones que parecen un solo punto.', luhman16: 'La pareja de enanas marrones más cercana.', wise0855: 'La enana marrón más fría que se conoce.', 'barnard-1yr': 'Ninguna estrella cruza nuestro cielo más deprisa, y aun así en un año se movió solo esto.', 'wise0855-2yr': 'La enana marrón más fría otra vez, con dos años de diferencia. Así se encontró en 2014: un punto tenue que se había movido.', ugps0722: 'Una enana marrón a 13 años luz, hallada apenas en 2010.', wise1639: 'Una enana marrón a 16 años luz, una de las más frías que se conocen.', twomass0415: 'Una enana marrón a 19 años luz, hallada en 2002.', wise1506: 'Una enana marrón a 16,8 años luz, hallada en 2011 en las imágenes de WISE de la NASA.', twomass0939: 'Una enana marrón a 16,6 años luz, hallada en 2005.', wise1741: 'Una enana marrón a 18,5 años luz, hallada en 2011 en las imágenes de WISE de la NASA.', wise0254: 'Una enana marrón a 17,6 años luz, hallada en 2011 en las imágenes de WISE de la NASA.', wise0410: 'Una enana marrón a 21,6 años luz: una de las primeras enanas Y, el tipo más frío, hallada en 2011.' } },
+  de: { title: 'Finde den Stern, der sich bewegt hat', intro: 'Zwei echte Bilder desselben Himmelsausschnitts, vom NASA-Teleskop WISE im Abstand von Jahren aufgenommen, wechseln sich ab. Ein Stern hat sich bewegt. Tippe ihn an. Jede Stufe ist schwerer: Der Stern wird schwächer oder versteckt sich im Gedränge, und ab Stufe 6 kommt ein dunkles Bild zwischen die beiden Bilder, sodass der Sprung nicht mehr von selbst ins Auge fällt. Nach drei falschen Tippern ist die Stufe verloren.',
+    level: 'Stufe {k} von {n}', wrong: 'Der nicht. Schau noch einmal.', out: 'Dreimal daneben.', pair: 'Diese beiden Bilder stammen von {a} und {b}.', dark: 'Jetzt kommt ein dunkles Bild dazwischen: Vergleiche die Sterne einzeln.', cardTitle: 'Ab jetzt blinken die Bilder', cardBody: 'Zwischen den beiden Bildern wird der Schirm kurz dunkel. Das ist Absicht, das Spiel hängt nicht: Der Sprung fällt nicht mehr von selbst ins Auge, du musst die Sterne einzeln vergleichen.', cardGo: 'Los', lives: 'Versuche übrig: {n}', show: 'Zeig ihn mir', found: 'In <b>{s} s</b> gefunden', shown: 'Hier ist er',
+    walk: 'Sein Weg durch alle {n} Besuche, {a} bis {b}.', next: 'Nächste Stufe', result: 'Ergebnis ansehen', open: 'Seine 27 Jahre ansehen und sein Tempo messen',
+    sum: '{k} von {n} gefunden', total: 'Gesamtzeit: {s} s', share: 'Ergebnis teilen', copied: 'Kopiert', shareText: 'Ich habe {k} von {n} wandernden Sternen in {s} Sekunden gefunden. Und du?',
+    again: 'Noch einmal spielen', tool: 'Das ganze Werkzeug öffnen', dash: 'gezeigt',
+    how: 'So fand Clyde Tombaugh 1930 den Pluto: durch den Vergleich zweier Fotografien. Kalte Welten nahe der Sonne findet man noch heute so.',
+    credit: 'Bilder: WISE und NEOWISE der NASA, aus dem NASA/IPAC Infrared Science Archive.', dec: ',',
+    names: { barnard: 'Barnards Stern', kapteyn: 'Kapteyns Stern', wolf359: 'Wolf 359', teegarden: 'Teegardens Stern', proxima: 'Proxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'Kein Stern zieht schneller über unseren Himmel.', kapteyn: 'Der zweitschnellste Stern am Himmel.', wolf359: 'Ein Nachbar der Sonne, 7,9 Lichtjahre entfernt.', teegarden: '12,5 Lichtjahre entfernt, erst 2003 entdeckt.',
+      proxima: 'Der sonnennächste Stern.', epsindib: 'Zwei Braune Zwerge, die wie ein Punkt aussehen.', luhman16: 'Das nächste Paar Brauner Zwerge.', wise0855: 'Der kälteste bekannte Braune Zwerg.', 'barnard-1yr': 'Kein Stern zieht schneller über unseren Himmel, und selbst er kam in einem Jahr nur so weit.', 'wise0855-2yr': 'Noch einmal der kälteste Braune Zwerg, im Abstand von zwei Jahren. Genau so wurde er 2014 gefunden: ein schwacher Punkt, der sich bewegt hatte.', ugps0722: 'Ein Brauner Zwerg in 13 Lichtjahren Entfernung, erst 2010 entdeckt.', wise1639: 'Ein Brauner Zwerg in 16 Lichtjahren Entfernung, einer der kältesten bekannten.', twomass0415: 'Ein Brauner Zwerg in 19 Lichtjahren Entfernung, 2002 entdeckt.', wise1506: 'Ein Brauner Zwerg in 16,8 Lichtjahren Entfernung, 2011 in den Bildern von NASAs WISE entdeckt.', twomass0939: 'Ein Brauner Zwerg in 16,6 Lichtjahren Entfernung, 2005 entdeckt.', wise1741: 'Ein Brauner Zwerg in 18,5 Lichtjahren Entfernung, 2011 in den Bildern von NASAs WISE entdeckt.', wise0254: 'Ein Brauner Zwerg in 17,6 Lichtjahren Entfernung, 2011 in den Bildern von NASAs WISE entdeckt.', wise0410: 'Ein Brauner Zwerg in 21,6 Lichtjahren Entfernung: einer der ersten Y-Zwerge, der kältesten Art, 2011 entdeckt.' } },
+  fr: { title: 'Trouvez l’étoile qui a bougé', intro: 'Deux images réelles du même coin de ciel, prises à des années d’écart par le télescope WISE de la NASA, alternent. Une étoile a bougé. Touchez-la. Chaque niveau est plus difficile : l’étoile est plus faible ou se cache dans la foule, et à partir du niveau 6 une image noire s’intercale entre les deux, si bien que le saut ne saute plus aux yeux. Trois erreurs et le niveau est perdu.',
+    level: 'Niveau {k} sur {n}', wrong: 'Pas celle-là. Regardez encore.', out: 'Trois erreurs.', pair: 'Ces deux images datent de {a} et de {b}.', dark: 'Une image noire s’intercale désormais entre elles : comparez les étoiles une à une.', cardTitle: 'Désormais, les images clignent', cardBody: 'Entre les deux images, l’écran s’assombrit un instant. C’est voulu, le jeu n’est pas bloqué : le saut ne saute plus aux yeux, il faut comparer les étoiles une à une.', cardGo: 'Commencer', lives: 'Essais restants : {n}', show: 'Montrez-la-moi', found: 'Trouvée en <b>{s} s</b>', shown: 'La voici',
+    walk: 'Son trajet à travers les {n} passages, de {a} à {b}.', next: 'Niveau suivant', result: 'Voir votre résultat', open: 'Voir ses 27 ans et mesurer sa vitesse',
+    sum: 'Vous en avez trouvé {k} sur {n}', total: 'Temps total : {s} s', share: 'Partager votre résultat', copied: 'Copié', shareText: 'J’ai trouvé {k} étoiles qui bougent sur {n} en {s} secondes. Et vous ?',
+    again: 'Rejouer', tool: 'Ouvrir l’outil complet', dash: 'montrée',
+    how: 'C’est ainsi que Clyde Tombaugh a trouvé Pluton en 1930 : en comparant deux photographies. On trouve encore ainsi les mondes froids proches du Soleil.',
+    credit: 'Images : WISE et NEOWISE de la NASA, issues du NASA/IPAC Infrared Science Archive.', dec: ',',
+    names: { barnard: 'Étoile de Barnard', kapteyn: 'Étoile de Kapteyn', wolf359: 'Wolf 359', teegarden: 'Étoile de Teegarden', proxima: 'Proxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'Aucune étoile ne traverse notre ciel plus vite.', kapteyn: 'La deuxième étoile la plus rapide du ciel.', wolf359: 'Une voisine du Soleil, à 7,9 années-lumière.', teegarden: 'À 12,5 années-lumière ; découverte seulement en 2003.',
+      proxima: 'L’étoile la plus proche du Soleil.', epsindib: 'Deux naines brunes qui ressemblent à un seul point.', luhman16: 'La paire de naines brunes la plus proche.', wise0855: 'La naine brune la plus froide connue.', 'barnard-1yr': 'Aucune étoile ne traverse notre ciel plus vite, et pourtant en un an elle n’a bougé que de ça.', 'wise0855-2yr': 'Encore la naine brune la plus froide, à deux ans d’écart. C’est ainsi qu’on l’a trouvée en 2014 : un point faible qui avait bougé.', ugps0722: 'Une naine brune à 13 années-lumière, découverte seulement en 2010.', wise1639: 'Une naine brune à 16 années-lumière, l’une des plus froides connues.', twomass0415: 'Une naine brune à 19 années-lumière, découverte en 2002.', wise1506: 'Une naine brune à 16,8 années-lumière, découverte en 2011 dans les images de WISE de la NASA.', twomass0939: 'Une naine brune à 16,6 années-lumière, découverte en 2005.', wise1741: 'Une naine brune à 18,5 années-lumière, découverte en 2011 dans les images de WISE de la NASA.', wise0254: 'Une naine brune à 17,6 années-lumière, découverte en 2011 dans les images de WISE de la NASA.', wise0410: 'Une naine brune à 21,6 années-lumière : l’une des premières naines Y, le type le plus froid, découverte en 2011.' } },
+  pl: { title: 'Znajdź gwiazdę, która się przesunęła', intro: 'Dwa prawdziwe obrazy tego samego skrawka nieba, wykonane w odstępie lat przez teleskop WISE NASA, pojawiają się na zmianę. Jedna gwiazda się przesunęła. Dotknij jej. Każdy poziom jest trudniejszy: gwiazda jest słabsza albo chowa się w tłumie, a od poziomu 6 między dwoma obrazami pojawia się ciemna klatka, więc skok nie rzuca się już w oczy. Trzy błędne dotknięcia i poziom jest stracony.',
+    level: 'Poziom {k} z {n}', wrong: 'Nie ta. Spójrz jeszcze raz.', out: 'Trzy błędne dotknięcia.', pair: 'Te dwa obrazy pochodzą z lat {a} i {b}.', dark: 'Teraz między nimi pojawia się ciemna klatka: porównuj gwiazdy jedna po drugiej.', cardTitle: 'Od teraz obrazy mrugają', cardBody: 'Między dwoma obrazami ekran na chwilę ciemnieje. To celowe, gra się nie zawiesiła: skok nie rzuca się już w oczy, trzeba porównywać gwiazdy jedna po drugiej.', cardGo: 'Start', lives: 'Pozostałe próby: {n}', show: 'Pokaż', found: 'Znaleziona w <b>{s} s</b>', shown: 'Oto ona',
+    walk: 'Jej droga przez wszystkie {n} przelotów, od {a} do {b}.', next: 'Następny poziom', result: 'Zobacz wynik', open: 'Zobacz jej 27 lat i zmierz prędkość',
+    sum: 'Znalezione: {k} z {n}', total: 'Łączny czas: {s} s', share: 'Udostępnij wynik', copied: 'Skopiowano', shareText: 'Mój wynik: {k} z {n} poruszających się gwiazd w {s} s. A ty?',
+    again: 'Zagraj ponownie', tool: 'Otwórz całe narzędzie', dash: 'pokazana',
+    how: 'Tak Clyde Tombaugh znalazł Plutona w 1930 roku: porównując dwie fotografie. Zimne światy w pobliżu Słońca wciąż znajduje się w ten sposób.',
+    credit: 'Obrazy: WISE i NEOWISE NASA, z NASA/IPAC Infrared Science Archive.', dec: ',',
+    names: { barnard: 'Gwiazda Barnarda', kapteyn: 'Gwiazda Kapteyna', wolf359: 'Wolf 359', teegarden: 'Gwiazda Teegardena', proxima: 'Proxima Centauri', epsindib: 'Epsilon Indi B', luhman16: 'Luhman 16', wise0855: 'WISE 0855', ugps0722: 'UGPS 0722−05', wise1639: 'WISE 1639−6847', twomass0415: '2MASS 0415−0935', wise1506: 'WISE 1506+7027', twomass0939: '2MASS 0939−2448', wise1741: 'WISE 1741+2553', wise0254: 'WISE 0254+0223', wise0410: 'WISE 0410+1502' },
+    facts: { barnard: 'Żadna gwiazda nie przemierza naszego nieba szybciej.', kapteyn: 'Druga najszybsza gwiazda na niebie.', wolf359: 'Sąsiadka Słońca, odległa o 7,9 roku świetlnego.', teegarden: 'Odległa o 12,5 roku świetlnego; odkryta dopiero w 2003 roku.',
+      proxima: 'Gwiazda najbliższa Słońcu.', epsindib: 'Dwa brązowe karły, które wyglądają jak jeden punkt.', luhman16: 'Najbliższa para brązowych karłów.', wise0855: 'Najchłodniejszy znany brązowy karzeł.', 'barnard-1yr': 'Żadna gwiazda nie przemierza naszego nieba szybciej, a mimo to w ciągu roku przesunęła się tylko tyle.', 'wise0855-2yr': 'Znów najchłodniejszy brązowy karzeł, w odstępie dwóch lat. Właśnie tak znaleziono go w 2014 roku: słaby punkt, który się przesunął.', ugps0722: 'Brązowy karzeł odległy o 13 lat świetlnych, odkryty dopiero w 2010 roku.', wise1639: 'Brązowy karzeł odległy o 16 lat świetlnych, jeden z najchłodniejszych znanych.', twomass0415: 'Brązowy karzeł odległy o 19 lat świetlnych, odkryty w 2002 roku.', wise1506: 'Brązowy karzeł odległy o 16,8 roku świetlnego, odkryty w 2011 roku na zdjęciach WISE NASA.', twomass0939: 'Brązowy karzeł odległy o 16,6 roku świetlnego, odkryty w 2005 roku.', wise1741: 'Brązowy karzeł odległy o 18,5 roku świetlnego, odkryty w 2011 roku na zdjęciach WISE NASA.', wise0254: 'Brązowy karzeł odległy o 17,6 roku świetlnego, odkryty w 2011 roku na zdjęciach WISE NASA.', wise0410: 'Brązowy karzeł odległy o 21,6 roku świetlnego: jeden z pierwszych karłów typu Y, najzimniejszego rodzaju, odkryty w 2011 roku.' } },
+};
+const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
+let lang = q.get('lang');
+try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }          // the language picked on the main page
+if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
+const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+const secs = ms => (ms / 1000).toFixed(1).replace('.', T.dec);
+document.documentElement.lang = lang; document.title = `${T.title} · Chronosphere`;
+$('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
+for (const [id, key] of [['title', 'title'], ['intro', 'intro'], ['cardtitle', 'cardTitle'], ['cardbody', 'cardBody'], ['cardgo', 'cardGo'], ['show', 'show'], ['how', 'how'], ['credit', 'credit'], ['share', 'share'], ['again', 'again'], ['tool', 'tool']]) $(id).textContent = T[key];
+$('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?lang=${lang}`;
+
+const cv = $('cv'), ctx = cv.getContext('2d'), C = cv.width;
+let DATA = null, L = null, strip = null, phase = 'load', frame = 0, shade = 0, loop = 0, since = 0, tick = 0, t0 = 0, level = 0, tries = 0, results = [], miss = null;
+const MINT = '#5fe0b0', RED = '#ff5c50';
+// Each picture stays half a second. On the levels marked dark the picture then closes to black and opens again on the
+// other one, like a blink (CLOSE, SHUT, OPEN): the two are never on the screen together, so the jump no longer catches
+// the eye by itself and the stars have to be compared one by one (the "flicker" of Rensink, O'Regan & Clark 1997, who
+// used 240 ms pictures and 80 ms blanks). The first version cut to black for a quarter second, and a player took it
+// for the game hanging; the first of these levels now says what is coming before its clock starts (#card).
+const SHOW = 500, CLOSE = 100, SHUT = 100, OPEN = 100;
+
+function draw() {
+  if (!strip) return;
+  const S = L.size, k = C / S;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(strip, frame * S, 0, S, S, 0, 0, C, C);
+  if (shade > 0) { ctx.fillStyle = `rgba(0, 0, 0, ${shade.toFixed(3)})`; ctx.fillRect(0, 0, C, C); }
+  if (phase === 'walk' || phase === 'done') {             // where it has been, and the ring round where it is
+    ctx.fillStyle = 'rgba(95, 224, 176, .75)';
+    for (let i = 0; i <= frame; i++) { ctx.beginPath(); ctx.arc(L.pos[i][0] * k, L.pos[i][1] * k, 3.5, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.strokeStyle = MINT; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(L.pos[frame][0] * k, L.pos[frame][1] * k, 26, 0, 2 * Math.PI); ctx.stroke();
+  }
+  if (miss && performance.now() - miss.at < 500) {         // a press on the wrong place, seen even while the picture is dark
+    ctx.strokeStyle = RED; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(miss.x * k, miss.y * k, 20, 0, 2 * Math.PI); ctx.stroke();
+  }
+  const y = Math.floor(L.years[frame]);
+  $('year').textContent = y; $('year').style.color = frame === L.a ? '#4cc9f0' : frame === L.b ? '#f2c14e' : '#f3eee6';
+  $('tel').textContent = y < 2012 ? 'NASA WISE' : 'NASA NEOWISE';
+  $('year').style.opacity = $('tel').style.opacity = phase === 'card' ? '0' : String(1 - shade);          // under the card the button stands where the year is
+}
+function clock() { if (phase === 'play') $('clock').textContent = `${secs(performance.now() - t0)} s`; }
+const TRIES = 3;                                             // wrong presses a level allows: pressing every bright star is no way through
+function lives() {
+  const left = Math.max(0, TRIES - tries);
+  $('lives').innerHTML = Array.from({ length: TRIES }, (_, i) => `<i${i < left ? '' : ' class="gone"'}></i>`).join('');
+  $('lives').setAttribute('aria-label', fill(T.lives, { n: left }));
+}
+
+// A level shows two of the star's visits in turn (L.a and L.b), blinking dark between them when L.dark. Which picture
+// and how dark follow from the time since the level began, drawn on every frame of the screen that changes them.
+function flip(now) {
+  if (phase !== 'play') return;
+  const t = now - since; let f, s = 0;
+  if (!L.dark) f = Math.floor(t / SHOW) % 2;
+  else {
+    const P = SHOW + CLOSE + SHUT + OPEN, n = Math.floor(t / P), u = t - n * P;
+    f = n % 2;
+    if (u >= SHOW + CLOSE + SHUT) { f = 1 - f; s = 1 - (u - SHOW - CLOSE - SHUT) / OPEN; }          // opening on the other one
+    else if (u >= SHOW + CLOSE) s = 1;
+    else if (u >= SHOW) s = (u - SHOW) / CLOSE;
+  }
+  const fr = f ? L.b : L.a;
+  if (fr !== frame || Math.abs(s - shade) > 0.004) { frame = fr; shade = s; draw(); }
+  loop = requestAnimationFrame(flip);
+}
+function play() { phase = 'play'; t0 = since = performance.now(); frame = L.a; shade = 0; draw(); loop = requestAnimationFrame(flip); }
+async function start(i) {
+  level = i; L = DATA.levels[i]; phase = 'load'; tries = 0; miss = null; cancelAnimationFrame(loop); shade = 0; lives();
+  $('level').innerHTML = fill(T.level, { k: `<b>${i + 1}</b>`, n: DATA.levels.length }); $('clock').textContent = '';
+  $('say').textContent = ''; $('next').hidden = true; $('open').hidden = true; $('show').hidden = false; $('card').hidden = true;
+  const img = new Image(); img.decoding = 'async'; img.src = `game/${L.id}.webp`;
+  try { await img.decode(); } catch { await new Promise(r => { img.onload = r; img.onerror = r; }); }
+  if (level !== i) return;
+  strip = img; frame = L.a;
+  $('say').textContent = fill(T.pair, { a: Math.floor(L.years[L.a]), b: Math.floor(L.years[L.b]) }) + (L.dark ? ` ${T.dark}` : '');
+  if (L.dark && i === DATA.levels.findIndex(l => l.dark)) {          // the first blinking level: say so before the clock runs
+    phase = 'card'; shade = 0.55; draw(); $('card').hidden = false; $('cardgo').focus({ preventScroll: true });
+    $('cardgo').onclick = () => { $('card').hidden = true; play(); };
+  } else play();
+}
+function reveal(found, out = false) {
+  if (phase !== 'play') return;
+  const took = performance.now() - t0; cancelAnimationFrame(loop); shade = 0; phase = 'walk'; $('show').hidden = true; $('say').textContent = '';
+  results[level] = { slug: L.slug, found, ms: took, tries, a: Math.floor(L.years[L.a]), b: Math.floor(L.years[L.b]) };
+  $('clock').textContent = found ? `${secs(took)} s` : '';
+  frame = 0; draw();
+  const step = setInterval(() => {                           // its walk through every visit
+    if (frame < L.n - 1) { frame++; draw(); return; }
+    clearInterval(step); phase = 'done';
+    const last = level === DATA.levels.length - 1;
+    $('say').innerHTML = `<span class="name">${T.names[L.slug]}</span>${found ? fill(T.found, { s: secs(took) }) : `${out ? `${T.out} ` : ''}${T.shown}`}. ${T.facts[L.id] || T.facts[L.slug]} ${fill(T.walk, { n: L.n, a: Math.floor(L.years[0]), b: Math.floor(L.years[L.n - 1]) })}`;
+    $('next').textContent = last ? T.result : T.next; $('next').hidden = false;
+    $('open').hidden = !L.open; if (L.open) { $('open').textContent = T.open; $('open').href = `./${L.open}&lang=${lang}`; }          // the faint ones of the last levels have no page in the tool
+    $('next').focus({ preventScroll: true });
+  }, 110);
+}
+// A press counts when the finger (or the mouse) comes up near where it went down. Not when it went down: on a phone
+// a finger that starts to scroll the page over the picture, or two fingers that zoom it, are not presses, and used
+// to cost a try. The browser says so with pointercancel; a second finger is not the primary pointer.
+let press = null;
+cv.addEventListener('pointerdown', e => { press = phase === 'play' && e.isPrimary ? { id: e.pointerId, x: e.clientX, y: e.clientY } : null; });
+cv.addEventListener('pointercancel', () => { press = null; });
+window.addEventListener('pointerup', e => {
+  const p = press; press = null;
+  if (!p || p.id !== e.pointerId || phase !== 'play' || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 12) return;
+  tap(p.x, p.y);
+});
+// Where a press counts: anywhere near the line between the star's two places. The pictures flip, so the eye sees the
+// star slide back and forth along that line and the finger goes to the middle of it, which on a long jump is far from
+// both ends. Near: 24 pixels of the screen (a finger's width), and never less than 8 of the picture (25 arcseconds);
+// in a crowded field a wider ring would take in the neighbours.
+function along(x, y, p, q) {
+  const vx = q[0] - p[0], vy = q[1] - p[1], l2 = vx * vx + vy * vy, u = l2 ? Math.max(0, Math.min(1, ((x - p[0]) * vx + (y - p[1]) * vy) / l2)) : 0;
+  return Math.hypot(x - p[0] - u * vx, y - p[1] - u * vy);
+}
+function tap(cx, cy) {
+  const r = cv.getBoundingClientRect(), S = L.size, x = (cx - r.left) / r.width * S, y = (cy - r.top) / r.height * S;
+  if (along(x, y, L.pos[L.a], L.pos[L.b]) <= Math.max(8, 24 * S / r.width)) return reveal(true);
+  tries++; lives(); miss = { x, y, at: performance.now() }; draw(); setTimeout(draw, 520);
+  $('stage').classList.remove('shake'); void $('stage').offsetWidth; $('stage').classList.add('shake');
+  if (tries >= TRIES) return reveal(false, true);
+  $('say').textContent = T.wrong;
+}
+$('show').onclick = () => reveal(false);
+$('next').onclick = () => { if (level < DATA.levels.length - 1) start(level + 1); else summary(); };
+function summary() {
+  const n = DATA.levels.length, hits = results.filter(r => r && r.found), total = hits.reduce((a, r) => a + r.ms, 0);
+  $('game').hidden = true; $('sum').hidden = false;
+  $('sumtitle').textContent = fill(T.sum, { k: hits.length, n }); $('sumtotal').textContent = hits.length ? fill(T.total, { s: secs(total) }) : '';
+  $('sumlist').innerHTML = results.map(r => `<li class="${r.found ? 'hit' : ''}"><span>${T.names[r.slug]} · ${r.a}–${r.b}</span><span>${r.found ? `${secs(r.ms)} s` : T.dash}</span></li>`).join('');
+  $('share').onclick = async () => {
+    const url = `${location.origin}${location.pathname}`, text = fill(T.shareText, { k: hits.length, n, s: secs(total) });
+    try {
+      if (navigator.share) await navigator.share({ text, url });
+      else { await navigator.clipboard.writeText(`${text} ${url}`); $('share').textContent = T.copied; setTimeout(() => { $('share').textContent = T.share; }, 2500); }
+    } catch { /* the visitor closed the sheet */ }
+  };
+  $('sum').scrollIntoView({ block: 'start' });
+}
+$('again').onclick = () => { results = []; $('sum').hidden = true; $('game').hidden = false; start(0); };
+fetch('game/levels.json').then(r => r.json()).then(d => { DATA = d; tick = setInterval(clock, 100); start(0); }).catch(() => { $('say').textContent = '…'; });
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+Chronosphere
+Copyright (C) 2026 The Bright Nobles. All rights reserved.
+
+Since 22 November 2026, the code, texts, design and pictures of Chronosphere that are the team's own work are
+not licensed for reuse. You may read them here and use the website at https://chronospherex.com/. You may not
+copy, modify, publish, host, distribute, sublicense or sell them or any part of them, or build other work on
+them, without the written permission of the team. Ask through https://www.instagram.com/chronospherex_official/.
+
+Earlier versions, up to and including commit 2541256 of 22 November 2026, were released under the GNU General
+Public License, version 3; copies of those versions that were obtained under it keep that licence.
+
+Not covered by this notice, each under its own terms:
+- Aladin Lite (CDS, Strasbourg), GPL-3.0. It is not part of this repository: the website loads the package CDS
+  publishes on npm (aladin-lite 3.8.2) from jsDelivr.
+- The IBM Plex and Instrument Serif fonts in web/fonts/, under the SIL Open Font License 1.1.
+- The data shown: SPHEREx, WISE, NEOWISE and 2MASS images are public data of NASA and NASA/IPAC (IRSA); the
+  catalogues (Gaia, CatWISE2020, SIMBAD and others), encyclopedia texts and pictures belong to their sources,
+  under their own terms.

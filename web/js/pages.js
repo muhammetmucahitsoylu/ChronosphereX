@@ -1,0 +1,180 @@
+// Long-form pages shown as sheets over the map: what SPHEREx is, how to find an asteroid, how the tool works, who made it.
+// Every figure quoted here was checked against its source; the sources are linked at the end of each page.
+// This file holds the English text. The same pages in another language are in pages/<code>.js, in the same shape;
+// a language without such a file gets the English pages.
+// The same words are also published as plain pages with addresses of their own (what-is-spherex.html and the
+// others, for search engines and browsers without scripts): after changing a page, run node scripts/build_pages.mjs
+import { lang } from './lang.js';
+
+export const TEAM = {
+  name: 'The Bright Nobles',
+  members: [{ name: 'Muhammet Mücahit Soylu' }, { name: 'Serdar Aydın' }, { name: 'Furkan Küpeli' }],
+  repo: 'https://github.com/muhammetmucahitsoylu/chronosphere',
+  instagram: 'https://www.instagram.com/chronospherex_official/',
+};
+
+const figure = w => `
+<figure class="filterfig">
+  <svg viewBox="0 0 640 170" role="img" aria-label="${w.label}">
+    <defs><linearGradient id="lvf" x1="0" x2="1"><stop offset="0" stop-color="#fff1d0"/><stop offset=".3" stop-color="#ffc56e"/><stop offset=".6" stop-color="#ff7b39"/><stop offset="1" stop-color="#8f1c16"/></linearGradient></defs>
+    <rect x="20" y="34" width="600" height="70" rx="6" fill="url(#lvf)"/>
+    <g fill="#0a0908" stroke="#0a0908"><circle cx="110" cy="69" r="7"/><circle cx="250" cy="69" r="7"/><circle cx="390" cy="69" r="7"/><circle cx="530" cy="69" r="7"/></g>
+    <g fill="none" stroke="#a89f92" stroke-width="1.5" stroke-dasharray="4 4"><path d="M124 69h112M264 69h112M404 69h112"/></g>
+    <g fill="#a89f92" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">
+      <text x="110" y="24">${w.exposure} 1</text><text x="250" y="24">${w.exposure} 2</text><text x="390" y="24">${w.exposure} 3</text><text x="530" y="24">${w.exposure} 4</text>
+      <text x="110" y="128">1.15 µm</text><text x="250" y="128">1.28 µm</text><text x="390" y="128">1.42 µm</text><text x="530" y="128">1.57 µm</text>
+    </g>
+  </svg>
+  <figcaption>${w.caption}</figcaption>
+</figure>`;
+
+const ENGLISH = {
+  figure: {
+    label: 'A filter whose colour changes from one edge to the other; the same star lands on a different colour in each exposure',
+    exposure: 'exposure',
+    caption: 'The telescope steps across the sky, so the same star lands on a new colour of the filter in each exposure.',
+  },
+  sheets: ({ TEAM, figure, team }) => ({
+  spherex: () => `
+    <p class="eyebrow">The mission</p>
+    <h1>What is SPHEREx?</h1>
+    <p class="lead">SPHEREx is a NASA space telescope that photographs the entire sky in 102 colours of infrared light. Then it does it again, every six months.</p>
+    <div class="statgrid">
+      <div><b>102</b><span>colours, from 0.75 to 5 microns</span></div>
+      <div><b>6 months</b><span>to map the whole sky once</span></div>
+      <div><b>2025</b><span>launched on 11 March</span></div>
+      <div><b>6.15″</b><span>the patch of sky one pixel covers</span></div>
+    </div>
+    <h2>Why infrared?</h2>
+    <p>Infrared is light with a longer wavelength than our eyes can see. Cool things glow in it: brown dwarfs, clouds of dust, giant stars near the end of their lives. The light of very distant galaxies arrives stretched into it. And molecules such as water, carbon dioxide and methane each absorb infrared light at their own wavelengths, so an object's infrared colours reveal what it is made of.</p>
+    <h2>102 colours without a filter wheel</h2>
+    <p>Most cameras take one colour at a time. SPHEREx looks through filters whose colour changes smoothly from one edge to the other. As the telescope steps across the sky, each star lands on a different part of the filter in every exposure, and is recorded in a different colour.</p>
+    ${figure}
+    <p>Collect enough exposures of one star and you have its whole spectrum. That is why, in Chronosphere, stepping through time and building a spectrum are the same act.</p>
+    <h2>What it was built for</h2>
+    <ul>
+      <li><b>The first instant of the universe.</b> By mapping more than 450 million galaxies in three dimensions, it tests ideas about what happened in the first moment after the Big Bang.</li>
+      <li><b>The history of galaxies.</b> It measures the combined glow of all galaxies, including ones too faint to see one by one.</li>
+      <li><b>Water and the ingredients of life.</b> It surveys frozen water, carbon dioxide and other ices in the clouds where stars and planets form.</li>
+    </ul>
+    <h2>And what it does along the way</h2>
+    <p>Because SPHEREx returns to every spot of the sky again and again, it also records everything that <b>moves or changes</b>: asteroids, comets, nearby stars drifting past, brown dwarfs, stars that pulse or flare. It photographs hundreds of millions of stars and galaxies, far more than any one team can check. This tool exists so that more people can look.</p>
+    <p class="fine">Sources: <a href="https://www.jpl.nasa.gov/missions/spherex/" target="_blank" rel="noopener">NASA/JPL mission page</a> · <a href="https://science.nasa.gov/mission/spherex/" target="_blank" rel="noopener">NASA Science</a> · <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html" target="_blank" rel="noopener">SPHEREx at the NASA/IPAC archive</a></p>`,
+
+  how: () => `
+    <p class="eyebrow">Under the hood</p>
+    <h1>How it works</h1>
+    <p class="lead">You click a point of the sky. A few seconds later you are watching every picture SPHEREx has taken of it, lined up, with a spectrum underneath. Here is what happens in between.</p>
+    <ol>
+      <li><b>Look it up in the sky index.</b> A compact index of every public SPHEREx exposure, about 1.6 million of them, says which ones were pointed near your spot. The index is rebuilt from NASA's archive on a schedule, so new data releases appear without anyone touching the code.</li>
+      <li><b>Read only the pixels that matter.</b> A full exposure is a file of more than 60 megabytes. Your browser reads its header and just the small block of pixels around your spot, a few hundred kilobytes, straight from NASA's open data on the cloud.</li>
+      <li><b>Line the images up.</b> Each exposure was taken at a different angle. Every block is redrawn on one common grid, north up, using the position information stored in the file, and the glow of the sky background is removed.</li>
+      <li><b>Find the colour of each pixel.</b> Each exposure records your spot at a different wavelength. That wavelength is read from a table inside every file.</li>
+      <li><b>Compute on your device.</b> Brightness, stacking, subtracting, colour pictures, measurements and plots are all computed in your browser, which is why every control answers instantly.</li>
+      <li><b>Say what it is.</b> The SIMBAD catalogue is asked what lies at that position. Catalogues store where a star was in the year 2000, so nearby stars that have drifted since are moved to today's date before matching.</li>
+    </ol>
+    <h2>No server, and it works offline</h2>
+    <p>Chronosphere has no server of its own. The page is a set of static files; everything else is your browser talking directly to NASA's open data. That means there is nothing to keep running and nothing that can go down on our side. Whatever you have opened once, including the whole guided tour, is saved on your device and keeps working without a connection.</p>
+    <h2>How to read what you see</h2>
+    <ul>
+      <li><b>Visits.</b> SPHEREx comes back to most parts of the sky about every six months, and each visit lasts from a few days to a few weeks. One stacked image per visit, shown in turn, makes a small shift easy to see. Near the poles of the solar system's plane it looks almost every orbit, so there the images are grouped by month instead.</li>
+      <li><b>The shift table.</b> For a moving object, the position measured in each visit is compared with what the catalogue predicts: its steady motion across the sky plus, for the nearest stars, the yearly wobble caused by Earth's own orbit. The motion is measured separately in every detector that sees the object, and the detectors are compared with each other.</li>
+      <li><b>The spectrum.</b> Each dot is one exposure: its wavelength, and how bright the circled spot was. Dots are coloured by visit.</li>
+      <li><b>Molecule bands.</b> Shaded strips mark where common molecules absorb light. The table reports how deep a dip was measured there.</li>
+      <li><b>Checked against its neighbours.</b> Under the brightness curve, the change of the circled spot between visits is set against ordinary stars in the same images. If they stayed steady and the spot did not, the change is real and not a quirk of the camera. The same is done for its position.</li>
+      <li><b>Every star, checked.</b> Under the images, every clear star of the field is tested for motion and for brightness changes, without using any catalogue. The few that stand out are listed and marked with a diamond. A flag is a reason to look, not a finding.</li>
+      <li><b>Passing bodies.</b> Under the images, every exposure is searched for dots that are at one place for a few minutes and gone from there on other days: asteroids, comets, dwarf planets. SPHEREx stops, takes up to four exposures two minutes apart, and two of its six detectors always look at the same sky at the same moment. A real body therefore shows in several independent images at once; a cosmic-ray hit shows in one. Each body found is named by SkyBoT, a service of Paris Observatory that knows where every catalogued body was at that moment, and can be followed from stop to stop, with its own spectrum.</li>
+      <li><b>Years.</b> SPHEREx has watched the sky for a year and a half: too short for most stars to move. The Years view adds older telescopes: 2MASS, which looked at each place on one night between 1997 and 2001, WISE in 2010 and, as NEOWISE, every half year from 2014 to 2024. For the five test objects their own exposures are laid on the grid of the SPHEREx images; for any other place, the sky maps of 2MASS and AllWISE are. A catalogued star is found in every picture and its motion measured over the whole span: Barnard's Star 10.42 arcseconds a year, against the catalogue's 10.39. An object that shows only at the longest wavelengths, like WISE 0855, is cold: that is how such worlds are found.</li>
+    </ul>
+    <h2>What it cannot tell you</h2>
+    <ul>
+      <li>One SPHEREx pixel covers 6.15 arcseconds. Even the star whose place in the sky changes fastest moves less than two pixels a year, so motion is a small hop between visits, never a streak.</li>
+      <li>Measurements use a simple fixed circle and are meant for exploring, not for publication. Very bright stars overload the detector; for those, the star's faint outer glow is measured instead and each detector is joined to its neighbour: the overall shape of the spectrum is right, its level and fine detail are approximate.</li>
+      <li>A dip at a molecule's wavelength is a hint, not a detection.</li>
+      <li>Positions repeat to a few tenths of an arcsecond for ordinary stars, but a star close to overloading the camera can be off by an arcsecond or more in a single visit.</li>
+      <li>The search for passing bodies reaches about magnitude 18. In eight test fields along the plane of the solar system it reported twenty bodies, of magnitude 14 to 18.8, and SkyBoT knew every one of them; in eight fields far from that plane or around stars it reported none. A dot that no catalogue knows may still be a fault in the image: it is a reason to look again.</li>
+      <li>Nothing here claims a discovery. Something that looks new is a reason to check it in the other tools linked from every object.</li>
+    </ul>`,
+
+  hunt: () => `
+    <p class="eyebrow">Asteroid hunt</p>
+    <h1>Find an asteroid in SPHEREx images</h1>
+    <p class="lead">Asteroids, comets and dwarf planets cross SPHEREx's images all the time: dots that are at one place for a few minutes and gone the next day. Here is how to find one, what you get when you do, and where a find is reported.</p>
+    <p class="docgo"><a class="cta" href="./?hunt" data-do="hunt">Start a hunt</a></p>
+    <h2>Three ways to find one</h2>
+    <ul>
+      <li><b>Let the tool pick a field.</b> “Find an asteroid” takes one of the first three thousand numbered asteroids at random and opens a patch of sky it crossed while SPHEREx was looking. The search is told neither which asteroid nor where it was. It reads every exposure of that patch, about three hundred of them, and reports what passed through. That takes two to four minutes.</li>
+      <li><b>Ask for one by name.</b> Type a name or a number into the search box: Ceres, 433 Eros, Pluto, Uranus, 2P/Encke. The tool looks up the orbit, finds the days on which SPHEREx had the body in view, and opens that patch of sky with the ring already on it.</li>
+      <li><b>Look anywhere.</b> Whichever place you open, its exposures are searched for passing bodies, and what was found is listed under the images. Most bodies travel near the ecliptic, the band of sky the planets move along.</li>
+    </ul>
+    <h2>How a body is told from a fault</h2>
+    <p>SPHEREx stops, takes up to four exposures two minutes apart, and two of its six detectors always look at the same sky at the same moment. A body is therefore in several independent images at one place, and gone from there when the telescope returns hours later. A star is there every time. A cosmic-ray hit is in one image only.</p>
+    <p>The search was tried on fields whose answer is known. In eight fields along the ecliptic it reported twenty bodies, and each of them was a catalogued body at the right place. In eight other fields, away from the ecliptic or around stars, it reported none. It reaches about magnitude 18.</p>
+    <h2>What you get</h2>
+    <ul>
+      <li><b>A name.</b> Each body found is looked up in SkyBoT, a service of Paris Observatory that knows where every catalogued body was at that moment.</li>
+      <li><b>Its motion.</b> Press a body to follow it: one image for every stop of the telescope, the ring moving with it, and how far and how fast it went.</li>
+      <li><b>Its spectrum.</b> Every exposure caught it in a different infrared colour, from 0.75 to 5 microns. Surveys of asteroid colours from the ground end near 2.5 microns; SPHEREx goes on to where water-bearing minerals and ices leave their marks. Pluto's spectrum shows methane ice.</li>
+      <li><b>Files to keep.</b> Its brightness at every wavelength as a table (CSV), and its measured places in the format of the Minor Planet Center (ADES), with where the spacecraft was at each exposure.</li>
+    </ul>
+    <h2>Is it new?</h2>
+    <p>Almost certainly not, and it is better to know that before the hunt than after. A single SPHEREx exposure reaches asteroids of about magnitude 18. The surveys that look for new asteroids every night have catalogued the main belt down to bodies many times fainter, so the ones SPHEREx can see were found long ago. In our tests every body the search reported was a known one.</p>
+    <p>A dot that SkyBoT cannot name is most often a fault in an image. Before believing it:</p>
+    <ol>
+      <li><b>Follow it.</b> A real body is found at three stops or more, on a straight line, at a steady pace.</li>
+      <li><b>Look at it.</b> Under “Exposures” it should look like the stars around it and be in every image of a stop.</li>
+      <li><b>Ask the Minor Planet Center.</b> The box of an unnamed dot links to the Center's MPChecker with the place and the moment filled in. It lists every known body near there, also those found last week.</li>
+    </ol>
+    <h2>Where a find is reported</h2>
+    <p>New asteroids and comets are reported to the Minor Planet Center (MPC). It receives the positions measured by observatories all over the world and works out the orbits, under the International Astronomical Union. What it takes:</p>
+    <ul>
+      <li><b>Positions in its format.</b> At least two places of the body from one night, in the format called ADES. “Positions (ADES)” writes that file: the times, the places, how well they are known and, for each exposure, where SPHEREx was, because a telescope in orbit sees a nearby body from a slightly different angle than the centre of the Earth would. SPHEREx is observatory 288 on the MPC's list.</li>
+      <li><b>A word with the MPC first.</b> SPHEREx images are archival data from someone else's telescope. For such data the MPC asks to be contacted, through its helpdesk, before anything is submitted. The file is what to attach.</li>
+      <li><b>Patience.</b> A body seen on one night only waits in a file of unconfirmed tracks until other observations are linked to it. With an orbit it gets a provisional designation. A number follows once the orbit is secure, for a main-belt asteroid after about four returns. Credit for the discovery is settled then, and only then may the discoverer propose a name, which a working group of the International Astronomical Union decides.</li>
+    </ul>
+    <p>If discovering a new asteroid is what you are after: NASA's International Astronomical Search Collaboration (IASC) gives volunteers fresh images from the Pan-STARRS telescope to search, and reports their finds to the MPC.</p>
+    <h2>What SPHEREx adds</h2>
+    <p>What is new in these images is not the asteroid but its light. SPHEREx is expected to record more than a hundred thousand asteroids and comets in 102 infrared colours, and a collaboration around the mission is preparing a catalogue of their spectra. With this tool you can look at any of them today, one stop of the telescope at a time.</p>
+    <p class="fine">Sources: <a href="https://www.minorplanetcenter.net/about" target="_blank" rel="noopener">Minor Planet Center</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/astrometry/" target="_blank" rel="noopener">MPC: guide to reporting positions</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/data-and-services/sarc/" target="_blank" rel="noopener">MPC: archival observations</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/astrometry/discoveries-and-credit/" target="_blank" rel="noopener">MPC: discoveries, credit and naming</a> · <a href="https://minorplanetcenter.net/cgi-bin/checkmp.cgi" target="_blank" rel="noopener">MPChecker</a> · <a href="https://ssp.imcce.fr/webservices/skybot/" target="_blank" rel="noopener">SkyBoT</a>, <a href="https://ssp.imcce.fr/webservices/miriade/" target="_blank" rel="noopener">Miriade</a> (IMCCE, Paris Observatory) · <a href="https://irsa.ipac.caltech.edu/data/SPHEREx/docs/SPHEREx_Expsupp_QR.pdf" target="_blank" rel="noopener">SPHEREx Explanatory Supplement</a> · <a href="https://meetingorganizer.copernicus.org/EPSC2026/EPSC2026-797.html" target="_blank" rel="noopener">Mahlke et al. 2026</a> · <a href="https://arxiv.org/abs/2010.07822" target="_blank" rel="noopener">Hendler &amp; Malhotra 2020</a> · <a href="https://science.nasa.gov/get-involved/citizen-science/new-way-you-can-discover-asteroids/" target="_blank" rel="noopener">NASA: IASC</a></p>`,
+
+  about: () => `
+    <p class="eyebrow">About</p>
+    <h1>Built so that more people can look</h1>
+    <p class="lead">Chronosphere began on 14 and 15 November 2026 at the NASA Space Apps Challenge, for the challenge <i>Planet X and SPHEREx</i>, by the team ${TEAM.name}, and we have kept building it since. In the week that followed came the search for asteroids and comets crossing a field, the asteroid hunt with a report ready for the Minor Planet Center, the comet 3I/ATLAS, and the Years view, which lays 27 years of images from 2MASS, WISE and SPHEREx on one grid.</p>
+    ${team('The team')}
+    <h2>Why we built it</h2>
+    <p>Pluto was found in 1930 by a person comparing two photographs. People still find new worlds that way. Volunteers have spotted most of the more than 5,000 comets discovered in images from the SOHO spacecraft, and about 3,000 candidate brown dwarfs in images from NASA's WISE telescope. SPHEREx is now photographing hundreds of millions of objects, again and again: more than any group of professionals can inspect.</p>
+    <p>We wanted a tool where anyone, with no training, can pick a point in the sky and see for themselves whether something there has moved or changed, and then check it against independent sources in one click.</p>
+    <p>The challenge takes its name from Planet X, the hypothetical undiscovered planet in the outer solar system. Whether or not SPHEREx can see it, any unknown nearby object would give itself away the same way Pluto did: as a dot that moves.</p>
+    <h2>Who it is for</h2>
+    <ul>
+      <li><b>Anyone curious.</b> No account and no training: the tour takes two minutes, and every object opens with a few plain sentences on what the measurements show.</li>
+      <li><b>Teachers and students.</b> A class can find a moving star the way Pluto was found, on real NASA images. The tour is kept on the device and runs without a connection, in six languages.</li>
+      <li><b>Amateur astronomers and researchers.</b> The measurements of any spot can be downloaded as a table (CSV), every exposure links to its original file in NASA's archive, and any view can be shared as a link or placed inside another page.</li>
+    </ul>
+    <h2>Where the data comes from</h2>
+    <ul>
+      <li><b>SPHEREx images and all-sky map:</b> NASA/JPL-Caltech, served by the NASA/IPAC Infrared Science Archive (IRSA).</li>
+      <li><b>Other sky maps:</b> 2MASS, WISE and DSS, as HiPS built by CDS and served by IRSA.</li>
+      <li><b>Older images of the same sky (the Years view):</b> 2MASS Atlas Images (1997 to 2001), WISE and NEOWISE single exposures (2010 to 2024), served by IRSA.</li>
+      <li><b>Catalogues:</b> Gaia DR3 (ESA), CatWISE2020, SIMBAD (CDS, Strasbourg).</li>
+      <li><b>Sky atlas component:</b> Aladin Lite (CDS).</li>
+      <li><b>Encyclopedia cards:</b> Wikipedia, shown with a link to the article.</li>
+    </ul>
+    <h2>The code</h2>
+    <p>The code can be read on GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. All rights reserved: it may not be copied, reused or published elsewhere without the team’s permission. Versions before 22 November 2026 were released under the GPL-3.0.</p>
+    <p>New pictures and short films are on Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
+    <h2>Use of AI</h2>
+    <p>The software was written with an AI coding assistant during the event. The team chose the approach, checked the results against catalogue values and independent tools, and is responsible for the content. No AI-generated images, audio or video are used: every image shown is telescope data.</p>
+    <p class="fine">Sources for the figures above: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">NASA on SOHO's 5,000th comet</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
+  }),
+};
+
+// The pages in the language in use.
+let local = null;
+if (lang !== 'en') { try { local = (await import(`./pages/${lang}.js`)).default || null; } catch { local = null; } }
+const team = title => (TEAM.members.length ? `<h2>${title}</h2><ul class="team">${TEAM.members.map(m => `<li><b>${m.name}</b><span>${m.role || ''}</span></li>`).join('')}</ul>` : '');
+const from = local?.sheets ? local : ENGLISH;
+export const SHEETS = from.sheets({ TEAM, figure: figure(from.figure || ENGLISH.figure), team });
+/** What the top bar calls the three pages in this language; null when the pages are the English ones. */
+export const NAV = local?.sheets ? local.nav || null : null;

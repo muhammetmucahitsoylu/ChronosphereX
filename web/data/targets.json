@@ -1,0 +1,1760 @@
+[
+ {
+  "slug": "barnard",
+  "query": "Barnard's Star",
+  "label": "Barnard's Star",
+  "kind": "motion",
+  "blurb": "The star whose place in the sky changes fastest: 10.4 arcseconds per year, about 1.7 SPHEREx pixels.",
+  "ra": 269.446074,
+  "dec": 4.770706,
+  "size": 5,
+  "resolved": {
+   "name": "NAME Barnard's star",
+   "otype": "BY*",
+   "ra2000": 269.4520769586187,
+   "dec2000": 4.69336496657667,
+   "pmra": -801.551,
+   "pmdec": 10362.394,
+   "plx": 546.9759,
+   "epoch": 2026.87,
+   "ra": 269.4460743284987,
+   "dec": 4.770706331202944
+  },
+  "built": "2026-11-14T11:07:58Z",
+  "summary": {
+   "total": 360,
+   "avail": {
+    "1": 60,
+    "2": 61,
+    "3": 59,
+    "4": 59,
+    "5": 61,
+    "6": 60
+   },
+   "releases": {
+    "spherex_dr1": 239,
+    "spherex_qr3": 121
+   },
+   "epochs": [
+    [
+     60902.864715,
+     60949.265914
+    ],
+    [
+     61110.091403,
+     61165.082972
+    ],
+    [
+     61268.629319,
+     61305.628021
+    ]
+   ]
+  },
+  "view": {
+   "det": 5,
+   "mode": "epochs"
+  },
+  "look": "The images loop through three visits: the star hops north by roughly a pixel each time, following the dotted line. Its core is bright enough to saturate the shorter-wavelength detectors, so D5 gives the cleanest view. The table compares the shift measured from these images with the catalogue prediction.",
+  "wiki": "Barnard's Star",
+  "info": {
+   "oid": 2669393,
+   "mainId": "NAME Barnard's star",
+   "name": "Barnard's star",
+   "otype": "BY*",
+   "type": "BY Dra Variable",
+   "ra2000": 269.4520769586187,
+   "dec2000": 4.693364966576667,
+   "pmra": -801.551,
+   "pmdec": 10362.394,
+   "plx": 546.9759,
+   "plxErr": 0.0401,
+   "sptype": "M4V",
+   "redshift": -0.00036721999996314203,
+   "mags": {
+    "V": 9.511,
+    "J": 5.244,
+    "K": 4.524
+   },
+   "ra": 269.446074,
+   "dec": 4.770706,
+   "dist": 0,
+   "others": [
+    {
+     "name": "Barnard's Star c",
+     "type": "Extra-solar Planet",
+     "dist": 0
+    },
+    {
+     "name": "Barnard's Star e",
+     "type": "Extra-solar Planet",
+     "dist": 0
+    },
+    {
+     "name": "Barnard's Star b",
+     "type": "Extra-solar Planet",
+     "dist": 0
+    },
+    {
+     "name": "Barnard's Star d",
+     "type": "Extra-solar Planet",
+     "dist": 0
+    }
+   ]
+  },
+  "wikiCard": {
+   "title": "Barnard's Star",
+   "extract": "Barnard's Star is a small red dwarf star in the constellation of Ophiuchus. At a distance of 5.96 light-years (1.83 pc) from Earth, it is the fourth-nearest-known individual star to the Sun after the three components of the Alpha Centauri system, and is the closest star in the northern celestial hemisphere. Its stellar mass is about 16% of the Sun's, and it has 19% of the Sun's diameter. Despite its proximity, the star has a dim apparent visual magnitude of +9.5 and is invisible to the unaided eye; it is much brighter in the infrared than in visible light.",
+   "description": "Red dwarf star in the constellation Ophiuchus",
+   "url": "https://en.wikipedia.org/wiki/Barnard's_Star",
+   "thumb": "data/barnard/thumb.jpg"
+  },
+  "type": "Red dwarf star",
+  "sp": "M4",
+  "dist": {
+   "plx": 546.9759,
+   "err": 0.0401,
+   "src": "Gaia DR3 parallax"
+  }
+ },
+ {
+  "slug": "epsindib",
+  "query": "eps Ind B",
+  "label": "Epsilon Indi B",
+  "kind": "motion",
+  "blurb": "Two brown dwarfs orbiting a nearby star, moving 4.7 arcseconds per year. SPHEREx sees the pair as one dot.",
+  "ra": 331.098399,
+  "dec": -56.801256,
+  "size": 5,
+  "resolved": {
+   "name": "* eps Ind B",
+   "otype": "BD*",
+   "ra2000": 331.04414658852124,
+   "dec2000": -56.78284419511611,
+   "pmra": 3981.977,
+   "pmdec": -2466.832,
+   "plx": 270.658,
+   "epoch": 2026.87,
+   "ra": 331.0983988200857,
+   "dec": -56.801255787850906
+  },
+  "built": "2026-11-14T11:09:49Z",
+  "summary": {
+   "total": 463,
+   "avail": {
+    "1": 48,
+    "2": 93,
+    "3": 99,
+    "4": 46,
+    "5": 84,
+    "6": 93
+   },
+   "releases": {
+    "spherex_dr1": 343,
+    "spherex_qr3": 120
+   },
+   "epochs": [
+    [
+     60789.855522,
+     60836.189812
+    ],
+    [
+     60946.964111,
+     60991.85757
+    ],
+    [
+     61148.84479,
+     61164.11695
+    ],
+    [
+     61305.226906,
+     61315.478076
+    ]
+   ]
+  },
+  "view": {
+   "det": 2,
+   "mode": "epochs"
+  },
+  "look": "The bright star 6.7 arcminutes to the west is Epsilon Indi A, the star this pair orbits; the pair, in the ring, is about 4,000 times fainter. Watch it slide to the south-east from visit to visit. Then look at the spectrum: the deep dips near 1.4, 1.9 and 2.7 microns are water vapour and the one near 3.3 microns is methane, in the atmospheres of the brown dwarfs.",
+  "wiki": "Epsilon Indi",
+  "info": {
+   "oid": 3387843,
+   "mainId": "* eps Ind B",
+   "name": "eps Ind B",
+   "otype": "BD*",
+   "type": "Brown Dwarf",
+   "ra2000": 331.04414658852124,
+   "dec2000": -56.782844195116105,
+   "pmra": 3981.977,
+   "pmdec": -2466.832,
+   "plx": 270.658,
+   "plxErr": 0.6896,
+   "sptype": "T1V+T6V",
+   "redshift": null,
+   "mags": {
+    "V": 24.12,
+    "J": 11.908,
+    "K": 11.208
+   },
+   "ra": 331.098399,
+   "dec": -56.801256,
+   "dist": 0,
+   "others": []
+  },
+  "wikiCard": {
+   "title": "Epsilon Indi",
+   "extract": "Epsilon Indi, Latinized from ε Indi, is a star system located at a distance of approximately 12 light-years from Earth in the southern constellation of Indus. The star has an orange hue and is faintly visible to the naked eye with an apparent visual magnitude of 4.674. It consists of a K-type main-sequence star, ε Indi A, and two brown dwarfs, ε Indi Ba and ε Indi Bb, in a wide orbit around it. The brown dwarfs were discovered in 2003. ε Indi Ba is an early T dwarf (T1) and ε Indi Bb a late T dwarf (T6) separated by 0.6 arcseconds, with a projected distance of 1460 AU from their primary star.",
+   "description": "Star system in the constellation of Indus",
+   "url": "https://en.wikipedia.org/wiki/Epsilon_Indi",
+   "thumb": "data/epsindib/thumb.jpg"
+  },
+  "type": "Pair of brown dwarfs",
+  "sp": "T1 + T6",
+  "dist": {
+   "plx": 274.8431,
+   "err": 0.0956,
+   "src": "Gaia DR3 parallax of its host star"
+  }
+ },
+ {
+  "slug": "wise0855",
+  "query": "WISE J085510.83-071442.5",
+  "label": "WISE 0855",
+  "kind": "motion",
+  "blurb": "The coldest known brown dwarf, 7.4 light-years away, moving 8.2 arcseconds per year.",
+  "ra": 133.757787,
+  "dec": -7.242023,
+  "size": 5,
+  "resolved": {
+   "name": "WISEA J085510.74-071442.5",
+   "otype": "BD*",
+   "ra2000": 133.81890825,
+   "dec2000": -7.247048,
+   "pmra": -8123.7,
+   "pmdec": 673.2,
+   "plx": 439,
+   "epoch": 2026.87,
+   "ra": 133.7577874444936,
+   "dec": -7.242023463741767
+  },
+  "built": "2026-11-14T11:12:46Z",
+  "summary": {
+   "total": 258,
+   "avail": {
+    "1": 36,
+    "2": 48,
+    "3": 45,
+    "4": 36,
+    "5": 48,
+    "6": 45
+   },
+   "releases": {
+    "spherex_dr1": 258
+   },
+   "epochs": [
+    [
+     60800.700028,
+     60801.518654
+    ],
+    [
+     60979.722677,
+     61022.368105
+    ],
+    [
+     61151.197933,
+     61174.287218
+    ]
+   ]
+  },
+  "view": {
+   "det": 6,
+   "mode": "bands"
+  },
+  "look": "The images step through the wavelengths. Below 4 microns the circle holds only the edge of an ordinary star just to its west. In the two longest-wavelength detectors a second source appears that is not in the Gaia catalogue: that is WISE 0855. In the colour picture it is the red dot. Switch to Visits in D6 to see it move.",
+  "wiki": "WISE 0855−0714",
+  "info": {
+   "oid": 8596164,
+   "mainId": "WISEA J085510.74-071442.5",
+   "name": "WISEA J085510.74-071442.5",
+   "otype": "BD*",
+   "type": "Brown Dwarf",
+   "ra2000": 133.81890825,
+   "dec2000": -7.247048000000001,
+   "pmra": -8123.7,
+   "pmdec": 673.2,
+   "plx": 439,
+   "plxErr": 2.4,
+   "sptype": "Y2",
+   "redshift": null,
+   "mags": {
+    "V": null,
+    "J": 25,
+    "K": null
+   },
+   "ra": 133.757787,
+   "dec": -7.242023,
+   "dist": 0,
+   "others": []
+  },
+  "wikiCard": {
+   "title": "WISE 0855−0714",
+   "extract": "WISE 0855−0714 is a brown dwarf of spectral class Y4, located 7.4 light-years from the Sun in the constellation Hydra. It is the fourth-closest stellar or substellar system to the Sun and was discovered by Kevin Luhman in 2013 using data from the Wide-field Infrared Survey Explorer (WISE). It is the coldest brown dwarf found yet, having a temperature of about 276 K. It has an estimated mass between 3 and 10 Jupiter masses, which makes it a planetary-mass object below the 13-Jupiter-mass rough limit for deuterium fusion.",
+   "description": "Brown dwarf in the constellation Hydra",
+   "url": "https://en.wikipedia.org/wiki/WISE_0855%E2%88%920714",
+   "thumb": "data/wise0855/thumb.jpg"
+  },
+  "type": "Brown dwarf",
+  "sp": "Y",
+  "dist": {
+   "plx": 439,
+   "err": 2.4,
+   "src": "parallax from Kirkpatrick et al. 2021"
+  }
+ },
+ {
+  "slug": "rwaur",
+  "query": "RW Aur",
+  "label": "RW Aurigae",
+  "kind": "variable",
+  "blurb": "A young star, still surrounded by dust, whose brightness changes unpredictably.",
+  "ra": 76.956589,
+  "dec": 30.401286,
+  "size": 5,
+  "resolved": {
+   "name": "V* RW Aur",
+   "otype": "TT*",
+   "ra2000": 76.95652603458,
+   "dec2000": 30.40143817389,
+   "pmra": 7.23,
+   "pmdec": -20.33,
+   "plx": 15.42,
+   "epoch": 2026.87,
+   "ra": 76.95658859946393,
+   "dec": 30.401286437651006
+  },
+  "built": "2026-11-14T11:14:42Z",
+  "summary": {
+   "total": 336,
+   "avail": {
+    "1": 56,
+    "2": 56,
+    "3": 56,
+    "4": 56,
+    "5": 56,
+    "6": 56
+   },
+   "releases": {
+    "spherex_dr1": 226,
+    "spherex_qr3": 110
+   },
+   "epochs": [
+    [
+     60919.419647,
+     60938.232058
+    ],
+    [
+     61091.719616,
+     61111.002087
+    ],
+    [
+     61285.097169,
+     61299.895897
+    ]
+   ]
+  },
+  "view": {
+   "det": 5,
+   "mode": "epochs"
+  },
+  "look": "The colours in the spectrum are the three visits, and they cross over. From September 2025 to September 2026 the star grew more than 40% brighter below 1.6 microns and lost almost half its brightness beyond 3.8 microns; ordinary stars in the same images stayed constant to about 1%. In its deep fading of 2014 to 2016 astronomers saw the reverse: hot dust near the star hid it while glowing in the infrared.",
+  "wiki": "RW Aurigae",
+  "info": {
+   "oid": 756681,
+   "mainId": "V* RW Aur",
+   "name": "RW Aur",
+   "otype": "TT*",
+   "type": "T Tauri Star",
+   "ra2000": 76.95652603458333,
+   "dec2000": 30.401438173888888,
+   "pmra": 7.23,
+   "pmdec": -20.33,
+   "plx": 15.42,
+   "plxErr": 3.69,
+   "sptype": "K1/5e+K5e",
+   "redshift": 5.0035866073772084e-05,
+   "mags": {
+    "V": 9.6,
+    "J": 8.378,
+    "K": 7.02
+   },
+   "ra": 76.956589,
+   "dec": 30.401286,
+   "dist": 0,
+   "others": [
+    {
+     "name": "RW Aur A",
+     "type": "Orion Variable",
+     "dist": 0
+    },
+    {
+     "name": "RW Aur B",
+     "type": "Orion Variable",
+     "dist": 0
+    }
+   ]
+  },
+  "wikiCard": {
+   "title": "RW Aurigae",
+   "extract": "RW Aurigae is a young binary system in the constellation of Auriga about 530 light years away, belonging to the Taurus-Auriga association of the \nTaurus Molecular Cloud. RW Aurigae B was discovered in 1944.",
+   "description": "Young binary star system in the constellation Auriga",
+   "url": "https://en.wikipedia.org/wiki/RW_Aurigae",
+   "thumb": "data/rwaur/thumb.jpg"
+  },
+  "type": "Young star (T Tauri type)",
+  "sp": "K",
+  "dist": {
+   "plx": 6.4062,
+   "err": 0.0441,
+   "src": "Gaia DR3 parallax of RW Aur A"
+  },
+  "pm": {
+   "pmra": 2.641,
+   "pmdec": -27.398,
+   "src": "Gaia DR3, RW Aur A"
+  }
+ },
+ {
+  "slug": "rdra",
+  "query": "R Dra",
+  "label": "R Draconis",
+  "kind": "variable",
+  "blurb": "A red giant that swells and shrinks, brightening and fading over about 245 days.",
+  "ra": 248.16722,
+  "dec": 66.755025,
+  "size": 5,
+  "resolved": {
+   "name": "V* R Dra",
+   "otype": "Mi*",
+   "ra2000": 248.16761083295,
+   "dec2000": 66.75497941722,
+   "pmra": -20.643,
+   "pmdec": 6.149,
+   "plx": 1.2509,
+   "epoch": 2026.87,
+   "ra": 248.16722044421238,
+   "dec": 66.75502531128006
+  },
+  "built": "2026-11-14T11:16:20Z",
+  "summary": {
+   "total": 2497,
+   "avail": {
+    "1": 585,
+    "2": 90,
+    "3": 574,
+    "4": 584,
+    "5": 91,
+    "6": 573
+   },
+   "releases": {
+    "spherex_dr1_deep": 1225,
+    "spherex_dr1": 417,
+    "spherex_qr3": 126,
+    "spherex_qr3_deep": 729
+   },
+   "epochs": [
+    [
+     60789.879611,
+     60878.608219
+    ],
+    [
+     60916.370508,
+     61310.291175
+    ]
+   ]
+  },
+  "view": {
+   "det": 4,
+   "mode": "epochs"
+  },
+  "look": "Each image covers about a month. This star is so bright that its core saturates every detector, so the tool measures its faint outer glow instead. The brightness curve shows the pulse: brightest in July 2025, about half as bright that autumn, and climbing again in the latest images.",
+  "wiki": "R Draconis",
+  "info": {
+   "oid": 376084,
+   "mainId": "V* R Dra",
+   "name": "R Dra",
+   "otype": "Mi*",
+   "type": "Mira Variable",
+   "ra2000": 248.16761083295,
+   "dec2000": 66.75497941722,
+   "pmra": -20.643,
+   "pmdec": 6.149,
+   "plx": 1.2509,
+   "plxErr": 0.0648,
+   "sptype": "M4.5-6+e",
+   "redshift": -0.00044287504927820187,
+   "mags": {
+    "V": 9.03,
+    "J": 3.71,
+    "K": 2.23
+   },
+   "ra": 248.16722,
+   "dec": 66.755025,
+   "dist": 0,
+   "others": []
+  },
+  "type": "Pulsating red giant (Mira variable)",
+  "sp": "M",
+  "dist": {
+   "plx": 1.2509,
+   "err": 0.0648,
+   "src": "Gaia DR3 parallax"
+  }
+ },
+ {
+  "slug": "pluto",
+  "query": "Pluto",
+  "label": "Pluto",
+  "wiki": "Pluto",
+  "type": "Dwarf planet",
+  "kind": "body",
+  "size": 5,
+  "view": {
+   "det": 2,
+   "mode": "trail"
+  },
+  "blurb": "The dwarf planet that Clyde Tombaugh found in 1930 by comparing two photographs. SPHEREx caught it here in October 2025, moving on from one stop of the telescope to the next.",
+  "look": "Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves west along the dotted line, the path that NASA’s JPL computes from Pluto’s orbit. Under the images, the tool’s own search for moving dots reports what it found without being told where to look.",
+  "ra": 304.137228,
+  "dec": -23.617171,
+  "built": "2026-11-17T18:30:37Z",
+  "summary": {
+   "total": 514,
+   "avail": {
+    "1": 70,
+    "2": 87,
+    "3": 99,
+    "4": 71,
+    "5": 87,
+    "6": 100
+   },
+   "releases": {
+    "spherex_dr1": 429,
+    "spherex_qr3": 85
+   },
+   "epochs": [
+    [
+     60790.13024902344,
+     60796.38537597656
+    ],
+    [
+     60942.95196533203,
+     60966.242614746094
+    ],
+    [
+     61152.11120605469,
+     61173.70153808594
+    ],
+    [
+     61307.186767578125,
+     61317.30334472656
+    ]
+   ]
+  },
+  "info": {
+   "name": "Pluto",
+   "type": "Dwarf planet",
+   "body": true
+  },
+  "body": {
+   "number": 134340,
+   "mag": 14.5,
+   "sun": 35.36,
+   "earth": 35.07,
+   "moved": 84,
+   "from": 60951.958,
+   "to": 60960.417,
+   "source": "JPL Horizons"
+  },
+  "eph": [
+   [
+    60948,
+    304.173875,
+    -23.61248
+   ],
+   [
+    60948.25,
+    304.172142,
+    -23.61277
+   ],
+   [
+    60948.5,
+    304.170439,
+    -23.613053
+   ],
+   [
+    60948.75,
+    304.168763,
+    -23.613328
+   ],
+   [
+    60949,
+    304.167117,
+    -23.613595
+   ],
+   [
+    60949.25,
+    304.1655,
+    -23.613854
+   ],
+   [
+    60949.5,
+    304.163913,
+    -23.614104
+   ],
+   [
+    60949.75,
+    304.162356,
+    -23.614346
+   ],
+   [
+    60950,
+    304.160829,
+    -23.61458
+   ],
+   [
+    60950.25,
+    304.159334,
+    -23.614806
+   ],
+   [
+    60950.5,
+    304.157869,
+    -23.615024
+   ],
+   [
+    60950.75,
+    304.156436,
+    -23.615235
+   ],
+   [
+    60951,
+    304.155035,
+    -23.615439
+   ],
+   [
+    60951.25,
+    304.153665,
+    -23.615636
+   ],
+   [
+    60951.5,
+    304.152326,
+    -23.615826
+   ],
+   [
+    60951.75,
+    304.151019,
+    -23.61601
+   ],
+   [
+    60952,
+    304.149743,
+    -23.616188
+   ],
+   [
+    60952.25,
+    304.148498,
+    -23.61636
+   ],
+   [
+    60952.5,
+    304.147284,
+    -23.616526
+   ],
+   [
+    60952.75,
+    304.1461,
+    -23.616687
+   ],
+   [
+    60953,
+    304.144946,
+    -23.616841
+   ],
+   [
+    60953.25,
+    304.143821,
+    -23.61699
+   ],
+   [
+    60953.5,
+    304.142726,
+    -23.617132
+   ],
+   [
+    60953.75,
+    304.14166,
+    -23.617268
+   ],
+   [
+    60954,
+    304.140623,
+    -23.617397
+   ],
+   [
+    60954.25,
+    304.139615,
+    -23.617519
+   ],
+   [
+    60954.5,
+    304.138636,
+    -23.617633
+   ],
+   [
+    60954.75,
+    304.137686,
+    -23.61774
+   ],
+   [
+    60955,
+    304.136766,
+    -23.61784
+   ],
+   [
+    60955.25,
+    304.135875,
+    -23.617931
+   ],
+   [
+    60955.5,
+    304.135014,
+    -23.618014
+   ],
+   [
+    60955.75,
+    304.134184,
+    -23.618089
+   ],
+   [
+    60956,
+    304.133384,
+    -23.618155
+   ],
+   [
+    60956.25,
+    304.132616,
+    -23.618214
+   ],
+   [
+    60956.5,
+    304.131879,
+    -23.618264
+   ],
+   [
+    60956.75,
+    304.131174,
+    -23.618307
+   ],
+   [
+    60957,
+    304.130501,
+    -23.618342
+   ],
+   [
+    60957.25,
+    304.129861,
+    -23.61837
+   ],
+   [
+    60957.5,
+    304.129253,
+    -23.618391
+   ],
+   [
+    60957.75,
+    304.128677,
+    -23.618406
+   ],
+   [
+    60958,
+    304.128134,
+    -23.618414
+   ],
+   [
+    60958.25,
+    304.127622,
+    -23.618416
+   ],
+   [
+    60958.5,
+    304.127143,
+    -23.618412
+   ],
+   [
+    60958.75,
+    304.126695,
+    -23.618402
+   ],
+   [
+    60959,
+    304.126279,
+    -23.618386
+   ],
+   [
+    60959.25,
+    304.125894,
+    -23.618365
+   ],
+   [
+    60959.5,
+    304.125539,
+    -23.618338
+   ],
+   [
+    60959.75,
+    304.125215,
+    -23.618304
+   ],
+   [
+    60960,
+    304.124921,
+    -23.618265
+   ],
+   [
+    60960.25,
+    304.124656,
+    -23.618218
+   ],
+   [
+    60960.5,
+    304.124422,
+    -23.618165
+   ],
+   [
+    60960.75,
+    304.124217,
+    -23.618105
+   ],
+   [
+    60961,
+    304.124043,
+    -23.618038
+   ],
+   [
+    60961.25,
+    304.123898,
+    -23.617962
+   ],
+   [
+    60961.5,
+    304.123784,
+    -23.617879
+   ],
+   [
+    60961.75,
+    304.123701,
+    -23.617788
+   ],
+   [
+    60962,
+    304.123649,
+    -23.617689
+   ],
+   [
+    60962.25,
+    304.123628,
+    -23.617581
+   ],
+   [
+    60962.5,
+    304.123639,
+    -23.617466
+   ],
+   [
+    60962.75,
+    304.123682,
+    -23.617342
+   ],
+   [
+    60963,
+    304.123758,
+    -23.61721
+   ],
+   [
+    60963.25,
+    304.123867,
+    -23.617071
+   ],
+   [
+    60963.5,
+    304.124009,
+    -23.616925
+   ],
+   [
+    60963.75,
+    304.124184,
+    -23.616771
+   ],
+   [
+    60964,
+    304.124392,
+    -23.616611
+   ]
+  ],
+  "wikiCard": {
+   "title": "Pluto",
+   "extract": "Pluto is a dwarf planet in the Kuiper belt, a ring of bodies beyond the orbit of Neptune. It is the ninth-largest and tenth-most-massive known object to directly orbit the Sun. It is the largest known trans-Neptunian object by volume by a small margin, but is less massive than Eris, which is denser, making it the second most massive trans-Neptunian object. Like other Kuiper belt objects, Pluto is made primarily of ice and rock and is much smaller than the inner planets. Pluto has roughly one-sixth the mass of the Moon and one-third of its volume. Originally considered a planet, its status was changed when astronomers adopted a new definition of the word with new criteria.",
+   "description": "Largest dwarf planet in the Solar System",
+   "url": "https://en.wikipedia.org/wiki/Pluto",
+   "thumb": "data/pluto/thumb.jpg"
+  }
+ },
+ {
+  "slug": "3i-atlas",
+  "query": "3I/ATLAS",
+  "aka": [
+   "3I",
+   "C/2025 N1"
+  ],
+  "label": "3I/ATLAS",
+  "wiki": "3I/ATLAS",
+  "type": "Interstellar comet",
+  "kind": "body",
+  "follow": true,
+  "extra": true,
+  "size": 10,
+  "view": {
+   "det": 2,
+   "mode": "epochs"
+  },
+  "links": [
+   {
+    "label": "IRSA",
+    "title": "SPHEREx observations of comet 3I/ATLAS at IRSA, with the papers of the SPHEREx team",
+    "url": "https://irsa.ipac.caltech.edu/data/SPHEREx/docs/comet3iatlas/index.html"
+   },
+   {
+    "label": "NASA",
+    "title": "NASA’s pages on comet 3I/ATLAS",
+    "url": "https://science.nasa.gov/solar-system/comets/3i-atlas/"
+   }
+  ],
+  "blurb": "A comet from another star: the third body ever seen passing through the solar system from outside. SPHEREx caught it in August 2025 on its way in, and again in December 2025, six weeks after it had passed the Sun.",
+  "look": "Every image is centred on the comet, so it stays in the middle while the stars behind it change. In August it is a faint dot; in December it is more than twenty times brighter and has a tail. In the spectrum under the images, the points that stand far above the rest near 4.3 microns are carbon dioxide gas glowing around the comet. In December water vapour (2.7 microns) and carbon monoxide (4.7 microns) glow as well.",
+  "ra": 170.187343,
+  "dec": 4.102302,
+  "built": "2026-11-21T08:57:50Z",
+  "summary": {
+   "total": 264,
+   "avail": {
+    "1": 47,
+    "2": 44,
+    "3": 41,
+    "4": 48,
+    "5": 44,
+    "6": 40
+   },
+   "releases": {
+    "spherex_dr1": 264
+   },
+   "epochs": [
+    [
+     60888.334105877,
+     60902.530405078
+    ],
+    [
+     61017.005163736,
+     61024.000072567
+    ]
+   ]
+  },
+  "info": {
+   "name": "3I/ATLAS",
+   "type": "Interstellar comet",
+   "body": true
+  },
+  "body": {
+   "id": "C/2025 N1",
+   "kind": "comet",
+   "source": "JPL Horizons",
+   "from": 60888.3341,
+   "to": 61024.0001,
+   "visits": [
+    {
+     "t0": 60888.3341,
+     "t1": 60902.5304,
+     "exposures": 160,
+     "stops": 30,
+     "rate": 99.4,
+     "pa": 278,
+     "sun": [
+      3.48,
+      3.03
+     ],
+     "earth": [
+      2.81,
+      2.66
+     ],
+     "ra": 247.78561,
+     "dec": -16.92653
+    },
+    {
+     "t0": 61017.0052,
+     "t1": 61024.0001,
+     "exposures": 104,
+     "stops": 16,
+     "rate": 168.8,
+     "pa": 289,
+     "sun": [
+      1.98,
+      2.17
+     ],
+     "earth": [
+      1.85,
+      1.8
+     ],
+     "ra": 170.18734,
+     "dec": 4.1023
+    }
+   ],
+   "peri": {
+    "mjd": 60977.5,
+    "au": 1.356
+   },
+   "near": {
+    "mjd": 61028.25,
+    "au": 1.798
+   }
+  },
+  "eph": [
+   [
+    60886,
+    254.258225,
+    -17.651849,
+    2.84046
+   ],
+   [
+    60886.25,
+    254.087849,
+    -17.635135,
+    2.83672
+   ],
+   [
+    60886.5,
+    253.917349,
+    -17.618279,
+    2.83301
+   ],
+   [
+    60886.75,
+    253.74673,
+    -17.601283,
+    2.82934
+   ],
+   [
+    60887,
+    253.575997,
+    -17.584146,
+    2.82569
+   ],
+   [
+    60887.25,
+    253.405155,
+    -17.566869,
+    2.82209
+   ],
+   [
+    60887.5,
+    253.234209,
+    -17.549452,
+    2.81851
+   ],
+   [
+    60887.75,
+    253.063164,
+    -17.531895,
+    2.81496
+   ],
+   [
+    60888,
+    252.892026,
+    -17.514198,
+    2.81145
+   ],
+   [
+    60888.25,
+    252.720799,
+    -17.496363,
+    2.80797
+   ],
+   [
+    60888.5,
+    252.549488,
+    -17.478388,
+    2.80452
+   ],
+   [
+    60888.75,
+    252.378099,
+    -17.460275,
+    2.8011
+   ],
+   [
+    60889,
+    252.206636,
+    -17.442024,
+    2.79771
+   ],
+   [
+    60889.25,
+    252.035105,
+    -17.423635,
+    2.79436
+   ],
+   [
+    60889.5,
+    251.86351,
+    -17.405109,
+    2.79103
+   ],
+   [
+    60889.75,
+    251.691858,
+    -17.386446,
+    2.78774
+   ],
+   [
+    60890,
+    251.520151,
+    -17.367646,
+    2.78448
+   ],
+   [
+    60890.25,
+    251.348397,
+    -17.348711,
+    2.78125
+   ],
+   [
+    60890.5,
+    251.176599,
+    -17.32964,
+    2.77805
+   ],
+   [
+    60890.75,
+    251.004762,
+    -17.310435,
+    2.77488
+   ],
+   [
+    60891,
+    250.832893,
+    -17.291094,
+    2.77174
+   ],
+   [
+    60891.25,
+    250.660994,
+    -17.27162,
+    2.76863
+   ],
+   [
+    60891.5,
+    250.489073,
+    -17.252012,
+    2.76555
+   ],
+   [
+    60891.75,
+    250.317132,
+    -17.232272,
+    2.7625
+   ],
+   [
+    60892,
+    250.145178,
+    -17.212399,
+    2.75948
+   ],
+   [
+    60892.25,
+    249.973216,
+    -17.192395,
+    2.75649
+   ],
+   [
+    60892.5,
+    249.801249,
+    -17.172259,
+    2.75353
+   ],
+   [
+    60892.75,
+    249.629283,
+    -17.151993,
+    2.75061
+   ],
+   [
+    60893,
+    249.457324,
+    -17.131598,
+    2.74771
+   ],
+   [
+    60893.25,
+    249.285375,
+    -17.111073,
+    2.74484
+   ],
+   [
+    60893.5,
+    249.113441,
+    -17.090419,
+    2.74199
+   ],
+   [
+    60893.75,
+    248.941528,
+    -17.069638,
+    2.73918
+   ],
+   [
+    60894,
+    248.76964,
+    -17.048729,
+    2.7364
+   ],
+   [
+    60894.25,
+    248.597781,
+    -17.027694,
+    2.73365
+   ],
+   [
+    60894.5,
+    248.425958,
+    -17.006533,
+    2.73092
+   ],
+   [
+    60894.75,
+    248.254173,
+    -16.985248,
+    2.72822
+   ],
+   [
+    60895,
+    248.082433,
+    -16.963838,
+    2.72555
+   ],
+   [
+    60895.25,
+    247.910741,
+    -16.942304,
+    2.72291
+   ],
+   [
+    60895.5,
+    247.739103,
+    -16.920648,
+    2.7203
+   ],
+   [
+    60895.75,
+    247.567523,
+    -16.89887,
+    2.71772
+   ],
+   [
+    60896,
+    247.396005,
+    -16.876971,
+    2.71516
+   ],
+   [
+    60896.25,
+    247.224554,
+    -16.854952,
+    2.71263
+   ],
+   [
+    60896.5,
+    247.053176,
+    -16.832813,
+    2.71013
+   ],
+   [
+    60896.75,
+    246.881873,
+    -16.810556,
+    2.70766
+   ],
+   [
+    60897,
+    246.710652,
+    -16.788181,
+    2.70521
+   ],
+   [
+    60897.25,
+    246.539516,
+    -16.765689,
+    2.70279
+   ],
+   [
+    60897.5,
+    246.368469,
+    -16.743081,
+    2.7004
+   ],
+   [
+    60897.75,
+    246.197518,
+    -16.720358,
+    2.69803
+   ],
+   [
+    60898,
+    246.026665,
+    -16.69752,
+    2.69569
+   ],
+   [
+    60898.25,
+    245.855915,
+    -16.67457,
+    2.69338
+   ],
+   [
+    60898.5,
+    245.685273,
+    -16.651507,
+    2.69109
+   ],
+   [
+    60898.75,
+    245.514743,
+    -16.628333,
+    2.68883
+   ],
+   [
+    60899,
+    245.344329,
+    -16.605049,
+    2.6866
+   ],
+   [
+    60899.25,
+    245.174036,
+    -16.581655,
+    2.68439
+   ],
+   [
+    60899.5,
+    245.003869,
+    -16.558152,
+    2.6822
+   ],
+   [
+    60899.75,
+    244.83383,
+    -16.534542,
+    2.68004
+   ],
+   [
+    60900,
+    244.663925,
+    -16.510826,
+    2.67791
+   ],
+   [
+    60900.25,
+    244.494158,
+    -16.487004,
+    2.6758
+   ],
+   [
+    60900.5,
+    244.324533,
+    -16.463077,
+    2.67372
+   ],
+   [
+    60900.75,
+    244.155054,
+    -16.439047,
+    2.67166
+   ],
+   [
+    60901,
+    243.985725,
+    -16.414915,
+    2.66963
+   ],
+   [
+    60901.25,
+    243.816551,
+    -16.390681,
+    2.66762
+   ],
+   [
+    60901.5,
+    243.647536,
+    -16.366347,
+    2.66564
+   ],
+   [
+    60901.75,
+    243.478683,
+    -16.341914,
+    2.66368
+   ],
+   [
+    60902,
+    243.309996,
+    -16.317382,
+    2.66174
+   ],
+   [
+    60902.25,
+    243.14148,
+    -16.292753,
+    2.65983
+   ],
+   [
+    60902.5,
+    242.973139,
+    -16.268028,
+    2.65794
+   ],
+   [
+    60902.75,
+    242.804976,
+    -16.243208,
+    2.65608
+   ],
+   [
+    60903,
+    242.636995,
+    -16.218295,
+    2.65423
+   ],
+   [
+    60903.25,
+    242.469201,
+    -16.193288,
+    2.65241
+   ],
+   [
+    60903.5,
+    242.301596,
+    -16.168189,
+    2.65062
+   ],
+   [
+    60903.75,
+    242.134184,
+    -16.142999,
+    2.64884
+   ],
+   [
+    60904,
+    241.96697,
+    -16.11772,
+    2.64709
+   ],
+   [
+    60904.25,
+    241.799957,
+    -16.092353,
+    2.64536
+   ],
+   [
+    60904.5,
+    241.633149,
+    -16.066897,
+    2.64366
+   ],
+   [
+    61015,
+    175.793323,
+    2.115685,
+    1.8621
+   ],
+   [
+    61015.25,
+    175.549591,
+    2.202392,
+    1.85989
+   ],
+   [
+    61015.5,
+    175.304798,
+    2.289462,
+    1.85771
+   ],
+   [
+    61015.75,
+    175.058948,
+    2.37689,
+    1.85557
+   ],
+   [
+    61016,
+    174.812041,
+    2.464674,
+    1.85345
+   ],
+   [
+    61016.25,
+    174.564078,
+    2.55281,
+    1.85137
+   ],
+   [
+    61016.5,
+    174.315063,
+    2.641295,
+    1.84931
+   ],
+   [
+    61016.75,
+    174.064997,
+    2.730126,
+    1.8473
+   ],
+   [
+    61017,
+    173.813882,
+    2.819299,
+    1.84531
+   ],
+   [
+    61017.25,
+    173.561721,
+    2.90881,
+    1.84336
+   ],
+   [
+    61017.5,
+    173.308517,
+    2.998657,
+    1.84144
+   ],
+   [
+    61017.75,
+    173.054274,
+    3.088834,
+    1.83955
+   ],
+   [
+    61018,
+    172.798994,
+    3.179337,
+    1.8377
+   ],
+   [
+    61018.25,
+    172.542681,
+    3.270163,
+    1.83589
+   ],
+   [
+    61018.5,
+    172.28534,
+    3.361306,
+    1.83411
+   ],
+   [
+    61018.75,
+    172.026973,
+    3.452763,
+    1.83236
+   ],
+   [
+    61019,
+    171.767587,
+    3.544529,
+    1.83066
+   ],
+   [
+    61019.25,
+    171.507185,
+    3.636598,
+    1.82899
+   ],
+   [
+    61019.5,
+    171.245773,
+    3.728967,
+    1.82736
+   ],
+   [
+    61019.75,
+    170.983355,
+    3.821628,
+    1.82576
+   ],
+   [
+    61020,
+    170.719938,
+    3.914578,
+    1.82421
+   ],
+   [
+    61020.25,
+    170.455527,
+    4.007811,
+    1.82269
+   ],
+   [
+    61020.5,
+    170.190129,
+    4.101321,
+    1.82121
+   ],
+   [
+    61020.75,
+    169.923749,
+    4.195103,
+    1.81978
+   ],
+   [
+    61021,
+    169.656395,
+    4.28915,
+    1.81838
+   ],
+   [
+    61021.25,
+    169.388074,
+    4.383457,
+    1.81703
+   ],
+   [
+    61021.5,
+    169.118793,
+    4.478017,
+    1.81571
+   ],
+   [
+    61021.75,
+    168.84856,
+    4.572823,
+    1.81444
+   ],
+   [
+    61022,
+    168.577383,
+    4.66787,
+    1.81321
+   ],
+   [
+    61022.25,
+    168.30527,
+    4.763151,
+    1.81202
+   ],
+   [
+    61022.5,
+    168.032229,
+    4.858659,
+    1.81088
+   ],
+   [
+    61022.75,
+    167.75827,
+    4.954386,
+    1.80978
+   ],
+   [
+    61023,
+    167.483401,
+    5.050327,
+    1.80872
+   ],
+   [
+    61023.25,
+    167.207634,
+    5.146472,
+    1.80771
+   ],
+   [
+    61023.5,
+    166.930976,
+    5.242816,
+    1.80675
+   ],
+   [
+    61023.75,
+    166.653438,
+    5.339351,
+    1.80583
+   ],
+   [
+    61024,
+    166.375032,
+    5.436068,
+    1.80495
+   ],
+   [
+    61024.25,
+    166.095767,
+    5.53296,
+    1.80412
+   ],
+   [
+    61024.5,
+    165.815655,
+    5.630019,
+    1.80334
+   ],
+   [
+    61024.75,
+    165.534707,
+    5.727238,
+    1.80261
+   ],
+   [
+    61025,
+    165.252935,
+    5.824607,
+    1.80192
+   ],
+   [
+    61025.25,
+    164.970351,
+    5.922118,
+    1.80128
+   ],
+   [
+    61025.5,
+    164.686967,
+    6.019763,
+    1.8007
+   ],
+   [
+    61025.75,
+    164.402797,
+    6.117534,
+    1.80015
+   ],
+   [
+    61026,
+    164.117853,
+    6.215421,
+    1.79966
+   ]
+  ],
+  "wikiCard": {
+   "title": "3I/ATLAS",
+   "extract": "3I/ATLAS, also known as C/2025 N1 (ATLAS) and previously as A11pl3Z, is an interstellar comet discovered on 1 July 2025 by the Asteroid Terrestrial-impact Last Alert System (ATLAS) station. The comet follows an unbound, hyperbolic trajectory past the Sun, and passed by Earth at 1.8 AU, posing no threat. The prefix \"3I\" designates it as the third confirmed interstellar object passing through the Solar System, after 1I/ʻOumuamua and 2I/Borisov.",
+   "description": "Interstellar comet in 2025",
+   "url": "https://en.wikipedia.org/wiki/3I%2FATLAS",
+   "thumb": "data/3i-atlas/thumb.jpg"
+  }
+ }
+]

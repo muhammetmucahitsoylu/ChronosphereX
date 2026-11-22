@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<title>Chronosphere — the sky is not still · NASA SPHEREx sky explorer</title>
+<meta name="description" content="Fly over the whole sky as NASA's SPHEREx sees it, pick any point, and watch that spot change over time. See what moves, what flickers, and what it is made of.">
+<meta property="og:title" content="Chronosphere — the sky is not still">
+<meta property="og:description" content="Pick any point of the sky and watch it change over a quarter of a century, in real images from 2MASS, NASA's WISE and NASA's SPHEREx. Free, in the browser, in six languages.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/">
+<meta property="og:image" content="https://chronospherex.com/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Barnard's Star in a 2MASS image of May 2000 and a SPHEREx image of August 2026: in 26 years it has walked 4.6 arcminutes north across the same patch of sky.">
+<meta property="og:site_name" content="Chronosphere">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chronosphere — the sky is not still">
+<meta name="twitter:description" content="Pick any point of the sky and watch it change over a quarter of a century, in real images from 2MASS, NASA's WISE and NASA's SPHEREx. Free, in the browser, in six languages.">
+<meta name="twitter:image" content="https://chronospherex.com/share.jpg">
+<link rel="canonical" href="https://chronospherex.com/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Chronosphere","alternateName":["ChronosphereX","chronospherex.com"],"url":"https://chronospherex.com/"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Chronosphere","alternateName":"ChronosphereX","url":"https://chronospherex.com/","description":"Fly over the whole sky as NASA's SPHEREx sees it, pick any point, and watch that spot change over time. See what moves, what flickers, and what it is made of.","applicationCategory":"EducationalApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript and WebGL 2","inLanguage":["en","tr","es","de","fr","pl"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://github.com/muhammetmucahitsoylu/chronosphere/blob/main/LICENSE","image":"https://chronospherex.com/preview.png","author":{"@type":"Organization","name":"The Bright Nobles"},"sameAs":["https://github.com/muhammetmucahitsoylu/chronosphere","https://www.instagram.com/chronospherex_official/"]}
+</script>
+<script>
+// A language picked earlier, or carried by the address, is known before the page's code arrives:
+// its words are held back until they can be shown in that language, instead of flashing in English first.
+try { var L = new URLSearchParams(location.search).get('lang') || localStorage.getItem('chrono-lang');
+  if (L && L !== 'en') { document.documentElement.className = 'wait-words'; setTimeout(function () { document.documentElement.classList.remove('wait-words'); }, 5000); } } catch (e) { /* private mode */ }
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0908'/%3E%3Ccircle cx='13' cy='17' r='7' fill='none' stroke='%23f3eee6' stroke-width='2'/%3E%3Ccircle cx='19' cy='14' r='7' fill='%23ff7b39'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="preload" as="image" href="opening.jpg" fetchpriority="high">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<noscript><p style="margin:0;padding:14px 18px;background:#1b1512;color:#f3eee6;font:15px/1.5 system-ui,sans-serif">Chronosphere reads NASA's SPHEREx images in your browser, so it needs JavaScript. Turn it on for this site and reload the page. To read about it meanwhile: <a href="planet-x.html" style="color:#ff7b39">Planet X, Pluto and SPHEREx</a> · <a href="find-asteroids.html" style="color:#ff7b39">Asteroid hunt</a> · <a href="what-is-spherex.html" style="color:#ff7b39">What is SPHEREx?</a> · <a href="how-it-works.html" style="color:#ff7b39">How it works</a> · <a href="about.html" style="color:#ff7b39">About</a></p></noscript>
+<header class="top" id="top">
+  <a class="brand" href="./" aria-label="Chronosphere, home">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle cx="13" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="14" r="8" fill="var(--ember)"/></svg>
+    <span>Chronosphere</span>
+  </a>
+  <form id="search" autocomplete="off" role="search">
+    <label class="sr" for="q" data-t="search.label">Object name or coordinates</label>
+    <input id="q" type="text" inputmode="search" enterkeyhint="search" list="suggest" placeholder="Search the sky: a name, or RA and Dec" data-t-placeholder="search.placeholder">
+    <datalist id="suggest"></datalist>
+    <button type="submit" aria-label="Search" data-t="search.go">Go</button>
+  </form>
+  <nav class="nav" id="nav" aria-label="About this site">
+    <div class="navlinks" id="navlinks" lang="en">
+      <!-- links to the pages as plain pages (a search engine, a new tab); a plain click opens the same words over the map -->
+      <a class="navgame" href="play.html" data-t="hero.play">Play a game</a>
+      <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title">Planet X</a>
+      <a href="find-asteroids.html" data-sheet="hunt">Asteroid hunt</a>
+      <a href="what-is-spherex.html" data-sheet="spherex">What is SPHEREx?</a>
+      <a href="how-it-works.html" data-sheet="how">How it works</a>
+      <a href="about.html" data-sheet="about">About</a>
+      <a class="navsocial" href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram</a>
+      <select id="lang" class="langpick" aria-label="Language" data-t-label="nav.language"></select>
+    </div>
+    <button id="tourbtn" type="button" class="cta" data-t="nav.tour">Guided tour</button>
+    <button id="menubtn" type="button" class="menubtn" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<main class="app" id="app" data-panel="closed">
+  <section class="mapwrap" aria-label="Sky map">
+    <div class="mapstage" id="mapstage">
+      <div id="map"></div>
+
+      <div class="mapui layerpick">
+        <label class="sr" for="layer">Sky map</label>
+        <select id="layer" title="Which survey to fly over"></select>
+      </div>
+      <div class="mapui zoom" id="zoom">
+        <button type="button" id="zoomin" aria-label="Zoom in" title="Zoom in">+</button>
+        <button type="button" id="zoomout" aria-label="Zoom out" title="Zoom out">−</button>
+        <output id="fovlabel" title="Width of the view" aria-label="Width of the view"></output>
+      </div>
+
+      <div class="hero" id="welcome">
+        <p class="eyebrow" data-t="hero.eyebrow">NASA SPHEREx · 102 infrared colours · the whole sky, twice a year</p>
+        <h1 data-t="hero.title">The sky is not still.</h1>
+        <p class="lede"><span class="poem" data-t="hero.lede">Stars drift. Some flicker. Cold worlds hide in colours our eyes cannot see.</span> <span data-t="hero.do">Pick any point of this map to watch that spot change over time, and find out what it is.</span></p>
+        <div class="herobtns">
+          <button type="button" class="cta" id="hidewelcome" data-t="hero.explore">Explore the sky</button>
+          <button type="button" class="ghost" id="tourbtn2" data-t="hero.tour">Two-minute tour</button>
+          <button type="button" class="ghost" id="huntbtn" data-t="hero.hunt">Find an asteroid</button>
+          <a class="ghost" id="playlink" href="play.html" data-t="hero.play">Play a game</a>
+        </div>
+        <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. --><span id="examples"><a href="3i-atlas.html">3I/ATLAS</a><a href="barnards-star.html">Barnard's Star</a><a href="epsilon-indi-b.html">Epsilon Indi B</a><a href="wise-0855.html">WISE 0855</a><a href="rw-aurigae.html">RW Aurigae</a><a href="r-draconis.html">R Draconis</a><a href="pluto.html">Pluto</a></span></p>
+        <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->
+        <button type="button" class="heroshot" id="heroshot">
+          <picture><source media="(prefers-reduced-motion: reduce)" srcset="hero-barnard.jpg"><img src="hero-barnard.webp" width="320" height="320" alt="" decoding="async"></picture>
+          <span class="shotcap"><b data-t="hero.shot.title">The star in the ring is Barnard’s Star.</b> <span data-t="hero.shot.text">Real images from three telescopes, 2000 to 2026: 2MASS, then NASA’s WISE and SPHEREx.</span> <span class="shotgo" data-t="hero.shot.go">Watch it over 26 years</span></span>
+        </button>
+        <p class="offline" id="offline"></p>
+      </div>
+
+      <div class="mapui ruler" id="wavebox">
+        <button id="waveplay" type="button" title="Sweep through all 102 colours" aria-label="Sweep through wavelengths">▶</button>
+        <div class="rulertrack">
+          <input id="wave" type="range" min="0" max="101" value="25" step="1" aria-label="Wavelength of the map">
+          <div class="rulerticks" aria-hidden="true"><span>0.75</span><span>1.5</span><span>2</span><span>3</span><span>4</span><span>5 µm</span></div>
+        </div>
+        <output id="wavelabel" for="wave">1.35 µm</output>
+      </div>
+      <div id="mapnote" class="mapnote" hidden></div>
+      <figure class="mapui blink" id="blink" hidden>
+        <button type="button" class="blinkstage" id="blinkstage" aria-label="Two SPHEREx images of the same patch of sky, taken days apart. Press to flip between them.">
+          <canvas id="blinkcv" width="300" height="300"></canvas>
+          <span class="blinkdate" id="blinkdate"></span>
+        </button>
+        <figcaption><b>Spot the dot that moves.</b> <span id="blinkcap"></span></figcaption>
+      </figure>
+      <figure class="mapui blink ladder" id="ladder" hidden>
+        <figcaption><b id="laddertitle"></b></figcaption>
+        <ol class="rungs" id="rungs"></ol>
+        <p class="laddernote" id="laddernote"></p>
+      </figure>
+    </div>
+
+    <div class="tour" id="tour" hidden role="region" aria-label="Guided tour" aria-live="polite">
+      <div class="tourbar"><i id="tourprog"></i></div>
+      <div class="tourstep"><span id="tourcount"></span><button type="button" id="tourclose" aria-label="End tour" data-t-label="tour.end">×</button></div>
+      <h2 id="tourtitle"></h2>
+      <p id="tourtext"></p>
+      <ol class="tourpoints" id="tourpoints" hidden></ol>
+      <p class="tourlinks" id="tourlinks" hidden></p>
+      <div class="tourbtns">
+        <button type="button" class="ghost walk" id="tourwalk" hidden><span class="long" data-t="tour.walk">Walk through the panel</span><span class="short" data-t="tour.walkShort">Panel guide</span></button>
+        <span class="tourmini" id="tourmini"></span>
+        <button type="button" class="ghost" id="tourback" data-t="tour.back">Back</button>
+        <button type="button" id="tournext" class="cta">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel" id="panel" lang="en" aria-label="Selected object">
+    <div class="guides" id="guides" hidden aria-hidden="true"></div>
+    <div class="spot" id="spot" hidden aria-hidden="true"></div>
+    <header id="about" class="ohead"></header>
+
+    <div class="cols">
+      <div class="lead">
+        <div id="huntbox" class="bodybox huntbox" hidden></div>
+        <div id="bodybox" class="bodybox" hidden></div>
+        <div id="lookbox" class="lookbox"></div>
+        <section id="findings" class="findings" aria-live="polite" hidden></section>
+      </div>
+
+      <div class="left">
+      <section class="block viewer" aria-label="SPHEREx images over time">
+        <h2 class="blocktitle">Over time <small id="overtime">every SPHEREx exposure of this spot</small></h2>
+        <div class="stage">
+          <canvas id="sky" tabindex="0" aria-label="SPHEREx image sequence"></canvas>
+          <div id="caption" aria-live="polite"></div>
+          <div id="status" role="status"></div>
+          <div id="notice" hidden></div>
+        </div>
+        <div class="transport">
+          <button id="prev" title="Previous (←)" aria-label="Previous image">‹</button>
+          <button id="play" class="playbtn" title="Play / pause (space)">▶ Play</button>
+          <button id="next" title="Next (→)" aria-label="Next image">›</button>
+          <input id="seek" type="range" min="0" max="0" value="0" aria-label="Position in sequence">
+          <span id="count" class="mono"></span>
+          <label class="sr" for="fps">Speed</label>
+          <select id="fps" title="Playback speed">
+            <option value="1">1/s</option><option value="2" selected>2/s</option>
+            <option value="4">4/s</option><option value="8">8/s</option><option value="15">15/s</option>
+          </select>
+        </div>
+        <div class="seg" role="group" aria-label="How to compare" id="modes">
+          <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
+          <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>
+          <button data-mode="frames" title="Every single exposure, in time order.">Exposures</button>
+          <button data-mode="color" title="Time shown as colour: anything that moved or changed shows up coloured.">Time as colour</button>
+          <button data-mode="diff" title="A later visit minus an earlier one.">Difference</button>
+          <button data-mode="bands" title="The same sky in each of the six detectors, from 0.75 to 5 microns.">Wavelengths</button>
+          <button data-mode="deep" title="All exposures added together: the deepest image.">Deep</button>
+          <button data-mode="trail" hidden title="One image for every stop of the telescope that caught the body: the stars stay, the body moves on.">Passing body</button>
+        </div>
+        <p id="explain" class="hint"></p>
+        <div class="detwrap">
+          <div class="detstrip" role="group" aria-label="Detector (wavelength band)" id="dets"></div>
+          <div class="detticks" aria-hidden="true"><span>0.75 µm</span><span>1.64</span><span>2.42</span><span>3.82</span><span>4.42</span><span>5.0</span></div>
+          <p id="detnote" class="hint"></p>
+        </div>
+        <details class="display">
+          <summary>Display options</summary>
+          <div class="tools">
+            <label>Brightness <input id="white" type="range" min="-1.5" max="1.5" step="0.05" value="0"></label>
+            <label>Field <select id="fov" title="Field of view. Larger fields take longer to load.">
+              <option value="3">3′</option><option value="5" selected>5′</option><option value="10">10′</option><option value="20">20′</option><option value="40">40′</option>
+            </select></label>
+            <label title="The ring around the measured spot, the predicted path and the catalogue marks"><input id="marks" type="checkbox" checked> Markings</label>
+            <label><input id="invert" type="checkbox"> Negative</label>
+            <label><input id="smooth" type="checkbox"> Smooth</label>
+            <label title="Gaia DR3 stars at their position on the date shown (circles). Fast movers get an arrow."><input id="gaia" type="checkbox" checked> Gaia stars</label>
+            <label title="Infrared sources catalogued by the WISE telescope (squares)"><input id="wise" type="checkbox"> WISE sources</label>
+            <label title="Pixels the pipeline masked: saturated, bad or missing"><input id="mask" type="checkbox"> Masked pixels</label>
+            <button id="resetview" type="button">Reset zoom</button>
+          </div>
+          <p id="readout" class="mono hint">Scroll or pinch to zoom, drag to pan, click or tap a star to measure it.</p>
+        </details>
+        <div class="export" role="group" aria-label="Share and export">
+          <button type="button" id="copylink" title="Copy a link that reopens exactly this view">Copy link</button>
+          <button type="button" id="savepng" title="Save the image as shown, with its markings">Save image</button>
+          <button type="button" id="savevideo" title="Save one loop of the sequence as a video file">Save video</button>
+          <button type="button" id="savecsv" title="Every measurement of the circled spot: date, wavelength, brightness, exposure">Measurements (CSV)</button>
+          <button type="button" id="saveades" hidden title="The places measured for the body being followed, in the format the Minor Planet Center takes (ADES)">Positions (ADES)</button>
+          <span id="exportnote" class="hint" role="status"></span>
+        </div>
+        <div id="reportask" class="reportask" hidden>
+          <label for="reporter">Your name for the report, as the Minor Planet Center writes names: initials and surname, for example J. Smith. It is written into the file and kept on this device only.</label>
+          <input id="reporter" type="text" maxlength="60" autocomplete="name" spellcheck="false">
+          <button type="button" id="reportsave">Save the file</button>
+          <button type="button" id="reportcancel">Cancel</button>
+        </div>
+        <div id="years"></div>
+        <div id="motion"></div>
+        <div id="scan"></div>
+        <div id="movers"></div>
+      </section>
+      <div class="more">
+        <section id="wikibox" class="block wikibox" hidden></section>
+
+        <details class="block fold">
+          <summary>This image: date, wavelength, quality, pixel flags</summary>
+          <dl id="meta"></dl>
+        </details>
+        <details class="block fold">
+          <summary>Data releases in use</summary>
+          <div id="releases"></div>
+          <p class="hint">Releases come from the sky index, which is rebuilt from the NASA/IPAC archive on a schedule. A new release appears here without any change to this site.</p>
+        </details>
+      </div>
+      </div>
+
+      <div class="stack">
+        <section class="block">
+          <h2 class="blocktitle">Spectrum <small>its light by colour</small>
+            <label class="inline" title="Mark the wavelengths where common molecules absorb light"><input id="bandsOn" type="checkbox" checked> molecule bands</label></h2>
+          <div class="plotwrap"><canvas id="spec"></canvas><div class="tip" hidden></div></div>
+          <div id="speclegend" class="legend"></div>
+          <div id="specnote"></div>
+          <div id="molecules"></div>
+        </section>
+
+        <section class="block">
+          <h2 class="blocktitle" id="lctitle">Brightness over time</h2>
+          <div class="plotwrap"><canvas id="lc"></canvas><div class="tip" hidden></div></div>
+          <p class="hint" id="lcnote">Each measurement in the selected detector, divided by the spot's own average spectrum at that wavelength, so colour does not pass for variability. A steady star stays near 1.</p>
+          <div id="lccheck"></div>
+        </section>
+      </div>
+    </div>
+
+    <p class="credits">Images: NASA SPHEREx, served by NASA/IPAC (IRSA). Catalogues: Gaia DR3, CatWISE2020, SIMBAD. Sky atlas: Aladin Lite. Encyclopedia cards: Wikipedia.</p>
+  </aside>
+</main>
+
+<div class="coach" id="coach" hidden role="region" aria-label="A walk through the panel" aria-live="polite">
+  <div class="coachhead"><span id="coachcount"></span><button type="button" id="coachclose" aria-label="End the walk through the panel" data-t-label="coach.close">×</button></div>
+  <h2 id="coachtitle"></h2>
+  <p id="coachtext"></p>
+  <p id="coachnote" class="coachnote" hidden></p>
+  <div class="coachnav">
+    <button type="button" class="ghost" id="coachback" data-t="tour.back">Back</button>
+    <button type="button" class="cta" id="coachnext">Next</button>
+  </div>
+</div>
+
+<div class="sheetwrap" id="sheetwrap" hidden lang="en">
+  <article class="sheet" id="sheet" role="dialog" aria-modal="true" tabindex="-1"></article>
+</div>
+
+<script src="config.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
