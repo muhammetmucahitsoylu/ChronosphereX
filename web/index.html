@@ -31,12 +31,26 @@
 <script>
 // A language picked earlier, or carried by the address, is known before the page's code arrives:
 // its words are held back until they can be shown in that language, instead of flashing in English first.
+// The top bar and the heading also wait for their own typefaces, for at most 1.5 s: drawn first in the fallback
+// faces they moved when the real ones arrived (layout shift 0.21 on a laptop, 22 November 2026).
+(function () { var h = document.documentElement, done = function () { h.classList.remove('wait-fonts'); };
+  h.classList.add('wait-fonts'); setTimeout(done, 1500);
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!document.fonts || !document.fonts.load) return done();
+    Promise.all(['italic 400 1em "Instrument Serif"', '400 1em "Instrument Serif"', '500 1em "IBM Plex Sans"', '600 1em "IBM Plex Sans"'].map(function (f) { return document.fonts.load(f); })).then(done, done);
+  }); })();
 try { var L = new URLSearchParams(location.search).get('lang') || localStorage.getItem('chrono-lang');
-  if (L && L !== 'en') { document.documentElement.className = 'wait-words'; setTimeout(function () { document.documentElement.classList.remove('wait-words'); }, 5000); } } catch (e) { /* private mode */ }
+  if (L && L !== 'en') { document.documentElement.classList.add('wait-words'); setTimeout(function () { document.documentElement.classList.remove('wait-words'); }, 5000); } } catch (e) { /* private mode */ }
 </script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0908'/%3E%3Ccircle cx='13' cy='17' r='7' fill='none' stroke='%23f3eee6' stroke-width='2'/%3E%3Ccircle cx='19' cy='14' r='7' fill='%23ff7b39'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="preload" as="image" href="opening.jpg" fetchpriority="high">
+<!-- The faces of the top bar and the heading, asked for at once: found only through fonts.css they arrived about two
+     seconds in, and the bar moved when they did (layout shift 0.21 on a laptop, 22 November 2026). -->
+<link rel="preload" as="font" type="font/woff2" href="fonts/InstrumentSerif-400i-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/InstrumentSerif-400-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/IBMPlexSans-500-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/IBMPlexSans-600-latin.woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
