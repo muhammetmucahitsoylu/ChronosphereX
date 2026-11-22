@@ -136,6 +136,8 @@ export default {
     <h2>Der Code</h2>
     <p>Der Code ist auf GitHub lesbar: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Alle Rechte vorbehalten: Ohne Erlaubnis des Teams darf er nicht kopiert, weiterverwendet oder anderswo veröffentlicht werden.</p>
     <p>Neue Bilder und kurze Filme gibt es auf Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
+    <h2>Besucherzahlen</h2>
+    <p>Wir zählen Besuche mit <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a>, um zu wissen, wie viele Menschen kommen und von welchen Seiten. Es setzt keine Cookies und speichert keine IP-Adressen; wir sehen nur Summen: Seiten, Herkunftsseiten, Browser und Länder. Wenn Ihr Werbeblocker es aufhält, ist das in Ordnung.</p>
     <h2>Einsatz von KI</h2>
     <p>Die Software wurde während der Veranstaltung mit einem KI-Programmierassistenten geschrieben. Das Team hat den Ansatz gewählt, die Ergebnisse an Katalogwerten und unabhängigen Werkzeugen geprüft und ist für den Inhalt verantwortlich. Es werden keine KI-erzeugten Bilder, Töne oder Videos verwendet: Jedes gezeigte Bild sind Teleskopdaten.</p>
     <p class="fine">Quellen für die Zahlen oben: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">NASA zum 5000. Kometen von SOHO</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,

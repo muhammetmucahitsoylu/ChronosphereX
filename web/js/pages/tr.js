@@ -136,6 +136,8 @@ export default {
     <h2>Kod</h2>
     <p>Kodu GitHub’da okuyabilirsiniz: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. Tüm hakları saklıdır: ekibin izni olmadan kopyalanamaz, başka yerde kullanılamaz ya da yayınlanamaz.</p>
     <p>Yeni görüntüler ve kısa filmler Instagram’da: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
+    <h2>Ziyaret sayısı</h2>
+    <p>Kaç kişinin geldiğini ve hangi sitelerden geldiğini bilmek için ziyaretleri <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> ile sayıyoruz. Çerez kullanmaz, IP adresi saklamaz; biz yalnızca toplamları görürüz: sayfalar, ziyaretçilerin geldiği siteler, tarayıcılar ve ülkeler. Reklam engelleyiciniz bunu durdurursa sorun değil.</p>
     <h2>Yapay zekâ kullanımı</h2>
     <p>Yazılım, etkinlik sırasında bir yapay zekâ kodlama yardımcısıyla yazıldı. Yaklaşımı takım seçti, sonuçları katalog değerleriyle ve bağımsız araçlarla karşılaştırdı ve içerikten takım sorumludur. Yapay zekâyla üretilmiş görüntü, ses ya da video kullanılmadı: gösterilen her görüntü teleskop verisidir.</p>
     <p class="fine">Yukarıdaki sayıların kaynakları: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">SOHO’nun 5.000. kuyruklu yıldızı üzerine NASA</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,

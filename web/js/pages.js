@@ -164,6 +164,8 @@ const ENGLISH = {
     <h2>The code</h2>
     <p>The code can be read on GitHub: <a href="${TEAM.repo}" target="_blank" rel="noopener">${TEAM.repo.replace('https://', '')}</a>. All rights reserved: it may not be copied, reused or published elsewhere without the team’s permission.</p>
     <p>New pictures and short films are on Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
+    <h2>Visit counts</h2>
+    <p>We count visits with <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> so that we know how many people come and from which sites. It sets no cookies and keeps no IP addresses; we see only totals: pages, the sites visitors came from, browsers and countries. If your ad blocker stops it, that is fine.</p>
     <h2>Use of AI</h2>
     <p>The software was written with an AI coding assistant during the event. The team chose the approach, checked the results against catalogue values and independent tools, and is responsible for the content. No AI-generated images, audio or video are used: every image shown is telescope data.</p>
     <p class="fine">Sources for the figures above: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">NASA on SOHO's 5,000th comet</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
