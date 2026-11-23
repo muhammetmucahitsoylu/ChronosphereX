@@ -140,12 +140,12 @@ const ENGLISH = {
   about: () => `
     <p class="eyebrow">About</p>
     <h1>Built so that more people can look</h1>
-    <p class="lead">ChronosphereX began on 14 and 15 November 2026 at the NASA Space Apps Challenge, for the challenge <i>Planet X and SPHEREx</i>, by the team ${TEAM.name}, and we have kept building it since. In the week that followed came the search for asteroids and comets crossing a field, the asteroid hunt with a report ready for the Minor Planet Center, the comet 3I/ATLAS, and the Years view, which lays 27 years of images from 2MASS, WISE and SPHEREx on one grid.</p>
+    <p class="lead">ChronosphereX is built by the team ${TEAM.name}. We started it in November 2026 and keep adding to it. Since then came the search for asteroids and comets crossing a field, the asteroid hunt with a report ready for the Minor Planet Center, the comet 3I/ATLAS, and the Years view, which lays 27 years of images from 2MASS, WISE and SPHEREx on one grid.</p>
     ${team('The team')}
     <h2>Why we built it</h2>
     <p>Pluto was found in 1930 by a person comparing two photographs. People still find new worlds that way. Volunteers have spotted most of the more than 5,000 comets discovered in images from the SOHO spacecraft, and about 3,000 candidate brown dwarfs in images from NASA's WISE telescope. SPHEREx is now photographing hundreds of millions of objects, again and again: more than any group of professionals can inspect.</p>
     <p>We wanted a tool where anyone, with no training, can pick a point in the sky and see for themselves whether something there has moved or changed, and then check it against independent sources in one click.</p>
-    <p>The challenge takes its name from Planet X, the hypothetical undiscovered planet in the outer solar system. Whether or not SPHEREx can see it, any unknown nearby object would give itself away the same way Pluto did: as a dot that moves.</p>
+    <p>Planet X, the hypothetical undiscovered planet in the outer solar system, would be found the same way. Whether or not SPHEREx can see it, any unknown nearby object would give itself away the same way Pluto did: as a dot that moves.</p>
     <h2>Who it is for</h2>
     <ul>
       <li><b>Anyone curious.</b> No account and no training: the tour takes two minutes, and every object opens with a few plain sentences on what the measurements show.</li>
@@ -167,7 +167,7 @@ const ENGLISH = {
     <h2>Visit counts</h2>
     <p>We count visits with <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> so that we know how many people come and from which sites. It sets no cookies and keeps no IP addresses; we see only totals: pages, the sites visitors came from, browsers and countries. If your ad blocker stops it, that is fine.</p>
     <h2>Use of AI</h2>
-    <p>The software was written with an AI coding assistant during the event. The team chose the approach, checked the results against catalogue values and independent tools, and is responsible for the content. No AI-generated images, audio or video are used: every image shown is telescope data.</p>
+    <p>The software was written with an AI coding assistant. The team chose the approach, checked the results against catalogue values and independent tools, and is responsible for the content. No AI-generated images, audio or video are used: every image shown is telescope data.</p>
     <p class="fine">Sources for the figures above: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">NASA on SOHO's 5,000th comet</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
   }),
 };

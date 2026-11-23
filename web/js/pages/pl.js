@@ -112,12 +112,12 @@ export default {
     about: () => `
     <p class="eyebrow">O projekcie</p>
     <h1>Zrobione po to, by mogło patrzeć więcej osób</h1>
-    <p class="lead">ChronosphereX powstał 14 i 15 listopada 2026 roku podczas NASA Space Apps Challenge, w ramach wyzwania <i>Planet X and SPHEREx</i>; zaczął go zespół ${TEAM.name} i od tamtej pory dalej go rozwijamy. W kolejnym tygodniu doszły wyszukiwanie planetoid i komet przecinających pole, polowanie na planetoidy z gotowym raportem dla Minor Planet Center, kometa 3I/ATLAS oraz widok „Lata”, który układa 27 lat obrazów z 2MASS, WISE i SPHEREx na jednej siatce.</p>
+    <p class="lead">ChronosphereX tworzy zespół ${TEAM.name}. Zaczęliśmy w listopadzie 2026 roku i dalej go rozwijamy. Od tamtej pory doszły wyszukiwanie planetoid i komet przecinających pole, polowanie na planetoidy z gotowym raportem dla Minor Planet Center, kometa 3I/ATLAS oraz widok „Lata”, który układa 27 lat obrazów z 2MASS, WISE i SPHEREx na jednej siatce.</p>
     ${team('Zespół')}
     <h2>Dlaczego to zbudowaliśmy</h2>
     <p>Plutona odnalazł w 1930 roku człowiek porównujący dwie fotografie. Ludzie wciąż znajdują w ten sposób nowe światy. Wolontariusze wypatrzyli większość z ponad 5000 komet odkrytych na zdjęciach z sondy SOHO oraz około 3000 kandydatów na brązowe karły na zdjęciach z teleskopu WISE należącego do NASA. SPHEREx fotografuje teraz setki milionów obiektów, raz za razem: więcej, niż jakakolwiek grupa zawodowców zdoła przejrzeć.</p>
     <p>Chcieliśmy narzędzia, w którym każdy, bez żadnego przygotowania, może wybrać punkt na niebie i sam zobaczyć, czy coś się tam poruszyło lub zmieniło, a potem jednym kliknięciem sprawdzić to w niezależnych źródłach.</p>
-    <p>Wyzwanie bierze nazwę od Planety X, hipotetycznej, nieodkrytej jeszcze planety w zewnętrznym Układzie Słonecznym. Czy SPHEREx może ją zobaczyć, czy nie, każdy nieznany bliski obiekt zdradziłby się tak samo jak Pluton: jako punkt, który się porusza.</p>
+    <p>Planetę X, hipotetyczną, nieodkrytą jeszcze planetę w zewnętrznym Układzie Słonecznym, znaleziono by tak samo. Czy SPHEREx może ją zobaczyć, czy nie, każdy nieznany bliski obiekt zdradziłby się tak samo jak Pluton: jako punkt, który się porusza.</p>
     <h2>Dla kogo</h2>
     <ul>
       <li><b>Dla każdego, kto jest ciekawy.</b> Bez konta i bez przygotowania: przewodnik trwa dwie minuty, a każdy obiekt otwiera się kilkoma prostymi zdaniami o tym, co pokazują pomiary.</li>
@@ -139,7 +139,7 @@ export default {
     <h2>Liczba odwiedzin</h2>
     <p>Odwiedziny liczymy za pomocą <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a>, żeby wiedzieć, ile osób przychodzi i z jakich stron. Nie używa plików cookie i nie przechowuje adresów IP; widzimy tylko sumy: odwiedzane strony, strony, z których ktoś przyszedł, przeglądarki i kraje. Jeśli twój bloker reklam go zatrzyma, nic się nie stanie.</p>
     <h2>Użycie AI</h2>
-    <p>Oprogramowanie zostało napisane podczas wydarzenia z pomocą asystenta programowania AI. Zespół wybrał podejście, sprawdził wyniki z wartościami katalogowymi i z niezależnymi narzędziami oraz odpowiada za treść. Nie użyto obrazów, dźwięku ani wideo wygenerowanych przez AI: każdy pokazany obraz to dane z teleskopu.</p>
+    <p>Oprogramowanie zostało napisane z pomocą asystenta programowania AI. Zespół wybrał podejście, sprawdził wyniki z wartościami katalogowymi i z niezależnymi narzędziami oraz odpowiada za treść. Nie użyto obrazów, dźwięku ani wideo wygenerowanych przez AI: każdy pokazany obraz to dane z teleskopu.</p>
     <p class="fine">Źródła powyższych liczb: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">NASA o 5000. komecie SOHO</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
   }),
 };
