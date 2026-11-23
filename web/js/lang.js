@@ -23,7 +23,6 @@ const TEXT = {
     'search.go': 'Go',
     'nav.tour': 'Guided tour',
     'nav.language': 'Language',
-    'nav.privacy': 'Privacy',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 infrared colours · the whole sky, twice a year',
     'hero.title': 'The sky is not still.',
@@ -39,7 +38,6 @@ const TEXT = {
     'hero.hunt': 'Find an asteroid',
     'hero.explore': 'Explore the sky',
     'hero.play': 'Play a game',
-    'hero.star': 'The star of your year',
     'hero.start': 'Or start with',
 
     'tour.count': 'Guided tour · {i} of {n}',
@@ -122,13 +120,6 @@ const TEXT = {
 
     'note.loadingMap': 'Loading the sky map…',
     'note.explore': 'Pick any star or bright spot on the map. Or type a name in the search box.',
-    'point.btn': 'Point at the sky',
-    'point.on': 'Hold the phone up to the sky: the map shows where it points.',
-    'point.place': 'Which stars are above you depends on where you are. Allow the phone’s location: it is used on this device only.',
-    'point.nosensor': 'This phone gives the page no compass, so the map cannot follow it.',
-    'point.up': '{dir} · {alt}° above the horizon',
-    'point.down': '{dir} · {alt}° below the horizon',
-    'point.dirs': 'N,NE,E,SE,S,SW,W,NW',
     'note.zoomIn': 'Zooming in. Pick an object when you are closer.',
     'note.lookingUp': 'Looking up what is here…',
     'note.lookingUpName': 'Looking up “{name}”…',
@@ -159,7 +150,6 @@ const TEXT = {
     'search.go': 'Git',
     'nav.tour': 'Rehberli tur',
     'nav.language': 'Dil',
-    'nav.privacy': 'Gizlilik',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 kızılötesi renk · tüm gökyüzü, yılda iki kez',
     'hero.title': 'Gökyüzü yerinde durmuyor.',
@@ -175,7 +165,6 @@ const TEXT = {
     'hero.hunt': 'Asteroit bul',
     'hero.explore': 'Gökyüzünü keşfedin',
     'hero.play': 'Oyun oyna',
-    'hero.star': 'Senin yılının yıldızı',
     'hero.start': 'Ya da şununla başlayın:',
 
     'tour.count': 'Rehberli tur · {i} / {n}',
@@ -258,13 +247,6 @@ const TEXT = {
 
     'note.loadingMap': 'Gökyüzü haritası yükleniyor…',
     'note.explore': 'Haritadan bir yıldız ya da parlak bir nokta seçin. İsterseniz arama kutusuna bir ad yazın.',
-    'point.btn': 'Telefonu göğe tut',
-    'point.on': 'Telefonu göğe doğru tutun: harita telefonun baktığı yeri gösterir.',
-    'point.place': 'Tepenizde hangi yıldızların olduğu bulunduğunuz yere bağlıdır. Telefonun konumuna izin verin: konum yalnızca bu cihazda kullanılır.',
-    'point.nosensor': 'Bu telefon sayfaya pusula bilgisi vermiyor; harita telefonu izleyemiyor.',
-    'point.up': '{dir} · ufkun {alt}° üstü',
-    'point.down': '{dir} · ufkun {alt}° altı',
-    'point.dirs': 'K,KD,D,GD,G,GB,B,KB',
     'note.zoomIn': 'Yakınlaşılıyor. Daha yakına gelince bir nesne seçin.',
     'note.lookingUp': 'Burada ne olduğuna bakılıyor…',
     'note.lookingUpName': '“{name}” aranıyor…',
@@ -295,7 +277,6 @@ const TEXT = {
     'search.go': 'Los',
     'nav.tour': 'Geführte Tour',
     'nav.language': 'Sprache',
-    'nav.privacy': 'Datenschutz',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 Infrarotfarben · der ganze Himmel, zweimal im Jahr',
     'hero.title': 'Der Himmel steht nicht still.',
@@ -311,7 +292,6 @@ const TEXT = {
     'hero.hunt': 'Einen Asteroiden finden',
     'hero.explore': 'Himmel erkunden',
     'hero.play': 'Spielen',
-    'hero.star': 'Der Stern deines Jahres',
     'hero.start': 'Oder beginnen Sie mit',
 
     'tour.count': 'Geführte Tour · {i} von {n}',
@@ -394,13 +374,6 @@ const TEXT = {
 
     'note.loadingMap': 'Die Himmelskarte wird geladen…',
     'note.explore': 'Einen Stern oder hellen Punkt auf der Karte wählen. Oder oben einen Namen eingeben.',
-    'point.btn': 'Zum Himmel halten',
-    'point.on': 'Das Handy zum Himmel halten: Die Karte zeigt, wohin es zeigt.',
-    'point.place': 'Welche Sterne über einem stehen, hängt vom Ort ab. Den Standort des Handys erlauben: Er wird nur auf diesem Gerät verwendet.',
-    'point.nosensor': 'Dieses Handy gibt der Seite keinen Kompass, die Karte kann ihm nicht folgen.',
-    'point.up': '{dir} · {alt}° über dem Horizont',
-    'point.down': '{dir} · {alt}° unter dem Horizont',
-    'point.dirs': 'N,NO,O,SO,S,SW,W,NW',
     'note.zoomIn': 'Es wird herangezoomt. Wählen Sie ein Objekt, wenn Sie näher sind.',
     'note.lookingUp': 'Es wird nachgesehen, was hier ist…',
     'note.lookingUpName': '„{name}“ wird gesucht…',
@@ -431,7 +404,6 @@ const TEXT = {
     'search.go': 'OK',
     'nav.tour': 'Visite guidée',
     'nav.language': 'Langue',
-    'nav.privacy': 'Confidentialité',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 couleurs infrarouges · tout le ciel, deux fois par an',
     'hero.title': 'Le ciel ne tient pas en place.',
@@ -447,7 +419,6 @@ const TEXT = {
     'hero.hunt': 'Trouver un astéroïde',
     'hero.explore': 'Explorer le ciel',
     'hero.play': 'Jouer',
-    'hero.star': 'L’étoile de votre année',
     'hero.start': 'Ou commencez par',
 
     'tour.count': 'Visite guidée · {i} sur {n}',
@@ -530,13 +501,6 @@ const TEXT = {
 
     'note.loadingMap': 'Chargement de la carte du ciel…',
     'note.explore': 'Choisissez une étoile ou un point brillant sur la carte. Ou tapez un nom dans la recherche.',
-    'point.btn': 'Viser le ciel',
-    'point.on': 'Levez le téléphone vers le ciel : la carte montre ce qu’il vise.',
-    'point.place': 'Les étoiles au-dessus de vous dépendent de l’endroit où vous êtes. Autorisez la position du téléphone : elle ne sert que sur cet appareil.',
-    'point.nosensor': 'Ce téléphone ne donne pas de boussole à la page : la carte ne peut pas le suivre.',
-    'point.up': '{dir} · {alt}° au-dessus de l’horizon',
-    'point.down': '{dir} · {alt}° sous l’horizon',
-    'point.dirs': 'N,NE,E,SE,S,SO,O,NO',
     'note.zoomIn': 'Zoom en cours. Choisissez un objet quand vous serez plus près.',
     'note.lookingUp': 'Recherche de ce qui se trouve ici…',
     'note.lookingUpName': 'Recherche de « {name} »…',
@@ -567,7 +531,6 @@ const TEXT = {
     'search.go': 'Szukaj',
     'nav.tour': 'Przewodnik',
     'nav.language': 'Język',
-    'nav.privacy': 'Prywatność',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 barwy podczerwieni · całe niebo, dwa razy w roku',
     'hero.title': 'Niebo nie stoi w miejscu.',
@@ -583,7 +546,6 @@ const TEXT = {
     'hero.hunt': 'Znajdź planetoidę',
     'hero.explore': 'Odkrywaj niebo',
     'hero.play': 'Zagraj',
-    'hero.star': 'Gwiazda twojego roku',
     'hero.start': 'Albo zacznij od',
 
     'tour.count': 'Przewodnik · {i} z {n}',
@@ -666,13 +628,6 @@ const TEXT = {
 
     'note.loadingMap': 'Wczytywanie mapy nieba…',
     'note.explore': 'Wybierz gwiazdę lub jasny punkt na mapie. Albo wpisz nazwę w wyszukiwarce.',
-    'point.btn': 'Skieruj na niebo',
-    'point.on': 'Unieś telefon ku niebu: mapa pokazuje to, na co jest skierowany.',
-    'point.place': 'To, które gwiazdy są nad tobą, zależy od miejsca. Zezwól na lokalizację telefonu: jest używana tylko na tym urządzeniu.',
-    'point.nosensor': 'Ten telefon nie udostępnia stronie kompasu, więc mapa nie może za nim podążać.',
-    'point.up': '{dir} · {alt}° nad horyzontem',
-    'point.down': '{dir} · {alt}° pod horyzontem',
-    'point.dirs': 'N,NE,E,SE,S,SW,W,NW',
     'note.zoomIn': 'Przybliżanie. Wybierz obiekt, gdy będziesz bliżej.',
     'note.lookingUp': 'Sprawdzanie, co tu jest…',
     'note.lookingUpName': 'Wyszukiwanie „{name}”…',
@@ -702,7 +657,6 @@ const TEXT = {
     'search.go': 'Ir',
     'nav.tour': 'Visita guiada',
     'nav.language': 'Idioma',
-    'nav.privacy': 'Privacidad',
 
     'hero.eyebrow': 'NASA SPHEREx · 102 colores infrarrojos · todo el cielo, dos veces al año',
     'hero.title': 'El cielo no está quieto.',
@@ -718,7 +672,6 @@ const TEXT = {
     'hero.hunt': 'Buscar un asteroide',
     'hero.explore': 'Explorar el cielo',
     'hero.play': 'Jugar',
-    'hero.star': 'La estrella de tu año',
     'hero.start': 'O empieza con',
 
     'tour.count': 'Visita guiada · {i} de {n}',
@@ -801,13 +754,6 @@ const TEXT = {
 
     'note.loadingMap': 'Cargando el mapa del cielo…',
     'note.explore': 'Elige una estrella o un punto brillante del mapa. O escribe un nombre en el buscador.',
-    'point.btn': 'Apuntar al cielo',
-    'point.on': 'Levanta el teléfono hacia el cielo: el mapa muestra hacia dónde apunta.',
-    'point.place': 'Qué estrellas tienes encima depende de dónde estés. Permite la ubicación del teléfono: solo se usa en este dispositivo.',
-    'point.nosensor': 'Este teléfono no da brújula a la página, así que el mapa no puede seguirlo.',
-    'point.up': '{dir} · {alt}° sobre el horizonte',
-    'point.down': '{dir} · {alt}° bajo el horizonte',
-    'point.dirs': 'N,NE,E,SE,S,SO,O,NO',
     'note.zoomIn': 'Acercando. Elige un objeto cuando estés más cerca.',
     'note.lookingUp': 'Consultando qué hay aquí…',
     'note.lookingUpName': 'Buscando «{name}»…',
