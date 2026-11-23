@@ -3503,11 +3503,17 @@ async function pointStart() {
       const p = Sky.screenOf(thing.ra, thing.dec);
       if (p && p[0] > 4 && p[0] < W - 30 && p[1] > 50 && p[1] < H - 84) inView.push({ thing, x: p[0], y: p[1] });          // clear of the chips at the top and of the bar at the bottom
     }
-    inView.sort((a, b) => (a.thing === pointHeld ? -99 : a.thing.rank) - (b.thing === pointHeld ? -99 : b.thing.rank));
+    // What the phone is aimed at is named whatever lies around it: Orion's belt has brighter neighbours on every side,
+    // and a name that gave way to them would leave the ring empty on the very star it is held on.
+    let aimedAt = null, aimedOff = HOLD_IN;
+    for (const c of inView) { const off = Math.hypot(c.x - W / 2, c.y - H / 2); if (off < aimedOff) { aimedOff = off; aimedAt = c; } }
+    const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing.rank);
+    inView.sort((a, b) => worth(a) - worth(b));
+    const wide = c => 18 + 7.3 * c.thing.name.length;          // a name's width on the screen, near enough: letters of one width, 12 px
     const next = [];
     for (const c of inView) {
       if (next.length >= NAMES_SHOWN) break;
-      if (!next.some(n => Math.abs(n.y - c.y) < 22 && Math.abs(n.x - c.x) < 110)) next.push(c);
+      if (!next.some(n => Math.abs(n.y - c.y) < 20 && c.x - 6 < n.x + wide(n) && n.x - 6 < c.x + wide(c))) next.push(c);          // no name on top of another
     }
     const free = pool.filter(el => !next.some(n => shown.find(s => s.thing === n.thing)?.el === el));
     shown = next.map(n => {
