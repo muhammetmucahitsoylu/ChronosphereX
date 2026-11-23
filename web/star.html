@@ -217,7 +217,8 @@ function show(year) {
   $('fine').textContent = fill(T.fine, { d: num(star.d, 2), e: num(star.e, 2) });
   $('answer').hidden = false; document.body.classList.add('shown');
   $('year').blur();
-  $('answer').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  const reach = () => { if (shown) $('answer').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+  reach(); setTimeout(reach, 500);          // and again once the phone's keyboard has gone: where the page grows back as it closes (the app), that growth stops the first scroll halfway
 }
 $('ask').onsubmit = e => { e.preventDefault(); const typed = $('year').value.trim(); show(/^\d{1,4}$/.test(typed) ? +typed : NaN); };
 $('again').onclick = () => { $('answer').hidden = true; document.body.classList.remove('shown'); shown = null; $('year').value = ''; window.scrollTo({ top: 0 }); $('year').focus(); };
