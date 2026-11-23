@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">À propos</p>
     <h1>Fait pour que davantage de gens puissent regarder</h1>
-    <p class="lead">ChronosphereX est développé par l’équipe ${TEAM.name}. Nous l’avons commencé en novembre 2026 et continuons à le construire. Depuis sont arrivés la recherche des astéroïdes et des comètes qui traversent un champ, la chasse aux astéroïdes avec un rapport prêt pour le Minor Planet Center, la comète 3I/ATLAS et la vue « Années », qui réunit 27 ans d’images de 2MASS, WISE et SPHEREx sur une même grille.</p>
+    <p class="lead">ChronosphereX est développé par l’équipe ${TEAM.name}, et nous continuons à le construire. Jusqu’ici sont arrivés la recherche des astéroïdes et des comètes qui traversent un champ, la chasse aux astéroïdes avec un rapport prêt pour le Minor Planet Center, la comète 3I/ATLAS et la vue « Années », qui réunit 27 ans d’images de 2MASS, WISE et SPHEREx sur une même grille.</p>
     ${team('L’équipe')}
     <h2>Pourquoi nous l’avons fait</h2>
     <p>Pluton a été trouvée en 1930 par une personne qui comparait deux photographies. On trouve encore de nouveaux mondes de cette façon. Des bénévoles ont repéré la plupart des plus de 5 000 comètes découvertes dans les images de la sonde SOHO, et environ 3 000 candidates naines brunes dans les images du télescope WISE de la NASA. SPHEREx photographie maintenant des centaines de millions d’objets, encore et encore : plus que n’importe quel groupe de professionnels ne peut en inspecter.</p>
@@ -138,8 +138,6 @@ export default {
     <p>Nouvelles images et courts films sur Instagram : <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Nombre de visites</h2>
     <p>Nous comptons les visites avec <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> pour savoir combien de personnes viennent et depuis quels sites. Il ne dépose aucun cookie et ne conserve aucune adresse IP ; nous ne voyons que des totaux : pages, sites d’origine, navigateurs et pays. Si votre bloqueur de publicités l’arrête, ce n’est pas grave.</p>
-    <h2>Usage de l’IA</h2>
-    <p>Le logiciel a été écrit avec un assistant de programmation IA. L’équipe a choisi l’approche, vérifié les résultats par rapport aux valeurs des catalogues et à des outils indépendants, et est responsable du contenu. Aucune image, aucun son ni aucune vidéo générés par IA ne sont utilisés : chaque image montrée est une donnée de télescope.</p>
     <p class="fine">Sources des chiffres ci-dessus : <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">la NASA sur la 5 000e comète de SOHO</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
   }),
 };

@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Acerca de</p>
     <h1>Hecho para que más gente pueda mirar</h1>
-    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}. Lo empezamos en noviembre de 2026 y seguimos ampliándolo. Desde entonces llegaron la búsqueda de asteroides y cometas que cruzan un campo, la caza de asteroides con un informe listo para el Minor Planet Center, el cometa 3I/ATLAS y la vista «Años», que reúne 27 años de imágenes de 2MASS, WISE y SPHEREx en una misma cuadrícula.</p>
+    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}, y seguimos ampliándolo. Hasta ahora han llegado la búsqueda de asteroides y cometas que cruzan un campo, la caza de asteroides con un informe listo para el Minor Planet Center, el cometa 3I/ATLAS y la vista «Años», que reúne 27 años de imágenes de 2MASS, WISE y SPHEREx en una misma cuadrícula.</p>
     ${team('El equipo')}
     <h2>Por qué lo hicimos</h2>
     <p>Plutón fue encontrado en 1930 por una persona que comparaba dos fotografías. Todavía hoy se encuentran mundos nuevos de esa manera. Voluntarios han localizado la mayoría de los más de 5000 cometas descubiertos en las imágenes de la nave SOHO, y unas 3000 candidatas a enana marrón en las imágenes del telescopio WISE de la NASA. SPHEREx está fotografiando ahora cientos de millones de objetos, una y otra vez: más de lo que cualquier grupo de profesionales puede inspeccionar.</p>
@@ -138,8 +138,6 @@ export default {
     <p>Imágenes nuevas y películas cortas, en Instagram: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Recuento de visitas</h2>
     <p>Contamos las visitas con <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> para saber cuántas personas llegan y desde qué sitios. No usa cookies ni guarda direcciones IP; solo vemos totales: páginas, sitios de procedencia, navegadores y países. Si tu bloqueador de anuncios lo detiene, no pasa nada.</p>
-    <h2>Uso de IA</h2>
-    <p>El software se escribió con un asistente de programación de IA. El equipo eligió el enfoque, comprobó los resultados con valores de catálogo y con herramientas independientes, y es responsable del contenido. No se usan imágenes, audio ni vídeo generados por IA: cada imagen mostrada son datos de telescopio.</p>
     <p class="fine">Fuentes de las cifras anteriores: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">la NASA sobre el cometa número 5000 de SOHO</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
   }),
 };

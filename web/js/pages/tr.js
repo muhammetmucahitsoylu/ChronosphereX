@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Hakkında</p>
     <h1>Daha çok insan bakabilsin diye yapıldı</h1>
-    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. Kasım 2026’da başladık ve geliştirmeye devam ediyoruz. O günden beri bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini tek bir ızgarada birleştiren Yıllar görünümü eklendi.</p>
+    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. Bugüne kadar bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini tek bir ızgarada birleştiren Yıllar görünümü eklendi.</p>
     ${team('Ekip')}
     <h2>Neden yaptık</h2>
     <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor: hiçbir uzman grubunun inceleyebileceğinden çok fazlası.</p>
@@ -138,8 +138,6 @@ export default {
     <p>Yeni görüntüler ve kısa filmler Instagram’da: <a href="${TEAM.instagram}" target="_blank" rel="noopener">@chronospherex_official</a>.</p>
     <h2>Ziyaret sayısı</h2>
     <p>Kaç kişinin geldiğini ve hangi sitelerden geldiğini bilmek için ziyaretleri <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a> ile sayıyoruz. Çerez kullanmaz, IP adresi saklamaz; biz yalnızca toplamları görürüz: sayfalar, ziyaretçilerin geldiği siteler, tarayıcılar ve ülkeler. Reklam engelleyiciniz bunu durdurursa sorun değil.</p>
-    <h2>Yapay zekâ kullanımı</h2>
-    <p>Yazılım bir yapay zekâ kodlama yardımcısıyla yazıldı. Yaklaşımı takım seçti, sonuçları katalog değerleriyle ve bağımsız araçlarla karşılaştırdı ve içerikten takım sorumludur. Yapay zekâyla üretilmiş görüntü, ses ya da video kullanılmadı: gösterilen her görüntü teleskop verisidir.</p>
     <p class="fine">Yukarıdaki sayıların kaynakları: <a href="https://svs.gsfc.nasa.gov/14552/" target="_blank" rel="noopener">SOHO’nun 5.000. kuyruklu yıldızı üzerine NASA</a> · <a href="https://www.backyardworlds.org/" target="_blank" rel="noopener">Backyard Worlds: Planet 9</a></p>`,
   }),
 };
