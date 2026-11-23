@@ -69,9 +69,42 @@
   #sum li span:last-child { font-family: var(--mono); color: var(--ink-2); white-space: nowrap; }
   #sum li.hit span:last-child { color: var(--mint); }
   .fine { color: var(--ink-3); font-size: 13.5px; margin-top: 26px; }
+  /* today's star: the line that leads to it (or back to the levels), and what is said when it is done */
+  .dailygo { margin: -8px 0 14px; font-size: 15px; }
+  .dailygo a, #todaybtn { color: var(--gold); text-decoration: none; font-weight: 600; }
+  #say .daily { display: block; margin-top: 6px; color: var(--ink-2); font-size: 14.5px; }
   .shake { animation: shake .3s; }
   @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
   @media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
+  /* phones: fewer words before the picture: what is on show and what to do. How it gets harder, the game says when it happens. */
+  @media (max-width: 600px), (orientation: landscape) and (max-height: 500px) { .lede .more { display: none; } }
+  /* a phone held sideways: the picture on the left, as tall as the screen; the words and the buttons beside it */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
+    .wrap { max-width: none; margin: 0; padding: 10px 16px 16px calc(100vh + 16px + env(safe-area-inset-left, 0px)); }
+    @supports (height: 100dvh) { .wrap { padding-left: calc(100dvh + 16px + env(safe-area-inset-left, 0px)); } }
+    .wrap:has(#game[hidden]) { padding-left: calc(16px + env(safe-area-inset-left, 0px)); }          /* the result has no picture: the whole width */
+    .stage { position: fixed; left: env(safe-area-inset-left, 0px); top: 0; width: 100vh; height: 100vh; border: 0; border-right: 1px solid var(--line); border-radius: 0; }
+    @supports (height: 100dvh) { .stage { width: 100dvh; height: 100dvh; } }
+    canvas { width: 100%; height: 100%; }
+    /* once a star has been answered the opening words have done their work: their room goes to the answer. (The picture
+       does not move for it: it is fixed beside them.) And the buttons stay at the foot of the screen. */
+    body.played h1, body.played .lede, body.played .dailygo { display: none; }
+    .dailygo { margin: -2px 0 8px; font-size: 14px; }
+    body.played .bar { margin-top: 10px; }
+    #game .btns { position: sticky; bottom: 0; z-index: 2; margin: 6px -16px 0; padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(0deg, var(--bg) 80%, transparent); }
+    .logo { font-size: 22px; }
+    h1 { font-size: 26px; margin: 8px 0 4px; }
+    .lede { font-size: 14px; line-height: 1.4; margin-bottom: 8px; }
+    .bar { margin-bottom: 4px; }
+    #say { min-height: 2.9em; margin: 6px 0 2px; font-size: 15px; }
+    #say .name { font-size: 24px; }
+    .btns { gap: 8px; margin-top: 6px; }
+    button, .btn { min-height: 42px; padding: 8px 16px; font-size: 14.5px; }
+    .fine { margin-top: 14px; font-size: 13px; }
+    #card { padding: 14px 18px; gap: 6px; }
+    #card b { font-size: 24px; }
+    #card p { font-size: 14px; line-height: 1.42; }
+  }
 </style>
 <!-- visit counts: no cookies, no IP addresses kept (see About) -->
 <script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
@@ -85,6 +118,7 @@
   <main>
     <h1 id="title">Find the star that moved</h1>
     <p class="lede" id="intro"></p>
+    <p class="dailygo"><a id="dailylink" href="?daily=1"></a></p>
     <div id="game">
       <div class="bar"><span id="level"></span><span id="lives" role="img"></span><button type="button" id="next2" hidden></button><span id="clock"></span></div>
       <div class="stage" id="stage"><canvas id="cv" width="600" height="600"></canvas><span id="tel">NASA WISE</span><span id="year"></span>
@@ -94,6 +128,7 @@
         <button type="button" class="go" id="next" hidden></button>
         <a class="btn" id="open" hidden></a>
         <button type="button" class="quiet" id="show"></button>
+        <button type="button" class="quiet" id="other" hidden></button>
       </div>
     </div>
     <section id="sum" hidden>
@@ -103,6 +138,7 @@
       <div class="btns">
         <button type="button" class="go" id="share"></button>
         <button type="button" id="again"></button>
+        <a class="btn" id="todaybtn" href="?daily=1"></a>
         <a class="btn" id="tool" href="./"></a>
       </div>
     </section>
@@ -119,6 +155,7 @@ const STR = {
     level: 'Level {k} of {n}', wrong: 'Not that one. Look again.', out: 'Three wrong taps.', pair: 'These two pictures are from {a} and {b}.', dark: 'A dark frame now comes between them: compare the stars one by one.', cardTitle: 'From here, the pictures blink', cardBody: 'Between the two pictures the screen goes dark for a moment. That is on purpose, not the game hanging: the jump no longer catches your eye, so you have to compare the stars one by one.', cardGo: 'Start', lives: 'Tries left: {n}', show: 'Show me', found: 'Found in <b>{s} s</b>', shown: 'Here it is',
     walk: 'Its walk through all {n} visits, {a} to {b}.', next: 'Next level', result: 'See your result', open: 'See its 27 years and measure its speed',
     sum: 'You found {k} of {n}', total: 'Total time: {s} s', share: 'Share your result', copied: 'Copied', shareText: 'I found {k} of {n} moving stars in {s} seconds. Can you?',
+    daily: 'Today’s star', dailyIntro: 'One patch of sky a day. Find the star that moved; tomorrow there is a new one.', levelsGo: 'Play the ten levels', streak: 'Days in a row: {n}', nextIn: 'a new one in {h} h {m} min', dailyDone: 'You have played today’s star.',
     again: 'Play again', tool: 'Open the full tool', dash: 'shown',
     how: 'This is how Clyde Tombaugh found Pluto in 1930: by comparing two photographs. Cold worlds near the Sun are still found this way.',
     credit: 'Images: NASA WISE and NEOWISE, from the NASA/IPAC Infrared Science Archive.', dec: '.',
@@ -129,6 +166,7 @@ const STR = {
     level: 'Seviye {k} / {n}', wrong: 'O değil. Bir daha bak.', out: 'Üç yanlış dokunuş.', pair: 'Bu iki görüntü {a} ve {b} yıllarından.', dark: 'Artık aralarına karanlık bir kare giriyor: yıldızları tek tek karşılaştır.', cardTitle: 'Bundan sonra resimler göz kırpıyor', cardBody: 'İki resmin arasında ekran bir anlığına kararıyor. Bu oyunun takılması değil, bilerek böyle: sıçrama artık gözüne kendiliğinden çarpmıyor, yıldızları tek tek karşılaştırman gerekiyor.', cardGo: 'Başla', lives: 'Kalan hak: {n}', show: 'Göster', found: '<b>{s} saniyede</b> buldun', shown: 'İşte burada',
     walk: '{a}–{b} arasındaki {n} gözlemin hepsinde hareketi.', next: 'Sıradaki seviye', result: 'Sonucunu gör', open: '27 yılını gör, hızını ölç',
     sum: '{n} yıldızın {k} tanesini buldun', total: 'Toplam süre: {s} sn', share: 'Sonucunu paylaş', copied: 'Kopyalandı', shareText: 'Hareket eden {n} yıldızın {k} tanesini {s} saniyede buldum. Sen bulabilir misin?',
+    daily: 'Günün yıldızı', dailyIntro: 'Her gün tek bir gökyüzü parçası. Hareket eden yıldızı bul; yarın yenisi var.', levelsGo: '10 seviyeyi oyna', streak: 'Üst üste {n} gün', nextIn: 'yenisi {h} sa {m} dk sonra', dailyDone: 'Bugünün yıldızını oynadın.',
     again: 'Yeniden oyna', tool: 'Aracın tamamını aç', dash: 'gösterildi',
     how: 'Clyde Tombaugh 1930’da Plüton’u böyle buldu: iki fotoğrafı karşılaştırarak. Güneş’e yakın soğuk dünyalar bugün de böyle bulunuyor.',
     credit: 'Görüntüler: NASA WISE ve NEOWISE; NASA/IPAC Kızılötesi Bilim Arşivi’nden.', dec: ',',
@@ -139,6 +177,7 @@ const STR = {
     level: 'Nivel {k} de {n}', wrong: 'Esa no. Mira otra vez.', out: 'Tres toques equivocados.', pair: 'Estas dos imágenes son de {a} y {b}.', dark: 'Ahora un cuadro oscuro se interpone entre ellas: compara las estrellas una por una.', cardTitle: 'A partir de aquí, las imágenes parpadean', cardBody: 'Entre las dos imágenes la pantalla se oscurece un instante. Es a propósito, el juego no se ha colgado: el salto ya no salta a la vista y hay que comparar las estrellas una por una.', cardGo: 'Empezar', lives: 'Intentos restantes: {n}', show: 'Muéstramela', found: 'Encontrada en <b>{s} s</b>', shown: 'Aquí está',
     walk: 'Su camino por las {n} visitas, de {a} a {b}.', next: 'Siguiente nivel', result: 'Ver tu resultado', open: 'Mira sus 27 años y mide su velocidad',
     sum: 'Encontraste {k} de {n}', total: 'Tiempo total: {s} s', share: 'Comparte tu resultado', copied: 'Copiado', shareText: 'Encontré {k} de {n} estrellas que se mueven en {s} segundos. ¿Y tú?',
+    daily: 'La estrella de hoy', dailyIntro: 'Un trozo de cielo al día. Encuentra la estrella que se movió; mañana hay otro.', levelsGo: 'Jugar los diez niveles', streak: 'Días seguidos: {n}', nextIn: 'otra nueva en {h} h {m} min', dailyDone: 'Ya has jugado la estrella de hoy.',
     again: 'Jugar de nuevo', tool: 'Abrir la herramienta completa', dash: 'mostrada',
     how: 'Así encontró Clyde Tombaugh a Plutón en 1930: comparando dos fotografías. Los mundos fríos cercanos al Sol se siguen encontrando así.',
     credit: 'Imágenes: WISE y NEOWISE de la NASA, del NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -149,6 +188,7 @@ const STR = {
     level: 'Stufe {k} von {n}', wrong: 'Der nicht. Schau noch einmal.', out: 'Dreimal daneben.', pair: 'Diese beiden Bilder stammen von {a} und {b}.', dark: 'Jetzt kommt ein dunkles Bild dazwischen: Vergleiche die Sterne einzeln.', cardTitle: 'Ab jetzt blinken die Bilder', cardBody: 'Zwischen den beiden Bildern wird der Schirm kurz dunkel. Das ist Absicht, das Spiel hängt nicht: Der Sprung fällt nicht mehr von selbst ins Auge, du musst die Sterne einzeln vergleichen.', cardGo: 'Los', lives: 'Versuche übrig: {n}', show: 'Zeig ihn mir', found: 'In <b>{s} s</b> gefunden', shown: 'Hier ist er',
     walk: 'Sein Weg durch alle {n} Besuche, {a} bis {b}.', next: 'Nächste Stufe', result: 'Ergebnis ansehen', open: 'Seine 27 Jahre ansehen und sein Tempo messen',
     sum: '{k} von {n} gefunden', total: 'Gesamtzeit: {s} s', share: 'Ergebnis teilen', copied: 'Kopiert', shareText: 'Ich habe {k} von {n} wandernden Sternen in {s} Sekunden gefunden. Und du?',
+    daily: 'Stern des Tages', dailyIntro: 'Jeden Tag ein Himmelsausschnitt. Finde den Stern, der sich bewegt hat; morgen gibt es einen neuen.', levelsGo: 'Die zehn Stufen spielen', streak: 'Tage in Folge: {n}', nextIn: 'ein neuer in {h} Std. {m} Min.', dailyDone: 'Den Stern von heute hast du gespielt.',
     again: 'Noch einmal spielen', tool: 'Das ganze Werkzeug öffnen', dash: 'gezeigt',
     how: 'So fand Clyde Tombaugh 1930 den Pluto: durch den Vergleich zweier Fotografien. Kalte Welten nahe der Sonne findet man noch heute so.',
     credit: 'Bilder: WISE und NEOWISE der NASA, aus dem NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -159,6 +199,7 @@ const STR = {
     level: 'Niveau {k} sur {n}', wrong: 'Pas celle-là. Regardez encore.', out: 'Trois erreurs.', pair: 'Ces deux images datent de {a} et de {b}.', dark: 'Une image noire s’intercale désormais entre elles : comparez les étoiles une à une.', cardTitle: 'Désormais, les images clignent', cardBody: 'Entre les deux images, l’écran s’assombrit un instant. C’est voulu, le jeu n’est pas bloqué : le saut ne saute plus aux yeux, il faut comparer les étoiles une à une.', cardGo: 'Commencer', lives: 'Essais restants : {n}', show: 'Montrez-la-moi', found: 'Trouvée en <b>{s} s</b>', shown: 'La voici',
     walk: 'Son trajet à travers les {n} passages, de {a} à {b}.', next: 'Niveau suivant', result: 'Voir votre résultat', open: 'Voir ses 27 ans et mesurer sa vitesse',
     sum: 'Vous en avez trouvé {k} sur {n}', total: 'Temps total : {s} s', share: 'Partager votre résultat', copied: 'Copié', shareText: 'J’ai trouvé {k} étoiles qui bougent sur {n} en {s} secondes. Et vous ?',
+    daily: 'L’étoile du jour', dailyIntro: 'Un coin de ciel par jour. Trouvez l’étoile qui a bougé ; demain, un autre.', levelsGo: 'Jouer les dix niveaux', streak: 'Jours d’affilée : {n}', nextIn: 'une nouvelle dans {h} h {m} min', dailyDone: 'Vous avez joué l’étoile du jour.',
     again: 'Rejouer', tool: 'Ouvrir l’outil complet', dash: 'montrée',
     how: 'C’est ainsi que Clyde Tombaugh a trouvé Pluton en 1930 : en comparant deux photographies. On trouve encore ainsi les mondes froids proches du Soleil.',
     credit: 'Images : WISE et NEOWISE de la NASA, issues du NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -169,6 +210,7 @@ const STR = {
     level: 'Poziom {k} z {n}', wrong: 'Nie ta. Spójrz jeszcze raz.', out: 'Trzy błędne dotknięcia.', pair: 'Te dwa obrazy pochodzą z lat {a} i {b}.', dark: 'Teraz między nimi pojawia się ciemna klatka: porównuj gwiazdy jedna po drugiej.', cardTitle: 'Od teraz obrazy mrugają', cardBody: 'Między dwoma obrazami ekran na chwilę ciemnieje. To celowe, gra się nie zawiesiła: skok nie rzuca się już w oczy, trzeba porównywać gwiazdy jedna po drugiej.', cardGo: 'Start', lives: 'Pozostałe próby: {n}', show: 'Pokaż', found: 'Znaleziona w <b>{s} s</b>', shown: 'Oto ona',
     walk: 'Jej droga przez wszystkie {n} przelotów, od {a} do {b}.', next: 'Następny poziom', result: 'Zobacz wynik', open: 'Zobacz jej 27 lat i zmierz prędkość',
     sum: 'Znalezione: {k} z {n}', total: 'Łączny czas: {s} s', share: 'Udostępnij wynik', copied: 'Skopiowano', shareText: 'Mój wynik: {k} z {n} poruszających się gwiazd w {s} s. A ty?',
+    daily: 'Gwiazda dnia', dailyIntro: 'Jeden skrawek nieba dziennie. Znajdź gwiazdę, która się przesunęła; jutro będzie nowy.', levelsGo: 'Zagraj w dziesięć poziomów', streak: 'Dni z rzędu: {n}', nextIn: 'nowa za {h} godz. {m} min', dailyDone: 'Dzisiejsza gwiazda już zagrana.',
     again: 'Zagraj ponownie', tool: 'Otwórz całe narzędzie', dash: 'pokazana',
     how: 'Tak Clyde Tombaugh znalazł Plutona w 1930 roku: porównując dwie fotografie. Zimne światy w pobliżu Słońca wciąż znajduje się w ten sposób.',
     credit: 'Obrazy: WISE i NEOWISE NASA, z NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -186,6 +228,81 @@ document.documentElement.lang = lang; document.title = `${T.title} · Chronosphe
 $('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
 for (const [id, key] of [['title', 'title'], ['intro', 'intro'], ['cardtitle', 'cardTitle'], ['cardbody', 'cardBody'], ['cardgo', 'cardGo'], ['show', 'show'], ['how', 'how'], ['credit', 'credit'], ['share', 'share'], ['again', 'again'], ['tool', 'tool']]) $(id).textContent = T[key];
 $('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?lang=${lang}`;
+// The opening words in two parts: the first three sentences (what is on show, what to do), and how it gets harder.
+// A phone shows the first part alone (the style sheet hides .more): the game says the rest when it happens.
+{ const m = T.intro.match(/^((?:[^.!?]+[.!?]\s+){3})([\s\S]+)$/);
+  if (m) { $('intro').textContent = m[1]; const more = document.createElement('span'); more.className = 'more'; more.textContent = m[2]; $('intro').appendChild(more); } }
+// A phone answers a press in the hand too: one short buzz for a wrong star, two for the right one. (Where the device has no motor, nothing happens.)
+const buzz = pattern => { try { navigator.vibrate?.(pattern); } catch { /* not allowed here */ } };
+
+// Today's star: one board a day, the same star for everyone, and a count of the days in a row it was found. The star
+// comes from the pool (see below), another one each day: the pool's stars in the order of their names, walked through
+// in steps of 37 so that neighbours in the list lie weeks apart, every second day with the dark frame; each is turned
+// or mirrored by the day's number. Without a pool the board is one of the ten fixed levels, turned the same way.
+// What is kept, on this device only (chrono-daily): the days played, the count of days in a row, the best count.
+const DAY0 = Date.UTC(2026, 10, 23), DAY_ORDER = [2, 6, 0, 8, 4, 1, 9, 3, 7, 5];
+const dayOf = (d = new Date()) => ({ key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+  no: Math.max(1, Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - DAY0) / 86400000) + 1) });
+const TODAY = dayOf();
+const kept = () => { try { return JSON.parse(localStorage.getItem('chrono-daily')) || {}; } catch { return {}; } };
+const keep = o => { try { localStorage.setItem('chrono-daily', JSON.stringify(o)); } catch { /* private mode */ } };
+let playedBefore = false;
+try { playedBefore = !!localStorage.getItem('chrono-played'); } catch { /* private mode */ }
+// Which game: the address says so (?daily=1 or ?daily=0); without it, whoever has played before and has not met
+// today's star yet gets that first, and a first visit gets the levels, which start easy.
+const daily = q.has('daily') ? q.get('daily') !== '0' : playedBefore && !kept().days?.[TODAY.key];
+/** Today's one level, from the pool or, without one, from the fixed ten. `day` marks it: orient() then turns it by the day's number, not by chance. */
+function todays(d) {
+  const n = TODAY.no - 1;
+  if (d.pool) {
+    const stars = [...d.pool.stars].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    return { ...poolLevel(stars[(n * 37) % stars.length], n % 2 === 1), day: n };
+  }
+  const fixed = d.levels[DAY_ORDER[n % DAY_ORDER.length] % d.levels.length];
+  return { ...fixed, base: fixed.pos, day: n };
+}
+if (daily) { $('title').textContent = `${T.daily} #${TODAY.no}`; $('intro').textContent = T.dailyIntro; document.title = `${T.daily} #${TODAY.no} · ChronosphereX`; }
+$('dailylink').textContent = daily ? `${T.levelsGo} →` : `★ ${T.daily} #${TODAY.no}${kept().days?.[TODAY.key] ? ' ✓' : ''} →`;
+$('dailylink').href = `?daily=${daily ? 0 : 1}&lang=${lang}`;
+$('todaybtn').textContent = `★ ${T.daily} #${TODAY.no}`; $('todaybtn').href = `?daily=1&lang=${lang}`;
+$('other').textContent = T.levelsGo; $('other').onclick = () => { location.search = `?daily=0&lang=${lang}`; };
+/** The line under a finished daily board: the days in a row, and when the next one comes (at midnight, by the device's clock). */
+function dailyLine() {
+  const n = new Date(), mins = Math.ceil((new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n) / 60000);
+  return `<span class="daily">${fill(T.streak, { n: kept().streak || 0 })} · ${fill(T.nextIn, { h: Math.floor(mins / 60), m: mins % 60 })}</span>`;
+}
+/** Today's board is over: the first go of the day is the one that counts. */
+function dailyEnd(found, ms) {
+  const d = kept(), days = d.days || {}, y = new Date(); y.setDate(y.getDate() - 1);
+  if (!days[TODAY.key]) {
+    days[TODAY.key] = { found, ms: Math.round(ms), tries, no: TODAY.no };
+    d.streak = found ? (d.last === dayOf(y).key ? d.streak || 0 : 0) + 1 : 0;
+    d.best = Math.max(d.best || 0, d.streak); d.last = found ? TODAY.key : '';
+    for (const k of Object.keys(days).sort().slice(0, -40)) delete days[k];
+    d.days = days; keep(d);
+  }
+  $('say').insertAdjacentHTML('beforeend', dailyLine());
+  $('other').hidden = false;
+}
+/** Today's board, already played: its last picture with the star's walk, the result, and when the next one comes. */
+function dailyShown() {
+  const r = kept().days[TODAY.key];
+  phase = 'done'; tries = r.tries; lives(); frame = L.n - 1; shade = 0; draw(); document.body.classList.add('played');
+  $('show').hidden = true; $('clock').textContent = r.found ? `${secs(r.ms)} s` : '';
+  $('say').innerHTML = `<span class="name">${T.names[L.slug] || L.name}</span>${T.dailyDone} ${r.found ? fill(T.found, { s: secs(r.ms) }) : T.shown}.${dailyLine()}`;
+  $('next').textContent = T.share; $('next').hidden = false; $('other').hidden = false;
+}
+async function shareDaily() {
+  const d = kept(), r = d.days?.[TODAY.key];
+  if (!r) return;
+  // the presses as marks anyone can read: a ring for each wrong one, a dot for the star
+  const text = `ChronosphereX · ${T.daily} #${TODAY.no}\n${'○'.repeat(Math.min(r.tries, TRIES))}${r.found ? `● ${secs(r.ms)} s` : ''}\n${fill(T.streak, { n: d.streak || 0 })}`;
+  const url = `${location.origin}${location.pathname}?daily=1`;
+  try {
+    if (navigator.share) await navigator.share({ text, url });
+    else { await navigator.clipboard.writeText(`${text}\n${url}`); $('next').textContent = T.copied; setTimeout(() => { $('next').textContent = T.share; }, 2500); }
+  } catch { /* the visitor closed the sheet */ }
+}
 
 // The pool (game/pool.json, from scripts/build_pool.py): faint brown dwarfs of the 20-parsec census, each with a
 // difficulty bin 1 (easiest) to 5. A game draws one star from each bin, then one from each bin again with a dark frame
@@ -250,7 +367,7 @@ function orient(L) {
     if (pos.every(clear)) all.push(way); else if (clear(pos[L.a]) && clear(pos[L.b])) two.push(way);
   }
   const ways = all.length ? all : two.length ? two : [{ turn: 0, mirror: false, pos: L.base }];
-  Object.assign(L, ways[Math.floor(Math.random() * ways.length)]);
+  Object.assign(L, ways[L.day == null ? Math.floor(Math.random() * ways.length) : (3 * L.day + 1) % ways.length]);          // today's board: the same way all day, another one tomorrow
 }
 // Pictures are fetched one level ahead: the first before the game starts, the next while the current one is played.
 const pics = new Map();
@@ -277,7 +394,7 @@ function draw() {
   if (!strip) return;
   const S = L.size, k = C / S;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.save(); ctx.translate(C / 2, C / 2); ctx.rotate((L.turn || 0) * Math.PI / 2); if (L.mirror) ctx.scale(-1, 1);          // as pickLevels turned its places
+  ctx.save(); ctx.translate(C / 2, C / 2); ctx.rotate((L.turn || 0) * Math.PI / 2); if (L.mirror) ctx.scale(-1, 1);          // as orient() turned its places
   ctx.drawImage(strip, frame * S, 0, S, S, -C / 2, -C / 2, C, C); ctx.restore();
   if (shade > 0) { ctx.fillStyle = `rgba(0, 0, 0, ${shade.toFixed(3)})`; ctx.fillRect(0, 0, C, C); }
   if (phase === 'walk' || phase === 'done') {             // where it has been, and the ring round where it is
@@ -321,15 +438,16 @@ function flip(now) {
 function play() { phase = 'play'; t0 = since = performance.now(); frame = L.a; shade = 0; draw(); loop = requestAnimationFrame(flip); }
 async function start(i) {
   level = i; L = DATA.levels[i]; phase = 'load'; tries = 0; miss = null; cancelAnimationFrame(loop); shade = 0; lives();
-  $('level').innerHTML = fill(T.level, { k: `<b>${i + 1}</b>`, n: DATA.levels.length }); $('clock').textContent = '';
-  $('say').textContent = ''; $('next').hidden = true; $('next2').hidden = true; $('lives').hidden = false; $('stage').previousElementSibling.classList.remove('done'); $('open').hidden = true; $('show').hidden = false; $('card').hidden = true;
+  $('level').innerHTML = daily ? `${T.daily} <b>#${TODAY.no}</b>` : fill(T.level, { k: `<b>${i + 1}</b>`, n: DATA.levels.length }); $('clock').textContent = '';
+  $('say').textContent = ''; $('next').hidden = true; $('next2').hidden = true; $('lives').hidden = false; $('stage').previousElementSibling.classList.remove('done'); $('open').hidden = true; $('other').hidden = true; $('show').hidden = false; $('card').hidden = true;
   const img = await pic(L);
   if (level !== i) return;
   if (!img.naturalWidth) return lost(i);
   pic(DATA.levels[i + 1]);                                   // the next level's pictures, while this one is played
   strip = img; frame = L.a; if (L.base) orient(L);
+  if (daily && kept().days?.[TODAY.key]) return dailyShown();
   $('say').textContent = fill(T.pair, { a: Math.floor(L.years[L.a]), b: Math.floor(L.years[L.b]) }) + (L.dark ? ` ${T.dark}` : '');
-  if (L.dark && i === DATA.levels.findIndex(l => l.dark)) {          // the first blinking level: say so before the clock runs
+  if (L.dark && (daily || i === DATA.levels.findIndex(l => l.dark))) {          // the first blinking level: say so before the clock runs
     phase = 'card'; shade = 0.55; draw(); $('card').hidden = false; $('cardgo').focus({ preventScroll: true });
     $('cardgo').onclick = () => { $('card').hidden = true; play(); };
   } else play();
@@ -337,7 +455,9 @@ async function start(i) {
 function reveal(found, out = false) {
   if (phase !== 'play') return;
   const took = performance.now() - t0; cancelAnimationFrame(loop); shade = 0; phase = 'walk'; $('show').hidden = true; $('say').textContent = '';
-  if (L.src) markSeen(L.id);
+  document.body.classList.add('played');
+  try { localStorage.setItem('chrono-played', '1'); } catch { /* private mode */ }
+  if (L.src && !daily) markSeen(L.id);          // today's star is everyone's: it does not use up the visitor's own draw from the pool
   results[level] = { slug: L.slug, name: L.name, found, ms: took, tries, a: Math.floor(L.years[L.a]), b: Math.floor(L.years[L.b]) };
   $('clock').textContent = found ? `${secs(took)} s` : '';
   frame = 0; draw();
@@ -346,10 +466,13 @@ function reveal(found, out = false) {
     clearInterval(step); phase = 'done';
     const last = level === DATA.levels.length - 1;
     $('say').innerHTML = `<span class="name">${T.names[L.slug] || L.name}</span>${found ? fill(T.found, { s: secs(took) }) : `${out ? `${T.out} ` : ''}${T.shown}`}. ${T.facts[L.id] || T.facts[L.slug] || L.fact} ${fill(T.walk, { n: L.n, a: Math.floor(L.years[0]), b: Math.floor(L.years[L.n - 1]) })}`;
-    $('next').textContent = last ? T.result : T.next; $('next').hidden = false;
-    $('next2').textContent = `${last ? T.result : T.next} →`; $('next2').hidden = false; $('lives').hidden = true; $('stage').previousElementSibling.classList.add('done');
+    $('next').textContent = daily ? T.share : last ? T.result : T.next; $('next').hidden = false;
+    $('lives').hidden = true; $('stage').previousElementSibling.classList.add('done');
+    if (daily) dailyEnd(found, took);          // one board a day: what comes next is passing it on, below the picture
+    else { $('next2').textContent = `${last ? T.result : T.next} →`; $('next2').hidden = false; }
+    requestAnimationFrame(() => $('next').parentNode.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));          // a small screen: the answer and what comes next move into view
     $('open').hidden = !L.open; if (L.open) { $('open').textContent = T.open; $('open').href = `./${L.open}&lang=${lang}`; }          // the faint ones of the last levels have no page in the tool
-    $('next2').focus({ preventScroll: true });
+    (daily ? $('next') : $('next2')).focus({ preventScroll: true });
   }, 110);
 }
 // A press counts when the finger (or the mouse) comes up near where it went down. Not when it went down: on a phone
@@ -373,18 +496,19 @@ function along(x, y, p, q) {
 }
 function tap(cx, cy) {
   const r = cv.getBoundingClientRect(), S = L.size, x = (cx - r.left) / r.width * S, y = (cy - r.top) / r.height * S;
-  if (along(x, y, L.pos[L.a], L.pos[L.b]) <= Math.max(8, 24 * S / r.width)) return reveal(true);
+  if (along(x, y, L.pos[L.a], L.pos[L.b]) <= Math.max(8, 24 * S / r.width)) { buzz([25, 60, 25]); return reveal(true); }
+  buzz(45);
   tries++; lives(); miss = { x, y, at: performance.now() }; draw(); setTimeout(draw, 520);
   $('stage').classList.remove('shake'); void $('stage').offsetWidth; $('stage').classList.add('shake');
   if (tries >= TRIES) return reveal(false, true);
   $('say').textContent = T.wrong;
 }
 $('show').onclick = () => reveal(false);
-$('next').onclick = () => { if (level < DATA.levels.length - 1) start(level + 1); else summary(); };
+$('next').onclick = () => { if (daily) shareDaily(); else if (level < DATA.levels.length - 1) start(level + 1); else summary(); };
 $('next2').onclick = () => $('next').click();
-// On a keyboard: Enter, the space bar or the right arrow goes on once a level has ended.
+// On a keyboard: Enter, the space bar or the right arrow goes on once a level has ended (not on today's board, where the button passes the result on).
 document.addEventListener('keydown', e => {
-  if ($('next').hidden || $('game').hidden || e.altKey || e.ctrlKey || e.metaKey || !['Enter', ' ', 'ArrowRight'].includes(e.key)) return;
+  if (daily || $('next').hidden || $('game').hidden || e.altKey || e.ctrlKey || e.metaKey || !['Enter', ' ', 'ArrowRight'].includes(e.key)) return;
   const t = e.target.closest ? e.target.closest('button, a, select, input, textarea') : null;
   if (t && !(t.id === 'next' || t.id === 'next2') || (t && e.key !== 'ArrowRight')) return;          // a focused control answers Enter and space itself
   e.preventDefault(); $('next').click();
@@ -405,9 +529,10 @@ function summary() {
 }
 $('again').onclick = () => { results = []; if (DATA.pool) DATA.levels = pickLevels(DATA.pool); $('sum').hidden = true; $('game').hidden = false; start(0); };
 // The pool when there is one (a new draw of stars every game); the fixed ten levels of game/levels.json otherwise.
-const go = d => { DATA = d; pic(DATA.levels[0]); tick = setInterval(clock, 100); start(0); };
+// Today's star is one board from whichever of the two is there (todays()).
+const go = d => { DATA = d; if (daily) DATA.levels = [todays(d)]; pic(DATA.levels[0]); tick = setInterval(clock, 100); start(0); };
 fetch('game/pool.json').then(r => r.ok ? r.json() : Promise.reject())
-  .then(p => { if (!p.stars || p.stars.length < 4 * p.bins) throw 0; for (let b = 1; b <= p.bins; b++) if (p.stars.filter(s => s.bin === b).length < 2) throw 0; go({ pool: p, scale: p.scale, levels: pickLevels(p) }); })
+  .then(p => { if (!p.stars || p.stars.length < 4 * p.bins) throw 0; for (let b = 1; b <= p.bins; b++) if (p.stars.filter(s => s.bin === b).length < 2) throw 0; go({ pool: p, scale: p.scale, levels: daily ? [] : pickLevels(p) }); })
   .catch(() => fetch('game/levels.json').then(r => r.json()).then(go))
   .catch(() => { $('say').textContent = '…'; });
 </script>

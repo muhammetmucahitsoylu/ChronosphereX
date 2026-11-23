@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.chronospherex.app",
+      "sha256_cert_fingerprints": ["46:C3:AC:CB:D4:F3:80:2E:F7:F6:B3:BC:02:3C:4D:7B:CF:32:1E:69:C1:8D:0C:10:73:F2:F8:21:4C:E8:91:88"]
+    }
+  }
+]

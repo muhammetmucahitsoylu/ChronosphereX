@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<title>The star of your year · ChronosphereX</title>
+<meta name="description" content="Starlight takes years to reach us. Pick any year from 1 to today, the year you were born or a year of history, and meet the star whose light, arriving tonight, set out that year. Distances from measured parallaxes.">
+<link rel="canonical" href="https://chronospherex.com/star.html">
+<meta property="og:title" content="The star of your year · ChronosphereX">
+<meta property="og:description" content="Pick a year and meet the star whose light, arriving tonight, set out that year.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/star.html">
+<meta property="og:image" content="https://chronospherex.com/share.jpg">
+<meta property="og:site_name" content="ChronosphereX">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<style>
+  :root { --bg: #0a0908; --surface: #141210; --line: #2f2a25; --ink: #f3eee6; --ink-2: #b0a79a; --ink-3: #8a8175; --ember: #ff7b39; --mint: #5fe0b0; --gold: #f2c14e;
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif; --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; }
+  a { color: inherit; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 600px; margin: 0 auto; padding: 14px 16px 40px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo { font: 26px/1 var(--serif); font-style: italic; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; }
+  .logo i { width: 15px; height: 15px; border-radius: 50%; background: var(--ember); display: inline-block; }
+  select { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font: 14px var(--sans); }
+  h1 { font: 400 38px/1.08 var(--serif); margin: 22px 0 8px; }
+  .lede { color: var(--ink-2); margin: 0 0 16px; font-size: 15.5px; }
+  /* the question: one year, and the promise about it right under the box */
+  #ask { display: flex; gap: 10px; align-items: stretch; }
+  #year { flex: 1; min-width: 0; max-width: 190px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; font: 500 26px var(--mono); letter-spacing: .04em; }
+  #year:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
+  #year::placeholder { color: var(--ink-3); }
+  .private { color: var(--ink-3); font-size: 13.5px; margin: 8px 0 0; }
+  #bad { color: var(--gold); font-size: 14.5px; margin: 8px 0 0; min-height: 1.5em; }
+  button, .btn { font: 600 15px var(--sans); border-radius: 999px; padding: 11px 20px; min-height: 46px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  button.go, .btn.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; }
+  button:focus-visible, .btn:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  /* the answer: the star's picture, its name, the sentence the whole page is for */
+  #answer { margin-top: 6px; }
+  .stage { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+  .stage img { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+  .stage .yr { position: absolute; left: 12px; bottom: 8px; font: 500 44px/1 var(--mono); color: var(--gold); text-shadow: 0 0 6px #000, 0 0 2px #000; }
+  .near { color: var(--ink-2); font-size: 14.5px; margin: 12px 0 0; }
+  #name { font: 400 40px/1.08 var(--serif); margin: 12px 0 0; }
+  #where { color: var(--ink-2); font: 500 13.5px var(--mono); letter-spacing: .03em; margin: 4px 0 0; }
+  #says { font-size: 17px; margin: 10px 0 0; }
+  #says b { color: var(--gold); font-weight: 600; }
+  #eye { color: var(--ink-2); font-size: 15px; margin: 6px 0 0; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .fine { color: var(--ink-3); font-size: 13.5px; margin-top: 22px; }
+  /* a phone held sideways: the picture on the left, as tall as the screen; the words and the buttons beside it */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
+    body.shown .wrap { max-width: none; margin: 0; padding: 10px 16px 16px calc(100vh + 16px + env(safe-area-inset-left, 0px)); }
+    body.shown .stage { position: fixed; left: env(safe-area-inset-left, 0px); top: 0; width: 100vh; height: 100vh; border: 0; border-right: 1px solid var(--line); border-radius: 0; }
+    @supports (height: 100dvh) { body.shown .wrap { padding-left: calc(100dvh + 16px + env(safe-area-inset-left, 0px)); } body.shown .stage { width: 100dvh; height: 100dvh; } }
+    body.shown h1, body.shown .lede, body.shown #asking { display: none; }
+    .logo { font-size: 22px; }
+    h1 { font-size: 28px; margin: 10px 0 4px; }
+    .lede { font-size: 14.5px; margin-bottom: 10px; }
+    #name { font-size: 30px; margin-top: 8px; }
+    #says { font-size: 15.5px; margin-top: 6px; }
+    #eye { font-size: 14px; }
+    .btns { gap: 8px; margin-top: 10px; }
+    button, .btn { min-height: 42px; padding: 8px 16px; font-size: 14.5px; }
+    .fine { margin-top: 12px; font-size: 12.5px; }
+  }
+</style>
+<!-- visit counts: no cookies, no IP addresses kept (see About). The year typed here never enters the address, so it is never counted. -->
+<script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="./"><i></i>ChronosphereX</a>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pl">Polski</option></select>
+  </header>
+  <main>
+    <h1 id="title">The star of your year</h1>
+    <p class="lede" id="intro"></p>
+    <div id="asking">
+      <form id="ask" autocomplete="off" novalidate>
+        <label class="sr" for="year" id="yearlabel" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">A year</label>
+        <input id="year" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="1453" autocomplete="off">
+        <button type="submit" class="go" id="go"></button>
+      </form>
+      <p class="private" id="private"></p>
+      <p id="bad" role="status" aria-live="polite"></p>
+    </div>
+    <section id="answer" hidden aria-live="polite">
+      <p class="near" id="near" hidden></p>
+      <div class="stage"><img id="pic" alt="" width="320" height="320"><span class="yr" id="yr"></span></div>
+      <h2 id="name"></h2>
+      <p id="where"></p>
+      <p id="says"></p>
+      <p id="eye"></p>
+      <div class="btns">
+        <button type="button" class="go" id="share"></button>
+        <a class="btn" id="map"></a>
+        <button type="button" id="again"></button>
+      </div>
+      <p class="fine" id="fine"></p>
+    </section>
+    <p class="fine"><a id="tool" href="./"></a></p>
+  </main>
+</div>
+<script>
+// The star of a year: starlight takes as many years to arrive as the star is light-years away, so for any year there
+// is a star whose light, arriving now, set out then. The stars and their distances come from SIMBAD's measured
+// parallaxes (data/birthstars.json: out to a hundred light-years by spike/birthstars_fetch.py and birthstars_pick.py,
+// from there to two thousand by birthstars_fetch_far.py and birthstars_pick_far.py); their small pictures are the
+// site's own map of the Digitized Sky Survey (stars/<name>.webp).
+// Out to about 190 light-years a distance can be measured to a third of a light-year, and the year is named outright.
+// Farther out it cannot: each star carries its own uncertainty (e), and the page then says "around" and by how much.
+// The year typed is worked with here, on this device: it is not sent, not kept, and never put into the address.
+const STR = {
+  en: { title: 'The star of your year', intro: 'Starlight takes years to reach us. Pick a year, the year you were born or any year that matters to you, and meet the star whose light, arriving tonight, set out that year.',
+    label: 'A year', go: 'Show the star', priv: 'The year stays on this device: it is not sent anywhere and it is not kept.', bad: 'Type a year between {a} and {b}.',
+    far: '{n} light-years away', left: 'The light reaching Earth tonight left {name} in <b>{y}</b>.', near: 'No star we can name is at exactly that distance. The nearest one:',
+    young: 'Light that set out in {y} is still on its way: even the nearest star, Proxima Centauri, is 4.2 light-years off, and its light of tonight left in {py}.',
+    eye1: 'You can see it without a telescope.', eye2: 'Under a dark sky you can see it without a telescope.', eye3: 'It takes binoculars or a telescope to see it.',
+    share: 'Share', saved: 'Picture saved', map: 'See it on the map', again: 'Another year', tool: 'Open the full tool', card1: 'The light arriving tonight', card2: 'set out in {y}.',
+    about: 'The light reaching Earth tonight left {name} around <b>{y}</b>. A distance this great is measured only so well: it could be {yrs} earlier or later.', card2a: 'set out around {y}.', shareTextA: '{name}: the light I see tonight left it around {y}.', yrs: n => (n === 1 ? 'a year' : `${n} years`),
+    shareText: '{name}: the light I see tonight left it in {y}.', fine: 'Distances from the parallaxes held by SIMBAD (CDS, Strasbourg); this star: {d} ± {e} light-years. Picture: Digitized Sky Survey, visible light.', dec: '.' },
+  tr: { title: 'Senin yılının yıldızı', intro: 'Yıldız ışığı bize yıllar sonra ulaşır. Bir yıl seç: doğduğun yıl ya da senin için önemli herhangi bir yıl. Bu gece Dünya’ya varan ışığı o yıl yola çıkmış yıldızla tanış.',
+    label: 'Bir yıl', go: 'Yıldızı göster', priv: 'Yıl bu cihazda kalır: hiçbir yere gönderilmez, kaydedilmez.', bad: '{a} ile {b} arasında bir yıl yaz.',
+    far: '{n} ışık yılı uzakta', left: 'Bu gece Dünya’ya varan ışık, {name} yıldızından <b>{y}</b> yılında yola çıktı.', near: 'Tam o uzaklıkta adını verebileceğimiz bir yıldız yok. En yakını:',
+    young: '{y} yılında yola çıkan ışık hâlâ yolda: en yakın yıldız Proxima Centauri bile 4,2 ışık yılı uzakta; onun bu gece gelen ışığı {py} yılında yola çıktı.',
+    eye1: 'Teleskopsuz, çıplak gözle görülür.', eye2: 'Karanlık bir gökte çıplak gözle görülür.', eye3: 'Görmek için dürbün ya da teleskop gerekir.',
+    share: 'Paylaş', saved: 'Resim kaydedildi', map: 'Haritada gör', again: 'Başka bir yıl', tool: 'Aracın tamamını aç', card1: 'Bu gece Dünya’ya varan ışığı', card2: '{y} yılında yola çıktı.',
+    about: 'Bu gece Dünya’ya varan ışık, {name} yıldızından <b>{y}</b> dolaylarında yola çıktı. Bu kadar büyük bir uzaklık ancak bu kesinlikte ölçülebiliyor: {yrs} önce ya da sonra da olabilir.', card2a: '{y} dolaylarında yola çıktı.', shareTextA: '{name}: bu gece gördüğüm ışığı {y} dolaylarında yola çıktı.', yrs: n => `${n} yıl`,
+    shareText: '{name}: bu gece gördüğüm ışığı {y} yılında yola çıktı.', fine: 'Uzaklıklar SIMBAD’daki (CDS, Strazburg) paralaks ölçümlerinden; bu yıldız: {d} ± {e} ışık yılı. Görüntü: Digitized Sky Survey, görünür ışık.', dec: ',' },
+  es: { title: 'La estrella de tu año', intro: 'La luz de las estrellas tarda años en llegar. Elige un año, el de tu nacimiento o cualquiera que te importe, y conoce la estrella cuya luz, la que llega esta noche, salió ese año.',
+    label: 'Un año', go: 'Mostrar la estrella', priv: 'El año se queda en este dispositivo: no se envía a ningún sitio ni se guarda.', bad: 'Escribe un año entre {a} y {b}.',
+    far: 'a {n} años luz', left: 'La luz que llega esta noche a la Tierra salió de {name} en <b>{y}</b>.', near: 'No hay una estrella con nombre justo a esa distancia. La más cercana:',
+    young: 'La luz que salió en {y} sigue de camino: hasta la estrella más cercana, Próxima Centauri, está a 4,2 años luz, y su luz de esta noche salió en {py}.',
+    eye1: 'Se ve sin telescopio.', eye2: 'Bajo un cielo oscuro se ve sin telescopio.', eye3: 'Hacen falta prismáticos o un telescopio para verla.',
+    share: 'Compartir', saved: 'Imagen guardada', map: 'Verla en el mapa', again: 'Otro año', tool: 'Abrir la herramienta completa', card1: 'La luz que llega esta noche', card2: 'salió en {y}.',
+    about: 'La luz que llega esta noche a la Tierra salió de {name} hacia <b>{y}</b>. Una distancia tan grande solo se mide con esta precisión: pudo ser {yrs} antes o después.', card2a: 'salió hacia {y}.', shareTextA: '{name}: la luz que veo esta noche salió de ella hacia {y}.', yrs: n => (n === 1 ? 'un año' : `${n} años`),
+    shareText: '{name}: la luz que veo esta noche salió de ella en {y}.', fine: 'Distancias a partir de las paralajes que guarda SIMBAD (CDS, Estrasburgo); esta estrella: {d} ± {e} años luz. Imagen: Digitized Sky Survey, luz visible.', dec: ',' },
+  de: { title: 'Der Stern deines Jahres', intro: 'Sternenlicht braucht Jahre bis zu uns. Wähle ein Jahr, dein Geburtsjahr oder irgendeines, das dir wichtig ist, und lerne den Stern kennen, dessen Licht von heute Nacht in jenem Jahr aufgebrochen ist.',
+    label: 'Ein Jahr', go: 'Stern zeigen', priv: 'Das Jahr bleibt auf diesem Gerät: Es wird nirgendwohin gesendet und nicht gespeichert.', bad: 'Ein Jahr zwischen {a} und {b} eingeben.',
+    far: '{n} Lichtjahre entfernt', left: 'Das Licht, das heute Nacht die Erde erreicht, hat {name} im Jahr <b>{y}</b> verlassen.', near: 'Genau in dieser Entfernung gibt es keinen Stern mit Namen. Der nächste:',
+    young: 'Licht, das {y} aufgebrochen ist, ist noch unterwegs: Selbst der nächste Stern, Proxima Centauri, ist 4,2 Lichtjahre entfernt, und sein Licht von heute Nacht brach {py} auf.',
+    eye1: 'Man sieht ihn ohne Teleskop.', eye2: 'Unter dunklem Himmel sieht man ihn ohne Teleskop.', eye3: 'Man braucht ein Fernglas oder ein Teleskop, um ihn zu sehen.',
+    share: 'Teilen', saved: 'Bild gespeichert', map: 'Auf der Karte ansehen', again: 'Ein anderes Jahr', tool: 'Das ganze Werkzeug öffnen', card1: 'Das Licht von heute Nacht', card2: 'brach {y} auf.',
+    about: 'Das Licht, das heute Nacht die Erde erreicht, hat {name} um das Jahr <b>{y}</b> verlassen. Eine so große Entfernung lässt sich nur so genau messen: Es kann {yrs} früher oder später gewesen sein.', card2a: 'brach um {y} auf.', shareTextA: '{name}: Das Licht, das ich heute Nacht sehe, hat ihn um {y} verlassen.', yrs: n => (n === 1 ? 'ein Jahr' : `${n} Jahre`),
+    shareText: '{name}: Das Licht, das ich heute Nacht sehe, hat ihn {y} verlassen.', fine: 'Entfernungen aus den Parallaxen in SIMBAD (CDS, Straßburg); dieser Stern: {d} ± {e} Lichtjahre. Bild: Digitized Sky Survey, sichtbares Licht.', dec: ',' },
+  fr: { title: 'L’étoile de votre année', intro: 'La lumière des étoiles met des années à nous parvenir. Choisissez une année, celle de votre naissance ou une autre qui compte pour vous, et découvrez l’étoile dont la lumière, celle qui arrive ce soir, est partie cette année-là.',
+    label: 'Une année', go: 'Montrer l’étoile', priv: 'L’année reste sur cet appareil : elle n’est envoyée nulle part et n’est pas conservée.', bad: 'Tapez une année entre {a} et {b}.',
+    far: 'à {n} années-lumière', left: 'La lumière qui atteint la Terre ce soir a quitté {name} en <b>{y}</b>.', near: 'Aucune étoile portant un nom ne se trouve exactement à cette distance. La plus proche :',
+    young: 'La lumière partie en {y} est encore en route : même l’étoile la plus proche, Proxima du Centaure, est à 4,2 années-lumière, et sa lumière de ce soir est partie en {py}.',
+    eye1: 'On la voit sans télescope.', eye2: 'Sous un ciel noir, on la voit sans télescope.', eye3: 'Il faut des jumelles ou un télescope pour la voir.',
+    share: 'Partager', saved: 'Image enregistrée', map: 'La voir sur la carte', again: 'Une autre année', tool: 'Ouvrir l’outil complet', card1: 'La lumière qui arrive ce soir', card2: 'est partie en {y}.',
+    about: 'La lumière qui atteint la Terre ce soir a quitté {name} vers <b>{y}</b>. Une distance aussi grande ne se mesure qu’avec cette précision : ce peut être {yrs} plus tôt ou plus tard.', card2a: 'est partie vers {y}.', shareTextA: '{name} : la lumière que je vois ce soir l’a quittée vers {y}.', yrs: n => (n === 1 ? 'un an' : `${n} ans`),
+    shareText: '{name} : la lumière que je vois ce soir l’a quittée en {y}.', fine: 'Distances d’après les parallaxes conservées par SIMBAD (CDS, Strasbourg) ; cette étoile : {d} ± {e} années-lumière. Image : Digitized Sky Survey, lumière visible.', dec: ',' },
+  pl: { title: 'Gwiazda twojego roku', intro: 'Światło gwiazd leci do nas latami. Wybierz rok, rok swoich urodzin albo inny ważny dla ciebie, i poznaj gwiazdę, której światło docierające dziś w nocy wyruszyło właśnie wtedy.',
+    label: 'Rok', go: 'Pokaż gwiazdę', priv: 'Rok zostaje na tym urządzeniu: nie jest nigdzie wysyłany ani zapisywany.', bad: 'Wpisz rok między {a} a {b}.',
+    far: '{n} lat świetlnych stąd', left: 'Światło, które dziś w nocy dociera do Ziemi, opuściło gwiazdę {name} w roku <b>{y}</b>.', near: 'Dokładnie w tej odległości nie ma gwiazdy z nazwą. Najbliższa:',
+    young: 'Światło wysłane w roku {y} wciąż jest w drodze: nawet najbliższa gwiazda, Proxima Centauri, leży 4,2 roku świetlnego stąd, a jej dzisiejsze światło wyruszyło w roku {py}.',
+    eye1: 'Widać ją bez teleskopu.', eye2: 'Pod ciemnym niebem widać ją bez teleskopu.', eye3: 'Żeby ją zobaczyć, trzeba lornetki albo teleskopu.',
+    share: 'Udostępnij', saved: 'Obraz zapisany', map: 'Zobacz na mapie', again: 'Inny rok', tool: 'Otwórz całe narzędzie', card1: 'Światło docierające dziś w nocy', card2: 'wyruszyło w roku {y}.',
+    about: 'Światło, które dziś w nocy dociera do Ziemi, opuściło gwiazdę {name} około roku <b>{y}</b>. Tak dużą odległość da się zmierzyć tylko z taką dokładnością: mogło to być {yrs} wcześniej lub później.', card2a: 'wyruszyło około roku {y}.', shareTextA: '{name}: światło, które widzę dziś w nocy, opuściło ją około roku {y}.', yrs: n => (n === 1 ? 'rok' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? `${n} lata` : `${n} lat`)),
+    shareText: '{name}: światło, które widzę dziś w nocy, opuściło ją w roku {y}.', fine: 'Odległości z paralaks zebranych w bazie SIMBAD (CDS, Strasburg); ta gwiazda: {d} ± {e} lat świetlnych. Obraz: Digitized Sky Survey, światło widzialne.', dec: ',' },
+};
+const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
+let lang = q.get('lang');
+try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }          // the language picked on the main page
+if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
+const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+const num = (x, n = 1) => x.toFixed(n).replace('.', T.dec);
+document.documentElement.lang = lang; document.title = `${T.title} · ChronosphereX`;
+$('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
+for (const [id, key] of [['title', 'title'], ['intro', 'intro'], ['yearlabel', 'label'], ['go', 'go'], ['private', 'priv'], ['share', 'share'], ['map', 'map'], ['again', 'again'], ['tool', 'tool']]) $(id).textContent = T[key];
+$('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?lang=${lang}`;
+
+let STARS = [], shown = null;
+// The year as a number with a fraction: light that arrives now from a star d light-years away set out in the year floor(now - d).
+const NOW = (() => { const d = new Date(), y = d.getFullYear(), a = new Date(y, 0, 1), b = new Date(y + 1, 0, 1); return y + (d - a) / (b - a); })();
+const leftIn = s => Math.floor(NOW - s.d);
+const slug = name => name.normalize('NFKD').replace(/[^\x00-\x7f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const SURE = 0.34;          // light-years: a distance known this well names its year
+/** The star for a year: of those whose light of tonight set out that year, the best known; failing that, the one
+ *  nearest in distance. `y` is the year to show for it, `near` whether that is another year than the one asked for:
+ *  a star whose own uncertainty covers the year asked for is that year's star, as well as anyone can say. */
+function pick(year) {
+  const exact = STARS.filter(s => leftIn(s) === year).sort((a, b) => a.w - b.w);
+  if (exact.length) return { star: exact[0], y: year, near: false };
+  const want = NOW - (year + 0.5);
+  const star = STARS.reduce((best, s) => (Math.abs(s.d - want) < Math.abs(best.d - want) ? s : best));
+  const covers = star.e > SURE && Math.abs(star.d - want) <= Math.max(1.5, star.e);
+  return { star, y: covers ? year : leftIn(star), near: !covers };
+}
+function show(year) {
+  $('bad').textContent = '';
+  if (!STARS.length) { $('bad').textContent = '…'; return; }
+  const first = Math.max(1, Math.min(...STARS.map(leftIn))), last = Math.max(...STARS.map(leftIn));
+  if (!Number.isInteger(year) || year < first || year > Math.floor(NOW)) { $('bad').textContent = fill(T.bad, { a: first, b: Math.floor(NOW) }); return; }
+  // a year whose light is still on its way: the nearest star of all, which is what the words then speak of
+  const young = year > last, { star, y, near } = young ? (s => ({ star: s, y: leftIn(s), near: true }))(STARS.reduce((a, b) => (b.d < a.d ? b : a))) : pick(year);
+  const sure = star.e <= SURE, give = Math.max(1, Math.round(star.e));
+  shown = { star, y, sure };
+  $('near').hidden = !near;
+  $('near').textContent = young ? fill(T.young, { y: year, py: last }) : T.near;
+  $('pic').src = `stars/${slug(star.n)}.webp`; $('pic').alt = star.n; $('yr').textContent = sure ? y : `≈${y}`;
+  $('name').textContent = star.n;
+  $('where').textContent = [star.b, star.con, fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].filter(Boolean).join(' · ');
+  $('says').innerHTML = sure ? fill(T.left, { name: star.n, y }) : fill(T.about, { name: star.n, y, yrs: T.yrs(give) });
+  $('eye').textContent = star.v <= 4.5 ? T.eye1 : star.v <= 6 ? T.eye2 : T.eye3;
+  $('map').href = `./?ra=${star.ra}&dec=${star.dec}&fov=5&lang=${lang}`;
+  $('fine').textContent = fill(T.fine, { d: num(star.d, 2), e: num(star.e, 2) });
+  $('answer').hidden = false; document.body.classList.add('shown');
+  $('year').blur();
+  $('answer').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+$('ask').onsubmit = e => { e.preventDefault(); const typed = $('year').value.trim(); show(/^\d{1,4}$/.test(typed) ? +typed : NaN); };
+$('again').onclick = () => { $('answer').hidden = true; document.body.classList.remove('shown'); shown = null; $('year').value = ''; window.scrollTo({ top: 0 }); $('year').focus(); };
+
+/** A picture to pass on, the size of a phone's story: the star, its name, the sentence, the site's name. */
+async function card() {
+  const { star, y, sure } = shown, W = 1080, H = 1920, cv = document.createElement('canvas'), x = cv.getContext('2d');
+  cv.width = W; cv.height = H;
+  try { await document.fonts.ready; } catch { /* the fallback faces will do */ }
+  const st = getComputedStyle(document.documentElement), font = v => st.getPropertyValue(v).trim();
+  x.fillStyle = '#0a0908'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#ff7b39'; x.beginPath(); x.arc(92, 136, 20, 0, 2 * Math.PI); x.fill();
+  x.fillStyle = '#f3eee6'; x.font = `italic 400 64px ${font('--serif')}`; x.textBaseline = 'middle'; x.fillText('ChronosphereX', 132, 136);
+  const img = $('pic'), S = 960, px = 60, py = 240;
+  x.save(); x.beginPath(); x.roundRect(px, py, S, S, 40); x.clip();
+  if (img.complete && img.naturalWidth) x.drawImage(img, px, py, S, S); else { x.fillStyle = '#000'; x.fillRect(px, py, S, S); }
+  x.restore();
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = '#f3eee6'; let size = 120; x.font = `400 ${size}px ${font('--serif')}`;
+  while (x.measureText(star.n).width > W - 120 && size > 60) { size -= 6; x.font = `400 ${size}px ${font('--serif')}`; }
+  x.fillText(star.n, 60, 1350);
+  x.fillStyle = '#b0a79a'; x.font = `500 38px ${font('--mono')}`; x.fillText([star.con, fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].join(' · '), 62, 1420);
+  x.fillStyle = '#f3eee6'; x.font = `400 58px ${font('--sans')}`; x.fillText(T.card1, 60, 1560);
+  // the second line, with the year in the colour of the year on the picture
+  const [before, after] = (sure ? T.card2 : T.card2a).split('{y}'); let at = 60;
+  for (const [text, colour] of [[before, '#f3eee6'], [String(y), '#f2c14e'], [after, '#f3eee6']]) { x.fillStyle = colour; x.font = `${colour === '#f2c14e' ? 600 : 400} 58px ${font('--sans')}`; x.fillText(text, at, 1640); at += x.measureText(text).width; }
+  x.fillStyle = '#8a8175'; x.font = `400 36px ${font('--mono')}`; x.fillText('chronospherex.com/star.html', 60, 1820);
+  return new Promise(done => cv.toBlob(done, 'image/png'));
+}
+$('share').onclick = async () => {
+  if (!shown) return;
+  const text = fill(shown.sure ? T.shareText : T.shareTextA, { name: shown.star.n, y: shown.y }), url = `${location.origin}${location.pathname}`;
+  try {
+    const file = new File([await card()], 'chronospherex-star.png', { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) return await navigator.share({ files: [file], text: `${text} ${url}` });
+    if (navigator.share) return await navigator.share({ text, url });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);          // a desk: the picture is saved
+    $('share').textContent = T.saved; setTimeout(() => { $('share').textContent = T.share; }, 2500);
+  } catch { /* the visitor closed the sheet */ }
+};
+// The list: one row per star, in the order of `cols`; the constellation is a number into `cons`.
+fetch('data/birthstars.json').then(r => r.json()).then(d => {
+  STARS = d.stars.map(r => ({ n: r[0], ra: r[1], dec: r[2], d: r[3], e: r[4], v: r[5], w: r[6], con: d.cons[r[7]], b: r[8] }));
+}).catch(() => { $('bad').textContent = '…'; });
+</script>
+</body>
+</html>
