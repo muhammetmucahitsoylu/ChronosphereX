@@ -25,7 +25,8 @@ button:disabled { opacity: .35; cursor: default; }
 .cta:hover { filter: brightness(1.08); }
 .ghost { border: 1px solid var(--line-2); border-radius: 999px; padding: 8px 16px; min-height: 40px; color: var(--ink); background: #0a090899; white-space: nowrap; }
 .ghost:hover { border-color: var(--ink-2); }
-.herobtns a.ghost { text-decoration: none; display: inline-flex; align-items: center; }          /* the link to the game, among the buttons */
+.herobtns a.ghost { text-decoration: none; display: inline-flex; align-items: center; }
+#starlink { display: none; }          /* a phone's opening has it; elsewhere it is a line of the menu */          /* the link to the game, among the buttons */
 .navlinks a.navgame, .navlinks a.navsocial { display: none; }          /* the same link in the menu, for screens too short to hold another button */
 /* Safari draws its own light-coloured menu button unless told otherwise, so the arrow is drawn here. */
 select { -webkit-appearance: none; appearance: none; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 5px 26px 5px 8px; min-height: 34px;
@@ -205,7 +206,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
    the page's code hangs on the page itself, outside the map's column, so that only the card's own rules reach it),
    so the map above it is the same at every step, and Back and Next stay where they are. */
 .tour.tourprobe { position: absolute !important; left: 0; top: 0; z-index: -1; visibility: hidden; pointer-events: none; }
-@media (min-width: 901px) {
+@media (min-width: 901px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
   .tour { display: flex; flex-direction: column; }
   .tour > * { flex: none; }
   .tour .tourbtns { margin-top: auto; padding-top: 14px; }
@@ -523,33 +524,40 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .navlinks a.navsocial { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--ink-2); min-height: 44px; text-decoration: none; border-radius: 8px; }
 }
 
+/* Three layouts. A desk: the map and, beside it, the panel. A phone held upright (and a small tablet): one scrolling
+   column, below. A phone held sideways (a wide, low screen): the desk's layout again, map on the left and the words on
+   the right, fitted to its height; its rules follow the column's. On both phone layouts there is no bar at the top. */
 /* ---------- phones and small tablets: one scrolling column ---------- */
-@media (max-width: 900px) {
+@media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
   html, body { height: auto; }
   body { overflow: visible; display: block; }
   body.touring { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
-  .top { flex-wrap: wrap; padding: 8px 12px 10px; gap: 8px 10px; min-height: 0; }
   .brand span { font-size: 24px; }
   .brand svg { width: 23px; height: 23px; }
-  #search { order: 3; flex-basis: 100%; max-width: none; }
-  .nav { margin-left: auto; gap: 6px; }
-  .nav .cta { margin-left: 0; padding: 7px 14px; min-height: 38px; font-size: 14px; }
 
   .app, .app[data-panel=open] { display: block; }
-  .app[data-panel=closed] .mapwrap { height: calc(100vh - var(--toph, 104px)); height: calc(100dvh - var(--toph, 104px)); min-height: 400px; }
+  .app[data-panel=closed] .mapwrap { height: 100vh; height: 100dvh; min-height: 400px; }
   /* The tour: the map keeps one height at every step, the one that leaves room for the tour's longest card (--tourcard)
      on this screen, between 170 px and 45 per cent of the screen. The card follows; where it is longer (the two steps
      with a worked example), the page scrolls. The small viewport height (svh) is used, so that the map does not change
      when the browser's bars slide away. */
-  body.touring { --tourmap: clamp(170px, calc(100vh - var(--toph, 104px) - 62px - var(--tourcard, 400px)), 45vh); }
-  @supports (height: 100svh) { body.touring { --tourmap: clamp(170px, calc(100svh - var(--toph, 104px) - 62px - env(safe-area-inset-bottom, 0px) - var(--tourcard, 400px)), 45svh); } }
+  body.touring { --tourmap: clamp(170px, calc(100vh - 62px - var(--tourcard, 400px)), 45vh); }
+  @supports (height: 100svh) { body.touring { --tourmap: clamp(170px, calc(100svh - 62px - env(safe-area-inset-bottom, 0px) - var(--tourcard, 400px)), 45svh); } }
   body.touring .app .mapwrap { height: auto; min-height: 0; }
   body.touring .app .mapstage { flex: none; height: var(--tourmap); min-height: 0; }
-  body.touring .app[data-panel=closed] .tour { min-height: calc(100vh - var(--toph, 104px) - 62px - var(--tourmap)); }
-  @supports (height: 100svh) { body.touring .app[data-panel=closed] .tour { min-height: calc(100svh - var(--toph, 104px) - 62px - env(safe-area-inset-bottom, 0px) - var(--tourmap)); } }
-  .app[data-panel=open] .mapstage { flex: none; height: 28vh; height: 28dvh; min-height: 190px; }          /* the map says where the object is; the story starts on the first screen */
-  .layerpick { top: 10px; right: 10px; }
-  .zoom { top: 52px; right: 10px; }
+  body.touring .app[data-panel=open] .ruler { display: none; }          /* a stop of the tour: the low map shows the object and its name, whole; the colour bar would lie across them */
+  body.touring .app[data-panel=closed] .tour { min-height: calc(100vh - 62px - var(--tourmap)); }
+  @supports (height: 100svh) { body.touring .app[data-panel=closed] .tour { min-height: calc(100svh - 62px - env(safe-area-inset-bottom, 0px) - var(--tourmap)); } }
+  .app[data-panel=open] .mapstage { flex: none; height: 34vh; height: 34dvh; min-height: 230px; }          /* the map says where the object is; the story starts on the first screen */
+  /* an object is open and the map is a strip: the name steps aside and the map chooser moves up beside the two buttons, clear of the object's label */
+  .top:has(+ .app[data-panel=open]) .brand span { display: none; }
+  .top:has(+ .app[data-panel=open]) .brand { padding: 0 8px; }
+  .app[data-panel=open] .layerpick { top: 8px; right: 102px; }
+  .app[data-panel=open] .zoom { top: 56px; }
+  @container stage (min-height: 225px) and (max-height: 280px) { .app[data-panel=open] .zoom { display: flex; } }
+  body.canpoint:not(.touring) .app[data-panel=closed] .zoom { top: 152px; }          /* under the button that points the map where the phone looks */
+  body.pointing .mapnote { right: 128px; text-align: left; }          /* where the phone looks stays on show: beside the map chooser, not over it */
+  .mapstage:has(> .hero:not([hidden])) .pointbtn { display: none; }          /* the opening has that button among its own, in words: a long title on two lines needs the corner */
   .aladin-location { display: none !important; }
   .aladin-logo-container { right: auto !important; left: 10px !important; bottom: 70px !important; }          /* the zoom buttons own the right edge of a short map */
   .hero { padding: 70px 18px 84px; max-width: none; right: 0; background: linear-gradient(0deg, #0a0908f5 0%, #0a0908d8 55%, transparent 100%); display: flex; flex-direction: column; align-items: flex-start; }
@@ -571,18 +579,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .startwith a { padding: 6px 0; }
   .ruler { left: 10px; right: 10px; bottom: 10px; gap: 8px; padding: 7px 10px 5px 7px; }
   #wavelabel { font-size: 13.5px; min-width: 62px; }
-  .mapnote { font-size: 13px; top: 10px; left: 10px; right: 10px; transform: none; max-width: none; white-space: normal; text-align: center; border-radius: 12px; }
-  /* The tour's two worked examples sit in the card here, under its title (the page's code moves them): over the map
-     they needed room, and the map grew for them. The two pictures: beside their caption. The ladder: its whole width. */
-  .tour .blink { position: static; transform: none; width: auto; min-width: 0; margin: 10px 0 2px; padding: 8px; display: flex; gap: 12px; align-items: center; background: #0d0b0a; box-shadow: none; }
-  .tour .blink[hidden] { display: none; }
-  .tour .blinkstage { flex: none; width: min(44%, 230px); }
-  .tour .blink figcaption { margin: 0; font-size: 12.5px; min-width: 0; }
-  .tour .blink figcaption b { font-size: 18px; }
-  .tour .blink.ladder { display: block; padding: 10px 12px 10px; }
-  .tour .blink.ladder[hidden] { display: none; }
-  .tour .ladder figcaption { margin: 0 0 8px; }
-  .tour .ladder .laddernote { margin: 8px 0 0; font-size: 12px; }
+  .mapnote { font-size: 13px; top: 56px; left: 10px; right: 10px; transform: none; max-width: none; white-space: normal; text-align: center; border-radius: 12px; }
   .rungs { gap: 5px; }
   .rung { font-size: 12.5px; grid-template-columns: 18px 40px minmax(0, 1fr); gap: 7px; }
   .rung b { font-size: 13px; }
@@ -638,15 +635,22 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .mapstage:has(> .hero:not([hidden])) .zoom { display: none; }          /* under the words the map is a backdrop; two fingers still zoom it */
   .herobtns { gap: 8px; }
   .herobtns .ghost { padding-left: 14px; padding-right: 14px; }
+  /* a phone's opening offers what works at once there: the map, the phone held to the sky, the tour, the game. The
+     asteroid hunt reads hundreds of exposures live and is slow on a phone: it stays in the menu */
+  #huntbtn, #tourbtn2 { display: none; }          /* the tour is the first line of the menu */
+  #starlink { display: inline-flex; }
   .startwith { align-self: stretch; white-space: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -18px; padding-right: 18px; -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent 100%); mask-image: linear-gradient(90deg, #000 86%, transparent 100%); }
   .startwith::-webkit-scrollbar { display: none; }
+  /* the moving picture's card: what it shows and where it leads; the line about the three telescopes is said again where it leads */
+  .shotcap [data-t="hero.shot.text"] { display: none; }
+  .heroshot img { width: 72px; }
 }
 /* a short map (a phone with the browser's bars on show): what is needed least steps aside, by the height the map really has */
-@container stage (max-width: 600px) and (max-height: 620px) { .hero > .lede, .shotgo { display: none; } }
+@container stage (max-width: 600px) and (max-height: 620px) { .hero > .lede { display: none; } }
 @container stage (max-width: 600px) and (max-height: 540px) { .hero h1 { font-size: 32px; } }          /* the smallest phones: the title on one line also where it is long (French), so that it stays clear of the map chooser */
 @container stage (max-width: 600px) and (max-height: 470px) { .hero .heroshot { display: none; } }
 @media (max-width: 380px) {
-  .heroshot img { width: 80px; }
+  .heroshot img { width: 64px; }
   .herobtns .cta, .herobtns .ghost { font-size: 14px; padding-left: 12px; padding-right: 12px; }
   .brand span { font-size: 21px; }
   .nav .cta { padding: 7px 11px; font-size: 13.5px; }
@@ -654,16 +658,145 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .transport .playbtn { min-width: 84px; padding: 0 10px; }
 }
 @media (max-width: 340px) { .brand span { font-size: 19px; } }          /* "ChronosphereX" and the tour button on one line at 320 px */
-/* phones held sideways: the map and the panel side by side would be too cramped, so keep one column but shorten the map */
-@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+/* the smallest phones held sideways (under 600 px wide): too narrow for two columns, so one column with a shorter map */
+@media (max-width: 599px) and (orientation: landscape) and (max-height: 500px) {
   .app[data-panel=open] .mapstage { height: 60vh; height: 60dvh; min-height: 0; }
   body.touring { --tourmap: 54vh; }
-  .hero { padding-top: 20px; }
+  .hero { padding-top: 56px; }
   .hero h1 { font-size: 34px; }
   .lede, .heroshot { display: none; }
 }
+/* The tour's two worked examples sit in the card on a phone, under its title (the page's code moves them): over the map
+   they needed room, and the map grew for them. The two pictures: beside their caption. The ladder: its whole width. */
+.tour .blink { position: static; transform: none; width: auto; min-width: 0; margin: 10px 0 2px; padding: 8px; display: flex; gap: 12px; align-items: center; background: #0d0b0a; box-shadow: none; }
+.tour .blink[hidden] { display: none; }
+.tour .blinkstage { flex: none; width: min(44%, 230px); }
+.tour .blink figcaption { margin: 0; font-size: 12.5px; min-width: 0; }
+.tour .blink figcaption b { font-size: 18px; }
+.tour .blink.ladder { display: block; padding: 10px 12px 10px; }
+.tour .blink.ladder[hidden] { display: none; }
+.tour .ladder figcaption { margin: 0 0 8px; }
+.tour .ladder .laddernote { margin: 8px 0 0; font-size: 12px; }
+
+/* ---------- phones, upright or sideways: no bar at the top ----------
+   The map reaches the top of the screen. The name, the search button and the menu float on it; the search box opens
+   from its button, and the tour's button is the first line of the menu. */
+/* phones and tablets with a compass: the button that makes the map follow where the device is pointed (shown by the page's code where that can work) */
+.pointbtn { top: 164px; right: 12px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); background: #0a0908cc; color: var(--ink); }
+.pointbtn[aria-pressed=true], #pointbtn2[aria-pressed=true] { background: var(--ember); border-color: var(--ember); color: var(--ember-ink); }
+.app[data-panel=open] .pointbtn, body.touring .pointbtn { display: none; }          /* the map has other work then */
+.iconbtn, .layershort { display: none; }
+.navlinks a.navtour { display: none; }
+@media (max-width: 900px), (orientation: landscape) and (max-height: 500px) and (max-width: 1100px) {
+  .top { position: absolute; left: 0; right: 0; top: 0; min-height: 0; padding: 8px 10px 0; gap: 8px; border: 0; background: none; pointer-events: none; }
+  .top > * { pointer-events: auto; }
+  /* whatever floats on the map is a chip on a ground of its own, readable over the brightest part of the sky; no blur
+     behind these, which a phone would have to work out again at every frame of a moving map */
+  .brand { min-height: 40px; padding: 0 14px 0 9px; border: 1px solid var(--line-2); border-radius: 999px; background: #0a0908cc; }
+  .nav { margin-left: auto; gap: 6px; }
+  #tourbtn { display: none; }
+  .iconbtn, .menubtn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); background: #0a0908cc; color: var(--ink); }
+  .iconbtn:hover, .menubtn:hover { background: var(--surface-2); }
+  .navlinks { max-height: calc(100vh - 64px); max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; }
+  .navlinks a.navtour { display: block; text-align: left; padding: 11px 12px; font-size: 15px; font-weight: 600; color: var(--ember); min-height: 44px; text-decoration: none; border-radius: 8px; }
+  /* the line about keeping the tour on this device is the menu's last line here (the page's code moves it): the opening has fewer words */
+  .navlinks .offline { margin: 6px 0 0; padding: 10px 12px 6px; border-top: 1px solid var(--line); max-width: 236px; min-height: 0; line-height: 1.5; }
+  .navlinks .offline:empty { display: none; }
+  .navlinks .offline button { display: block; padding: 6px 0; }
+  /* the search box: out of sight until its button is pressed, then across the top, over the name and the buttons */
+  #search { display: none; }
+  .top.searching #search { display: flex; position: absolute; left: 10px; right: 10px; top: 8px; max-width: none; margin: 0; z-index: 2; box-shadow: 0 10px 30px #000c; }
+  .top.searching .brand, .top.searching .nav { visibility: hidden; }
+  /* the map chooser: a chip with the survey's name alone (the list it opens has the full lines), under that row */
+  .layerpick { top: 56px; right: 10px; display: flex; align-items: center; height: 40px; padding: 0 30px 0 14px; border: 1px solid var(--line-2); border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap;
+    background: #0a0908cc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b0a79a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 9px 6px; }
+  .layerpick:focus-within { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .layershort { display: block; }
+  .layerpick select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; max-width: none; padding: 0; border: 0; opacity: 0; }
+  .zoom { top: 104px; right: 10px; }
+  .pointbtn { top: 104px; right: 10px; width: 40px; height: 40px; }          /* under the map chooser; the zoom buttons then start below it (see each layout) */
+  @container stage (max-height: 280px) { .zoom { display: none; } }          /* no room between the map chooser and the colour bar; two fingers still zoom */
+  @container stage (max-width: 300px) { .rulerticks span:nth-child(2), .rulerticks span:nth-child(5) { display: none; } }          /* a narrow map beside the panel: fewer numbers under the colour bar, so that none touch */
+}
+
+/* ---------- a phone held sideways: the desk's layout, the map on the left and the words on the right ----------
+   The screen is wide and low (at most 500 px), so everything is fitted to its height: the opening shows what there is
+   room for, the images in the panel are no taller than the screen, and the tour's card is a column of its own. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
+  :root { --side: 44vw; }          /* the tour's card beside the map, while no object is open */
+  .brand span { font-size: 23px; }
+  .brand svg { width: 22px; height: 22px; }
+  /* the name and the two buttons stay on the map, whose column is narrower while the panel or the tour's card is beside it */
+  body.touring .top { right: var(--side); }
+  .top:has(+ .app[data-panel=open]) { right: var(--panelw); }
+  .top:has(+ .app[data-panel=open]) .brand span, body.touring .brand span { display: none; }
+  .top:has(+ .app[data-panel=open]) .brand, body.touring .brand { padding: 0 8px; }
+  body.touring .top:has(+ .app[data-panel=open]) { display: none; }          /* a stop of the tour: the tour's card has that column */
+  /* the map chooser sits in that row, left of the two buttons, and the zoom buttons under it; beside the panel on the
+     narrowest phones the row has no room for it, and it stays under the row */
+  .layerpick { top: 8px; right: 102px; }
+  .zoom { top: 56px; }
+  /* the button that points the map where the phone looks is in that row too, and the chooser makes room for it; the opening has no second button for it */
+  .pointbtn { top: 8px; right: 102px; }
+  body.canpoint:not(.touring) .app[data-panel=closed] .layerpick { right: 148px; }
+  #pointbtn2 { display: none; }
+  @container stage (min-height: 230px) and (max-height: 280px) { .zoom { display: flex; } }
+  @container stage (max-width: 280px) { .layerpick { top: 56px; right: 10px; } .zoom { top: 104px; } }
+  @container stage (max-width: 280px) and (max-height: 280px) { .zoom { display: none; } }
+  .aladin-location { display: none !important; }
+  .mapstage { min-width: 0; }
+  .mapnote { top: auto; bottom: 80px; font-size: 13px; }
+  .ruler { left: 10px; right: 10px; bottom: 10px; gap: 8px; padding: 7px 10px 5px 7px; }
+  #wavelabel { font-size: 13.5px; min-width: 62px; }
+
+  /* the opening: the title, the buttons and the names always; the rest by the height there is (see the last three lines) */
+  .hero { right: 0; max-width: none; padding: 56px 64px 74px 20px; display: flex; flex-direction: column; align-items: flex-start; }
+  .hero > .lede, .hero > .herobtns, .hero > .startwith { order: 2; }
+  .eyebrow, .lede .poem, .hero > .lede, #huntbtn, #tourbtn2 { display: none; }          /* the asteroid hunt and the tour are in the menu (see the phone's opening above) */
+  #starlink { display: inline-flex; }
+  .hero h1 { font-size: clamp(32px, 5.2vw, 44px); }
+  .mapstage:has(> .hero:not([hidden])) .zoom { display: none; }          /* under the words the map is a backdrop; two fingers still zoom it */
+  .heroshot { display: none; position: static; order: 1; gap: 12px; align-items: center; width: auto; max-width: 400px; margin: 8px 0 0; padding: 6px 12px 6px 6px; box-shadow: none; }
+  .heroshot picture { flex: none; }
+  .heroshot img { width: 56px; }
+  .shotcap { margin: 0; padding: 0; font-size: 13px; }
+  .shotcap b { font-size: 17px; }
+  .shotcap [data-t="hero.shot.text"] { display: none; }
+  .shotgo { margin-top: 2px; }
+  .lede { font-size: 15px; margin-top: 8px; max-width: 600px; }
+  .herobtns { margin-top: 12px; gap: 8px; }
+  .startwith { margin-top: 8px; align-self: stretch; line-height: 1.6; white-space: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, #000 90%, transparent 100%); }
+  .startwith::-webkit-scrollbar { display: none; }
+  @container stage (min-height: 334px) { .hero > .heroshot { display: flex; } }
+  @container stage (min-height: 392px) { .hero > .lede { display: block; } }
+
+  /* the panel: the images and their buttons fit the screen's height */
+  .panel { padding: 10px 14px 16px; }
+  .ohead .thumb { width: 52px; height: 52px; }
+  .stage { max-width: max(200px, calc(100vh - 112px)); max-width: max(200px, calc(100dvh - 112px)); margin: 0 auto; }
+
+  /* the tour: its card is a column of words beside what they are about. With no object open: beside the map. With one
+     open: beside the panel, over the map's column from top to bottom (a low screen has no room for a strip of map above it) */
+  .tour { padding: 0 16px; }
+  .tourbar { margin: 0 -16px 8px; }
+  .tour h2, .app[data-panel=closed] .tour h2 { font-size: 25px; }
+  .tour p, .app[data-panel=closed] .tour p { font-size: 14.5px; line-height: 1.45; }
+  .tourpoints { font-size: 14px; gap: 6px; }
+  .walk .long { display: none; }
+  .walk .short { display: inline; }
+  .tour .tourbtns { position: sticky; bottom: 0; z-index: 8; flex-wrap: wrap; margin: auto -16px 0; padding: 10px 16px 12px; background: var(--surface); }          /* Back and Next stay in view while a long card scrolls, above the worked example that scrolls under them */
+  .tourbtns .cta, .tourbtns .ghost { min-height: 38px; padding: 6px 14px; font-size: 14.5px; }
+  body.touring .app[data-panel=closed] .mapwrap { flex-direction: row; }
+  .app[data-panel=closed] .tour { position: relative; left: auto; bottom: auto; width: var(--side); border: 0; border-left: 1px solid var(--line-2); border-radius: 0; box-shadow: none; background: var(--surface); overflow-y: auto; }
+  .app[data-panel=open] .tour { position: absolute; inset: 0; min-height: 0; max-height: none; border-top: 0; overflow-y: auto; }
+  .coach { left: 10px; bottom: 10px; width: calc(38vw - 20px); max-height: calc(100vh - 20px); overflow-y: auto; padding: 10px 14px 12px; }
+  .coach h2 { font-size: 22px; }
+  .coach p { font-size: 14px; line-height: 1.45; }
+  .sheetwrap { padding: 10px 10px 20px; }
+  .sheet { padding: 48px 22px 30px; border-radius: 14px; }
+}
 /* short phone screens have no room for a fourth button in the hero: there the game is in the menu */
-@media (max-width: 900px) and (max-height: 700px) { #playlink { display: none; } }
+@media (min-width: 601px) and (max-width: 900px) and (max-height: 700px) and (orientation: portrait) { #playlink { display: none; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* ?embed=1 : SPHEREx viewer only, for iframes on other sites */

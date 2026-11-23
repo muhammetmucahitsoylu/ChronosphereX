@@ -71,16 +71,22 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
   <nav class="nav" id="nav" aria-label="About this site">
     <div class="navlinks" id="navlinks" lang="en">
       <!-- links to the pages as plain pages (a search engine, a new tab); a plain click opens the same words over the map -->
+      <!-- phones have no bar for the tour's button: there it is the first line of the menu -->
+      <a class="navtour" id="tourlink" href="./" data-t="nav.tour">Guided tour</a>
       <a class="navgame" href="play.html" data-t="hero.play">Play a game</a>
+      <a class="navgame navstar" href="star.html" data-t="hero.star">The star of your year</a>
       <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title">Planet X</a>
       <a href="find-asteroids.html" data-sheet="hunt">Asteroid hunt</a>
       <a href="what-is-spherex.html" data-sheet="spherex">What is SPHEREx?</a>
       <a href="how-it-works.html" data-sheet="how">How it works</a>
       <a href="about.html" data-sheet="about">About</a>
       <a class="navsocial" href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram</a>
+      <a class="navsocial" href="privacy.html" data-t="nav.privacy">Privacy</a>
       <select id="lang" class="langpick" aria-label="Language" data-t-label="nav.language"></select>
     </div>
     <button id="tourbtn" type="button" class="cta" data-t="nav.tour">Guided tour</button>
+    <!-- phones: the search box opens from this button, so that the map has the whole screen -->
+    <button id="searchbtn" type="button" class="iconbtn" aria-label="Object name or coordinates" data-t-label="search.label" aria-expanded="false" aria-controls="search"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     <button id="menubtn" type="button" class="menubtn" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><span></span><span></span><span></span></button>
   </nav>
 </header>
@@ -93,12 +99,16 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <div class="mapui layerpick">
         <label class="sr" for="layer">Sky map</label>
         <select id="layer" title="Which survey to fly over"></select>
+        <!-- phones: the chooser is a small chip with the survey's name alone; the list it opens has the full lines -->
+        <span class="layershort" id="layershort" aria-hidden="true">SPHEREx</span>
       </div>
       <div class="mapui zoom" id="zoom">
         <button type="button" id="zoomin" aria-label="Zoom in" title="Zoom in">+</button>
         <button type="button" id="zoomout" aria-label="Zoom out" title="Zoom out">−</button>
         <output id="fovlabel" title="Width of the view" aria-label="Width of the view"></output>
       </div>
+      <!-- phones with a compass: the map follows where the phone is pointed (the page's code shows this button where that can work) -->
+      <button type="button" class="mapui pointbtn" id="pointbtn" hidden aria-pressed="false" aria-label="Point at the sky" data-t-label="point.btn"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z" fill="currentColor"/></svg></button>
 
       <div class="hero" id="welcome">
         <p class="eyebrow" data-t="hero.eyebrow">NASA SPHEREx · 102 infrared colours · the whole sky, twice a year</p>
@@ -106,9 +116,12 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
         <p class="lede"><span class="poem" data-t="hero.lede">Stars drift. Some flicker. Cold worlds hide in colours our eyes cannot see.</span> <span data-t="hero.do">Pick any point of this map to watch that spot change over time, and find out what it is.</span></p>
         <div class="herobtns">
           <button type="button" class="cta" id="hidewelcome" data-t="hero.explore">Explore the sky</button>
+          <button type="button" class="ghost" id="pointbtn2" hidden data-t="point.btn">Point at the sky</button>
           <button type="button" class="ghost" id="tourbtn2" data-t="hero.tour">Two-minute tour</button>
           <button type="button" class="ghost" id="huntbtn" data-t="hero.hunt">Find an asteroid</button>
           <a class="ghost" id="playlink" href="play.html" data-t="hero.play">Play a game</a>
+          <!-- phones: pick a year, meet the star whose light of tonight set out then (star.html) -->
+          <a class="ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
         </div>
         <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. --><span id="examples"><a href="3i-atlas.html">3I/ATLAS</a><a href="barnards-star.html">Barnard's Star</a><a href="epsilon-indi-b.html">Epsilon Indi B</a><a href="wise-0855.html">WISE 0855</a><a href="rw-aurigae.html">RW Aurigae</a><a href="r-draconis.html">R Draconis</a><a href="pluto.html">Pluto</a></span></p>
         <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->

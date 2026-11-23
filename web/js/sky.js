@@ -8,11 +8,12 @@ import A from 'https://cdn.jsdelivr.net/npm/aladin-lite@3.8.2/dist/aladin.js';
 import { tileUrl, tilesInView, orderFor } from './healpix.js';
 
 const IRSA_HIPS = 'https://irsa.ipac.caltech.edu/data/hips';
+// label: the line in the list of maps. short: the survey's name alone, what a phone's small chooser shows once it is picked.
 export const LAYERS = [
-  { id: 'spherex', label: 'SPHEREx all-sky, 102 bands', url: `${IRSA_HIPS}/SPHEREx/spherex_allsky_cube`, cube: true },
-  { id: '2mass', label: '2MASS colour (1.2 to 2.2 µm)', url: `${IRSA_HIPS}/CDS/2MASS/Color` },
-  { id: 'wise', label: 'WISE colour (3.4 to 22 µm)', url: `${IRSA_HIPS}/CDS/AllWISE/RGB-W4-W2-W1` },
-  { id: 'dss', label: 'Visible light (DSS)', url: `${IRSA_HIPS}/CDS/DSS2/color` },
+  { id: 'spherex', short: 'SPHEREx', label: 'SPHEREx all-sky, 102 bands', url: `${IRSA_HIPS}/SPHEREx/spherex_allsky_cube`, cube: true },
+  { id: '2mass', short: '2MASS', label: '2MASS colour (1.2 to 2.2 µm)', url: `${IRSA_HIPS}/CDS/2MASS/Color` },
+  { id: 'wise', short: 'WISE', label: 'WISE colour (3.4 to 22 µm)', url: `${IRSA_HIPS}/CDS/AllWISE/RGB-W4-W2-W1` },
+  { id: 'dss', short: 'DSS', label: 'Visible light (DSS)', url: `${IRSA_HIPS}/CDS/DSS2/color` },
 ];
 
 // Central wavelength (µm) of each frame of the SPHEREx cube; refreshed from the archive at start-up.
@@ -674,6 +675,18 @@ export function zoomBy(factor) {
   }, { fade: 300, patience: 2000 });
 }
 export const center = () => (al ? al.getRaDec() : [0, 0]);
+/** Turn to a place at once, without a flight, the picture turned by `turn` degrees: for a view that follows the phone. */
+export function look(ra, dec, turn = 0) {
+  if (!al) return;
+  al.gotoRaDec(ra, dec);
+  // The map library's own setRotation refuses 0 as "not valid" (3.8.2), which would leave the picture turned for
+  // good: its view takes any angle, and where there is no such view, a full turn stands for none.
+  try { if (al.view?.setRotation) al.view.setRotation(turn); else al.setRotation(turn || 360); } catch { /* a map library that cannot turn: north stays up */ }
+}
+/** By how many degrees the picture is turned just now. */
+export const turned = () => { try { return al?.getRotation() ?? 0; } catch { return 0; } };
+/** Where a place in the sky falls on the map, in pixels from its top left corner; null if it is not in view. */
+export const screenOf = (ra, dec) => { try { return al?.world2pix(ra, dec) || null; } catch { return null; } };
 /** Resolves when the map shows its first picture. */
 export const firstPicture = () => firstSeen;
 /** Resolves when the map, sent somewhere by flyTo, has received its first tiles there (or at once if it is not travelling). */
@@ -725,6 +738,8 @@ export function flyTo(ra, dec, targetFov = 0.6, { layout = null } = {}) {
     await Promise.race([ahead, nap(Math.max(200, deadline - performance.now() - 700))]);      // on a slow connection the rest arrives in view of the visitor
   }, { fade: 450, patience: 2500 }).finally(go);
 }
+/** Back to the view the page opens with; `layout` changes the page as part of the same move (see flyTo). */
+export const flyHome = (layout = null) => flyTo(OPENING.ra, OPENING.dec, OPENING.fov, { layout });
 /** The map's own animation, for short distances where every tile it needs is already drawn. */
 function glide(ra, dec, targetFov) {
   return new Promise(resolve => {

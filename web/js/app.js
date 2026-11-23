@@ -9,6 +9,7 @@ import * as Movers from './movers.js';
 import * as Bodies from './bodies.js';
 import * as Lang from './lang.js';
 import * as Years from './years.js';
+import * as Point from './point.js';
 
 const T = Lang.t, G = Lang.G;          // the words of the front page, the tour and the walk through the panel, in the language in use
 const PAGE_FILES = { planetx: 'planet-x.html', hunt: 'find-asteroids.html', spherex: 'what-is-spherex.html', how: 'how-it-works.html', about: 'about.html' };
@@ -27,7 +28,12 @@ const API = (window.CHRONO_API || '').replace(/\/$/, '');
 const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const isNarrow = () => window.matchMedia('(max-width: 900px)').matches;
+// The three layouts of the style sheet (the same conditions as there): a phone held upright is one scrolling column
+// (narrow); a phone held sideways has the desk's two columns, fitted to a low screen (side); the rest is a desk.
+const isNarrow = () => window.matchMedia('(max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px)').matches;
+const isSide = () => window.matchMedia('(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px)').matches;
+/** The height the top bar takes from the page: none on a phone, where the name and its buttons float on the map. */
+const topH = () => (getComputedStyle($('top')).position === 'absolute' ? 0 : $('top').offsetHeight);
 const calmMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const yearNow = C.epochNow;
 const NUM = new Intl.NumberFormat('en'), NUM2 = new Intl.NumberFormat('en', { maximumFractionDigits: 2 });      // made once: making one per number is slow
@@ -1674,7 +1680,7 @@ function closePanel() {
   S.abort?.abort(); S.gen++; stop();
   const shut = () => { $('app').dataset.panel = 'closed'; if (Sky.isReady()) { Sky.clearMark(); Sky.resize(); } };
   if (Sky.isReady()) Sky.reshape(shut); else shut();
-  history.replaceState(null, '', location.pathname);
+  history.replaceState(history.state, '', location.pathname);          // the step's own mark stays (see the phone's Back button)
   document.title = HOME_TITLE;
 }
 /** The page's own title, in the language in use. */
@@ -2690,11 +2696,16 @@ function syncUrl() {
   const followed = S.sel?.trail ? (S.movers?.tracks || []).indexOf(S.sel.trail) + 1 : 0;
   if (followed) p.set('body', followed);
   if (document.body.classList.contains('embed')) p.set('embed', '1');
-  history.replaceState(null, '', '?' + p.toString());
+  history.replaceState(history.state, '', '?' + p.toString());
 }
 
 // ------------------------------------------------------------ events
-$('search').onsubmit = e => { e.preventDefault(); search($('q').value); };
+$('search').onsubmit = e => { e.preventDefault(); searchBox(false); $('q').blur(); search($('q').value); };
+// Phones: the search box opens from its button, across the top of the map, and steps aside again when it is left.
+function searchBox(on) { $('top').classList.toggle('searching', on); $('searchbtn').setAttribute('aria-expanded', String(on)); }
+$('searchbtn').onclick = () => { closeMenu(); searchBox(true); $('q').focus(); };
+$('search').addEventListener('focusout', e => { if (!$('search').contains(e.relatedTarget)) searchBox(false); });
+$('q').addEventListener('keydown', e => { if (e.key === 'Escape' && $('top').classList.contains('searching')) $('q').blur(); });
 $('fov').onchange = () => { if (S.grid || S.ra) go({ ra: S.ra, dec: S.dec, size: +$('fov').value, target: S.target, track: S.track, hunt: S.hunt, info: S.info?.body || S.info?.hunt ? S.info : null }); };
 $('play').onclick = () => { S.wantPlay = false; S.playing ? stop() : play(); };
 $('prev').onclick = () => { S.wantPlay = false; stop(); step(-1); };
@@ -2996,6 +3007,7 @@ async function sweep(on, frames = null) {
 }
 function setLayer(id) {
   Sky.setLayer(id); $('layer').value = id;
+  $('layershort').textContent = Sky.LAYERS.find(l => l.id === id)?.short || '';
   $('wavebox').style.display = id === 'spherex' ? '' : 'none';
   if (id !== 'spherex') sweep(false);
 }
@@ -3175,9 +3187,9 @@ function measureTour() {
   ghost.remove();
   if (tall) document.documentElement.style.setProperty('--tourcard', `${Math.ceil(tall)}px`);
 }
-/** On a phone the tour's two worked examples sit in the card, under its title; on a wide screen they float over the map. */
+/** On a phone, held either way, the tour's two worked examples sit in the card, under its title; on a wide screen they float over the map. */
 function seatFigures() {
-  const card = $('tour'), stage = $('mapstage'), inCard = isNarrow();
+  const card = $('tour'), stage = $('mapstage'), inCard = isNarrow() || isSide();
   for (const id of ['blink', 'ladder']) {
     const el = $(id);
     if (inCard && el.parentNode !== card) card.insertBefore(el, $('tourtext'));
@@ -3346,6 +3358,7 @@ function tourEnd() {
   if (Sky.isReady()) Sky.reshape();
 }
 $('tourbtn').onclick = $('tourbtn2').onclick = () => tourGo(0);
+$('tourlink').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); tourGo(0); };          // the same button as a line of the phone's menu
 $('huntbtn').onclick = () => startHunt();
 $('tournext').onclick = () => {
   // At the first object the audience meets the panel: Next walks through its parts once, then goes on.
@@ -3428,6 +3441,156 @@ if (NAV) {          // the three pages are in the language in use: so are their 
 function closeMenu() { $('nav').classList.remove('open'); $('menubtn').setAttribute('aria-expanded', 'false'); }
 $('menubtn').onclick = () => { const open = $('nav').classList.toggle('open'); $('menubtn').setAttribute('aria-expanded', String(open)); };
 document.addEventListener('click', e => { if (!e.target.closest('#nav')) closeMenu(); });
+
+// ------------------------------------------------------------ point the phone at the sky
+// A phone knows where it looks: its compass and its tilt say in which direction its back points, its place on Earth
+// and the clock say which part of the sky lies there. While this is on, the map follows the phone, turned as the
+// phone is held, so that the screen is a window on the sky behind it, by day too (js/point.js has the sums).
+// It ends when a finger drags the map, when an object is opened, with its own button or with the phone's Back.
+const TURN_SIGN = -1;          // the map library turns its picture anticlockwise for a positive angle; the sums give the screen's top, from north through east
+let pointStop = null, pointLock = null, pointSaid = '';
+const pointOn = () => document.body.classList.contains('pointing');
+async function pointStart() {
+  if (pointOn() || !Sky.isReady()) return;
+  closeMenu();
+  await Point.allow();          // where the browser asks first, it asks now; whether the compass really answers shows below, when it is listened to
+  const here = await Point.place();
+  if (!here) { note(T('point.place'), 14000); return; }
+  if (pointOn()) return;          // pressed twice while the phone asked
+  if (tourIdx >= 0) tourEnd();
+  if ($('app').dataset.panel === 'open') closePanel();
+  $('welcome').hidden = true;
+  document.body.classList.add('pointing');
+  for (const id of ['pointbtn', 'pointbtn2']) $(id).setAttribute('aria-pressed', 'true');
+  note(pointSaid = T('point.on'));
+  const began = performance.now(), dirs = T('point.dirs').split(',');
+  let aimed = null, there = 0, said = 0, raf = 0;          // there: 0 the map has not set out, 1 on its way, 2 following
+  const quit = Point.watch((back, top) => { aimed = { back, top }; }, () => { pointEnd(); note(T('point.nosensor'), 9000); });
+  const frame = now => {
+    raf = requestAnimationFrame(frame);
+    if ($('app').dataset.panel === 'open' || tourIdx >= 0 || !$('welcome').hidden) return pointEnd();          // the map has other work now
+    if (!aimed) return;
+    const sky = Point.toSky(aimed.back, here.lat, here.lon, Date.now());
+    S.busyUntil = performance.now() + 4000;          // the tiles the map asks for go first
+    if (there === 0) { there = 1; Sky.flyTo(sky.ra, sky.dec, 60).then(() => { there = 2; }); return; }
+    if (there !== 2) return;
+    Sky.look(sky.ra, sky.dec, TURN_SIGN * Point.tilt(aimed.back, aimed.top, here.lat));
+    if (now - said > 400 && now - began > 4500 && (!$('mapnote').textContent || $('mapnote').textContent === pointSaid)) {          // what to do first, then where the phone looks
+      said = now;
+      note(pointSaid = T(sky.alt >= 0 ? 'point.up' : 'point.down', { dir: dirs[Math.round(sky.az / 45) % 8], alt: Math.abs(Math.round(sky.alt)) }));
+    }
+  };
+  raf = requestAnimationFrame(frame);
+  navigator.wakeLock?.request('screen').then(lock => { if (pointOn()) pointLock = lock; else lock.release(); }).catch(() => { /* the screen may dim */ });
+  pointStop = () => { cancelAnimationFrame(raf); quit(); };
+}
+function pointEnd() {
+  if (!pointOn()) return;
+  pointStop?.(); pointStop = null;
+  pointLock?.release().catch(() => {}); pointLock = null;
+  document.body.classList.remove('pointing');
+  for (const id of ['pointbtn', 'pointbtn2']) $(id).setAttribute('aria-pressed', 'false');
+  if (Sky.isReady()) Sky.look(...Sky.center(), 0);          // north up again
+  if ($('mapnote').textContent === pointSaid) note('');
+}
+$('pointbtn').onclick = $('pointbtn2').onclick = () => (pointOn() ? pointEnd() : pointStart());
+if (Point.able()) { document.body.classList.add('canpoint'); $('pointbtn').hidden = $('pointbtn2').hidden = false; }
+// A finger that drags the map takes it over from the compass; two fingers that zoom it do not.
+{ const down = new Map();
+  $('map').addEventListener('pointerdown', e => { down.set(e.pointerId, [e.clientX, e.clientY]); }, { capture: true, passive: true });
+  for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, e => { down.delete(e.pointerId); }, { capture: true, passive: true });
+  $('map').addEventListener('pointermove', e => {
+    const p = down.get(e.pointerId);
+    if (pointOn() && p && down.size === 1 && Math.hypot(e.clientX - p[0], e.clientY - p[1]) > 16) pointEnd();
+  }, { capture: true, passive: true }); }
+
+// ------------------------------------------------------------ the phone's Back button
+// A phone's Back button, and the swipe that stands for it, leaves a page that keeps no history of its own: one press
+// in the middle of an object and the app is gone. So every layer opened over the opening view is a step of the
+// browser's history, innermost last: the map without the opening's words, the tour or an object's panel, the walk
+// through the panel, an article, the menu, the search box. Back undoes the innermost one; on the opening view it
+// leaves, as it should. The layers are read off the page itself whenever one of them changes, whatever opened or
+// closed it, so no other part of the code reports here. What one touch opened is one step, and one Back closes it: a
+// name pressed on the opening hides the opening's words and opens the object, and Back from there is the opening
+// again. Each step carries its depth, which tells Back from Forward.
+// Only where Back is part of the device (touch screens, the installed app): on a desk the browser's Back leaves the
+// site as before. The state the page opened in (a shared link opens on an object) is the ground: Back leaves from it.
+/** Back to the opening view: whatever is open closes, the opening's words return, the map flies to where it began. */
+function goHome() {
+  if (tourIdx >= 0) tourEnd();
+  pointEnd(); coachEnd(); closeSheet(); closeMenu(); searchBox(false);
+  S.abort?.abort(); S.gen++; stop(); note('');
+  // The panel closes as part of the flight, a moment from now: until then the page still looks as it did, and that
+  // must not be read as layers opened anew (backHold).
+  let home = false;
+  backHold = () => home;
+  const release = setTimeout(() => { home = true; backSync(); }, 5000);          // in case the flight never comes to its change of layout
+  const shut = () => { clearTimeout(release); home = true; $('app').dataset.panel = 'closed'; $('welcome').hidden = false; if (Sky.isReady()) Sky.clearMark(); backSync(); };
+  history.replaceState(history.state, '', location.pathname); document.title = HOME_TITLE;          // the opening's own address, whatever object was on show
+  if (Sky.isReady()) { S.busyUntil = performance.now() + 9000; Sky.flyHome(shut); } else shut();
+}
+const BACK = {
+  away: { on: () => $('welcome').hidden, undo: goHome },
+  tour: { on: () => document.body.classList.contains('touring'), undo: () => { tourEnd(); shutPanel(); } },          // Back leaves the tour and the object it had open
+  object: { on: () => !document.body.classList.contains('touring') && $('app').dataset.panel === 'open', undo: () => shutPanel() },
+  point: { on: () => document.body.classList.contains('pointing'), undo: () => pointEnd() },
+  coach: { on: () => document.body.classList.contains('coaching'), undo: () => coachEnd() },
+  sheet: { on: () => !$('sheetwrap').hidden, undo: () => closeSheet() },
+  menu: { on: () => $('nav').classList.contains('open'), undo: () => closeMenu() },
+  search: { on: () => $('top').classList.contains('searching'), undo: () => { searchBox(false); $('q').blur(); } },
+};
+// backKeys: the layers above the ground, innermost last. backSteps: how many of them each history step undoes.
+// backHold: while an undo is still under way (a panel closes as part of a move of the map), a function that says when
+// it is over; until then the page still looks as it did, and that must not be read as layers opened anew.
+let backKeys = [], backSteps = [], backGround = 0, backOn = false, backHold = null;
+const backLayers = () => Object.keys(BACK).filter(k => BACK[k].on());
+/** Close the object's panel as one undo: the panel goes a moment later, with the map's change of shape. */
+function shutPanel() {
+  if ($('app').dataset.panel !== 'open') return;
+  const since = performance.now();
+  backHold = () => $('app').dataset.panel === 'closed' || performance.now() - since > 3000;
+  closePanel();
+  setTimeout(backSync, 3100);
+}
+function backSync() {
+  if (!backOn) return;
+  if (backHold) { if (!backHold()) return; backHold = null; }
+  const all = backLayers();
+  if (all.length < backGround) backGround = all.length;          // the state the page opened in has been left
+  const want = all.slice(backGround);
+  // What stays is what both lists begin with. Steps that held only layers now gone go; a step that held more keeps the rest.
+  let same = 0;
+  while (same < want.length && same < backKeys.length && want[same] === backKeys[same]) same++;
+  let have = backSteps.reduce((n, s) => n + s, 0), gone = 0;
+  while (backSteps.length && have - backSteps.at(-1) >= same) { have -= backSteps.pop(); gone++; }
+  if (have > same) backSteps[backSteps.length - 1] -= have - same;
+  // What is new is one step. A step freed in the same breath is taken over as it stands (the menu's step becomes the
+  // step of what was picked in the menu), instead of a step back and a step forward in the browser's history.
+  if (want.length > same) { backSteps.push(want.length - same); if (gone) gone--; else history.pushState({ chrono: backSteps.length }, ''); }
+  if (gone) history.go(-gone);
+  backKeys = want;
+}
+window.addEventListener('popstate', e => {
+  if (!backOn) return;
+  const depth = Math.max(0, e.state?.chrono | 0);
+  if (depth > backSteps.length) { history.go(backSteps.length - depth); return; }          // Forward, to a layer that is closed: it cannot be opened from here
+  while (backSteps.length > depth) {
+    const keys = backKeys.splice(backKeys.length - backSteps.pop());
+    if (keys.includes('away')) goHome();          // closes everything in one move
+    else for (const k of keys.reverse()) if (BACK[k].on()) BACK[k].undo();
+  }
+});
+function backStart() {
+  if (backOn || S.embed) return;
+  backOn = true; backGround = backLayers().length;
+  const watch = new MutationObserver(backSync);
+  for (const el of [$('welcome'), $('app'), document.body, $('sheetwrap'), $('nav'), $('top')]) watch.observe(el, { attributes: true, attributeFilter: ['hidden', 'class', 'data-panel'] });
+}
+// From the first touch on: what the page does by itself while it opens is the ground, not a step.
+if (matchMedia('(pointer: coarse)').matches || matchMedia('(display-mode: standalone)').matches) {
+  try { history.replaceState(null, ''); } catch { /* a page that may not touch its history */ }          // a reloaded page starts at depth 0
+  for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, backStart, { capture: true, once: true });
+}
 $('zoomin').onclick = () => { S.busyUntil = performance.now() + 6000; Sky.zoomBy(0.5); };
 $('zoomout').onclick = () => { S.busyUntil = performance.now() + 6000; Sky.zoomBy(2); };
 // Dragging or zooming the map by hand also asks for tiles: let those go first.
@@ -3442,19 +3605,26 @@ $('waveplay').onclick = () => sweep(!sweeping);
 $('layer').onchange = e => setLayer(e.target.value);
 
 // ------------------------------------------------------------ offline
+// The line that says what is kept on this device, and offers the rest: under the opening's words on a desk; on a phone,
+// held either way, the last line of the menu, so that the opening has fewer words.
+function seatOffline() { const el = $('offline'), home = isNarrow() || isSide() ? $('navlinks') : $('welcome'); if (el.parentNode !== home) home.appendChild(el); }
+seatOffline(); window.addEventListener('resize', seatOffline);
 /** Sky-map tiles the guided tour shows: the wide views, the colour sweep and each of the five stops. */
 /** Size of the map, in pixels, during the tour: with no object open (wide) and with one open (open). */
 function tourSizes() {
-  const W = window.innerWidth, H = window.innerHeight - $('top').offsetHeight, narrow = isNarrow();
+  const W = window.innerWidth, H = window.innerHeight - topH(), narrow = isNarrow(), side = isSide();
   if (S.targets.length) measureTour();                    // the map's height in the tour follows from the tour's longest card
   const card = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tourcard')) || 400;
   // on a phone the map has one height at every step (the style sheet's --tourmap, worked out here the same way); on a
-  // wide screen it fills the window, and with an object open it leaves the docked card its room
+  // wide screen it fills the window, and with an object open it leaves the docked card its room; on a phone held
+  // sideways the card is a column beside the map (44 per cent of the screen), and with an object open it lies over
+  // the map's column, which keeps its whole height
   const phone = document.body.classList.contains('touring') && narrow ? $('mapstage').offsetHeight : Math.max(170, Math.min(H - 62 - card, 0.45 * window.innerHeight));
+  const beside = W - Math.min(0.62 * W, 1000);          // the map's width beside the panel
   return {
     full: [W, H],
-    wide: narrow ? [W, phone] : [W, H],
-    open: narrow ? [W, phone] : [W - Math.min(0.62 * W, 1000), Math.max(150, H - Math.min(card, H - 150))],
+    wide: narrow ? [W, phone] : side ? [Math.round(0.56 * W), H] : [W, H],
+    open: narrow ? [W, phone] : side ? [beside, H] : [beside, Math.max(150, H - Math.min(card, H - 150))],
   };
 }
 function tourTiles() {
@@ -3572,12 +3742,23 @@ async function keepLastObjects(list, say) {
 }
 function startOfflineSave() {
   const c = navigator.connection;
+  // A phone fetches nothing unasked: the tool works online, and the menu offers the tour for use without a
+  // connection to whoever wants it. Once asked for, it is kept whole on later visits too.
+  if (isNarrow() || isSide()) return offerOffline();
   if (c?.saveData) return;
-  // Laptops and desktops take everything; phones take the light part and offer the rest, and so does any
-  // device on a very slow connection. (The browser's estimate drops to "3g" on a fast line too, because
-  // the archive itself answers slowly: that alone must not hold the save back.)
-  const roomy = !isNarrow() && !(c && (c.effectiveType === '2g' || c.effectiveType === 'slow-2g'));
-  saveTourOffline(roomy);
+  // Laptops and desktops take everything; a device on a very slow connection takes the light part and is offered
+  // the rest. (The browser's estimate drops to "3g" on a fast line too, because the archive itself answers
+  // slowly: that alone must not hold the save back.)
+  saveTourOffline(!(c && (c.effectiveType === '2g' || c.effectiveType === 'slow-2g')));
+}
+/** A phone's menu: what of the tour is on this device already, and the button that fetches the rest. */
+function offerOffline() {
+  if (!('caches' in window)) return;
+  let kept = '';
+  try { kept = localStorage.getItem('chrono-offline') || ''; } catch { /* private mode */ }
+  if (kept === 'full') return saveTourOffline(true);          // asked for on an earlier visit: read again from this device, and whatever is new is added
+  $('offline').innerHTML = `${kept === 'lite' ? `${esc(T('off.lite'))} ` : ''}<button type="button" id="savetour">${esc(T('off.full'))}</button>`;
+  $('savetour').onclick = () => saveTourOffline(true);
 }
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   // A newer version of the site that turns up in the first seconds, before anything has been touched,
@@ -3619,7 +3800,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     } catch (e) {
       console.error(e);
       $('welcome').innerHTML = G`<h1>The sky map could not start here.</h1><p class="lede">It needs WebGL 2. Search still works, and so does the guided tour.</p>`;
-      $('wavebox').style.display = 'none'; $('layer').style.display = 'none';
+      $('wavebox').style.display = 'none'; $('layer').parentNode.style.display = 'none';
     }
   }
   const det = +q.get('det') || undefined, mode = q.get('mode') || undefined;
