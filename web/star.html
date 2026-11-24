@@ -47,14 +47,30 @@
   .stage { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
   .stage img { display: block; width: 100%; height: auto; aspect-ratio: 1; }
   .stage .yr { position: absolute; left: 12px; bottom: 8px; font: 500 44px/1 var(--mono); color: var(--gold); text-shadow: 0 0 6px #000, 0 0 2px #000; }
-  .near { color: var(--ink-2); font-size: 14.5px; margin: 12px 0 0; }
-  #name { font: 400 40px/1.08 var(--serif); margin: 12px 0 0; }
+  .near { color: var(--ink-2); font-size: 14.5px; margin: 16px 0 10px; }
+  #name { font: 400 40px/1.08 var(--serif); margin: 16px 0 0; }
   #where { color: var(--ink-2); font: 500 13.5px var(--mono); letter-spacing: .03em; margin: 4px 0 0; }
   #says { font-size: 17px; margin: 10px 0 0; }
   #says b { color: var(--gold); font-weight: 600; }
   #eye { color: var(--ink-2); font-size: 15px; margin: 6px 0 0; }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   .fine { color: var(--ink-3); font-size: 13.5px; margin-top: 22px; }
+  /* a wide screen: the picture on the left, the star's name, sentence and buttons beside it, all in one view */
+  @media (min-width: 900px) and (min-height: 501px) {
+    body.shown .wrap { max-width: 1040px; }
+    body.shown h1, body.shown .lede, body.shown #asking { max-width: 640px; }
+    body.shown #answer { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); grid-template-rows: repeat(7, auto) 1fr; column-gap: 40px; margin-top: 4px; }
+    body.shown #answer > * { grid-column: 2; }
+    body.shown #answer > .near { grid-column: 1 / -1; grid-row: 1; }
+    body.shown #name { grid-row: 2; } body.shown #where { grid-row: 3; } body.shown #says { grid-row: 4; }
+    body.shown #eye { grid-row: 5; } body.shown #answer > .btns { grid-row: 6; } body.shown #answer > .fine { grid-row: 7; }
+    body.shown #answer > .stage { grid-column: 1; grid-row: 2 / 10; align-self: start; }
+    body.shown #name { margin-top: 0; font-size: 54px; }
+    body.shown #where { margin-top: 8px; }
+    body.shown #says { font-size: 19px; margin-top: 18px; }
+    body.shown #eye { margin-top: 8px; }
+    body.shown .btns { margin-top: 22px; }
+  }
   /* a phone held sideways: the picture on the left, as tall as the screen; the words and the buttons beside it */
   @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
     body.shown .wrap { max-width: none; margin: 0; padding: 10px 16px 16px calc(100vh + 16px + env(safe-area-inset-left, 0px)); }
@@ -87,7 +103,7 @@
     <div id="asking">
       <form id="ask" autocomplete="off" novalidate>
         <label class="sr" for="year" id="yearlabel" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">A year</label>
-        <input id="year" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="1453" autocomplete="off">
+        <input id="year" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="2000" autocomplete="off">
         <button type="submit" class="go" id="go"></button>
       </form>
       <p class="private" id="private"></p>
@@ -175,6 +191,24 @@ try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private m
 if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
 const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 const num = (x, n = 1) => x.toFixed(n).replace('.', T.dec);
+// Constellations: Latin in every language but Turkish, where readers know them by their Turkish names
+// (as the Turkish Astronomical Society lists them). The keys follow the spelling in birthstars.json.
+const CON_TR = { 'Andromeda': 'Andromeda', 'Antlia': 'Hava Pompası', 'Apus': 'Cennet Kuşu', 'Aquarius': 'Kova', 'Aquila': 'Kartal', 'Ara': 'Sunak',
+  'Aries': 'Koç', 'Auriga': 'Arabacı', 'Boötes': 'Çoban', 'Caelum': 'Oyma Kalemi', 'Camelopardalis': 'Zürafa', 'Cancer': 'Yengeç',
+  'Canes Venatici': 'Av Köpekleri', 'Canis Major': 'Büyük Köpek', 'Canis Minor': 'Küçük Köpek', 'Capricornus': 'Oğlak', 'Carina': 'Karina',
+  'Cassiopeia': 'Kraliçe', 'Centaurus': 'Erboğa', 'Cepheus': 'Kral', 'Cetus': 'Balina', 'Chamaleon': 'Bukalemun', 'Chamaeleon': 'Bukalemun',
+  'Circinus': 'Pergel', 'Columba': 'Güvercin', 'Coma Berenices': 'Berenis’in Saçı', 'Corona Australis': 'Güney Tacı', 'Corona Borealis': 'Kuzey Tacı',
+  'Corvus': 'Karga', 'Crater': 'Kupa', 'Crux': 'Güney Haçı', 'Cygnus': 'Kuğu', 'Delphinus': 'Yunus', 'Dorado': 'Kılıçbalığı', 'Draco': 'Ejderha',
+  'Equuleus': 'Tay', 'Eridanus': 'Irmak', 'Fornax': 'Ocak', 'Gemini': 'İkizler', 'Grus': 'Turna', 'Hercules': 'Herkül', 'Horologium': 'Saat',
+  'Hydra': 'Suyılanı', 'Hydrus': 'Küçük Suyılanı', 'Indus': 'Hintli', 'Lacerta': 'Kertenkele', 'Leo': 'Aslan', 'Leo Minor': 'Küçük Aslan',
+  'Lepus': 'Tavşan', 'Libra': 'Terazi', 'Lupus': 'Kurt', 'Lynx': 'Vaşak', 'Lyra': 'Çalgı', 'Mensa': 'Masa Dağı', 'Microscopium': 'Mikroskop',
+  'Monoceros': 'Tekboynuz', 'Musca': 'Sinek', 'Norma': 'Gönye', 'Octans': 'Oktant', 'Ophiuchus': 'Yılancı', 'Orion': 'Avcı', 'Pavo': 'Tavus',
+  'Pegasus': 'Kanatlı At', 'Perseus': 'Kahraman', 'Phoenix': 'Anka', 'Pictor': 'Ressam Sehpası', 'Pisces': 'Balıklar', 'Pisces Austrinus': 'Güney Balığı',
+  'Piscis Austrinus': 'Güney Balığı', 'Puppis': 'Pupa', 'Pyxis': 'Pusula', 'Reticulum': 'Ağ', 'Sagitta': 'Ok', 'Sagittarius': 'Yay', 'Scorpius': 'Akrep',
+  'Sculptor': 'Heykeltıraş', 'Scutum': 'Kalkan', 'Serpens': 'Yılan', 'Sextans': 'Sekstant', 'Taurus': 'Boğa', 'Telescopium': 'Teleskop',
+  'Triangulum': 'Üçgen', 'Triangulum Australe': 'Güney Üçgeni', 'Tucana': 'Tukan', 'Ursa Major': 'Büyük Ayı', 'Ursa Minor': 'Küçük Ayı',
+  'Vela': 'Yelken', 'Virgo': 'Başak', 'Volans': 'Uçan Balık', 'Vulpecula': 'Tilki' };
+const conName = c => { c = (c || '').trim(); return (lang === 'tr' && CON_TR[c]) || c; };
 document.documentElement.lang = lang; document.title = `${T.title} · ChronosphereX`;
 $('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
 for (const [id, key] of [['title', 'title'], ['intro', 'intro'], ['yearlabel', 'label'], ['go', 'go'], ['private', 'priv'], ['share', 'share'], ['map', 'map'], ['again', 'again'], ['tool', 'tool']]) $(id).textContent = T[key];
@@ -210,7 +244,7 @@ function show(year) {
   $('near').textContent = young ? fill(T.young, { y: year, py: last }) : T.near;
   $('pic').src = `stars/${slug(star.n)}.webp`; $('pic').alt = star.n; $('yr').textContent = sure ? y : `≈${y}`;
   $('name').textContent = star.n;
-  $('where').textContent = [star.b, star.con, fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].filter(Boolean).join(' · ');
+  $('where').textContent = [star.b, conName(star.con), fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].filter(Boolean).join(' · ');
   $('says').innerHTML = sure ? fill(T.left, { name: star.n, y }) : fill(T.about, { name: star.n, y, yrs: T.yrs(give) });
   $('eye').textContent = star.v <= 4.5 ? T.eye1 : star.v <= 6 ? T.eye2 : T.eye3;
   $('map').href = `./?ra=${star.ra}&dec=${star.dec}&fov=5&lang=${lang}`;
@@ -240,7 +274,7 @@ async function card() {
   x.fillStyle = '#f3eee6'; let size = 120; x.font = `400 ${size}px ${font('--serif')}`;
   while (x.measureText(star.n).width > W - 120 && size > 60) { size -= 6; x.font = `400 ${size}px ${font('--serif')}`; }
   x.fillText(star.n, 60, 1350);
-  x.fillStyle = '#b0a79a'; x.font = `500 38px ${font('--mono')}`; x.fillText([star.con, fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].join(' · '), 62, 1420);
+  x.fillStyle = '#b0a79a'; x.font = `500 38px ${font('--mono')}`; x.fillText([conName(star.con), fill(T.far, { n: num(star.d, star.d < 300 ? 1 : 0) })].join(' · '), 62, 1420);
   x.fillStyle = '#f3eee6'; x.font = `400 58px ${font('--sans')}`; x.fillText(T.card1, 60, 1560);
   // the second line, with the year in the colour of the year on the picture
   const [before, after] = (sure ? T.card2 : T.card2a).split('{y}'); let at = 60;
