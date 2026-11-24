@@ -1337,7 +1337,14 @@ function renderMolecules(pts) {
   if (!S.showBands || pts.length < 30) { el.innerHTML = ''; S.find.bands = null; renderFindings(); return; }
   // A star or a brown dwarf is checked for the gases of its atmosphere; a body of the solar system, which shines by
   // reflected sunlight, for the ices on its surface, and only what is found is said: most asteroids carry none.
-  const body = !!bodyStops(), rowsData = body ? C.bandDepths(pts, C.ICES, true) : C.bandDepths(pts);
+  const body = !!bodyStops();
+  // Ice in the dust between a star and us is listed only where its narrow carbon dioxide dip at 4.27 microns is beyond
+  // doubt: elsewhere a brown dwarf's own water and methane, which also darken 3 microns, would be called water ice.
+  const ices = body ? [] : C.bandDepths(pts, C.LINE_ICES), co2Ice = ices.find(m => m.name === 'Carbon dioxide ice');
+  const iced = !!co2Ice && co2Ice.depth !== null && co2Ice.depth > 0.15 && co2Ice.depth > 6 * co2Ice.err;
+  // Behind icy dust the star is reddened too, which tilts its spectrum: the wide gas bands would then read the tilt
+  // as dips or glows (Tamura 8 showed two false "glows"). There only the ice bands are measured.
+  const rowsData = body ? C.bandDepths(pts, C.ICES, true) : iced ? ices : C.bandDepths(pts);
   if (body && !rowsData.some(m => m.depth !== null && m.depth > 0.12 && m.depth > 4 * m.err)) { el.innerHTML = ''; S.find.bands = null; renderFindings(); return; }
   {
     // The table below, said in one line. Only what is beyond doubt makes the headline: a band has to
@@ -1345,7 +1352,7 @@ function renderMolecules(pts) {
     // test but not this one is called possible.
     const seen = m => m.depth !== null && Math.abs(m.depth) > 0.12 && Math.abs(m.depth) > 4 * m.err;
     const sure = m => seen(m) && Math.abs(m.depth) > 0.15 && Math.abs(m.depth) > 6 * m.err;
-    const short = { 'Water vapour': G`water`, 'Carbon monoxide, methane': G`carbon monoxide or methane`, 'Methane, or water ice': G`methane or water ice`, 'Carbon dioxide, gas or ice': G`carbon dioxide`, 'Carbon monoxide': G`carbon monoxide`, 'Methane ice': G`methane ice` };
+    const short = { 'Water vapour': G`water`, 'Carbon monoxide, methane': G`carbon monoxide or methane`, 'Methane, or water ice': G`methane or water ice`, 'Carbon dioxide, gas or ice': G`carbon dioxide`, 'Carbon monoxide': G`carbon monoxide`, 'Methane ice': G`methane ice`, 'Water ice': G`water ice`, 'Carbon dioxide ice': G`carbon dioxide ice`, 'Carbon monoxide ice': G`carbon monoxide ice` };
     const and = a => (a.length > 1 ? G`${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0]);
     const names = rows => [...new Set(rows.map(m => short[m.name] || G(m.name).toLowerCase()))];
     const dips = names(rowsData.filter(m => sure(m) && m.depth > 0)), maybe = names(rowsData.filter(m => seen(m) && !sure(m) && m.depth > 0)).filter(x => !dips.includes(x));
@@ -1376,7 +1383,7 @@ function renderMolecules(pts) {
     return;
   }
   el.innerHTML = G`<table class="t mol"><thead><tr><th>Molecule</th><th>Band <span class="asis">(µm)</span></th><th>Measured</th></tr></thead><tbody>${rows}</tbody></table>
-    <p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (unmeasured.length ? G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).` : '')}</p>`;
+    <p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(iced ? G` The narrow carbon dioxide ice dip at 4.27 µm is clear: on its way to us this light passes through icy dust, which also reddens it. So the ice bands are measured here, not the gases of the star's own atmosphere.` : '') + (glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (unmeasured.length ? G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).` : '')}</p>`;
 }
 function markCurrent() {
   const cur = S.seq[S.idx]?.frame;

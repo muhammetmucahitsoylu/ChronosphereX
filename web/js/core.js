@@ -422,6 +422,20 @@ export const MOLECULES = [
  * Where ices on the surface of a cold body of the solar system absorb sunlight, with comparison windows on either
  * side. Methane ice covers Pluto, Eris and Makemake; its bands are the ones seen in Pluto's spectrum since the 1970s.
  */
+/**
+ * Ices in the cold dust between a star and us: water ice near 3.05 microns, carbon dioxide ice at 4.27 and carbon
+ * monoxide ice at 4.67, the three that the SPHEREx ices investigation maps. The carbon dioxide and carbon monoxide
+ * bands are narrow, a few hundredths of a micron, so their windows are narrow too and three measurements will do
+ * (`min`); the comparison windows sit just clear of the bands' wings. Tamura 8, behind the Taurus cloud, shows all
+ * three (about 72, 71 and 29 % deep, 24 Nov 2026). A brown dwarf's water and methane also darken 3 microns, so these
+ * rows are shown only where the narrow carbon dioxide ice dip is beyond doubt (see renderMolecules).
+ */
+export const LINE_ICES = [
+  { name: 'Water ice', f: 'H₂O', band: [2.95, 3.10], side: [[2.55, 2.75], [3.70, 3.85]] },
+  { name: 'Carbon dioxide ice', f: 'CO₂', band: [4.25, 4.285], side: [[4.14, 4.215], [4.31, 4.38]], min: 3 },
+  { name: 'Carbon monoxide ice', f: 'CO', band: [4.66, 4.68], side: [[4.59, 4.645], [4.70, 4.76]], min: 3 },
+];
+
 export const ICES = [
   { name: 'Methane ice', f: 'CH₄', band: [1.30, 1.43], side: [[1.22, 1.29], [1.50, 1.60]] },
   { name: 'Methane ice', f: 'CH₄', band: [1.62, 1.83], side: [[1.50, 1.60], [1.92, 2.08]] },
@@ -488,7 +502,7 @@ export function bandDepths(pts, table = MOLECULES, body = false) {
     if (pts.some(p => p.halo && p.lam >= m.band[0] && p.lam <= m.band[1])) return { ...m, depth: null, why: 'star too bright to tell' };
     const core = stat(inRange(m.band));
     const sides = m.side.map(r => (r ? { c: (r[0] + r[1]) / 2, ...(stat(inRange(r)) || { n: 0 }) } : { n: 0 })).filter(x => x.n >= needSide);
-    if (!core || core.n < needCore || sides.length < m.side.filter(Boolean).length) return { ...m, depth: null };
+    if (!core || core.n < (m.min || needCore) || sides.length < m.side.filter(Boolean).length) return { ...m, depth: null };
     const mid = (m.band[0] + m.band[1]) / 2;
     let cont, cerr;
     if (sides.length === 2 && sides[0].med > 0 && sides[1].med > 0) {
