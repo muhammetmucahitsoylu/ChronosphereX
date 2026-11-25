@@ -1410,7 +1410,7 @@ function renderFindings() {
   const el = $('findings');
   if (!el) return;
   const f = S.find || {}, ready = !!S.dets[S.det]?.done, here = lightHere();
-  const rows = ready ? [['here', here], ['motion', f.motion], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1]) : [];
+  const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1]) : [];
   const html = rows.length ? G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${r.html}</button></li>`).join('')}</ul>` : '';
   if (el.dataset.was !== html) { el.dataset.was = html; el.innerHTML = html; }
   el.hidden = !rows.length;
@@ -1443,7 +1443,9 @@ function leadState() { document.querySelector('.cols').classList.toggle('nolook'
 $('findings').addEventListener('click', e => {
   const to = e.target.closest('button')?.dataset.to;
   if (to === 'here') { const t = lightHere()?.follow; if (t) followBody(t); return; }
-  if (to) $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' });
+  if (!to) return;
+  if (simpleCard()) setPanelFull(true);
+  requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' }));
 });
 
 // ------------------------------------------------------------ is the change real?
@@ -1639,16 +1641,19 @@ function renderScan() {
   if (!el) return;
   const D = S.dets[S.det];
   // (a followed body has other stars behind it in every exposure: there is no field of stars to check)
-  if (!S.grid || !D?.done || !S.stacks || S.stacks.length < 2 || followed()) { el.innerHTML = ''; scanResult = null; scanKey = ''; return; }
+  const answer = v => { S.find.scan = v; renderFindings(); };          // its line among the answers at the top (renderFindings writes the box only when the words change)
+  if (!S.grid || !D?.done || !S.stacks || S.stacks.length < 2 || followed()) { el.innerHTML = ''; scanResult = null; scanKey = ''; answer(null); return; }
   const key = `${S.gen}:${S.det}:${D.frames.length}:${[...S.off].join()}`;
   if (key !== scanKey) { scanKey = key; try { scanResult = scanField(); } catch (e) { console.error(e); scanResult = null; } }
   const r = scanResult;
-  if (!r || r.checked < 4) { el.innerHTML = r ? G`<p class="hint">Too few clear stars in this field to check them against each other.</p>` : ''; return; }
+  if (!r || r.checked < 4) { el.innerHTML = r ? G`<p class="hint">Too few clear stars in this field to check them against each other.</p>` : ''; answer(null); return; }
   const steadyN = r.checked - r.flags.length;
   const head = G`<p class="hint verdict"><b>Every clear star in this field, checked.</b> ${r.checked} stars in D${S.det}: ${r.flags.length ? G`${steadyN} did not move or change, ${r.flags.length} stand${r.flags.length === 1 ? 's' : ''} out.` : G`none moved, none changed.`} Here, positions repeat to ${fx(r.align, 1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`;
   const list = r.flags.length ? `<ul class="flags">${r.flags.map((f, i) => `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}${f.own ? G` · the catalogued object` : ''}</span></li>`).join('')}</ul>
     <p class="hint">${G`Press one to circle it. A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
   el.innerHTML = head + list;
+  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> All measurements shows what.` }
+    : { cls: 'none', html: G`<b>None of the ${r.checked} clear stars around it moved or changed</b> between the visits.` });
   el.querySelectorAll('[data-flag]').forEach(b => { b.onclick = () => {
     const f = r.flags[+b.dataset.flag];
     S.sel = f.own ? { follow: true } : { x: f.s.x, y: f.s.y };
@@ -1679,6 +1684,30 @@ $('heroshot').onclick = () => {          // the front page's picture: Barnard's 
   const t = S.targets.find(x => x.slug === 'barnard');
   if (t) go({ ra: t.ra, dec: t.dec, size: t.size, target: t, info: t.info || null, det: t.view?.det || 5, mode: 'years' });
   else location.search = '?target=barnard&mode=years';          // pressed before the list of objects has arrived
+};
+
+// ------------------------------------------------------------ the simple card, or every measurement
+// A press on the map opens a simple card first: what it is and where, the loop of SPHEREx's visits, the answers a line
+// each, and one button to all the rest. Testers found the full panel too much at first sight. Whoever opens it keeps it
+// open (remembered on this device) until they press "Simple view". The tour, the walk through the panel, embedded pages,
+// passing bodies and the asteroid hunt (whose steps use the controls) and a link that asks for a particular way of
+// comparing always show the full panel.
+const FULL_KEY = 'chrono-panel-full';
+let panelFull = (() => { try { return localStorage.getItem(FULL_KEY) === '1'; } catch { return false; } })();
+const simpleCard = () => !panelFull && !S.hunt && !(S.target?.body || S.track?.body);
+function applyPanelMode() {
+  $('panel').classList.toggle('simple', simpleCard());
+  $('loopline').hidden = S.mode !== 'epochs';
+}
+function setPanelFull(on, remember = true) {
+  panelFull = on;
+  if (remember) { try { if (on) localStorage.setItem(FULL_KEY, '1'); else localStorage.removeItem(FULL_KEY); } catch { /* private mode: for this visit only */ } }
+  renderAbout();
+  requestAnimationFrame(() => { specPlot.draw(); lcPlot.draw(); });          // the plots were drawn while hidden, at no size
+}
+$('fullbtn').onclick = () => {
+  setPanelFull(true);
+  requestAnimationFrame(() => $('modes').scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'start' }));
 };
 
 function openPanel() {
@@ -1742,6 +1771,7 @@ function fmtDistance(plx, err) {
 
 function renderAbout() {
   const t = S.target, k = S.track, i = S.info, el = $('about');
+  applyPanelMode();
   const name = t ? nameOf(t) : i ? i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
   document.title = `${name} · ChronosphereX`;          // the tab, the history and a bookmark say which object this is
   const sp = t?.sp || i?.sptype;
@@ -1806,13 +1836,23 @@ function renderAbout() {
   // The story first: under the name come what to look for and the pictures. Where it is, how far, how many exposures and
   // the links to other catalogues are one press away, folded under the name.
   const open = factsShown();
+  // The simple card: a name that is only a catalogue number gives way to what the thing is, the number said in words below.
+  // Where in the sky: the constellation, for anything that keeps its place (not a body of the solar system).
+  const simple = simpleCard(), con = body ? '' : Names.constellation(S.ra, S.dec, Lang.lang);
+  const coded = !t && !!i && !S.wiki && /[[\]]|\d{3,}/.test(name);
+  const plain = simple && coded;
+  const kindShort = simple && (t?.type || i) ? esc(G(t?.type || i.type)) : kind;          // the simple card leaves the spectral type to the facts
+  const kindLine = plain ? (con ? esc(T('panel.inCon', { c: con })) : kind) : `${kindShort}${con ? ` · ${esc(T('panel.inCon', { c: con }))}` : ''}`;
+  const head = plain ? G(i.type) : name;
+  const say = plain ? [gloss && gloss.length > 40 ? gloss : '', T('panel.noname', { id: name })].filter(Boolean).join(' ') : gloss;
   el.innerHTML = `<div class="toprow">
-      <div class="idblock"><p class="kind">${kind}</p><h1>${esc(name)}</h1>${gloss ? `<p class="gloss">${esc(gloss)}</p>` : ''}${mv ? G`<p class="gomoved"><button type="button" class="cta" id="gomoved">Go to where it is now</button></p>` : ''}</div>
+      <div class="idblock"><p class="kind">${kindLine}</p><h1>${esc(head)}</h1>${say ? `<p class="gloss">${esc(say)}</p>` : ''}${mv ? G`<p class="gomoved"><button type="button" class="cta" id="gomoved">Go to where it is now</button></p>` : ''}</div>
       ${thumb}<button type="button" class="close" id="closepanel" title="${G`Close and return to the map`}" aria-label="${G`Close`}">×</button>
     </div>
     <div class="factsrow">
       <button type="button" class="factsbtn" id="factsbtn" lang="${Lang.lang}" aria-expanded="${open}" aria-controls="factsbody">${esc(T('panel.facts'))}</button>
       ${S.embed ? '' : `<button type="button" class="howto" id="howto" lang="${Lang.lang}" title="${esc(T('coach.openTitle'))}">${esc(T('coach.open'))}</button>`}
+      ${S.embed || simple || S.hunt || body ? '' : `<button type="button" class="howto simplebtn" id="simplebtn" lang="${Lang.lang}">${esc(T('panel.simple'))}</button>`}
       <div class="factsbody" id="factsbody"${open ? '' : ' hidden'}>
         <dl class="facts">${facts.join('')}</dl>
         <div class="links"><span>${G`Check it in`}</span>${links}</div>
@@ -1821,6 +1861,7 @@ function renderAbout() {
   $('closepanel').onclick = closePanel;
   $('factsbtn').onclick = () => { S.factsOpen = !factsShown(); S.factsCoach = false; showFacts(); };
   if ($('howto')) $('howto').onclick = () => coachGo(0);
+  if ($('simplebtn')) $('simplebtn').onclick = () => { setPanelFull(false); $('panel').scrollTo({ top: 0, behavior: calmMotion() ? 'auto' : 'smooth' }); };
   if (mv) $('gomoved').onclick = () => {
     const preset = S.targets.find(x => !x.follow && sepArcsec(mv.ra, mv.dec, x.ra, x.dec) < 20);
     if (preset && fovPick() === preset.size) openTarget(preset);
@@ -2059,6 +2100,7 @@ function renderModes() {
   }
   $('explain').textContent = (own && FOLLOWED[S.mode]) || (S.mode === 'years' && S.years?.src === 'maps' ? YEARS_MAPS : MODES[S.mode]);
   const inv = $('lookbox').querySelector('.yearsgo'); if (inv) inv.hidden = S.mode === 'years';
+  $('loopline').hidden = S.mode !== 'epochs';
   const small = $('overtime');
   if (small) small.textContent = S.mode === 'years' ? G`2MASS, WISE and SPHEREx images of this spot` : G`every SPHEREx exposure of this spot`;
 }
@@ -4090,6 +4132,8 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     }
   }
   const det = +q.get('det') || undefined, mode = q.get('mode') || undefined;
+  if (mode && !['epochs', 'years'].includes(mode)) panelFull = true;          // for this visit, not remembered
+  Names.load().then(() => { if ($('app').dataset.panel === 'open') renderAbout(); }).catch(() => {});          // the constellation under the name
   S.wantBody = +q.get('body') || 0;          // a passing body that the link was following: taken up again once the search has found it
   const t = S.targets.find(x => x.slug === q.get('target'));
   if (t) return go({ ra: t.ra, dec: t.dec, size: t.size, target: t, info: t.info || null, ...(t.view || {}), ...(det ? { det } : {}), ...(mode ? { mode } : {}) });

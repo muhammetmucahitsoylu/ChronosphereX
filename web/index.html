@@ -229,6 +229,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
             <option value="4">4/s</option><option value="8">8/s</option><option value="15">15/s</option>
           </select>
         </div>
+        <p class="loopline" id="loopline" data-t="panel.loop">One picture for each time SPHEREx looked here, in a loop. Anything that moved jumps from one to the next.</p>
+        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
         <div class="seg" role="group" aria-label="How to compare" id="modes">
           <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
           <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>

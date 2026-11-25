@@ -901,3 +901,17 @@ body.pointing .findway:not([hidden]) { display: flex; position: absolute; left: 
 /* ---------- the constellations' figures while the phone is held up to the sky (drawn by the page's code) ---------- */
 .figures { display: none; }
 body.pointing .figures { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+/* ---------- the simple card: what a press on the map opens first (app.js, applyPanelMode). Everything else stays one
+   press away behind "All measurements"; the tour and embedded pages always show the full panel. ---------- */
+.loopline, .fullwrap { display: none; }
+body:not(.touring):not(.embed) #panel.simple :is(#modes, #explain, .detwrap, details.display, .export, #reportask, #motion, #scan, #movers,
+  details.fold, .stack, #howto, #seek, #count, #fps, #caption span, .viewer .blocktitle small) { display: none !important; }
+body:not(.touring):not(.embed) #panel.simple #years :is(table, .plotwrap, .legend) { display: none; }
+body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { display: block; margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: #dcd4c7; }
+body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 4px; }
+.fullbtn { border: 1px solid var(--ember); color: var(--ember); border-radius: 999px; padding: 9px 18px; min-height: 40px; font-weight: 600; }
+.fullbtn:hover { background: var(--ember); color: var(--ember-ink); }
+.fullwrap small { font-size: 13px; line-height: 1.4; color: var(--ink-2); max-width: 52ch; }
+.simplebtn { margin-left: 0; border-color: var(--line-2); color: var(--ink-2); }
+.simplebtn:hover { background: var(--line-2); color: var(--ink); }
