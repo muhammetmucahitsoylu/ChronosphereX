@@ -142,7 +142,7 @@ export const bandName = b => `${b[0] === 'W' ? 'WISE' : '2MASS'} ${b}`;
 
 /** What an image of the view says about itself: when, which telescope and band, from how many exposures. */
 export function caption(f) {
-  const when = f.survey === 'AllWISE' ? '2010' : f.guessed ? '1997–2001' : f.t0 !== undefined && f.t1 - f.t0 > 1 ? C.fmtRange(f.t0, f.t1) : C.fmtDate(f.mjd);
+  const when = f.survey === 'AllWISE' ? '2010' : f.guessed ? '1997–2001' : f.t0 !== undefined && f.t1 - f.t0 > 1 ? C.fmtRange(f.t0, f.t1).replace(/ /g, '\u00a0').replace(/–/g, '–\u2060') : C.fmtDate(f.mjd).replace(/-/g, '-\u2060');          // no-break spaces in a range, a word joiner after each dash and hyphen: the date never breaks across two lines
   const what = f.survey === 'SPHEREx' ? `SPHEREx D${f.det}` : `${f.survey} ${f.band} · ${fx(LAM[f.band], 2)} µm`;
   const how = f.pic ? G`sky map` : f.survey === '2MASS' ? G`Atlas Images` : f.n ? N(f.n, 'exposure') : '';
   return { title: f.survey === 'AllWISE' ? '2010' : f.guessed ? '1997–2001' : C.fmtMonth(f.mjd), sub: [what, how, f.guessed ? '' : when].filter(Boolean).join(' · ') };
