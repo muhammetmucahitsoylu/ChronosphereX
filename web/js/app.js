@@ -262,11 +262,11 @@ function onData(det) {
   const D = S.dets[det];
   D.frames.sort((a, b) => a.mjd - b.mjd);
   if (det === S.det) {
-    setStatus(D.done ? '' : G`Loading detector ${det}: ${D.frames.length} of ${D.total} exposures`, D.done ? 0 : D.frames.length / Math.max(1, D.total));
+    setStatus(D.done ? '' : simpleCard() ? G`Loading the pictures (${D.frames.length} of ${D.total})` : G`Loading detector ${det}: ${D.frames.length} of ${D.total} exposures`, D.done ? 0 : D.frames.length / Math.max(1, D.total));
     rebuild();
   } else if ((S.mode === 'bands' || S.mode === 'trail') && D.done) { rebuild();
   } else if (!S.dets[S.det]?.loading) {
-    setStatus(D.done ? '' : G`Loading detector ${det} for the spectrum: ${D.frames.length} of ${D.total}`, D.done ? 0 : D.frames.length / Math.max(1, D.total));
+    setStatus(D.done ? '' : simpleCard() ? G`Loading the rest of the measurements (${D.frames.length} of ${D.total})` : G`Loading detector ${det} for the spectrum: ${D.frames.length} of ${D.total}`, D.done ? 0 : D.frames.length / Math.max(1, D.total));
   }
   renderDets();
   refreshPlots();
@@ -1365,9 +1365,10 @@ function renderMolecules(pts) {
     const glows = [...new Set(rowsData.filter(m => sure(m) && m.depth < 0).map(m => G(m.glow || 'Something').replace(/^./, c => c.toLowerCase())))];
     const measured = rowsData.filter(m => m.depth !== null).length;
     S.find.bands = dips.length || glows.length
-      ? { cls: 'found', html: `${dips.length ? G`<b>Dips in its spectrum</b> where these absorb: ${dips.join('; ')}` : ''}${dips.length && glows.length ? '. ' : ''}${glows.length ? G`<b>Glow</b> from ${and(glows)}` : ''}.` }
-      : maybe.length ? { cls: 'unsure', html: G`<b>A possible dip</b> in its spectrum where ${maybe.join('; ')} absorb${maybe.length > 1 ? '' : 's'}.` }
-        : measured >= 4 && !rowsData.some(seen) ? { cls: 'none', html: G`<b>Smooth spectrum:</b> no dips at the molecule bands checked.` } : null;
+      ? { cls: 'found', html: `${dips.length ? G`<b>Dips in its spectrum</b> where these absorb: ${dips.join('; ')}` : ''}${dips.length && glows.length ? '. ' : ''}${glows.length ? G`<b>Glow</b> from ${and(glows)}` : ''}.`,
+        plain: [dips.length > 1 ? G`<b>Its light shows traces of ${dips[0]} and other molecules.</b>` : dips.length ? G`<b>Its light shows traces of ${dips[0]}.</b>` : '', glows.length ? G`<b>Glowing gas around it</b> (${and(glows)}).` : ''].filter(Boolean).join(' ') }          // the first name only: a list of 'or's reads as a riddle
+      : maybe.length ? { cls: 'unsure', html: G`<b>A possible dip</b> in its spectrum where ${maybe.join('; ')} absorb${maybe.length > 1 ? '' : 's'}.`, plain: '' }
+        : measured >= 4 && !rowsData.some(seen) ? { cls: 'none', html: G`<b>Smooth spectrum:</b> no dips at the molecule bands checked.`, plain: '' } : null;
     renderFindings();
   }
   let glow = false;
@@ -1413,8 +1414,9 @@ function renderFindings() {
   const el = $('findings');
   if (!el) return;
   const f = S.find || {}, ready = !!S.dets[S.det]?.done, here = lightHere();
-  const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1]) : [];
-  const html = rows.length ? G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${r.html}</button></li>`).join('')}</ul>` : '';
+  const simple = simpleCard(), say = r => (simple && r.plain != null ? r.plain : r.html);          // the simple card: the everyday version
+  const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1] && say(r[1])) : [];
+  const html = rows.length ? G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '';
   if (el.dataset.was !== html) { el.dataset.was = html; el.innerHTML = html; }
   el.hidden = !rows.length;
   leadState();
@@ -1546,10 +1548,12 @@ function realityCheck(lc) {
   el.innerHTML = `${sn >= 5 ? rows : ''}<p class="hint verdict">${verdict}${steady != null && sn >= 5 ? G` The grey band in the plot is that steadiness.` : ''}</p>`;
   const spread = Math.max(...target.map(t => t.rel)) - Math.min(...target.map(t => t.rel));      // from the faintest visit to the brightest
   S.find.change = sn < 5 ? null
-    : word === 'real' ? { cls: 'found', html: G`<b>${biggest.rel > 1 ? G`Brightened` : G`Faded`} by ${pc(change)}</b> between visits in D${S.det}, while ${stars} nearby stayed within ${pc(steady)}.` }
-    : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.` }
-    : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.` }
-    : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.` } : null;
+    : word === 'real' ? { cls: 'found', html: G`<b>${biggest.rel > 1 ? G`Brightened` : G`Faded`} by ${pc(change)}</b> between visits in D${S.det}, while ${stars} nearby stayed within ${pc(steady)}.`,
+      plain: biggest.rel > 1 ? G`<b>It got brighter.</b> Its light rose by ${pc(change)} between the visits, while the stars around it stayed steady.`
+        : G`<b>It got fainter.</b> Its light dropped by ${pc(change)} between the visits, while the stars around it stayed steady.` }
+    : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.`, plain: G`<b>It may be changing a little.</b> The difference is too small to be sure.` }
+    : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
+    : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }
@@ -1704,7 +1708,7 @@ function applyPanelMode() {
 }
 function setPanelFull(on) {
   panelFull = on;
-  renderAbout();
+  renderAbout(); renderFindings();
   requestAnimationFrame(() => { specPlot.draw(); lcPlot.draw(); });          // the plots were drawn while hidden, at no size
 }
 $('fullbtn').onclick = () => {
@@ -1782,7 +1786,7 @@ function renderAbout() {
     : S.infoState === 'loading' ? G`Identifying…` : S.infoState === 'failed' ? G`Not identified` : S.moved ? G`The star that was here has moved on` : G`Nothing catalogued at this spot`;
   // A star that catalogues list here, at its year-2000 place, but that has moved on since.
   const mv = !t && !i ? S.moved : null, mvPm = mv ? Math.hypot(mv.pmra, mv.pmdec) / 1000 : 0;
-  const gloss = t ? G(t.blurb) : i ? i.gloss || Info.gloss(i.otype, i.sptype)
+  const gloss = t ? G((simpleCard() && PLAIN_BLURB[t.slug]) || t.blurb) : i ? i.gloss || Info.gloss(i.otype, i.sptype)
     : mv ? G`${mv.name} was at this spot in the year 2000, which is where catalogues still list it. It moves ${fx(mvPm, 1)}″ a year and is now ${fx((mv.dist / 60), 1)}′ away.`
       : S.infoState === 'failed' ? G`The catalogue that names objects could not be reached just now, so this spot is not identified.`
         : S.infoState === 'done' ? G`No catalogue lists an object exactly here. SPHEREx still has images of this patch: what do you see?` : '';
@@ -1843,7 +1847,7 @@ function renderAbout() {
   const simple = simpleCard(), con = body ? '' : Names.constellation(S.ra, S.dec, Lang.lang);
   const coded = !t && !!i && !S.wiki && /[[\]]|\d{3,}/.test(name);
   const plain = simple && coded;
-  const kindShort = simple && (t?.type || i) ? esc(G(t?.type || i.type)) : kind;          // the simple card leaves the spectral type to the facts
+  const kindShort = simple && (t?.type || i) ? esc(G(t?.type || i.type).replace(/\s*\([^)]*\)\s*$/, '')) : kind;          // the simple card leaves the spectral type and labels like (Mira variable) to the facts
   const kindLine = plain ? (con ? esc(T('panel.inCon', { c: con })) : kind) : `${kindShort}${con ? ` · ${esc(T('panel.inCon', { c: con }))}` : ''}`;
   const head = plain ? G(i.type) : name;
   const say = plain ? [gloss && gloss.length > 40 ? gloss : '', T('panel.noname', { id: name })].filter(Boolean).join(' ') : gloss;
@@ -1903,9 +1907,22 @@ function isPhoto(url) {
   });
 }
 /** Guidance for the showcase objects. The guided tour says the same thing in its own card. */
+// The showcase objects in the simple card: what they are and what the loop shows, without the parts of the full panel.
+const PLAIN_BLURB = {
+  barnard: 'The star whose place in our sky changes fastest. It is one of the Sun’s nearest neighbours, about 6 light-years away.',
+  epsindib: 'Two brown dwarfs, bodies too big to be planets and too small to shine like stars. Together they circle a nearby star.',
+  wise0855: 'The coldest brown dwarf known, a body between a planet and a star, only 7.4 light-years away.',
+};
+const PLAIN_LOOK = {
+  barnard: 'The pictures loop through SPHEREx’s three visits. Watch the star in the ring. Each time it hops a little north along the dotted line, while the stars around it stay put.',
+  epsindib: 'The bright star to the west is Epsilon Indi A, the star these two brown dwarfs circle. Watch the dot in the ring slide a little to the south-east from one visit to the next.',
+  wise0855: 'The pictures step from the shorter to the longer wavelengths of infrared light. In the first ones the ring is almost empty. In the last ones a dot appears in it. That dot is WISE 0855, so cold that it only shows at the longest wavelengths.',
+  rwaur: 'The pictures loop through SPHEREx’s visits. In this light the star lost almost half its brightness within a year, while the stars around it stayed the same.',
+  rdra: 'Each picture covers about a month. Watch the star brighten and fade. It was brightest in July 2025, about half as bright that autumn, and it is climbing again in the latest pictures.',
+};
 function renderLook() {
   const t = S.target, b = S.track?.body, on = tourIdx < 0 && !S.embed;
-  const look = t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.` : '';
+  const look = t && simpleCard() && PLAIN_LOOK[t.slug] ? G(PLAIN_LOOK[t.slug]) : t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.` : '';
   // a body opened by name: the other times SPHEREx had it in view are one press away
   const times = b?.visits?.length > 1 ? `<p class="look visits"><b>${G`SPHEREx had it in view at these times`}</b>${b.visits.map(v =>
     `<button type="button" data-at="${v.mjd.toFixed(2)}" aria-pressed="${v.mjd >= b.from - 0.01 && v.mjd <= b.to + 0.01}" title="${esc(G`Stops of the telescope with it in one field: ${v.stops}`)}">${span(v.t0, v.t1).replace(/, .*/, '')}</button>`).join('')}</p>` : '';
@@ -1948,6 +1965,11 @@ function lightMoved(stA, stB, a, b) {
 }
 const COMPASS = [G`north`, G`north-east`, G`east`, G`south-east`, G`south`, G`south-west`, G`west`, G`north-west`];
 const compass = (dE, dN) => COMPASS[Math.round((((Math.atan2(dE, dN) * 180 / Math.PI) + 360) % 360) / 45) % 8];
+/** A star's motion in everyday words: the arcseconds become how long it takes to cover the width of the Moon (half a degree, 1,800″). */
+function plainMoving(rate, dir) {
+  const y = 1800 / rate, years = y < 100 ? Math.round(y / 5) * 5 : y < 1000 ? Math.round(y / 10) * 10 : Math.round(y / 100) * 100;
+  return G`<b>It is moving.</b> Each year it shifts a little towards the ${dir}. At this pace it would cover a stretch of sky as wide as the Moon in about ${NUM.format(years)} years.`;
+}
 
 /**
  * Did the circled spot move? Its position is measured in the stacked image of every visit and
@@ -2019,7 +2041,7 @@ function motionEverywhere(tracked) {
 function renderMotion() {
   const el = $('motion');
   if (!el) return;
-  const sum = (cls, html) => { S.find.motion = cls ? { cls, html } : null; renderFindings(); };
+  const sum = (cls, html, plain) => { S.find.motion = cls ? { cls, html, plain } : null; renderFindings(); };
   if (S.grid && bodyStops()) return bodyMotion(el, sum);
   if (!S.grid || !S.sel || !S.stacks || S.stacks.length < 2) { el.innerHTML = ''; sum(null); return; }
   const g = S.grid, n = g.n, as = v => fx((v * g.scale), 1);
@@ -2035,7 +2057,7 @@ function renderMotion() {
     const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${fx(every.rate, 1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${fx(catPm, 1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
     el.innerHTML = holes ? G`<p class="hint">The star's core is saturated in D${S.det}, so its position cannot be measured here.${elsewhere}</p>`
       : tracked && catPm >= 0.1 ? G`<p class="hint">The target is too faint in this detector to be located, so its motion cannot be measured here.${elsewhere || G` Try another detector.`}</p>` : '';
-    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`);
+    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)));
     else sum(null);
     return;
   }
@@ -2074,23 +2096,23 @@ function renderMotion() {
     el.innerHTML = G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
       <p class="hint verdict"><b>Measured: ${fx(rate, 1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${fx(catPm, 1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
-    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`);
+    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir));
     return;
   }
   if (d > Math.max(3 * sigma, 1.5) && !lightMoved(first.st, end.st, first.m, end.m)) {
     el.innerHTML = G`<p class="hint verdict"><b>Probably two stars, not motion.</b> The measured position differs by ${fx(d, 1)}″ between ${span} in D${S.det}, but the light did not leave the old spot or build up at the new one. That is what a close pair of stars looks like. ${yard}</p>`;
-    sum('none', G`<b>Not motion:</b> the position shifts, but in the way a close pair of stars does.`);
+    sum('none', G`<b>Not motion:</b> the position shifts, but in the way a close pair of stars does.`, G`<b>Not real movement.</b> Two stars very close together can look like this.`);
     return;
   }
   if (d > Math.max(3 * sigma, 1.5)) {
     const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>`;
-    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`);
+    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`);
     return;
   }
   el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
-  sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`);
+  sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`, G`<b>It has not moved.</b> It stays in the same place from one visit to the next.`);
 }
 function renderModes() {
   const body = !!(S.grid && bodyStops()), own = followed();
