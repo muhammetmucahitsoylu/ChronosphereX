@@ -3507,6 +3507,10 @@ function pointOpen(thing) {
   S.busyUntil = performance.now() + 9000; Sky.flyTo(thing.ra, thing.dec, 2.2);          // the map goes at once: where the star is, is known; its catalogue entry is asked for meanwhile
   search(thing.query, thing.name, 2.2).then(() => { if (S.called === thing.name) note(T('point.bright', { name: thing.name }), 12000); });
 }
+/** Whether a name on the map of the sky above is written to the left of its dot, because it would run off the right
+ *  edge otherwise (long names in some languages: "Kuzey Amerika Bulutsusu"); where it fits on neither side, on the side
+ *  where less of it is lost. Width guessed as in choose(): 12 px letters of one width. */
+const nameFlips = (x, name, W) => { const w = 18 + 7.6 * name.length; return Math.max(0, x + w - (W - 6)) > Math.max(0, 6 - (x - w)); };
 async function pointStart() {
   if (pointOn()) return;
   for (let i = 0; i < 75 && !Sky.isReady(); i++) await nap(200);          // pressed while the map is still starting (the app's bar is there at once): it waits for the map
@@ -3524,7 +3528,7 @@ async function pointStart() {
   note(pointSaid = T('point.on'), 8000);
   const dirs = T('point.dirs').split(','), layer = $('skynames'), ring = $('aimring');
   const when = new Date(), east = declination(here.lat, here.lon, when.getFullYear() + when.getMonth() / 12);          // the compass needle's error here
-  let all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`)), listedAt = performance.now();
+  let all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`), Lang.lang), listedAt = performance.now();
   let aimed = null, there = 0, raf = 0, chosenAt = 0, saidAt = 0, shown = [], said = '';          // there: 0 the map has not set out, 1 on its way, 2 following
   const quit = Point.watch((back, top) => { aimed = { back, top }; }, () => { pointEnd(); note(T('point.nosensor'), 9000); }, east);
   // the constellations' figures: thin lines on a sheet of their own, under the names, drawn again every frame
@@ -3569,8 +3573,9 @@ async function pointStart() {
   pointFind = async text => {
     const want = plainN(text);
     if (!want) return;
-    let thing = all.find(t => plainN(t.name) === want) || all.find(t => t.query && plainN(t.query) === want)
-      || (want.length >= 3 ? all.find(t => plainN(t.name).startsWith(want)) : null);
+    let thing = all.find(t => plainN(t.name) === want) || all.find(t => t.also && plainN(t.also) === want) || all.find(t => t.query && plainN(t.query) === want)
+      || (want.length >= 3 ? all.find(t => plainN(t.name).startsWith(want)) : null)
+      || (want.length >= 3 ? all.find(t => t.kind === 'deep' && (plainN(t.name).includes(want) || plainN(t.also || '').includes(want))) : null);          // "Ülker", "Pleiades", "Kuzey Amerika"
     if (!thing) {
       note(T('note.lookingUpName', { name: text }));
       const r = await resolveName(text).catch(() => null);
@@ -3615,10 +3620,11 @@ async function pointStart() {
     const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing === found ? -97 : c.thing.rank);
     inView.sort((a, b) => worth(a) - worth(b));
     const wide = c => 18 + 7.3 * c.thing.name.length;          // a name's width on the screen, near enough: letters of one width, 12 px
+    const span = c => (nameFlips(c.x, c.thing.name, W) ? [c.x - wide(c), c.x] : [c.x, c.x + wide(c)]);
     const next = [];
     for (const c of inView) {
       if (next.length >= NAMES_SHOWN) break;
-      if (!next.some(n => Math.abs(n.y - c.y) < 20 && c.x - 6 < n.x + wide(n) && n.x - 6 < c.x + wide(c))) next.push(c);          // no name on top of another
+      if (!next.some(n => Math.abs(n.y - c.y) < 20 && span(c)[0] - 6 < span(n)[1] && span(n)[0] - 6 < span(c)[1])) next.push(c);          // no name on top of another
     }
     const free = pool.filter(el => !next.some(n => shown.find(s => s.thing === n.thing)?.el === el));
     shown = next.map(n => {
@@ -3640,7 +3646,7 @@ async function pointStart() {
     Sky.look(sky.ra, sky.dec, TURN_SIGN * sky.turn);
     drawFigures(sky);
     if (now - listedAt > 300000) {          // the Moon has moved on
-      listedAt = now; all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`)); shown = []; for (const el of pool) el.hidden = true;
+      listedAt = now; all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`), Lang.lang); shown = []; for (const el of pool) el.hidden = true;
       if (found) { const again = all.find(t => t.kind === found.kind && t.name === found.name); if (again) found = again; else all.push(found); }
     }
     if (now - chosenAt > 450) { chosenAt = now; choose(sky); }
@@ -3650,7 +3656,9 @@ async function pointStart() {
     for (const s of shown) {
       const p = Sky.screenOf(s.thing.ra, s.thing.dec);
       if (!p) { s.el.style.transform = 'translate3d(-999px,-999px,0)'; continue; }
-      s.el.style.transform = `translate3d(${p[0].toFixed(1)}px,${p[1].toFixed(1)}px,0) translateY(-50%)`;
+      const flip = nameFlips(p[0], s.thing.name, cx * 2);
+      if (flip !== s.flip) { s.flip = flip; s.el.classList.toggle('flip', flip); }
+      s.el.style.transform = `translate3d(${p[0].toFixed(1)}px,${p[1].toFixed(1)}px,0) translate(${flip ? '-100%' : '0'},-50%)`;
       const off = Math.hypot(p[0] - cx, p[1] - cy);
       if (off < bestAt) { bestAt = off; best = s.thing; }
       if (s.thing === pointHeld) heldAt = off;
@@ -3665,7 +3673,7 @@ async function pointStart() {
       }
       saidAt = now;
       const where = T(sky.alt >= 0 ? 'point.up' : 'point.down', { dir: dirs[Math.round(sky.az / 45) % 8], alt: Math.abs(Math.round(sky.alt)) });
-      const con = hold && hold.kind !== 'body' ? Names.constellation(hold.ra, hold.dec) : Names.constellation(sky.ra, sky.dec);
+      const con = hold && hold.kind !== 'body' ? Names.constellation(hold.ra, hold.dec, Lang.lang) : Names.constellation(sky.ra, sky.dec, Lang.lang);
       const title = hold ? hold.name : con || where, sub = hold?.kind === 'body' ? T('point.now') : [hold && con, con || hold ? where : ''].filter(Boolean).join(' · ');
       const go = hold?.kind === 'body' ? '' : T(hold ? 'point.open' : 'point.zoom'), all3 = `${title}|${sub}|${go}`;
       if (all3 !== said) { said = all3; $('aimname').textContent = title; $('aimsub').textContent = sub; $('aimsub').hidden = !sub; $('aimgo').textContent = go; $('aimgo').hidden = !go; }

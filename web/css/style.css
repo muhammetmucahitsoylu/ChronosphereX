@@ -888,6 +888,12 @@ body.pointing .findway:not([hidden]) { display: flex; position: absolute; left: 
 .skyname.found::before { left: -8px; width: 12px; height: 12px; margin-top: -7px; background: none; border: 2px solid currentColor; animation: findpulse 1.4s ease-in-out infinite; }
 @keyframes findpulse { 50% { transform: scale(1.7); opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .skyname.found::before { animation: none; } }
+/* a name that would run off the right edge is written to the left of its dot (app.js, nameFlips) */
+.skyname.flip { padding: 9px 12px 9px 10px; }
+.skyname.flip::before { left: auto; right: -3px; }
+.skyname.flip.deep::before { left: auto; right: -5px; }
+.skyname.flip.target::before { left: auto; right: -6px; }
+.skyname.flip.found::before { left: auto; right: -8px; }
 
 /* ---------- the constellations' figures while the phone is held up to the sky (drawn by the page's code) ---------- */
 .figures { display: none; }
