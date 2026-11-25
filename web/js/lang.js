@@ -299,7 +299,7 @@ const TEXT = {
 
     'off.saving': 'Tur internetsiz kullanım için kaydediliyor: %{p}',
     'off.saved': 'Rehberli tur bu cihaza kaydedildi, internet olmadan da çalışır.',
-    'off.savedWith': 'Rehberli tur, son adımındaki {n} nesneyle birlikte bu cihaza kaydedildi ve çevrimdışı çalışır.',
+    'off.savedWith': 'Rehberli tur, son adımındaki {n} nesneyle birlikte bu cihaza kaydedildi, internet olmadan da çalışır.',
     'off.some': 'Turun bir bölümü kaydedilemedi ({n} dosyadan {failed} tanesi).',
     'off.retry': 'Yeniden dene',
     'off.lite': 'Tur nesneleri bu cihaza kaydedildi.',
