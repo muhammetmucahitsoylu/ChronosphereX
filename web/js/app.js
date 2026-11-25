@@ -2715,7 +2715,7 @@ function syncUrl() {
 }
 
 // ------------------------------------------------------------ events
-$('search').onsubmit = e => { e.preventDefault(); searchBox(false); $('q').blur(); search($('q').value); };
+$('search').onsubmit = e => { e.preventDefault(); searchBox(false); $('q').blur(); if (pointOn() && pointFind) pointFind($('q').value); else search($('q').value); };          // the phone held up: found in the sky above
 // Phones: the search box opens from its button, across the top of the map, and steps aside again when it is left.
 function searchBox(on) { $('top').classList.toggle('searching', on); $('searchbtn').setAttribute('aria-expanded', String(on)); }
 $('searchbtn').onclick = () => { closeMenu(); searchBox(true); $('q').focus(); };
@@ -3469,7 +3469,23 @@ document.addEventListener('click', e => { if (!e.target.closest('#nav')) closeMe
 const TURN_SIGN = -1;          // the map library turns its picture anticlockwise for a positive angle; the sums give the screen's top, from north through east
 const NAMES_SHOWN = 12, HOLD_IN = 38, HOLD_OUT = 54;          // names on the map at once; how near the middle (px) a name is taken into the ring, and how far it may stray before it is let go
 let pointStop = null, pointLock = null, pointSaid = '', pointHeld = null;
+let pointFind = null, findHinted = false, findLater = '';          // findLater: a name to look for once the phone is held up (an iPhone waits for a press)          // pointFind: while the phone is held up, finds a thing in the sky by its name and shows the way to it
 const pointOn = () => document.body.classList.contains('pointing');
+/**
+ * The constellations' stick figures, drawn while the phone is held up to the sky (data/conlines.json, from Olaf Frohn's
+ * d3-celestial, under the licence that file carries). Loaded once: each line a list of points with their unit vectors.
+ */
+let figuresAsked = null;
+const loadFigures = () => (figuresAsked ??= fetch('data/conlines.json').then(r => r.json()).then(d => d.lines.map(l => {
+  const pts = [];
+  for (let i = 0; i < l.length; i += 2) { const a = l[i] * Math.PI / 180, b = l[i + 1] * Math.PI / 180; pts.push([l[i], l[i + 1], Math.cos(b) * Math.cos(a), Math.cos(b) * Math.sin(a), Math.sin(b)]); }
+  return pts;
+})).catch(() => { figuresAsked = null; return []; }));
+/** Find something in the sky above by its name: the phone is held up first, if it is not yet. */
+async function findInSky(text) {
+  if (!pointOn()) await pointStart();
+  if (pointOn() && pointFind) pointFind(text);
+}
 /**
  * Leave the following and open what the ring or a press chose.
  * A star: its panel, under the name it carried on the sky, with the map held far enough off for it to be seen as a
@@ -3495,7 +3511,7 @@ async function pointStart() {
   if (pointOn() || !Sky.isReady()) return;
   closeMenu();
   await Point.allow();          // where the browser asks first, it asks now; whether the compass really answers shows below, when it is listened to
-  const [here] = await Promise.all([Point.place(), Names.load().catch(() => null)]);          // without the list the map follows the phone all the same, unnamed
+  const [here, , figures] = await Promise.all([Point.place(), Names.load().catch(() => null), loadFigures()]);          // without the lists the map follows the phone all the same, unnamed
   if (!here) { note(T('point.place'), 14000); return; }
   if (pointOn()) return;          // pressed twice while the phone asked
   if (tourIdx >= 0) tourEnd();
@@ -3509,8 +3525,68 @@ async function pointStart() {
   let all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`)), listedAt = performance.now();
   let aimed = null, there = 0, raf = 0, chosenAt = 0, saidAt = 0, shown = [], said = '';          // there: 0 the map has not set out, 1 on its way, 2 following
   const quit = Point.watch((back, top) => { aimed = { back, top }; }, () => { pointEnd(); note(T('point.nosensor'), 9000); }, east);
+  // the constellations' figures: thin lines on a sheet of their own, under the names, drawn again every frame
+  const sketch = document.createElement('canvas'); sketch.className = 'figures'; sketch.setAttribute('aria-hidden', 'true'); layer.parentNode.insertBefore(sketch, layer);
+  const drawFigures = sky => {
+    const Wd = layer.clientWidth, Hd = layer.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (sketch.width !== Math.round(Wd * dpr) || sketch.height !== Math.round(Hd * dpr)) { sketch.width = Math.round(Wd * dpr); sketch.height = Math.round(Hd * dpr); }
+    const g = sketch.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, Wd, Hd);
+    if (!figures.length) return;
+    const r = Math.PI / 180, c = [Math.cos(sky.dec * r) * Math.cos(sky.ra * r), Math.cos(sky.dec * r) * Math.sin(sky.ra * r), Math.sin(sky.dec * r)];
+    const reach = Math.cos(Math.min(85, Sky.fov() * Math.hypot(Wd, Hd) / Wd / 2 + 20) * r);          // the view and a margin, so that a line leaving the screen is drawn to its edge
+    g.lineWidth = 1.2; g.strokeStyle = 'rgba(150, 185, 255, 0.42)'; g.lineCap = 'round'; g.beginPath();
+    for (const pts of figures) {
+      let prev = null;
+      for (const p of pts) {
+        const s = p[2] * c[0] + p[3] * c[1] + p[4] * c[2] > reach ? Sky.screenOf(p[0], p[1]) : null;
+        if (s && prev) { g.moveTo(prev[0], prev[1]); g.lineTo(s[0], s[1]); }
+        prev = s;
+      }
+    }
+    g.stroke();
+  };
   // the names: a few buttons made once and handed from one owner to the next
   const pool = Array.from({ length: NAMES_SHOWN }, () => { const el = document.createElement('button'); el.type = 'button'; el.className = 'skyname'; el.hidden = true; layer.appendChild(el); return el; });
+  // Looking for something (the search box while the phone is held up, or a line of "Tonight"): its name is put on
+  // the map and kept there whatever lies around it, and while it is out of sight an arrow says which way to turn the
+  // phone, how far it is and whether it is below the horizon now.
+  let found = null, foundHeld = false, wayAt = 0;
+  const way = $('findway'), wayName = $('findname'), wayTip = way.querySelector('.findtip');
+  const rad = Math.PI / 180, plainN = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const vecOf = (ra, dec) => [Math.cos(dec * rad) * Math.cos(ra * rad), Math.cos(dec * rad) * Math.sin(ra * rad), Math.sin(dec * rad)];
+  const altOf = t => { const h = (Point.gmst(Date.now()) + here.lon - t.ra) * rad, d = t.dec * rad, f = here.lat * rad; return Math.asin(Math.sin(d) * Math.sin(f) + Math.cos(d) * Math.cos(f) * Math.cos(h)) / rad; };
+  /** A point `step` degrees from (ra0, dec0) on the way to (ra1, dec1), and how far that is in all. */
+  const towards = (ra0, dec0, ra1, dec1, step) => {
+    const a = vecOf(ra0, dec0), b = vecOf(ra1, dec1), sep = Math.acos(clamp(a[0] * b[0] + a[1] * b[1] + a[2] * b[2], -1, 1));
+    if (sep < 1e-6) return { sep: 0, ra: ra0, dec: dec0 };
+    if (Math.sin(sep) < 1e-3) return towards(ra0, dec0, ra1, clamp(dec1 + (dec1 > 0 ? -1 : 1), -89, 89), step);          // right behind the phone: any way round will do
+    const s = Math.min(step * rad, sep), k0 = Math.sin(sep - s) / Math.sin(sep), k1 = Math.sin(s) / Math.sin(sep), v = a.map((x, i) => k0 * x + k1 * b[i]);
+    return { sep: sep / rad, ra: (Math.atan2(v[1], v[0]) / rad + 360) % 360, dec: Math.asin(clamp(v[2], -1, 1)) / rad };
+  };
+  const dropFound = () => { found = null; foundHeld = false; way.hidden = true; for (const s of shown) s.el.classList.remove('found'); };
+  pointFind = async text => {
+    const want = plainN(text);
+    if (!want) return;
+    let thing = all.find(t => plainN(t.name) === want) || all.find(t => t.query && plainN(t.query) === want)
+      || (want.length >= 3 ? all.find(t => plainN(t.name).startsWith(want)) : null);
+    if (!thing) {
+      note(T('note.lookingUpName', { name: text }));
+      const r = await resolveName(text).catch(() => null);
+      if (!pointOn()) return;
+      if (!r) { note(T('note.notFound', { name: text }), 8000); return; }
+      thing = { name: text.trim(), ra: r.ra, dec: r.dec, kind: 'star', rank: -9, query: text.trim(), v: vecOf(r.ra, r.dec) };
+      all.push(thing);
+    }
+    dropFound(); found = thing; chosenAt = 0;
+    note(pointSaid = T('find.turn', { name: found.name }), 9000);
+  };
+  $('findstop').onclick = () => { dropFound(); note(''); };
+  // while the phone is held up, the search box finds things in the sky above, and suggests the names on the list
+  const placeholder = $('q').placeholder, suggestions = $('suggest').innerHTML;
+  $('q').placeholder = T('find.placeholder');
+  $('suggest').innerHTML = [...new Set(all.filter(t => t.kind !== 'target').map(t => t.name))].map(n => `<option value="${esc(n)}">`).join('');
+  if (findLater) { const w = findLater; findLater = ''; pointFind(w); }
+  else if (!findHinted) { findHinted = true; setTimeout(() => { if (pointOn() && !found && $('mapnote').textContent === pointSaid) note(pointSaid = T('find.hint'), 9000); }, 8500); }
   layer.onclick = e => {
     const thing = shown.find(s => s.el === e.target)?.thing;
     if (!thing) return;
@@ -3534,7 +3610,7 @@ async function pointStart() {
     // and a name that gave way to them would leave the ring empty on the very star it is held on.
     let aimedAt = null, aimedOff = HOLD_IN;
     for (const c of inView) { const off = Math.hypot(c.x - W / 2, c.y - H / 2); if (off < aimedOff) { aimedOff = off; aimedAt = c; } }
-    const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing.rank);
+    const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing === found ? -97 : c.thing.rank);
     inView.sort((a, b) => worth(a) - worth(b));
     const wide = c => 18 + 7.3 * c.thing.name.length;          // a name's width on the screen, near enough: letters of one width, 12 px
     const next = [];
@@ -3546,7 +3622,7 @@ async function pointStart() {
     shown = next.map(n => {
       const had = shown.find(s => s.thing === n.thing), el = had ? had.el : free.pop();
       if (!had) { el.textContent = n.thing.name; el.className = `skyname ${n.thing.kind}`; }
-      el.hidden = false;
+      el.hidden = false; el.classList.toggle('found', n.thing === found);
       return { thing: n.thing, el };
     });
     for (const el of free) el.hidden = true;
@@ -3560,7 +3636,11 @@ async function pointStart() {
     if (there === 0) { there = 1; Sky.flyTo(sky.ra, sky.dec, 60).then(() => { there = 2; }); return; }
     if (there !== 2) return;
     Sky.look(sky.ra, sky.dec, TURN_SIGN * sky.turn);
-    if (now - listedAt > 300000) { listedAt = now; all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`)); shown = []; for (const el of pool) el.hidden = true; }          // the Moon has moved on
+    drawFigures(sky);
+    if (now - listedAt > 300000) {          // the Moon has moved on
+      listedAt = now; all = Names.things(Date.now(), here.lat, here.lon, S.targets.filter(t => !t.follow), id => T(`sky.${id}`)); shown = []; for (const el of pool) el.hidden = true;
+      if (found) { const again = all.find(t => t.kind === found.kind && t.name === found.name); if (again) found = again; else all.push(found); }
+    }
     if (now - chosenAt > 450) { chosenAt = now; choose(sky); }
     // every frame: each name to its owner's place, and the ring takes the one nearest the middle
     const cx = layer.clientWidth / 2, cy = layer.clientHeight / 2;
@@ -3579,6 +3659,7 @@ async function pointStart() {
         pointHeld = hold; ring.classList.toggle('on', !!hold);
         for (const s of shown) s.el.classList.toggle('held', s.thing === hold);
         if (hold) navigator.vibrate?.(12);          // a tick in the hand: something is in the ring
+        if (hold && hold === found && !foundHeld) { foundHeld = true; navigator.vibrate?.([20, 70, 20]); note(pointSaid = T('find.there', { name: found.name }), 6000); }
       }
       saidAt = now;
       const where = T(sky.alt >= 0 ? 'point.up' : 'point.down', { dir: dirs[Math.round(sky.az / 45) % 8], alt: Math.abs(Math.round(sky.alt)) });
@@ -3587,10 +3668,28 @@ async function pointStart() {
       const go = hold?.kind === 'body' ? '' : T(hold ? 'point.open' : 'point.zoom'), all3 = `${title}|${sub}|${go}`;
       if (all3 !== said) { said = all3; $('aimname').textContent = title; $('aimsub').textContent = sub; $('aimsub').hidden = !sub; $('aimgo').textContent = go; $('aimgo').hidden = !go; }
     }
+    // the way to what is looked for: hidden once it is on the screen, otherwise an arrow from the middle towards it
+    if (found) {
+      const Wd = layer.clientWidth, Hd = layer.clientHeight, p = Sky.screenOf(found.ra, found.dec), t = towards(sky.ra, sky.dec, found.ra, found.dec, Sky.fov() * 0.2);
+      const inside = p && p[0] > 16 && p[0] < Wd - 16 && p[1] > 60 && p[1] < Hd - 96;
+      const m = inside ? null : Sky.screenOf(t.ra, t.dec);
+      if (!m) way.hidden = true;
+      else {
+        const ang = Math.atan2(m[1] - cy, m[0] - cx), R = Math.min(cx, cy) * 0.6;
+        const x = clamp(cx + R * Math.cos(ang), 92, Wd - 92), y = clamp(cy + R * Math.sin(ang), 110, Hd - 140);
+        way.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%)`;
+        wayTip.style.transform = `rotate(${(ang / rad).toFixed(1)}deg)`;
+        if (now - wayAt > 400) { wayAt = now; const words = [found.name, `${Math.round(t.sep)}°`, altOf(found) < 0 ? T('find.below') : ''].filter(Boolean).join(' · '); if (wayName.textContent !== words) wayName.textContent = words; }
+        way.hidden = false;
+      }
+    }
   };
   raf = requestAnimationFrame(frame);
   navigator.wakeLock?.request('screen').then(lock => { if (pointOn()) pointLock = lock; else lock.release(); }).catch(() => { /* the screen may dim */ });
-  pointStop = () => { cancelAnimationFrame(raf); quit(); layer.onclick = null; layer.textContent = ''; ring.classList.remove('on'); $('aimname').textContent = $('aimsub').textContent = ''; };
+  pointStop = () => {
+    cancelAnimationFrame(raf); quit(); layer.onclick = null; layer.textContent = ''; ring.classList.remove('on'); $('aimname').textContent = $('aimsub').textContent = '';
+    way.hidden = true; pointFind = null; $('q').placeholder = placeholder; $('suggest').innerHTML = suggestions; sketch.remove();
+  };
 }
 function pointEnd() {
   if (!pointOn()) return;
@@ -3602,6 +3701,14 @@ function pointEnd() {
   if ($('mapnote').textContent === pointSaid) note('');
 }
 $('pointbtn').onclick = $('pointbtn2').onclick = () => (pointOn() ? pointEnd() : pointStart());
+// Night mode: the page in red light (js/tabs.js lays it and keeps the choice, on every page). Its button shows while
+// the phone is held up to the sky; on a phone it is also a line of the menu.
+const nightOn = () => document.documentElement.classList.contains('night');
+const nightSync = () => { for (const id of ['nightbtn', 'nightlink']) $(id).setAttribute('aria-pressed', String(nightOn())); };
+const nightFlip = () => { window.__chronoNight?.(!nightOn()); nightSync(); if (nightOn()) note(T('night.on'), 7000); else if (pointOn()) note(pointSaid, 4000); };
+$('nightbtn').onclick = nightFlip;
+$('nightlink').onclick = () => { closeMenu(); nightFlip(); };
+nightSync();
 if (Point.able()) { document.body.classList.add('canpoint'); $('pointbtn').hidden = $('pointbtn2').hidden = false; }
 // A finger that drags the map takes it over from the compass; two fingers that zoom it do not.
 { const down = new Map();
@@ -3968,9 +4075,15 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   if (q.get('sso')) return openBody(q.get('sso'), +q.get('at') || null, { det, mode, size: +q.get('fov') || 0 }).then(known => { if (!known) note(T('note.notFound', { name: q.get('sso') }), 8000); });
   if (q.has('hunt')) return startHunt(+q.get('hunt') || 0);          // ?hunt=1292 repeats the hunt for that asteroid: for testing, and for showing one to somebody
   if (q.has('tour')) tourGo(0);
-  if (q.has('point') && Point.able()) {          // from the app's bar of places on another page: straight to the sky above (the word leaves the address, so a reload does not start it again)
-    q.delete('point'); history.replaceState(history.state, '', `${location.pathname}${q.size ? `?${q}` : ''}${location.hash}`);
-    pointStart();
+  if (q.has('point') && Point.able()) {          // from the app's bar of places, a shortcut or "Tonight": straight to the sky above, looking for something if asked (the words leave the address, so a reload does not start it again)
+    const what = q.get('find');
+    q.delete('point'); q.delete('find'); history.replaceState(history.state, '', `${location.pathname}${q.size ? `?${q}` : ''}${location.hash}`);
+    // An iPhone or an iPad sends a page its compass only once a press has allowed it: there the page waits for "Point
+    // at the sky" and looks then. Android's browsers send it at once (they have the same question now, and say no
+    // without a press, but send the compass all the same), so there the phone is followed straight away.
+    const apple = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (apple) { findLater = what || ''; note(what ? T('find.press', { name: what }) : T('point.press'), 12000); }
+    else if (what) findInSky(what); else pointStart();
   }
   if (PAGE_FILES[location.hash.slice(1)]) openSheet(location.hash.slice(1));
 })();

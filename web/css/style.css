@@ -841,7 +841,7 @@ body.embed .panel { display: block !important; border: 0; }
 :root { --edge-b: env(safe-area-inset-bottom, 0px); }
 html.in-app { --edge-b: var(--sab, 0px); }
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
-  .top, .layerpick, .zoom, .pointbtn, .mapnote { translate: 0 var(--sat, 0px); }
+  .top, .layerpick, .zoom, .pointbtn, .nightbtn, .mapnote { translate: 0 var(--sat, 0px); }
   .app[data-panel=closed] .mapwrap { height: calc(100vh - var(--tabs, 0px)); height: calc(100dvh - var(--tabs, 0px)); }
   html.in-app .app[data-panel=open] .mapstage { height: calc(34vh + var(--sat, 0px)); height: calc(34dvh + var(--sat, 0px)); min-height: calc(230px + var(--sat, 0px)); }
   html.in-app body.touring .app .mapstage { height: calc(var(--tourmap) + var(--sat, 0px)); }
@@ -852,3 +852,38 @@ html.in-app { --edge-b: var(--sab, 0px); }
 @media (min-width: 901px), (min-width: 600px) and (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   html.in-app body { box-sizing: border-box; padding: var(--sat, 0px) var(--sar, 0px) var(--sab, 0px) var(--sal, 0px); --edge-b: 0px; }
 }
+
+/* ---------- night mode: its button while the phone is held up to the sky, and a line of a phone's menu ----------
+   The red light itself is laid over the page by js/tabs.js, on every page. */
+.nightbtn { display: none; top: 212px; right: 12px; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); background: #0a0908cc; color: var(--ink); }
+body.pointing .nightbtn { display: flex; }
+.nightbtn[aria-pressed=true] { background: #8f1d14; border-color: #8f1d14; color: #fff; }
+.navnight { display: none; }
+@media (max-width: 900px), (orientation: landscape) and (max-height: 500px) and (max-width: 1100px) {
+  .nightbtn { top: 152px; right: 10px; width: 40px; height: 40px; }
+  .navlinks .navnight { display: block; width: 100%; text-align: left; padding: 11px 12px; font: inherit; font-size: 15px; color: var(--ink); min-height: 44px; background: none; border: 0; border-radius: 8px; cursor: pointer; }
+  .navlinks .navnight[aria-pressed=true]::after { content: ' ●'; color: #e0352b; }
+}
+@media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
+  body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom { top: 200px; }          /* under the night button */
+}
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
+  .nightbtn { top: 56px; right: 58px; }          /* left of the zoom buttons */
+}
+
+/* ---------- looking for something while the phone is held up to the sky ----------
+   An arrow on the way to it while it is out of sight (placed and turned by the page's code every frame); its name,
+   ringed and pulsing, once it is on the screen. */
+.findway { display: none; }
+body.pointing .findway:not([hidden]) { display: flex; position: absolute; left: 0; top: 0; z-index: 7; flex-direction: column; align-items: center; gap: 2px; max-width: 168px; padding: 8px 12px 9px; border-radius: 14px; background: #0a0908e0; border: 1px solid var(--ember); color: var(--ink); will-change: transform; }
+.findway .findtip { color: var(--ember); flex: none; }
+.findway b { font: 600 12.5px/1.3 var(--sans); text-align: center; }
+.findway button { position: absolute; top: -12px; right: -12px; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 16px; line-height: 1; }
+.skyname.found { color: var(--ember); font-weight: 600; font-size: 13px; }
+.skyname.found::before { left: -8px; width: 12px; height: 12px; margin-top: -7px; background: none; border: 2px solid currentColor; animation: findpulse 1.4s ease-in-out infinite; }
+@keyframes findpulse { 50% { transform: scale(1.7); opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .skyname.found::before { animation: none; } }
+
+/* ---------- the constellations' figures while the phone is held up to the sky (drawn by the page's code) ---------- */
+.figures { display: none; }
+body.pointing .figures { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }

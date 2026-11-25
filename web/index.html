@@ -77,6 +77,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <a class="navtour" id="tourlink" href="./" data-t="nav.tour">Guided tour</a>
       <a class="navgame" href="play.html" data-t="hero.play">Play a game</a>
       <a class="navgame navstar" href="star.html" data-t="hero.star">The star of your year</a>
+      <a class="navgame navtonight" href="tonight.html" data-t="nav.tonight">Tonight’s sky</a>
       <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title">Planet X</a>
       <a href="find-asteroids.html" data-sheet="hunt">Asteroid hunt</a>
       <a href="what-is-spherex.html" data-sheet="spherex">What is SPHEREx?</a>
@@ -84,6 +85,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <a href="about.html" data-sheet="about">About</a>
       <a class="navsocial" href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram</a>
       <a class="navsocial" href="privacy.html" data-t="nav.privacy">Privacy</a>
+      <!-- phones: night mode, the page in red light, for the dark outdoors -->
+      <button type="button" class="navnight" id="nightlink" aria-pressed="false" data-t="night.menu">Night mode (red light)</button>
       <select id="lang" class="langpick" aria-label="Language" data-t-label="nav.language"></select>
     </div>
     <button id="tourbtn" type="button" class="cta" data-t="nav.tour">Guided tour</button>
@@ -111,6 +114,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       </div>
       <!-- phones with a compass: the map follows where the phone is pointed (the page's code shows this button where that can work) -->
       <button type="button" class="mapui pointbtn" id="pointbtn" hidden aria-pressed="false" aria-label="Point at the sky" data-t-label="point.btn"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z" fill="currentColor"/></svg></button>
+      <!-- while the phone is held up to the sky: night mode, the page in red light (js/tabs.js) -->
+      <button type="button" class="mapui nightbtn" id="nightbtn" aria-pressed="false" aria-label="Night mode" data-t-label="night.btn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M19.6 14.6A8 8 0 0 1 9.4 4.4a8 8 0 1 0 10.2 10.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
 
       <div class="hero" id="welcome">
         <p class="eyebrow" data-t="hero.eyebrow">NASA SPHEREx · 102 infrared colours · the whole sky, twice a year</p>
@@ -139,6 +144,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <!-- while the phone is held up to the sky: names on the map, a ring for what it is aimed at, and a bar that says it and opens it -->
       <div class="skynames" id="skynames"></div>
       <div class="aimring" id="aimring" aria-hidden="true"></div>
+      <!-- while the phone is held up: the way to something looked for, while it is out of sight -->
+      <div class="findway" id="findway" hidden role="status"><svg class="findtip" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M3 12h15M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b id="findname"></b><button type="button" id="findstop" aria-label="Stop looking" data-t-label="find.stop">×</button></div>
       <div class="aimbar" id="aimbar" role="status">
         <div class="aimwords"><b id="aimname"></b><span id="aimsub"></span></div>
         <button type="button" id="aimgo"></button>

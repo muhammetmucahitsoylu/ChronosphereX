@@ -74,6 +74,10 @@
   /* today's star: the line that leads to it (or back to the levels), and what is said when it is done */
   .dailygo { margin: -8px 0 14px; font-size: 15px; }
   .dailygo a, #todaybtn { color: var(--gold); text-decoration: none; font-weight: 600; }
+  .remind { margin: -6px 0 14px; }
+  .remind button { font: 600 14px var(--sans); min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); }
+  .remind button[aria-pressed=true] { color: var(--gold); border-color: #f2c14e66; }
+  .remind span { display: block; margin-top: 6px; color: var(--gold); font-size: 14px; }
   #say .daily { display: block; margin-top: 6px; color: var(--ink-2); font-size: 14.5px; }
   .shake { animation: shake .3s; }
   @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
@@ -90,7 +94,7 @@
     canvas { width: 100%; height: 100%; }
     /* once a star has been answered the opening words have done their work: their room goes to the answer. (The picture
        does not move for it: it is fixed beside them.) And the buttons stay at the foot of the screen. */
-    body.played h1, body.played .lede, body.played .dailygo { display: none; }
+    body.played h1, body.played .lede, body.played .dailygo, body.played .remind { display: none; }
     .dailygo { margin: -2px 0 8px; font-size: 14px; }
     body.played .bar { margin-top: 10px; }
     #game .btns { position: sticky; bottom: 0; z-index: 2; margin: 6px -16px 0; padding: 8px 16px calc(8px + var(--edge-b, env(safe-area-inset-bottom, 0px))); background: linear-gradient(0deg, var(--bg) 80%, transparent); }
@@ -121,6 +125,8 @@
     <h1 id="title">Find the star that moved</h1>
     <p class="lede" id="intro"></p>
     <p class="dailygo"><a id="dailylink" href="?daily=1"></a></p>
+    <!-- in the Android app: a reminder every evening for today's star (the app's own notification) -->
+    <p class="remind" id="remindrow" hidden><button type="button" id="remindbtn" aria-pressed="false"></button><span id="remindsay" hidden></span></p>
     <div id="game">
       <div class="bar"><span id="level"></span><span id="lives" role="img"></span><button type="button" id="next2" hidden></button><span id="clock"></span></div>
       <div class="stage" id="stage"><canvas id="cv" width="600" height="600"></canvas><span id="tel">NASA WISE</span><span id="year"></span>
@@ -157,7 +163,7 @@ const STR = {
     level: 'Level {k} of {n}', wrong: 'Not that one. Look again.', out: 'Three wrong taps.', pair: 'These two pictures are from {a} and {b}.', dark: 'A dark frame now comes between them: compare the stars one by one.', cardTitle: 'From here, the pictures blink', cardBody: 'Between the two pictures the screen goes dark for a moment. That is on purpose, not the game hanging: the jump no longer catches your eye, so you have to compare the stars one by one.', cardGo: 'Start', lives: 'Tries left: {n}', show: 'Show me', found: 'Found in <b>{s} s</b>', shown: 'Here it is',
     walk: 'Its walk through all {n} visits, {a} to {b}.', next: 'Next level', result: 'See your result', open: 'See its 27 years and measure its speed',
     sum: 'You found {k} of {n}', total: 'Total time: {s} s', share: 'Share your result', copied: 'Copied', shareText: 'I found {k} of {n} moving stars in {s} seconds. Can you?',
-    daily: 'Today’s star', dailyIntro: 'One patch of sky a day. Find the star that moved; tomorrow there is a new one.', levelsGo: 'Play the ten levels', streak: 'Days in a row: {n}', nextIn: 'a new one in {h} h {m} min', dailyDone: 'You have played today’s star.',
+    daily: 'Today’s star', remind: 'Remind me every day at 20:00', remindOn: 'Reminder every day at 20:00 · Turn off', notifTitle: 'Today’s star is waiting', notifText: 'Find the star that moved and keep your run going.', remindNo: 'The phone did not allow notifications. They can be turned on in its settings, under ChronosphereX.', dailyIntro: 'One patch of sky a day. Find the star that moved; tomorrow there is a new one.', levelsGo: 'Play the ten levels', streak: 'Days in a row: {n}', nextIn: 'a new one in {h} h {m} min', dailyDone: 'You have played today’s star.',
     again: 'Play again', tool: 'Open the full tool', dash: 'shown',
     how: 'This is how Clyde Tombaugh found Pluto in 1930: by comparing two photographs. Cold worlds near the Sun are still found this way.',
     credit: 'Images: NASA WISE and NEOWISE, from the NASA/IPAC Infrared Science Archive.', dec: '.',
@@ -168,7 +174,7 @@ const STR = {
     level: 'Seviye {k} / {n}', wrong: 'O değil. Bir daha bak.', out: 'Üç yanlış dokunuş.', pair: 'Bu iki görüntü {a} ve {b} yıllarından.', dark: 'Artık aralarına karanlık bir kare giriyor: yıldızları tek tek karşılaştır.', cardTitle: 'Bundan sonra resimler göz kırpıyor', cardBody: 'İki resmin arasında ekran bir anlığına kararıyor. Bu oyunun takılması değil, bilerek böyle: sıçrama artık gözüne kendiliğinden çarpmıyor, yıldızları tek tek karşılaştırman gerekiyor.', cardGo: 'Başla', lives: 'Kalan hak: {n}', show: 'Göster', found: '<b>{s} saniyede</b> buldun', shown: 'İşte burada',
     walk: '{a}–{b} arasındaki {n} gözlemin hepsinde hareketi.', next: 'Sıradaki seviye', result: 'Sonucunu gör', open: '27 yılını gör, hızını ölç',
     sum: '{n} yıldızın {k} tanesini buldun', total: 'Toplam süre: {s} sn', share: 'Sonucunu paylaş', copied: 'Kopyalandı', shareText: 'Hareket eden {n} yıldızın {k} tanesini {s} saniyede buldum. Sen bulabilir misin?',
-    daily: 'Günün yıldızı', dailyIntro: 'Her gün tek bir gökyüzü parçası. Hareket eden yıldızı bul; yarın yenisi var.', levelsGo: '10 seviyeyi oyna', streak: 'Üst üste {n} gün', nextIn: 'yenisi {h} sa {m} dk sonra', dailyDone: 'Bugünün yıldızını oynadın.',
+    daily: 'Günün yıldızı', remind: 'Her gün saat 20:00’de hatırlat', remindOn: 'Her gün 20:00’de hatırlatılacak · Kapat', notifTitle: 'Günün yıldızı seni bekliyor', notifText: 'Hareket eden yıldızı bul, serini sürdür.', remindNo: 'Telefon bildirimlere izin vermedi. Ayarlardan ChronosphereX’in bildirimlerini açabilirsin.', dailyIntro: 'Her gün tek bir gökyüzü parçası. Hareket eden yıldızı bul; yarın yenisi var.', levelsGo: '10 seviyeyi oyna', streak: 'Üst üste {n} gün', nextIn: 'yenisi {h} sa {m} dk sonra', dailyDone: 'Bugünün yıldızını oynadın.',
     again: 'Yeniden oyna', tool: 'Aracın tamamını aç', dash: 'gösterildi',
     how: 'Clyde Tombaugh 1930’da Plüton’u böyle buldu: iki fotoğrafı karşılaştırarak. Güneş’e yakın soğuk dünyalar bugün de böyle bulunuyor.',
     credit: 'Görüntüler: NASA WISE ve NEOWISE; NASA/IPAC Kızılötesi Bilim Arşivi’nden.', dec: ',',
@@ -179,7 +185,7 @@ const STR = {
     level: 'Nivel {k} de {n}', wrong: 'Esa no. Mira otra vez.', out: 'Tres toques equivocados.', pair: 'Estas dos imágenes son de {a} y {b}.', dark: 'Ahora un cuadro oscuro se interpone entre ellas: compara las estrellas una por una.', cardTitle: 'A partir de aquí, las imágenes parpadean', cardBody: 'Entre las dos imágenes la pantalla se oscurece un instante. Es a propósito, el juego no se ha colgado: el salto ya no salta a la vista y hay que comparar las estrellas una por una.', cardGo: 'Empezar', lives: 'Intentos restantes: {n}', show: 'Muéstramela', found: 'Encontrada en <b>{s} s</b>', shown: 'Aquí está',
     walk: 'Su camino por las {n} visitas, de {a} a {b}.', next: 'Siguiente nivel', result: 'Ver tu resultado', open: 'Mira sus 27 años y mide su velocidad',
     sum: 'Encontraste {k} de {n}', total: 'Tiempo total: {s} s', share: 'Comparte tu resultado', copied: 'Copiado', shareText: 'Encontré {k} de {n} estrellas que se mueven en {s} segundos. ¿Y tú?',
-    daily: 'La estrella de hoy', dailyIntro: 'Un trozo de cielo al día. Encuentra la estrella que se movió; mañana hay otro.', levelsGo: 'Jugar los diez niveles', streak: 'Días seguidos: {n}', nextIn: 'otra nueva en {h} h {m} min', dailyDone: 'Ya has jugado la estrella de hoy.',
+    daily: 'La estrella de hoy', remind: 'Recordármelo cada día a las 20:00', remindOn: 'Recordatorio cada día a las 20:00 · Quitar', notifTitle: 'La estrella de hoy te espera', notifText: 'Encuentra la estrella que se movió y sigue tu racha.', remindNo: 'El teléfono no permitió las notificaciones. Puedes activarlas en sus ajustes, en ChronosphereX.', dailyIntro: 'Un trozo de cielo al día. Encuentra la estrella que se movió; mañana hay otro.', levelsGo: 'Jugar los diez niveles', streak: 'Días seguidos: {n}', nextIn: 'otra nueva en {h} h {m} min', dailyDone: 'Ya has jugado la estrella de hoy.',
     again: 'Jugar de nuevo', tool: 'Abrir la herramienta completa', dash: 'mostrada',
     how: 'Así encontró Clyde Tombaugh a Plutón en 1930: comparando dos fotografías. Los mundos fríos cercanos al Sol se siguen encontrando así.',
     credit: 'Imágenes: WISE y NEOWISE de la NASA, del NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -190,7 +196,7 @@ const STR = {
     level: 'Stufe {k} von {n}', wrong: 'Der nicht. Schau noch einmal.', out: 'Dreimal daneben.', pair: 'Diese beiden Bilder stammen von {a} und {b}.', dark: 'Jetzt kommt ein dunkles Bild dazwischen: Vergleiche die Sterne einzeln.', cardTitle: 'Ab jetzt blinken die Bilder', cardBody: 'Zwischen den beiden Bildern wird der Schirm kurz dunkel. Das ist Absicht, das Spiel hängt nicht: Der Sprung fällt nicht mehr von selbst ins Auge, du musst die Sterne einzeln vergleichen.', cardGo: 'Los', lives: 'Versuche übrig: {n}', show: 'Zeig ihn mir', found: 'In <b>{s} s</b> gefunden', shown: 'Hier ist er',
     walk: 'Sein Weg durch alle {n} Besuche, {a} bis {b}.', next: 'Nächste Stufe', result: 'Ergebnis ansehen', open: 'Seine 27 Jahre ansehen und sein Tempo messen',
     sum: '{k} von {n} gefunden', total: 'Gesamtzeit: {s} s', share: 'Ergebnis teilen', copied: 'Kopiert', shareText: 'Ich habe {k} von {n} wandernden Sternen in {s} Sekunden gefunden. Und du?',
-    daily: 'Stern des Tages', dailyIntro: 'Jeden Tag ein Himmelsausschnitt. Finde den Stern, der sich bewegt hat; morgen gibt es einen neuen.', levelsGo: 'Die zehn Stufen spielen', streak: 'Tage in Folge: {n}', nextIn: 'ein neuer in {h} Std. {m} Min.', dailyDone: 'Den Stern von heute hast du gespielt.',
+    daily: 'Stern des Tages', remind: 'Jeden Tag um 20:00 erinnern', remindOn: 'Erinnerung jeden Tag um 20:00 · Aus', notifTitle: 'Der Stern des Tages wartet', notifText: 'Finde den Stern, der sich bewegt hat, und halte deine Serie.', remindNo: 'Das Handy hat Benachrichtigungen nicht erlaubt. In den Einstellungen unter ChronosphereX lassen sie sich einschalten.', dailyIntro: 'Jeden Tag ein Himmelsausschnitt. Finde den Stern, der sich bewegt hat; morgen gibt es einen neuen.', levelsGo: 'Die zehn Stufen spielen', streak: 'Tage in Folge: {n}', nextIn: 'ein neuer in {h} Std. {m} Min.', dailyDone: 'Den Stern von heute hast du gespielt.',
     again: 'Noch einmal spielen', tool: 'Das ganze Werkzeug öffnen', dash: 'gezeigt',
     how: 'So fand Clyde Tombaugh 1930 den Pluto: durch den Vergleich zweier Fotografien. Kalte Welten nahe der Sonne findet man noch heute so.',
     credit: 'Bilder: WISE und NEOWISE der NASA, aus dem NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -201,7 +207,7 @@ const STR = {
     level: 'Niveau {k} sur {n}', wrong: 'Pas celle-là. Regardez encore.', out: 'Trois erreurs.', pair: 'Ces deux images datent de {a} et de {b}.', dark: 'Une image noire s’intercale désormais entre elles : comparez les étoiles une à une.', cardTitle: 'Désormais, les images clignent', cardBody: 'Entre les deux images, l’écran s’assombrit un instant. C’est voulu, le jeu n’est pas bloqué : le saut ne saute plus aux yeux, il faut comparer les étoiles une à une.', cardGo: 'Commencer', lives: 'Essais restants : {n}', show: 'Montrez-la-moi', found: 'Trouvée en <b>{s} s</b>', shown: 'La voici',
     walk: 'Son trajet à travers les {n} passages, de {a} à {b}.', next: 'Niveau suivant', result: 'Voir votre résultat', open: 'Voir ses 27 ans et mesurer sa vitesse',
     sum: 'Vous en avez trouvé {k} sur {n}', total: 'Temps total : {s} s', share: 'Partager votre résultat', copied: 'Copié', shareText: 'J’ai trouvé {k} étoiles qui bougent sur {n} en {s} secondes. Et vous ?',
-    daily: 'L’étoile du jour', dailyIntro: 'Un coin de ciel par jour. Trouvez l’étoile qui a bougé ; demain, un autre.', levelsGo: 'Jouer les dix niveaux', streak: 'Jours d’affilée : {n}', nextIn: 'une nouvelle dans {h} h {m} min', dailyDone: 'Vous avez joué l’étoile du jour.',
+    daily: 'L’étoile du jour', remind: 'Me le rappeler chaque jour à 20 h', remindOn: 'Rappel chaque jour à 20 h · Arrêter', notifTitle: 'L’étoile du jour vous attend', notifText: 'Trouvez l’étoile qui a bougé et gardez votre série.', remindNo: 'Le téléphone n’a pas autorisé les notifications. Vous pouvez les activer dans ses réglages, sous ChronosphereX.', dailyIntro: 'Un coin de ciel par jour. Trouvez l’étoile qui a bougé ; demain, un autre.', levelsGo: 'Jouer les dix niveaux', streak: 'Jours d’affilée : {n}', nextIn: 'une nouvelle dans {h} h {m} min', dailyDone: 'Vous avez joué l’étoile du jour.',
     again: 'Rejouer', tool: 'Ouvrir l’outil complet', dash: 'montrée',
     how: 'C’est ainsi que Clyde Tombaugh a trouvé Pluton en 1930 : en comparant deux photographies. On trouve encore ainsi les mondes froids proches du Soleil.',
     credit: 'Images : WISE et NEOWISE de la NASA, issues du NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -212,7 +218,7 @@ const STR = {
     level: 'Poziom {k} z {n}', wrong: 'Nie ta. Spójrz jeszcze raz.', out: 'Trzy błędne dotknięcia.', pair: 'Te dwa obrazy pochodzą z lat {a} i {b}.', dark: 'Teraz między nimi pojawia się ciemna klatka: porównuj gwiazdy jedna po drugiej.', cardTitle: 'Od teraz obrazy mrugają', cardBody: 'Między dwoma obrazami ekran na chwilę ciemnieje. To celowe, gra się nie zawiesiła: skok nie rzuca się już w oczy, trzeba porównywać gwiazdy jedna po drugiej.', cardGo: 'Start', lives: 'Pozostałe próby: {n}', show: 'Pokaż', found: 'Znaleziona w <b>{s} s</b>', shown: 'Oto ona',
     walk: 'Jej droga przez wszystkie {n} przelotów, od {a} do {b}.', next: 'Następny poziom', result: 'Zobacz wynik', open: 'Zobacz jej 27 lat i zmierz prędkość',
     sum: 'Znalezione: {k} z {n}', total: 'Łączny czas: {s} s', share: 'Udostępnij wynik', copied: 'Skopiowano', shareText: 'Mój wynik: {k} z {n} poruszających się gwiazd w {s} s. A ty?',
-    daily: 'Gwiazda dnia', dailyIntro: 'Jeden skrawek nieba dziennie. Znajdź gwiazdę, która się przesunęła; jutro będzie nowy.', levelsGo: 'Zagraj w dziesięć poziomów', streak: 'Dni z rzędu: {n}', nextIn: 'nowa za {h} godz. {m} min', dailyDone: 'Dzisiejsza gwiazda już zagrana.',
+    daily: 'Gwiazda dnia', remind: 'Przypominaj codziennie o 20:00', remindOn: 'Przypomnienie codziennie o 20:00 · Wyłącz', notifTitle: 'Gwiazda dnia czeka', notifText: 'Znajdź gwiazdę, która się przesunęła, i nie przerywaj serii.', remindNo: 'Telefon nie zezwolił na powiadomienia. Można je włączyć w ustawieniach, w ChronosphereX.', dailyIntro: 'Jeden skrawek nieba dziennie. Znajdź gwiazdę, która się przesunęła; jutro będzie nowy.', levelsGo: 'Zagraj w dziesięć poziomów', streak: 'Dni z rzędu: {n}', nextIn: 'nowa za {h} godz. {m} min', dailyDone: 'Dzisiejsza gwiazda już zagrana.',
     again: 'Zagraj ponownie', tool: 'Otwórz całe narzędzie', dash: 'pokazana',
     how: 'Tak Clyde Tombaugh znalazł Plutona w 1930 roku: porównując dwie fotografie. Zimne światy w pobliżu Słońca wciąż znajduje się w ten sposób.',
     credit: 'Obrazy: WISE i NEOWISE NASA, z NASA/IPAC Infrared Science Archive.', dec: ',',
@@ -223,6 +229,7 @@ const STR = {
 const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
 let lang = q.get('lang');
 try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }          // the language picked on the main page
+try { if (q.get('lang') && STR[q.get('lang')]) localStorage.setItem('chrono-lang', q.get('lang')); } catch { /* private mode */ }          // a language in the address is a choice, as on the main page (the app's first start from a shortcut brings one)
 if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
 const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 const secs = ms => (ms / 1000).toFixed(1).replace('.', T.dec);
@@ -266,6 +273,19 @@ function todays(d) {
 if (daily) { $('title').textContent = `${T.daily} #${TODAY.no}`; $('intro').textContent = T.dailyIntro; document.title = `${T.daily} #${TODAY.no} · ChronosphereX`; }
 $('dailylink').textContent = daily ? `${T.levelsGo} →` : `★ ${T.daily} #${TODAY.no}${kept().days?.[TODAY.key] ? ' ✓' : ''} →`;
 $('dailylink').href = `?daily=${daily ? 0 : 1}&lang=${lang}`;
+// In the Android app: today's star can be the phone's own reminder, every day at 20:00, unless it has been played by
+// then. The notification is the app's; nothing about it leaves the phone. A browser shows nothing of this.
+{
+  const A = window.ChronoApp, btn = $('remindbtn');
+  if (A && typeof A.remind === 'function') {
+    const show = on => { btn.setAttribute('aria-pressed', String(!!on)); btn.textContent = `${on ? '🔔' : '🔕'} ${on ? T.remindOn : T.remind}`; };
+    window.__chronoRemind = (at, refused) => { show(!!at); $('remindsay').hidden = !refused; $('remindsay').textContent = refused ? T.remindNo : ''; };
+    show(!!A.reminder());
+    btn.onclick = () => { const on = btn.getAttribute('aria-pressed') !== 'true'; A.remind(on ? '20:00' : '', T.notifTitle, T.notifText); };
+    $('remindrow').hidden = false;
+    if (kept().days?.[TODAY.key]) try { A.dailyDone?.(TODAY.key); } catch { /* an older app */ }
+  }
+}
 $('todaybtn').textContent = `★ ${T.daily} #${TODAY.no}`; $('todaybtn').href = `?daily=1&lang=${lang}`;
 $('other').textContent = T.levelsGo; $('other').onclick = () => { location.search = `?daily=0&lang=${lang}`; };
 /** The line under a finished daily board: the days in a row, and when the next one comes (at midnight, by the device's clock). */
@@ -283,6 +303,7 @@ function dailyEnd(found, ms) {
     for (const k of Object.keys(days).sort().slice(0, -40)) delete days[k];
     d.days = days; keep(d);
   }
+  try { window.ChronoApp?.dailyDone?.(TODAY.key); } catch { /* a browser, or an older app */ }          // no reminder this evening: today's star is done
   $('say').insertAdjacentHTML('beforeend', dailyLine());
   $('other').hidden = false;
 }

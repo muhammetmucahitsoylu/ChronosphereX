@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- inside the Android app: the edges of the glass and the app's bar of places; everywhere: night mode -->
+<script src="js/tabs.js"></script>
+<meta name="theme-color" content="#0a0908">
+<title>Tonight · ChronosphereX</title>
+<meta name="description" content="What is in the sky tonight where you are: the Moon's phase, sunset and dark sky, the planets you can see and when, the bright stars up now, the next meteor shower. Worked out on your device.">
+<link rel="canonical" href="https://chronospherex.com/tonight.html">
+<meta property="og:title" content="Tonight · ChronosphereX">
+<meta property="og:description" content="The Moon, the planets you can see and when, the bright stars up now, the next meteor shower.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/tonight.html">
+<meta property="og:image" content="https://chronospherex.com/share.jpg">
+<meta property="og:site_name" content="ChronosphereX">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<style>
+  :root { --bg: #0a0908; --surface: #141210; --line: #2f2a25; --ink: #f3eee6; --ink-2: #b0a79a; --ink-3: #8a8175; --ember: #ff7b39; --mint: #5fe0b0; --gold: #f2c14e;
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif; --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; }
+  a { color: inherit; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 14px 16px 40px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo { font: 26px/1 var(--serif); font-style: italic; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; }
+  .logo i { width: 15px; height: 15px; border-radius: 50%; background: var(--ember); display: inline-block; }
+  select { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font: 14px var(--sans); }
+  h1 { font: 400 38px/1.08 var(--serif); margin: 22px 0 4px; }
+  .when { color: var(--ink-2); font: 500 13.5px var(--mono); letter-spacing: .03em; margin: 0 0 6px; }
+  .lede { color: var(--ink-2); margin: 0 0 16px; font-size: 15px; }
+  section { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 14px 16px; margin: 12px 0; }
+  h2 { font: 400 26px/1.1 var(--serif); margin: 0 0 8px; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .row .what { flex: 1; min-width: 0; }
+  .row b { display: block; font-weight: 600; font-size: 16px; }
+  .row span { display: block; color: var(--ink-2); font-size: 14px; }
+  .row .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); }
+  .row.off { opacity: .62; }
+  .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .times div { text-align: center; }
+  .times b { display: block; font: 500 22px/1.2 var(--mono); }
+  .times span { color: var(--ink-2); font-size: 13px; }
+  .moon { display: flex; align-items: center; gap: 16px; }
+  .moon svg { flex: none; }
+  .moon .what { flex: 1; min-width: 0; }
+  .moon .what b { display: block; font: 400 24px/1.15 var(--serif); }
+  .moon .what span { display: block; color: var(--ink-2); font-size: 14px; }
+  button, .btn { font: 600 14px var(--sans); border-radius: 999px; padding: 8px 16px; min-height: 40px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .btn.find { border-color: var(--ember); color: var(--ember); }
+  button.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; min-height: 46px; padding: 11px 20px; font-size: 15px; }
+  button:focus-visible, .btn:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  #ask p { margin: 0 0 12px; color: var(--ink-2); }
+  .fine { color: var(--ink-3); font-size: 13px; margin-top: 20px; }
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
+    .wrap { max-width: 900px; }
+    h1 { font-size: 30px; margin-top: 10px; }
+    #all { columns: 2; column-gap: 16px; }
+    #all section { break-inside: avoid; margin-top: 0; }
+  }
+</style>
+<!-- visit counts: no cookies, no IP addresses kept (see About). The place never enters the address, so it is never counted. -->
+<script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="./"><i></i>ChronosphereX</a>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pl">Polski</option></select>
+  </header>
+  <main>
+    <h1 id="title">Tonight</h1>
+    <p class="when" id="when"></p>
+    <p class="lede" id="lede"></p>
+    <section id="ask" hidden><p id="askwords"></p><button type="button" class="go" id="askbtn"></button><p id="noplace" hidden style="margin:12px 0 0"></p></section>
+    <div id="all">
+      <section id="sun" hidden><h2 id="suntitle"></h2><div class="times" id="suntimes"></div></section>
+      <section id="moon"><h2 id="moontitle"></h2><div class="moon"><svg id="moonpic" viewBox="-52 -52 104 104" width="84" height="84" aria-hidden="true"></svg><div class="what"><b id="moonphase"></b><span id="moonlit"></span><span id="moontimes"></span></div><a class="btn find" id="moonfind" hidden></a></div></section>
+      <section id="planets" hidden><h2 id="planetstitle"></h2><div id="planetrows"></div></section>
+      <section id="stars" hidden><h2 id="starstitle"></h2><div id="starrows"></div></section>
+      <section id="showers"><h2 id="showerstitle"></h2><div id="showerrows"></div></section>
+    </div>
+    <p class="fine" id="source"></p>
+    <p class="fine"><a id="tool" href="./"></a></p>
+  </main>
+</div>
+<script type="module">
+import { planet, moon } from './js/ephem.js';
+import { place, gmst, precession } from './js/point.js';
+
+// What the sky holds tonight at the visitor's place, worked out on the device from the same orbits that name the
+// planets when the phone is held up to the sky (js/ephem.js: JPL's mean elements, the Astronomical Almanac's Moon).
+// The place: the one kept from "Point at the sky", or asked for with a press; it never leaves the device.
+const STR = {
+  en: { title: 'Tonight', lede: 'What is in the sky tonight where you are, worked out on this device from the orbits of the planets and the Moon.',
+    ask: 'To say when things rise and set, the page needs to know roughly where you are. Your place stays on this device.', askBtn: 'Use my location',
+    noPlace: 'Without your place the times cannot be worked out. The Moon and the meteor showers are below all the same.',
+    sun: 'The Sun', sunset: 'Sunset', dark: 'Dark sky', sunrise: 'Sunrise', noSet: 'The Sun does not set tonight.',
+    moon: 'The Moon', lit: '{p}% lit', rises: 'Rises {t}', sets: 'Sets {t}', upNow: 'In the sky now',
+    phases: ['New Moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full Moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'],
+    planets: 'Planets', best: 'Best at {t}: {dir}, {alt}° up', span: 'Visible {a}–{b}', notTonight: 'Not tonight: {why}', nearSun: 'too close to the Sun', down: 'below the horizon all night',
+    stars: 'Bright stars up now', starsAt: 'Bright stars up once it is dark ({t})', up: '{dir}, {alt}° up', find: 'Find',
+    showers: 'Meteor showers', peak: 'Best night {date}', rate: 'about {r} an hour under a dark sky', moonThen: 'Moon {p}% lit that night',
+    source: 'Worked out on this device: the planets from JPL’s orbital elements, the Moon from the Astronomical Almanac’s series, good to a minute or two. Meteor showers: American Meteor Society.',
+    tool: 'Open the whole tool', dirs: 'N,NE,E,SE,S,SW,W,NW', dateLoc: 'en-GB',
+    names: { mercury: 'Mercury', venus: 'Venus', mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturn', moon: 'Moon' },
+    showerNames: { gem: 'Geminids', urs: 'Ursids', qua: 'Quadrantids', lyr: 'Lyrids', eta: 'Eta Aquariids', sda: 'Southern Delta Aquariids', per: 'Perseids', ori: 'Orionids' } },
+  tr: { title: 'Bu gece', lede: 'Bulunduğunuz yerde bu gece gökte neler var? Hepsi bu cihazda, gezegenlerin ve Ay’ın yörüngelerinden hesaplanır.',
+    ask: 'Neyin ne zaman doğup battığını söylemek için kabaca nerede olduğunuzu bilmek gerekiyor. Konumunuz bu cihazdan çıkmaz.', askBtn: 'Konumumu kullan',
+    noPlace: 'Konum olmadan saatler hesaplanamıyor. Ay ve meteor yağmurları yine de aşağıda.',
+    sun: 'Güneş', sunset: 'Gün batımı', dark: 'Gök kararır', sunrise: 'Gün doğumu', noSet: 'Güneş bu gece batmıyor.',
+    moon: 'Ay', lit: '%{p} aydınlık', rises: 'Doğuş {t}', sets: 'Batış {t}', upNow: 'Şu an gökte',
+    phases: ['Yeni Ay', 'Büyüyen hilal', 'İlk dördün', 'Büyüyen şişkin Ay', 'Dolunay', 'Küçülen şişkin Ay', 'Son dördün', 'Küçülen hilal'],
+    planets: 'Gezegenler', best: 'En iyi saat {t}: {dir}, ufkun {alt}° üstü', span: 'Görünür: {a}–{b}', notTonight: 'Bu gece görünmüyor: {why}', nearSun: 'Güneş’e çok yakın', down: 'gece boyunca ufkun altında',
+    stars: 'Şu an tepedeki parlak yıldızlar', starsAt: 'Gök karardıktan sonra ({t}) tepedeki parlak yıldızlar', up: '{dir}, ufkun {alt}° üstü', find: 'Bul',
+    showers: 'Meteor yağmurları', peak: 'En iyi gecesi {date}', rate: 'karanlık gökte saatte yaklaşık {r} meteor', moonThen: 'O gece Ay %{p} aydınlık',
+    source: 'Bu cihazda hesaplanır: gezegenler JPL’nin yörünge öğelerinden, Ay Astronomical Almanac’ın serisinden, bir iki dakika şaşabilir. Meteor yağmurları: American Meteor Society.',
+    tool: 'Aracın tamamını aç', dirs: 'K,KD,D,GD,G,GB,B,KB', dateLoc: 'tr',
+    names: { mercury: 'Merkür', venus: 'Venüs', mars: 'Mars', jupiter: 'Jüpiter', saturn: 'Satürn', moon: 'Ay' },
+    showerNames: { gem: 'Geminid', urs: 'Ursid', qua: 'Kuadrantid', lyr: 'Lirid', eta: 'Eta Akuarid', sda: 'Güney Delta Akuarid', per: 'Perseid', ori: 'Orionid' } },
+  de: { title: 'Heute Nacht', lede: 'Was heute Nacht dort am Himmel steht, wo Sie sind, auf diesem Gerät berechnet aus den Bahnen der Planeten und des Mondes.',
+    ask: 'Um zu sagen, wann etwas auf- und untergeht, braucht die Seite Ihren ungefähren Ort. Er bleibt auf diesem Gerät.', askBtn: 'Meinen Standort verwenden',
+    noPlace: 'Ohne Ihren Ort lassen sich die Zeiten nicht berechnen. Mond und Meteorströme stehen trotzdem unten.',
+    sun: 'Die Sonne', sunset: 'Untergang', dark: 'Dunkler Himmel', sunrise: 'Aufgang', noSet: 'Die Sonne geht heute Nacht nicht unter.',
+    moon: 'Der Mond', lit: '{p} % beleuchtet', rises: 'Aufgang {t}', sets: 'Untergang {t}', upNow: 'Jetzt am Himmel',
+    phases: ['Neumond', 'Zunehmende Sichel', 'Erstes Viertel', 'Zunehmender Mond', 'Vollmond', 'Abnehmender Mond', 'Letztes Viertel', 'Abnehmende Sichel'],
+    planets: 'Planeten', best: 'Am besten um {t}: {dir}, {alt}° hoch', span: 'Sichtbar {a}–{b}', notTonight: 'Heute Nacht nicht: {why}', nearSun: 'zu nah an der Sonne', down: 'die ganze Nacht unter dem Horizont',
+    stars: 'Helle Sterne, jetzt', starsAt: 'Helle Sterne um {t}', up: '{dir}, {alt}° hoch', find: 'Finden',
+    showers: 'Meteorströme', peak: 'Beste Nacht {date}', rate: 'etwa {r} pro Stunde bei dunklem Himmel', moonThen: 'Mond in dieser Nacht {p} % beleuchtet',
+    source: 'Auf diesem Gerät berechnet: die Planeten aus den Bahnelementen des JPL, der Mond aus der Reihe des Astronomical Almanac, auf ein, zwei Minuten genau. Meteorströme: American Meteor Society.',
+    tool: 'Das ganze Werkzeug öffnen', dirs: 'N,NO,O,SO,S,SW,W,NW', dateLoc: 'de',
+    names: { mercury: 'Merkur', venus: 'Venus', mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturn', moon: 'Mond' },
+    showerNames: { gem: 'Geminiden', urs: 'Ursiden', qua: 'Quadrantiden', lyr: 'Lyriden', eta: 'Eta-Aquariiden', sda: 'Südliche Delta-Aquariiden', per: 'Perseiden', ori: 'Orioniden' } },
+  fr: { title: 'Cette nuit', lede: 'Ce que montre le ciel cette nuit là où vous êtes, calculé sur cet appareil à partir des orbites des planètes et de la Lune.',
+    ask: 'Pour dire quand les astres se lèvent et se couchent, la page doit savoir à peu près où vous êtes. Votre position reste sur cet appareil.', askBtn: 'Utiliser ma position',
+    noPlace: 'Sans votre position, les heures ne peuvent pas être calculées. La Lune et les étoiles filantes sont tout de même ci-dessous.',
+    sun: 'Le Soleil', sunset: 'Coucher', dark: 'Ciel noir', sunrise: 'Lever', noSet: 'Le Soleil ne se couche pas cette nuit.',
+    moon: 'La Lune', lit: 'éclairée à {p} %', rises: 'Lever {t}', sets: 'Coucher {t}', upNow: 'Dans le ciel maintenant',
+    phases: ['Nouvelle Lune', 'Premier croissant', 'Premier quartier', 'Gibbeuse croissante', 'Pleine Lune', 'Gibbeuse décroissante', 'Dernier quartier', 'Dernier croissant'],
+    planets: 'Planètes', best: 'Au mieux à {t} : {dir}, {alt}° de hauteur', span: 'Visible {a}–{b}', notTonight: 'Pas cette nuit : {why}', nearSun: 'trop près du Soleil', down: 'sous l’horizon toute la nuit',
+    stars: 'Étoiles brillantes, maintenant', starsAt: 'Étoiles brillantes à {t}', up: '{dir}, {alt}° de hauteur', find: 'Trouver',
+    showers: 'Étoiles filantes', peak: 'Meilleure nuit {date}', rate: 'environ {r} par heure sous un ciel noir', moonThen: 'Lune éclairée à {p} % cette nuit-là',
+    source: 'Calculé sur cet appareil : les planètes d’après les éléments orbitaux du JPL, la Lune d’après la série de l’Astronomical Almanac, à une ou deux minutes près. Étoiles filantes : American Meteor Society.',
+    tool: 'Ouvrir l’outil complet', dirs: 'N,NE,E,SE,S,SO,O,NO', dateLoc: 'fr',
+    names: { mercury: 'Mercure', venus: 'Vénus', mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturne', moon: 'Lune' },
+    showerNames: { gem: 'Géminides', urs: 'Ursides', qua: 'Quadrantides', lyr: 'Lyrides', eta: 'Êta Aquarides', sda: 'Delta Aquarides du Sud', per: 'Perséides', ori: 'Orionides' } },
+  pl: { title: 'Dziś w nocy', lede: 'Co jest dziś w nocy na niebie tam, gdzie jesteś, obliczone na tym urządzeniu z orbit planet i Księżyca.',
+    ask: 'Aby podać, kiedy co wschodzi i zachodzi, strona musi znać twoje przybliżone położenie. Zostaje ono na tym urządzeniu.', askBtn: 'Użyj mojej lokalizacji',
+    noPlace: 'Bez położenia nie da się obliczyć godzin. Księżyc i roje meteorów są poniżej mimo to.',
+    sun: 'Słońce', sunset: 'Zachód', dark: 'Ciemne niebo', sunrise: 'Wschód', noSet: 'Słońce tej nocy nie zachodzi.',
+    moon: 'Księżyc', lit: 'oświetlony w {p}%', rises: 'Wschód {t}', sets: 'Zachód {t}', upNow: 'Teraz na niebie',
+    phases: ['Nów', 'Przybywający sierp', 'Pierwsza kwadra', 'Przybywający garb', 'Pełnia', 'Ubywający garb', 'Ostatnia kwadra', 'Ubywający sierp'],
+    planets: 'Planety', best: 'Najlepiej o {t}: {dir}, {alt}° nad horyzontem', span: 'Widoczna {a}–{b}', notTonight: 'Nie tej nocy: {why}', nearSun: 'zbyt blisko Słońca', down: 'całą noc pod horyzontem',
+    stars: 'Jasne gwiazdy teraz', starsAt: 'Jasne gwiazdy o {t}', up: '{dir}, {alt}° nad horyzontem', find: 'Znajdź',
+    showers: 'Roje meteorów', peak: 'Najlepsza noc {date}', rate: 'około {r} na godzinę przy ciemnym niebie', moonThen: 'Księżyc tej nocy oświetlony w {p}%',
+    source: 'Obliczone na tym urządzeniu: planety z elementów orbit JPL, Księżyc z szeregu Astronomical Almanac, z dokładnością do minuty, dwóch. Roje meteorów: American Meteor Society.',
+    tool: 'Otwórz całe narzędzie', dirs: 'N,NE,E,SE,S,SW,W,NW', dateLoc: 'pl',
+    names: { mercury: 'Merkury', venus: 'Wenus', mars: 'Mars', jupiter: 'Jowisz', saturn: 'Saturn', moon: 'Księżyc' },
+    showerNames: { gem: 'Geminidy', urs: 'Ursydy', qua: 'Kwadrantydy', lyr: 'Lirydy', eta: 'Eta Akwarydy', sda: 'Południowe Delta Akwarydy', per: 'Perseidy', ori: 'Orionidy' } },
+  es: { title: 'Esta noche', lede: 'Lo que hay en el cielo esta noche donde estás, calculado en este dispositivo a partir de las órbitas de los planetas y de la Luna.',
+    ask: 'Para decir cuándo sale y se pone cada cosa, la página necesita saber más o menos dónde estás. Tu ubicación se queda en este dispositivo.', askBtn: 'Usar mi ubicación',
+    noPlace: 'Sin tu ubicación no se pueden calcular las horas. La Luna y las lluvias de estrellas están abajo de todos modos.',
+    sun: 'El Sol', sunset: 'Puesta', dark: 'Cielo oscuro', sunrise: 'Salida', noSet: 'El Sol no se pone esta noche.',
+    moon: 'La Luna', lit: 'iluminada al {p} %', rises: 'Sale {t}', sets: 'Se pone {t}', upNow: 'En el cielo ahora',
+    phases: ['Luna nueva', 'Creciente', 'Cuarto creciente', 'Gibosa creciente', 'Luna llena', 'Gibosa menguante', 'Cuarto menguante', 'Menguante'],
+    planets: 'Planetas', best: 'Mejor a las {t}: {dir}, {alt}° de altura', span: 'Visible {a}–{b}', notTonight: 'Esta noche no: {why}', nearSun: 'demasiado cerca del Sol', down: 'bajo el horizonte toda la noche',
+    stars: 'Estrellas brillantes ahora', starsAt: 'Estrellas brillantes a las {t}', up: '{dir}, {alt}° de altura', find: 'Buscar',
+    showers: 'Lluvias de estrellas', peak: 'Mejor noche {date}', rate: 'unas {r} por hora con cielo oscuro', moonThen: 'Luna iluminada al {p} % esa noche',
+    source: 'Calculado en este dispositivo: los planetas con los elementos orbitales del JPL, la Luna con la serie del Astronomical Almanac, con uno o dos minutos de error. Lluvias de estrellas: American Meteor Society.',
+    tool: 'Abrir la herramienta completa', dirs: 'N,NE,E,SE,S,SO,O,NO', dateLoc: 'es',
+    names: { mercury: 'Mercurio', venus: 'Venus', mars: 'Marte', jupiter: 'Júpiter', saturn: 'Saturno', moon: 'Luna' },
+    showerNames: { gem: 'Gemínidas', urs: 'Úrsidas', qua: 'Cuadrántidas', lyr: 'Líridas', eta: 'Eta Acuáridas', sda: 'Delta Acuáridas del Sur', per: 'Perseidas', ori: 'Oriónidas' } },
+};
+// The best night of each meteor shower (the evening's date) and the hourly rate under a dark sky where the American
+// Meteor Society gives one (amsmeteors.org/calendar and /meteor-showers/major-meteor-showers, read 25 November 2026).
+// To be carried on from that calendar once the last of these has passed.
+const SHOWERS = [['gem', 2026, 12, 13, '60–70'], ['urs', 2026, 12, 21, '5–10'], ['qua', 2027, 1, 3, '25'], ['lyr', 2027, 4, 21, ''],
+  ['eta', 2027, 5, 5, '10–30'], ['sda', 2027, 7, 30, ''], ['per', 2027, 8, 12, '30–50'], ['ori', 2027, 10, 21, '10–20']];
+const PLANETS = ['venus', 'jupiter', 'mars', 'saturn', 'mercury'];          // in the order of how bright they usually are
+
+const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
+let lang = q.get('lang');
+try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }
+try { if (q.get('lang') && STR[q.get('lang')]) localStorage.setItem('chrono-lang', q.get('lang')); } catch { /* private mode */ }
+if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
+const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+document.documentElement.lang = lang; document.title = `${T.title} · ChronosphereX`;
+$('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
+for (const [id, k] of [['title', 'title'], ['lede', 'lede'], ['askwords', 'ask'], ['askbtn', 'askBtn'], ['noplace', 'noPlace'], ['suntitle', 'sun'], ['moontitle', 'moon'], ['planetstitle', 'planets'], ['showerstitle', 'showers'], ['source', 'source'], ['tool', 'tool']]) $(id).textContent = T[k];
+$('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?lang=${lang}`;
+
+const RAD = Math.PI / 180, MIN = 60000, HOUR = 3600000;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clock = new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' }), hm = t => clock.format(new Date(t));
+const dirOf = az => T.dirs.split(',')[Math.round(az / 45) % 8];
+// a phone that can be held up to the sky (the same test as js/point.js): then each thing has a button that finds it there
+const canPoint = window.matchMedia('(pointer: coarse)').matches && ('ondeviceorientationabsolute' in window || typeof window.DeviceOrientationEvent?.requestPermission === 'function');
+const findLink = name => canPoint ? `<a class="btn find" href="./?point=1&find=${encodeURIComponent(name)}&lang=${lang}">${esc(T.find)}</a>` : '';
+
+/** Height above the horizon and compass bearing of a place in the sky (J2000 degrees) at a moment, from a place on Earth.
+ *  The place is first carried to the equator of the date (the Earth's axis has turned 0.36 degrees since 2000: a minute and a half). */
+let P = precession(Date.now());
+function altAz(ra0, dec0, ms, lat, lon) {
+  const x0 = Math.cos(dec0 * RAD) * Math.cos(ra0 * RAD), y0 = Math.cos(dec0 * RAD) * Math.sin(ra0 * RAD), z0 = Math.sin(dec0 * RAD);
+  const x = P[0] * x0 + P[1] * y0 + P[2] * z0, y = P[3] * x0 + P[4] * y0 + P[5] * z0, z = P[6] * x0 + P[7] * y0 + P[8] * z0;
+  const ra = Math.atan2(y, x) / RAD, dec = Math.asin(Math.max(-1, Math.min(1, z))) / RAD;
+  const h = (gmst(ms) + lon - ra) * RAD, d = dec * RAD, f = lat * RAD;
+  const alt = Math.asin(Math.sin(d) * Math.sin(f) + Math.cos(d) * Math.cos(f) * Math.cos(h));
+  const az = Math.atan2(-Math.cos(d) * Math.sin(h), Math.sin(d) * Math.cos(f) - Math.cos(d) * Math.sin(f) * Math.cos(h));
+  return { alt: alt / RAD, az: (az / RAD + 360) % 360 };
+}
+/** When a height (degrees, a function of time) passes `level` between two moments: [{ t, up }], to a second or so. */
+function crossings(height, from, to, level, step = 6 * MIN) {
+  const out = []; let a0 = height(from) - level;
+  for (let t = from + step; t <= to; t += step) {
+    const a = height(t) - level;
+    if ((a0 < 0) !== (a < 0)) {
+      let lo = t - step, hi = t;
+      for (let i = 0; i < 14; i++) { const mid = (lo + hi) / 2; if ((height(mid) - level < 0) === (a0 < 0)) lo = mid; else hi = mid; }
+      out.push({ t: (lo + hi) / 2, up: a > 0 });
+    }
+    a0 = a;
+  }
+  return out;
+}
+/** The Moon's lit part as a picture: lit on the right while it grows, as seen from the north; the other way round in the south. */
+function moonPicture(lit, growing, south) {
+  const r = 48, rx = r * Math.abs(1 - 2 * lit), right = growing !== south;
+  const lit_ = `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx.toFixed(2)},${r} 0 0 ${lit > 0.5 ? 1 : 0} 0,${-r} Z`;
+  return `<circle r="${r}" fill="#26221e"/><path d="${lit_}" fill="#efe6d2"${right ? '' : ' transform="scale(-1,1)"'}/><circle r="${r}" fill="none" stroke="#3a342e"/>`;
+}
+const phaseName = (lit, growing) => T.phases[lit < 0.03 ? 0 : lit > 0.97 ? 4 : lit < 0.42 ? (growing ? 1 : 7) : lit <= 0.58 ? (growing ? 2 : 6) : (growing ? 3 : 5)];
+
+let sky = null;
+fetch('data/sky.json').then(r => r.json()).then(d => { sky = d; render(); }).catch(() => null);
+let here = null;
+try { const k = JSON.parse(localStorage.getItem('chrono-place')); if (k && Number.isFinite(k.lat) && Number.isFinite(k.lon)) here = k; } catch { /* private mode */ }
+
+function render() {
+  const now = Date.now(), today = new Date(now);
+  P = precession(now);
+  $('when').textContent = new Intl.DateTimeFormat(lang, { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
+  // ---- the Moon: its phase needs no place; its rising and setting do
+  const m = moon(now, here?.lat ?? null, here?.lon ?? null), growing = moon(now + 12 * HOUR).lit > m.lit;
+  $('moonpic').innerHTML = moonPicture(m.lit, growing, (here?.lat ?? 40) < 0);
+  $('moonphase').textContent = phaseName(m.lit, growing);
+  $('moonlit').textContent = fill(T.lit, { p: Math.round(m.lit * 100) });
+  // ---- the meteor showers: the next two
+  const next = SHOWERS.filter(([, y, mo, d]) => new Date(y, mo - 1, d + 1, 9) > today).slice(0, 2);
+  const dm = new Intl.DateTimeFormat(T.dateLoc, { day: 'numeric', month: 'long' });
+  $('showerrows').innerHTML = next.map(([id, y, mo, d, rate]) => {
+    const lit = moon(new Date(y, mo - 1, d, 23).getTime()).lit;
+    const words = [fill(T.peak, { date: `${d}–${dm.format(new Date(y, mo - 1, d + 1))}` }), rate ? fill(T.rate, { r: rate }) : '', fill(T.moonThen, { p: Math.round(lit * 100) })].filter(Boolean);
+    return `<div class="row"><div class="what"><b>${esc(T.showerNames[id])}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div></div>`;
+  }).join('');
+  $('showers').hidden = !next.length;
+  if (!here) { $('ask').hidden = false; $('sun').hidden = $('planets').hidden = $('stars').hidden = true; $('moontimes').textContent = ''; $('moonfind').hidden = true; return; }
+  $('ask').hidden = true;
+  const { lat, lon } = here;
+  const sunH = t => { const s = planet('sun', t); return altAz(s.ra, s.dec, t, lat, lon).alt; };
+  const from = now - 16 * HOUR, to = now + 34 * HOUR;
+  const sets = crossings(sunH, from, to, -0.833), civil = crossings(sunH, from, to, -6), naut = crossings(sunH, from, to, -12);
+  // Tonight: the night going on now (the Sun down and not yet climbing towards the morning), or else the next one.
+  // In the morning's twilight the night is over: tonight is the coming one.
+  const h0 = sunH(now), climbing = sunH(now + 10 * MIN) > h0;
+  const inNight = h0 < -6 || (h0 < -0.833 && !climbing), darkNow = inNight && h0 < -6;
+  const nightStart = inNight ? [...sets].reverse().find(e => !e.up && e.t <= now) : sets.find(e => !e.up && e.t > now);
+  const after = nightStart ? nightStart.t : now;
+  const rise = sets.find(e => e.up && e.t > Math.max(after, now));
+  const dusk = darkNow ? { t: now } : civil.find(e => !e.up && e.t > after - 1), dawn = civil.find(e => e.up && e.t > Math.max(after, now));
+  const darkSky = naut.find(e => !e.up && e.t > after - 1);
+  $('sun').hidden = false;
+  $('suntimes').innerHTML = nightStart || rise
+    ? [[T.sunset, nightStart], [T.dark, darkSky], [T.sunrise, rise]].map(([w, e]) => `<div><b>${e ? hm(e.t) : '—'}</b><span>${esc(w)}</span></div>`).join('')
+    : `<div style="grid-column:1/-1"><span>${esc(T.noSet)}</span></div>`;
+  // ---- the Moon's rising and setting, the next of each
+  const moonH = t => { const o = moon(t, lat, lon); return altAz(o.ra, o.dec, t, lat, lon).alt; };
+  const mEvents = crossings(moonH, now, now + 30 * HOUR, -0.833, 10 * MIN);
+  const mRise = mEvents.find(e => e.up), mSet = mEvents.find(e => !e.up), upNow = moonH(now) > 0;
+  $('moontimes').textContent = [upNow ? T.upNow : '', mRise ? fill(T.rises, { t: hm(mRise.t) }) : '', mSet ? fill(T.sets, { t: hm(mSet.t) }) : ''].filter(Boolean).join(' · ');
+  $('moonfind').outerHTML = findLink(T.names.moon).replace('class="btn find"', 'class="btn find" id="moonfind"') || '<a id="moonfind" hidden></a>';
+  // ---- the planets: seen while the Sun is 6 degrees or more below the horizon, and the planet 5 degrees or more above it
+  const win = dusk && dawn && dawn.t > dusk.t ? { from: dusk.t, to: dawn.t } : null;
+  $('planets').hidden = !win;
+  if (win) {
+    const rows = PLANETS.map(id => {
+      let best = null, first = null, last = null;
+      for (let t = win.from, last_ = false; !last_; t = Math.min(t + 10 * MIN, win.to)) {          // every ten minutes, and the night's very end (a planet rising before dawn is best then)
+        last_ = t >= win.to;
+        const p = planet(id, t), a = altAz(p.ra, p.dec, t, lat, lon);
+        if (a.alt > 5) { first ??= t; last = t; if (!best || a.alt > best.alt) best = { t, ...a }; }
+      }
+      const name = T.names[id];
+      if (!best) {
+        const p = planet(id, win.from), s = planet('sun', win.from);
+        const apart = Math.acos(Math.sin(p.dec * RAD) * Math.sin(s.dec * RAD) + Math.cos(p.dec * RAD) * Math.cos(s.dec * RAD) * Math.cos((p.ra - s.ra) * RAD)) / RAD;
+        return { up: false, html: `<div class="row off"><i class="dot" style="background:var(--ink-3)"></i><div class="what"><b>${esc(name)}</b><span>${esc(fill(T.notTonight, { why: apart < 25 ? T.nearSun : T.down }))}</span></div></div>` };
+      }
+      const words = [fill(T.best, { t: hm(best.t), dir: dirOf(best.az), alt: Math.round(best.alt) }), fill(T.span, { a: hm(first), b: hm(last) })];
+      return { up: true, html: `<div class="row"><i class="dot"></i><div class="what"><b>${esc(name)}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div>${findLink(name)}</div>` };
+    });
+    $('planetrows').innerHTML = [...rows.filter(r => r.up), ...rows.filter(r => !r.up)].map(r => r.html).join('');
+  }
+  // ---- the brightest named stars above 15 degrees: now if it is dark, otherwise half an hour into the dark
+  if (sky) {
+    const at = darkNow && h0 < -12 ? now : darkSky ? Math.max(darkSky.t + 30 * MIN, now) : null;
+    $('stars').hidden = !at;
+    if (at) {
+      $('starstitle').textContent = at === now ? T.stars : fill(T.starsAt, { t: hm(at) });
+      const list = sky.stars.map(([name, ra, dec, v]) => ({ name, v, ...altAz(ra, dec, at, lat, lon) })).filter(s => s.alt > 15).sort((a, b) => a.v - b.v).slice(0, 8);
+      $('starrows').innerHTML = list.map(s => `<div class="row"><i class="dot" style="background:var(--ink)"></i><div class="what"><b>${esc(s.name)}</b><span>${esc(fill(T.up, { dir: dirOf(s.az), alt: Math.round(s.alt) }))}</span></div>${findLink(s.name)}</div>`).join('');
+    }
+  }
+}
+render();
+$('askbtn').onclick = async () => {
+  $('askbtn').disabled = true;
+  const p = await place().catch(() => null);
+  $('askbtn').disabled = false;
+  if (p) { here = p; render(); } else $('noplace').hidden = false;
+};
+if (here) place().then(p => { if (p && (p.lat !== here.lat || p.lon !== here.lon)) { here = p; render(); } }).catch(() => null);          // the kept place, looked up again behind the scenes
+setInterval(render, 5 * MIN);          // the times move on, and the night with them
+</script>
+</body>
+</html>

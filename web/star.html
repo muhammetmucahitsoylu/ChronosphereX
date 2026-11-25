@@ -190,6 +190,7 @@ const STR = {
 const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
 let lang = q.get('lang');
 try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }          // the language picked on the main page
+try { if (q.get('lang') && STR[q.get('lang')]) localStorage.setItem('chrono-lang', q.get('lang')); } catch { /* private mode */ }          // a language in the address is a choice, as on the main page (the app's first start from a shortcut brings one)
 if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
 const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 const num = (x, n = 1) => x.toFixed(n).replace('.', T.dec);
