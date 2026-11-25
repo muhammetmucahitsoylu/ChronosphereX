@@ -2843,7 +2843,7 @@ cv.addEventListener('pointerdown', e => {
   if (!S.grid) return;
   cv.setPointerCapture(e.pointerId);
   ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY, x0: e.offsetX, y0: e.offsetY, moved: false });
-  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) }; }
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) }; a.moved = b.moved = true; }          // two fingers zoom: neither is a tap, even one that never moved
 });
 cv.addEventListener('pointermove', e => {
   if (!S.grid) return;

@@ -524,9 +524,22 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
   // browser makes of it. The first has done its work by then (a dive into a wide view has already changed the
   // view's width), so the second would open whatever lies under the finger. One press, one click.
   let clickedAt = -1e9;
+  // Two fingers that zoom the map are no press, yet the library reports one as they lift (the finger that leaves last
+  // reads to it as a tap). A touch that ever held two fingers presses nothing, until every finger is up and a moment
+  // after. The page sees a finger lift (pointerup) before the library does (touchend).
+  const fingers = new Set(); let quietUntil = 0;
+  host.addEventListener('pointerdown', e => {
+    if (e.isPrimary) { fingers.clear(); if (quietUntil === Infinity) quietUntil = 0; }          // a new touch: nothing left over from the last one
+    fingers.add(e.pointerId);
+    if (fingers.size > 1) quietUntil = Infinity;
+  }, { capture: true, passive: true });
+  for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, e => {
+    if (fingers.delete(e.pointerId) && !fingers.size && quietUntil === Infinity) quietUntil = performance.now() + 400;
+  }, { capture: true, passive: true });
   al.on('click', e => {
     if (!e || e.isDragging || !onClick) return;
     const now = performance.now();
+    if (now < quietUntil) return;
     if (now - clickedAt < 350) return;
     clickedAt = now;
     onClick(e.ra, e.dec, al.getFov()[0]);
