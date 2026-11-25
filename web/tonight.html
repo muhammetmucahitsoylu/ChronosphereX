@@ -53,6 +53,7 @@
   .moon .what { flex: 1; min-width: 0; }
   .moon .what b { display: block; font: 400 24px/1.15 var(--serif); }
   .moon .what span { display: block; color: var(--ink-2); font-size: 14px; }
+  #moontimes { white-space: pre-line; }
   button, .btn { font: 600 14px var(--sans); border-radius: 999px; padding: 8px 16px; min-height: 40px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .btn.find { border-color: var(--ember); color: var(--ember); }
   .btn[aria-pressed=true] { border-color: #f2c14e66; color: var(--gold); }
@@ -293,8 +294,9 @@ function render() {
   const moonH = t => { const o = moon(t, lat, lon); return altAz(o.ra, o.dec, t, lat, lon).alt; };
   const mEvents = crossings(moonH, now, now + 30 * HOUR, -0.833, 10 * MIN);
   const mRise = mEvents.find(e => e.up), mSet = mEvents.find(e => !e.up), upNow = moonH(now) > 0;
-  // each part on one line ("Se pone 9:57", "Untergang 9:57", "Rises 5:50 PM"): a line may break only at the dots between them
-  $('moontimes').textContent = [upNow ? T.upNow : '', mRise ? fill(T.rises, { t: hm(mRise.t) }) : '', mSet ? fill(T.sets, { t: hm(mSet.t) }) : ''].filter(Boolean).map(s => s.replace(/ /g, ' ')).join(' · ');
+  // each part on a line of its own, kept whole ("Se pone 9:57", "Untergang 9:57", "Rises 5:50 PM"): the column is narrow,
+  // and parts joined by dots broke apart, leaving a dot alone on a line in German
+  $('moontimes').textContent = [upNow ? T.upNow : '', mRise ? fill(T.rises, { t: hm(mRise.t) }) : '', mSet ? fill(T.sets, { t: hm(mSet.t) }) : ''].filter(Boolean).map(s => s.replace(/ /g, ' ')).join('\n');
   $('moonfind').outerHTML = findLink(T.names.moon).replace('class="btn find"', 'class="btn find" id="moonfind"') || '<a id="moonfind" hidden></a>';
   // ---- the planets: seen while the Sun is 6 degrees or more below the horizon, and the planet 5 degrees or more above it
   const win = dusk && dawn && dawn.t > dusk.t ? { from: dusk.t, to: dawn.t } : null;
