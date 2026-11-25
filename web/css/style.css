@@ -841,7 +841,7 @@ body.embed .panel { display: block !important; border: 0; }
 :root { --edge-b: env(safe-area-inset-bottom, 0px); }
 html.in-app { --edge-b: var(--sab, 0px); }
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
-  .top, .layerpick, .zoom, .pointbtn, .nightbtn, .mapnote { translate: 0 var(--sat, 0px); }
+  .top, .layerpick, .zoom, .pointbtn, .nightbtn, .seebtn, .mapnote { translate: 0 var(--sat, 0px); }
   .app[data-panel=closed] .mapwrap { height: calc(100vh - var(--tabs, 0px)); height: calc(100dvh - var(--tabs, 0px)); }
   html.in-app .app[data-panel=open] .mapstage { height: calc(34vh + var(--sat, 0px)); height: calc(34dvh + var(--sat, 0px)); min-height: calc(230px + var(--sat, 0px)); }
   html.in-app body.touring .app .mapstage { height: calc(var(--tourmap) + var(--sat, 0px)); }
@@ -858,17 +858,22 @@ html.in-app { --edge-b: var(--sab, 0px); }
 .nightbtn { display: none; top: 212px; right: 12px; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); background: #0a0908cc; color: var(--ink); }
 body.pointing .nightbtn { display: flex; }
 .nightbtn[aria-pressed=true] { background: #8f1d14; border-color: #8f1d14; color: #fff; }
+.seebtn { display: none; top: 260px; right: 12px; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); background: #0a0908cc; color: var(--ink); }
+body.pointing .seebtn { display: flex; }
+.seebtn[aria-pressed=true] { background: var(--ink); border-color: var(--ink); color: #0a0908; }          /* the eye's sky is on */
 .navnight { display: none; }
 @media (max-width: 900px), (orientation: landscape) and (max-height: 500px) and (max-width: 1100px) {
   .nightbtn { top: 152px; right: 10px; width: 40px; height: 40px; }
+  .seebtn { top: 200px; right: 10px; width: 40px; height: 40px; }
   .navlinks .navnight { display: block; width: 100%; text-align: left; padding: 11px 12px; font: inherit; font-size: 15px; color: var(--ink); min-height: 44px; background: none; border: 0; border-radius: 8px; cursor: pointer; }
   .navlinks .navnight[aria-pressed=true]::after { content: ' ●'; color: #e0352b; }
 }
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
-  body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom { top: 200px; }          /* under the night button */
+  body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom { top: 248px; }          /* under the night button and the eye's */
 }
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
   .nightbtn { top: 56px; right: 58px; }          /* left of the zoom buttons */
+  .seebtn { top: 104px; right: 58px; }
 }
 
 /* ---------- looking for something while the phone is held up to the sky ----------

@@ -3508,6 +3508,8 @@ function pointOpen(thing) {
   search(thing.query, thing.name, 2.2).then(() => { if (S.called === thing.name) note(T('point.bright', { name: thing.name }), 12000); });
 }
 async function pointStart() {
+  if (pointOn()) return;
+  for (let i = 0; i < 75 && !Sky.isReady(); i++) await nap(200);          // pressed while the map is still starting (the app's bar is there at once): it waits for the map
   if (pointOn() || !Sky.isReady()) return;
   closeMenu();
   await Point.allow();          // where the browser asks first, it asks now; whether the compass really answers shows below, when it is listened to
@@ -3586,7 +3588,7 @@ async function pointStart() {
   $('q').placeholder = T('find.placeholder');
   $('suggest').innerHTML = [...new Set(all.filter(t => t.kind !== 'target').map(t => t.name))].map(n => `<option value="${esc(n)}">`).join('');
   if (findLater) { const w = findLater; findLater = ''; pointFind(w); }
-  else if (!findHinted) { findHinted = true; setTimeout(() => { if (pointOn() && !found && $('mapnote').textContent === pointSaid) note(pointSaid = T('find.hint'), 9000); }, 8500); }
+  else if (!findHinted) { findHinted = true; setTimeout(() => { if (pointOn() && !found && $('mapnote').textContent === T('point.on')) note(pointSaid = T('find.hint'), 9000); }, 8500); }          // takes the place of the first words only, never of what a press just said
   layer.onclick = e => {
     const thing = shown.find(s => s.el === e.target)?.thing;
     if (!thing) return;
@@ -3707,6 +3709,11 @@ const nightOn = () => document.documentElement.classList.contains('night');
 const nightSync = () => { for (const id of ['nightbtn', 'nightlink']) $(id).setAttribute('aria-pressed', String(nightOn())); };
 const nightFlip = () => { window.__chronoNight?.(!nightOn()); nightSync(); if (nightOn()) note(T('night.on'), 7000); else if (pointOn()) note(pointSaid, 4000); };
 $('nightbtn').onclick = nightFlip;
+// While the phone is held up: one press between what the eye sees (the Digitized Sky Survey, visible light) and what
+// SPHEREx sees (infrared, whose light passes through the dust that hides stars from the eye). The map chooser follows.
+const seeSync = () => $('seebtn').setAttribute('aria-pressed', String($('layer').value === 'dss'));
+$('seebtn').onclick = () => { const eye = $('layer').value !== 'dss'; setLayer(eye ? 'dss' : 'spherex'); seeSync(); note(pointSaid = T(eye ? 'see.eye' : 'see.ir'), 7000); };
+$('layer').addEventListener('change', seeSync);
 $('nightlink').onclick = () => { closeMenu(); nightFlip(); };
 nightSync();
 if (Point.able()) { document.body.classList.add('canpoint'); $('pointbtn').hidden = $('pointbtn2').hidden = false; }

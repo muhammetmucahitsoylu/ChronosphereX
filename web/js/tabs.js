@@ -75,7 +75,7 @@
       // the map's page: what the bar of places offers is not offered again. The opening has the tour instead of the
       // bar's two places, and the round button that points the map where the phone looks gives its corner to the next
       'html.in-app #pointbtn2,html.in-app #starlink,html.in-app .pointbtn{display:none!important}html.in-app #tourbtn2{display:inline-flex!important}' +
-      'html.in-app body.canpoint:not(.touring) .app[data-panel=closed] .zoom{top:104px}html.in-app body.pointing .nightbtn{top:104px}html.in-app body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom{top:152px}' +
+      'html.in-app body.canpoint:not(.touring) .app[data-panel=closed] .zoom{top:104px}html.in-app body.pointing .nightbtn{top:104px}html.in-app body.pointing .seebtn{top:152px}html.in-app body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom{top:200px}' +
       'html.in-app .wrap{padding-top:calc(18px + var(--sat,0px))}' +
     '}' +
     // from one place to the next the new page fades in over the old one and the bar stays where it is (an engine
