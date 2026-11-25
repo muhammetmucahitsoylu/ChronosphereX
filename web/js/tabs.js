@@ -35,7 +35,7 @@
   var lang = q.get('lang');
   try { lang = lang || localStorage.getItem('chrono-lang'); } catch (e) { /* private mode */ }
   var WORDS = {          // the sky, tonight, the phone held up, the star of a year, today's star
-    en: ['Sky', 'Tonight', 'Point', 'Your year', 'Today’s star'], tr: ['Gökyüzü', 'Bu gece', 'Göğe tut', 'Yılın yıldızı', 'Günün yıldızı'], de: ['Himmel', 'Heute Nacht', 'Zeigen', 'Dein Jahr', 'Stern des Tages'],
+    en: ['Sky', 'Tonight', 'Point', 'Your year', 'Today’s star'], tr: ['Gökyüzü', 'Bu gece', 'Göğe tut', 'Yılın yıldızı', 'Günün yıldızı'], de: ['Himmel', 'Heute Nacht', 'Ausrichten', 'Dein Jahr', 'Stern des Tages'],
     fr: ['Ciel', 'Cette nuit', 'Viser', 'Votre année', 'Étoile du jour'], pl: ['Niebo', 'Dziś w nocy', 'Wskaż', 'Twój rok', 'Gwiazda dnia'], es: ['Cielo', 'Esta noche', 'Apuntar', 'Tu año', 'Estrella de hoy'],
   };
   if (!WORDS[lang]) lang = page === 'sky' ? '' : ((navigator.languages || [navigator.language || 'en']).map(function (l) { return l.slice(0, 2).toLowerCase(); }).filter(function (l) { return WORDS[l]; })[0] || '');
