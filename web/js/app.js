@@ -3507,10 +3507,13 @@ function pointOpen(thing) {
   S.busyUntil = performance.now() + 9000; Sky.flyTo(thing.ra, thing.dec, 2.2);          // the map goes at once: where the star is, is known; its catalogue entry is asked for meanwhile
   search(thing.query, thing.name, 2.2).then(() => { if (S.called === thing.name) note(T('point.bright', { name: thing.name }), 12000); });
 }
-/** Whether a name on the map of the sky above is written to the left of its dot, because it would run off the right
- *  edge otherwise (long names in some languages: "Kuzey Amerika Bulutsusu"); where it fits on neither side, on the side
- *  where less of it is lost. Width guessed as in choose(): 12 px letters of one width. */
-const nameFlips = (x, name, W) => { const w = 18 + 7.6 * name.length; return Math.max(0, x + w - (W - 6)) > Math.max(0, 6 - (x - w)); };
+/** A name on the map of the sky above: its width on the screen, guessed (12 px letters of one width, with its padding and
+ *  dot), at most NAME_MAX: a longer one ("Nébuleuse de l’Amérique du Nord") wraps onto two lines (.skyname.long in
+ *  style.css, the same width), so that on a phone 360 px wide every name fits on one side of its dot or the other. */
+const NAME_MAX = 172, nameLong = name => 18 + 7.6 * name.length > NAME_MAX, nameWide = name => Math.min(NAME_MAX, 18 + 7.6 * name.length);
+/** Whether such a name is written to the left of its dot, because it would run off the right edge otherwise; where it
+ *  fits on neither side (a narrow screen), on the side where less of it is lost. */
+const nameFlips = (x, name, W) => { const w = nameWide(name); return Math.max(0, x + w - (W - 6)) > Math.max(0, 6 - (x - w)); };
 async function pointStart() {
   if (pointOn()) return;
   for (let i = 0; i < 75 && !Sky.isReady(); i++) await nap(200);          // pressed while the map is still starting (the app's bar is there at once): it waits for the map
@@ -3619,17 +3622,17 @@ async function pointStart() {
     for (const c of inView) { const off = Math.hypot(c.x - W / 2, c.y - H / 2); if (off < aimedOff) { aimedOff = off; aimedAt = c; } }
     const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing === found ? -97 : c.thing.rank);
     inView.sort((a, b) => worth(a) - worth(b));
-    const wide = c => 18 + 7.3 * c.thing.name.length;          // a name's width on the screen, near enough: letters of one width, 12 px
+    const wide = c => nameWide(c.thing.name), tall = c => (nameLong(c.thing.name) ? 24 : 20);          // a name's room on the screen, near enough (two lines of 12 px letters stand 29 px high, one line 12 px)
     const span = c => (nameFlips(c.x, c.thing.name, W) ? [c.x - wide(c), c.x] : [c.x, c.x + wide(c)]);
     const next = [];
     for (const c of inView) {
       if (next.length >= NAMES_SHOWN) break;
-      if (!next.some(n => Math.abs(n.y - c.y) < 20 && span(c)[0] - 6 < span(n)[1] && span(n)[0] - 6 < span(c)[1])) next.push(c);          // no name on top of another
+      if (!next.some(n => Math.abs(n.y - c.y) < (tall(n) + tall(c)) / 2 && span(c)[0] - 6 < span(n)[1] && span(n)[0] - 6 < span(c)[1])) next.push(c);          // no name on top of another
     }
     const free = pool.filter(el => !next.some(n => shown.find(s => s.thing === n.thing)?.el === el));
     shown = next.map(n => {
       const had = shown.find(s => s.thing === n.thing), el = had ? had.el : free.pop();
-      if (!had) { el.textContent = n.thing.name; el.className = `skyname ${n.thing.kind}`; }
+      if (!had) { el.textContent = n.thing.name; el.className = `skyname ${n.thing.kind}${nameLong(n.thing.name) ? ' long' : ''}`; }
       el.hidden = false; el.classList.toggle('found', n.thing === found);
       return { thing: n.thing, el };
     });

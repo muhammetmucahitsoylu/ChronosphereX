@@ -894,6 +894,9 @@ body.pointing .findway:not([hidden]) { display: flex; position: absolute; left: 
 .skyname.flip.deep::before { left: auto; right: -5px; }
 .skyname.flip.target::before { left: auto; right: -6px; }
 .skyname.flip.found::before { left: auto; right: -8px; }
+/* a name wider than about 150 px wraps onto two lines (app.js, NAME_MAX: the same 172 px with the padding) */
+.skyname.long { white-space: normal; width: max-content; max-width: 172px; line-height: 1.2; }
+.skyname.long.flip { text-align: right; }
 
 /* ---------- the constellations' figures while the phone is held up to the sky (drawn by the page's code) ---------- */
 .figures { display: none; }
