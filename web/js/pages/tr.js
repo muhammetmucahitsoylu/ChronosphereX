@@ -18,11 +18,11 @@ export default {
       <div><b>6,15″</b><span>bir pikselin kapladığı gökyüzü parçası</span></div>
     </div>
     <h2>Neden kızılötesi?</h2>
-    <p>Kızılötesi, gözümüzün görebildiğinden daha uzun dalga boylu ışıktır. Soğuk cisimler bu ışıkta parlar: kahverengi cüceler, toz bulutları, ömrünün sonuna yaklaşmış dev yıldızlar. Çok uzak galaksilerin ışığı bize bu dalga boylarına uzamış olarak ulaşır. Su, karbondioksit ve metan gibi moleküllerin her biri kızılötesi ışığı kendine özgü dalga boylarında soğurur; bu yüzden bir cismin kızılötesi renkleri onun neden yapıldığını ele verir.</p>
+    <p>Kızılötesi, gözümüzün görebildiğinden daha uzun dalga boylu ışıktır. Soğuk cisimler bu ışıkta parlar: kahverengi cüceler, toz bulutları, ömrünün sonuna yaklaşmış dev yıldızlar. Çok uzak galaksilerin ışığı bize bu dalga boylarına uzamış olarak ulaşır. Su, karbondioksit ve metan gibi moleküllerin her biri kızılötesi ışığı kendine özgü dalga boylarında soğurur; bu yüzden bir cismin kızılötesi renkleri onun neyden oluştuğunu ele verir.</p>
     <h2>Filtre tekerleği olmadan 102 renk</h2>
     <p>Çoğu kamera bir seferde tek bir renk çeker. SPHEREx ise rengi bir kenarından ötekine yumuşakça değişen filtrelerin ardından bakar. Teleskop gökyüzünde adım adım ilerledikçe her yıldız her pozda filtrenin başka bir yerine düşer ve başka bir renkte kaydedilir.</p>
     ${figure}
-    <p>Bir yıldızın yeterince pozunu toplayınca bütün spektrumu elinizde olur. ChronosphereX’te zamanda ilerlemekle spektrum oluşturmanın aynı iş olması bundandır.</p>
+    <p>Bir yıldızın yeterince pozunu toplayınca bütün spektrumu elinizde olur. ChronosphereX’te zaman çizgisinde ilerlerken spektrumun da oluşması bu yüzden.</p>
     <h2>Ne için yapıldı</h2>
     <ul>
       <li><b>Evrenin ilk anı.</b> 450 milyondan fazla galaksiyi üç boyutlu haritalayarak Büyük Patlama’dan sonraki ilk anda neler olduğuna dair düşünceleri sınar.</li>
@@ -45,12 +45,12 @@ export default {
       <li><b>Hesabı sizin cihazınızda yapma.</b> Parlaklık, üst üste toplama, çıkarma, renkli görüntüler, ölçümler ve grafikler tarayıcınızda hesaplanır; her düğmenin anında yanıt vermesi bundandır.</li>
       <li><b>Ne olduğunu söyleme.</b> SIMBAD kataloğuna o konumda ne bulunduğu sorulur. Kataloglar bir yıldızın 2000 yılında nerede olduğunu saklar; bu yüzden o zamandan beri yer değiştirmiş yakın yıldızlar eşleştirmeden önce bugünün tarihine taşınır.</li>
     </ol>
-    <h2>Sunucu yok, çevrimdışı da çalışır</h2>
+    <h2>Sunucu yok, internet olmadan da çalışır</h2>
     <p>ChronosphereX’in kendi sunucusu yoktur. Sayfa bir dizi sabit dosyadan oluşur; geri kalan her şeyi tarayıcınız doğrudan NASA’nın herkese açık verisinden alır. Yani bizim tarafımızda çalışır durumda tutulacak ya da çökebilecek bir şey yok. Bir kez açtığınız her şey, rehberli turun tamamı da içinde, cihazınıza kaydedilir ve internet olmadan da çalışır.</p>
     <h2>Gördüklerinizi nasıl okumalı</h2>
     <ul>
       <li><b>Gözlemler.</b> SPHEREx gökyüzünün çoğu bölümüne yaklaşık altı ayda bir geri gelir ve her gözlem birkaç günden birkaç haftaya kadar sürer. Her gözlem için üst üste toplanmış tek bir görüntü sırayla gösterilince küçük bir yer değişimi kolayca görülür. Güneş Sistemi düzleminin kutuplarına yakın yerlere neredeyse her yörüngede baktığı için orada görüntüler aylara göre gruplanır.</li>
-      <li><b>Yer değişimi tablosu.</b> Hareket eden bir cisim için her gözlemde ölçülen konum, kataloğun öngördüğüyle karşılaştırılır: gökyüzündeki düzgün hareketi ve en yakın yıldızlar için Dünya’nın kendi yörüngesinden kaynaklanan yıllık salınım. Hareket, cismi gören her dedektörde ayrı ayrı ölçülür ve dedektörler birbiriyle karşılaştırılır.</li>
+      <li><b>Yer değişimi tablosu.</b> Hareket eden bir cisim için her gözlemde ölçülen konum, kataloğun öngördüğüyle karşılaştırılır: gökyüzündeki düzgün hareketi ve en yakın yıldızlar için Dünya’nın yörüngesinden kaynaklanan yıllık paralaks kayması. Hareket, cismi gören her dedektörde ayrı ayrı ölçülür ve dedektörler birbiriyle karşılaştırılır.</li>
       <li><b>Spektrum.</b> Her nokta bir pozdur: dalga boyu ve halka içindeki noktanın o pozdaki parlaklığı. Noktalar gözleme göre renklendirilir.</li>
       <li><b>Molekül bantları.</b> Gölgeli şeritler yaygın moleküllerin ışığı soğurduğu yerleri gösterir. Tablo, orada ne kadar soğurma ölçüldüğünü bildirir.</li>
       <li><b>Komşularıyla karşılaştırma.</b> Parlaklık eğrisinin altında, halka içindeki noktanın gözlemler arasındaki değişimi aynı görüntülerdeki sıradan yıldızlarla karşılaştırılır. Onlar sabit kalmış, nokta kalmamışsa değişim gerçektir, kameranın bir kusuru değildir. Aynısı konumu için de yapılır.</li>
@@ -60,7 +60,7 @@ export default {
     </ul>
     <h2>Size söyleyemeyecekleri</h2>
     <ul>
-      <li>Bir SPHEREx pikseli 6,15 yay saniyesi kaplar. Gökyüzündeki yeri en hızlı değişen yıldız bile yılda iki pikselden az yer değiştirir; bu yüzden hareket, gözlemler arasında küçük bir sıçrama olarak görülür; asla bir çizgi olarak değil.</li>
+      <li>Bir SPHEREx pikseli 6,15 yay saniyesi kaplar. Gökyüzündeki yeri en hızlı değişen yıldız bile yılda iki pikselden az yer değiştirir; bu yüzden hareket, gözlemler arasında küçük bir sıçrama olarak görülür, uzayan bir iz olarak görülmez.</li>
       <li>Ölçümler basit, sabit bir daire kullanır; keşfetmek içindir, bilimsel yayın için değil. Çok parlak yıldızlar dedektörü doyurur; onlarda bunun yerine yıldızın sönük dış ışıması ölçülür ve her dedektör komşusuna eklenir: spektrumun genel biçimi doğrudur, düzeyi ve ince ayrıntısı yaklaşıktır.</li>
       <li>Bir molekülün dalga boyundaki soğurma izi bir ipucudur, kesin bir tespit değil.</li>
       <li>Sıradan yıldızlarda konumlar yay saniyesinin onda birkaçı kadar bir doğrulukla yinelenir; ama kamerayı doyurmaya yakın bir yıldız tek bir gözlemde bir yay saniyesi ya da daha fazla sapabilir.</li>
@@ -77,7 +77,7 @@ export default {
     <ul>
       <li><b>Alanı araç seçsin.</b> “Asteroit bul” düğmesi, numara almış ilk üç bin asteroitten birini rastgele seçer ve SPHEREx bakarken onun geçtiği bir gökyüzü parçasını açar. Aramaya ne hangi asteroit olduğu ne de nerede olduğu söylenir. Arama o parçanın bütün pozlarını, yaklaşık üç yüz pozu okur ve oradan nelerin geçtiğini bildirir. Bu, iki ile dört dakika sürer.</li>
       <li><b>Adıyla isteyin.</b> Arama kutusuna bir ad ya da numara yazın: Ceres, 433 Eros, Plüton, Uranüs, 2P/Encke. Araç yörüngeye bakar, SPHEREx’in o cismi gördüğü günleri bulur ve halka cismin üzerindeyken o gökyüzü parçasını açar.</li>
-      <li><b>Herhangi bir yere bakın.</b> Hangi yeri açarsanız açın, o yerin pozlarında geçen cisimler aranır ve bulunanlar görüntülerin altında listelenir. Cisimlerin çoğu tutulum yakınında, yani gezegenlerin gökyüzünde izlediği kuşakta dolaşır.</li>
+      <li><b>Herhangi bir yere bakın.</b> Hangi yeri açarsanız açın, o yerin pozlarında geçen cisimler aranır ve bulunanlar görüntülerin altında listelenir. Cisimlerin çoğu tutulum (ekliptik) yakınında, yani gezegenlerin gökyüzünde izlediği kuşakta dolaşır.</li>
     </ul>
     <h2>Cisim, görüntü kusurundan nasıl ayırt edilir?</h2>
     <p>Her çekimde SPHEREx durur ve ikişer dakika arayla en çok dört poz alır; altı dedektöründen ikisi de her an gökyüzünün aynı yerine bakar. Bu yüzden bir cisim aynı yerde, birbirinden bağımsız birkaç görüntüde birden görünür; teleskop saatler sonra geri döndüğünde ise orada olmaz. Yıldız her seferinde oradadır. Kozmik ışın izi yalnızca tek bir görüntüde görülür.</p>
@@ -90,7 +90,7 @@ export default {
       <li><b>Saklayabileceğiniz dosyalar.</b> Her dalga boyundaki parlaklığı bir tablo olarak (CSV) ve ölçülen konumları, her pozda uydunun nerede olduğuyla birlikte, Minor Planet Center’ın biçiminde (ADES).</li>
     </ul>
     <h2>Bulduğunuz cisim yeni mi?</h2>
-    <p>Neredeyse kesinlikle hayır; bunu avdan sonra değil, önce bilmek daha iyi. Tek bir SPHEREx pozu yaklaşık 18. kadire kadar olan asteroitleri görür. Her gece yeni asteroit arayan taramalar ise ana kuşağı bundan kat kat sönük cisimlere kadar katalogladı; yani SPHEREx’in görebildikleri çoktan bulundu. Denemelerimizde aramanın bildirdiği her cisim bilinen bir cisimdi.</p>
+    <p>Neredeyse kesinlikle hayır. Bunu avdan önce bilmek daha iyi. Tek bir SPHEREx pozu yaklaşık 18. kadire kadar olan asteroitleri görür. Her gece yeni asteroit arayan taramalar ise ana kuşağı bundan kat kat sönük cisimlere kadar katalogladı; yani SPHEREx’in görebildikleri çoktan bulundu. Denemelerimizde aramanın bildirdiği her cisim bilinen bir cisimdi.</p>
     <p>SkyBoT’un adlandıramadığı bir nokta çoğu zaman bir görüntü kusurudur. Ona inanmadan önce:</p>
     <ol>
       <li><b>İzleyin.</b> Gerçek bir cisim üç ya da daha çok çekimde, düz bir çizgi üzerinde ve değişmeyen bir hızla bulunur.</li>
@@ -106,18 +106,18 @@ export default {
     </ul>
     <p>Amacınız yeni bir asteroit keşfetmekse: NASA’nın Uluslararası Astronomik Arama İş Birliği (IASC), gönüllülere Pan-STARRS teleskobunun yeni görüntülerini taramaları için verir ve buluşlarını MPC’ye bildirir.</p>
     <h2>SPHEREx’in kattığı</h2>
-    <p>Bu görüntülerde yeni olan asteroit değil, ışığıdır. SPHEREx’in yüz binden fazla asteroit ve kuyruklu yıldızı 102 kızılötesi renkte kaydetmesi bekleniyor; görevin çevresindeki bir iş birliği de bunların spektrum kataloğunu hazırlıyor. Bu araçla herhangi birine bugün, çekimlerini tek tek izleyerek bakabilirsiniz.</p>
+    <p>Bu görüntülerin getirdiği yenilik, asteroitlerin kızılötesi ışığı. SPHEREx’in yüz binden fazla asteroit ve kuyruklu yıldızı 102 kızılötesi renkte kaydetmesi bekleniyor; görevin çevresindeki bir iş birliği de bunların spektrum kataloğunu hazırlıyor. Bu araçla herhangi birine bugün, çekimlerini tek tek izleyerek bakabilirsiniz.</p>
     <p class="fine">Kaynaklar: <a href="https://www.minorplanetcenter.net/about" target="_blank" rel="noopener">Minor Planet Center</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/astrometry/" target="_blank" rel="noopener">MPC: konum bildirme kılavuzu</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/data-and-services/sarc/" target="_blank" rel="noopener">MPC: arşiv gözlemleri</a> · <a href="https://docs.minorplanetcenter.net/mpc-ops-docs/astrometry/discoveries-and-credit/" target="_blank" rel="noopener">MPC: keşif, hak sahipliği ve adlandırma</a> · <a href="https://minorplanetcenter.net/cgi-bin/checkmp.cgi" target="_blank" rel="noopener">MPChecker</a> · <a href="https://ssp.imcce.fr/webservices/skybot/" target="_blank" rel="noopener">SkyBoT</a>, <a href="https://ssp.imcce.fr/webservices/miriade/" target="_blank" rel="noopener">Miriade</a> (IMCCE, Paris Gözlemevi) · <a href="https://irsa.ipac.caltech.edu/data/SPHEREx/docs/SPHEREx_Expsupp_QR.pdf" target="_blank" rel="noopener">SPHEREx Explanatory Supplement</a> · <a href="https://meetingorganizer.copernicus.org/EPSC2026/EPSC2026-797.html" target="_blank" rel="noopener">Mahlke vd. 2026</a> · <a href="https://arxiv.org/abs/2010.07822" target="_blank" rel="noopener">Hendler &amp; Malhotra 2020</a> · <a href="https://science.nasa.gov/get-involved/citizen-science/new-way-you-can-discover-asteroids/" target="_blank" rel="noopener">NASA: IASC</a></p>`,
 
     about: () => `
     <p class="eyebrow">Hakkında</p>
     <h1>Daha çok insan bakabilsin diye yapıldı</h1>
-    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. Bugüne kadar bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini aynı çerçevede birleştiren Yıllar görünümü eklendi.</p>
+    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. SPHEREx verisinden hazırladığımız galaksi merkezi animasyonu 25 Kasım 2026’da NASA’nın <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Günün Astronomi Fotoğrafı</a> (APOD) sayfasında yayımlandı. Sitede gökyüzünün herhangi bir noktasını SPHEREx’in 102 renginde ve 27 yılın görüntülerinde inceleyebilir, asteroit avına çıkabilir ya da hareket eden yıldızı bulma oyununu oynayabilirsiniz.</p>
     ${team('Ekip')}
     <h2>Neden yaptık</h2>
     <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor. Bu, herhangi bir uzman grubunun inceleyebileceğinden çok daha fazlası.</p>
     <p>Hiç astronomi eğitimi almamış birinin gökyüzünde bir nokta seçip orada bir şeyin hareket edip etmediğini ya da değişip değişmediğini kendi gözüyle görebileceği, sonra da bunu tek tıkla bağımsız kaynaklarla karşılaştırabileceği bir araç istedik.</p>
-    <p>Güneş Sistemi’nin dış bölgesinde bulunduğu varsayılan, henüz keşfedilmemiş X Gezegeni de böyle bulunabilir. SPHEREx onu görebilsin ya da göremesin, yakındaki bilinmeyen her cisim kendini Plüton’un ele verdiği yolla ele verir: hareket eden bir nokta olarak.</p>
+    <p>Güneş Sistemi’nin dış bölgesinde bulunduğu varsayılan, henüz keşfedilmemiş X Gezegeni de böyle bulunabilir. SPHEREx’in onu görüp göremeyeceği belli olmasa da yakındaki bilinmeyen her cisim kendini Plüton’un ele verdiği yolla ele verir: hareket eden bir nokta olarak.</p>
     <h2>Kimler için</h2>
     <ul>
       <li><b>Merak eden herkes.</b> Hesap açmak ya da eğitim almak gerekmez: tur iki dakika sürer ve her cisim, ölçümlerin ne gösterdiğini anlatan birkaç yalın cümleyle açılır.</li>
