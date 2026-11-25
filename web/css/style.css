@@ -83,6 +83,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .startwith { margin: 18px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.9; }
 .startwith a { display: inline-block; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; padding: 2px 0; margin: 0 8px 0 4px; white-space: nowrap; }
 .startwith a:hover { text-decoration-color: var(--ember); color: var(--ember); }
+.datanote { margin: 10px 0 0; font: 11.5px/1.45 var(--mono); color: var(--ink-2); pointer-events: auto; }
 .offline { margin: 10px 0 0; font: 11.5px var(--mono); color: var(--ink-3); min-height: 16px; }
 .offline button { font: inherit; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; padding: 4px 0; text-align: left; }
 .offline button:hover { color: var(--ember); }
@@ -531,7 +532,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
   html, body { height: auto; }
   body { overflow: visible; display: block; }
-  body.touring { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
+  body.touring { padding-bottom: calc(62px + var(--edge-b)); }
   .brand span { font-size: 24px; }
   .brand svg { width: 23px; height: 23px; }
 
@@ -542,12 +543,12 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
      with a worked example), the page scrolls. The small viewport height (svh) is used, so that the map does not change
      when the browser's bars slide away. */
   body.touring { --tourmap: clamp(170px, calc(100vh - 62px - var(--tourcard, 400px)), 45vh); }
-  @supports (height: 100svh) { body.touring { --tourmap: clamp(170px, calc(100svh - 62px - env(safe-area-inset-bottom, 0px) - var(--tourcard, 400px)), 45svh); } }
+  @supports (height: 100svh) { body.touring { --tourmap: clamp(170px, calc(100svh - 62px - var(--edge-b) - var(--tourcard, 400px)), 45svh); } }
   body.touring .app .mapwrap { height: auto; min-height: 0; }
   body.touring .app .mapstage { flex: none; height: var(--tourmap); min-height: 0; }
   body.touring .app[data-panel=open] .ruler { display: none; }          /* a stop of the tour: the low map shows the object and its name, whole; the colour bar would lie across them */
   body.touring .app[data-panel=closed] .tour { min-height: calc(100vh - 62px - var(--tourmap)); }
-  @supports (height: 100svh) { body.touring .app[data-panel=closed] .tour { min-height: calc(100svh - 62px - env(safe-area-inset-bottom, 0px) - var(--tourmap)); } }
+  @supports (height: 100svh) { body.touring .app[data-panel=closed] .tour { min-height: calc(100svh - 62px - var(--edge-b) - var(--tourmap)); } }
   .app[data-panel=open] .mapstage { flex: none; height: 34vh; height: 34dvh; min-height: 230px; }          /* the map says where the object is; the story starts on the first screen */
   /* an object is open and the map is a strip: the name steps aside and the map chooser moves up beside the two buttons, clear of the object's label */
   .top:has(+ .app[data-panel=open]) .brand span { display: none; }
@@ -561,7 +562,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .aladin-location { display: none !important; }
   .aladin-logo-container { right: auto !important; left: 10px !important; bottom: 70px !important; }          /* the zoom buttons own the right edge of a short map */
   .hero { padding: 70px 18px 84px; max-width: none; right: 0; background: linear-gradient(0deg, #0a0908f5 0%, #0a0908d8 55%, transparent 100%); display: flex; flex-direction: column; align-items: flex-start; }
-  .hero > .lede, .hero > .herobtns, .hero > .startwith, .hero > .offline { order: 2; }
+  .hero > .lede, .hero > .herobtns, .hero > .datanote, .hero > .startwith, .hero > .offline { order: 2; }
   /* the moving picture comes right under the title: a row, the picture and what it shows */
   .heroshot { position: static; order: 1; display: flex; gap: 12px; align-items: center; width: auto; max-width: 430px; margin: 12px 0 0; padding: 7px 12px 7px 7px; box-shadow: none; }
   .heroshot picture { flex: none; }
@@ -590,13 +591,13 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .tourbar { margin: 0 -16px 10px; }
   .tour h2, .app[data-panel=closed] .tour h2 { font-size: 26px; }
   .tour p, .app[data-panel=closed] .tour p { font-size: 15px; line-height: 1.5; }
-  .tourbtns { position: fixed; z-index: 70; left: 0; right: 0; bottom: 0; margin: 0; padding: 9px 12px calc(9px + env(safe-area-inset-bottom)); background: #141210f7; border-top: 1px solid var(--line-2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .tourbtns { position: fixed; z-index: 70; left: 0; right: 0; bottom: 0; margin: 0; padding: 9px 12px calc(9px + var(--edge-b)); background: #141210f7; border-top: 1px solid var(--line-2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
   .tourmini { display: block; flex: 1; min-width: 0; font: 500 11.5px var(--mono); letter-spacing: .6px; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tourbtns .cta, .tourbtns .ghost { min-height: 44px; padding: 8px 20px; }
 
   .panel { border-left: 0; overflow: visible; padding: 16px 14px 24px; }
   .guides .guide { transform: translate(-10%, -96%); border-radius: 50% 50% 50% 3px; }          /* the panel's margin is narrow here: the pointer sits above its part, tip down */
-  .coach { left: 0; right: 0; bottom: 0; width: auto; border-radius: 14px 14px 0 0; border-width: 1px 0 0; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .coach { left: 0; right: 0; bottom: 0; width: auto; border-radius: 14px 14px 0 0; border-width: 1px 0 0; padding: 10px 16px calc(12px + var(--edge-b)); }
   .coach h2 { font-size: 23px; }
   .coach p { font-size: 14.5px; line-height: 1.45; }
   .walk .long { display: none; }
@@ -698,7 +699,7 @@ body.pointing .skynames { display: block; position: absolute; inset: 0; z-index:
 body.pointing .aimring { display: block; position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border: 1.5px solid #f3eee699; border-radius: 50%; z-index: 6; pointer-events: none;
   box-shadow: 0 0 0 1px #0006, inset 0 0 0 1px #0006; transition: border-color .15s, transform .15s; }
 body.pointing .aimring.on { border-color: var(--ember); border-width: 2.5px; transform: scale(.82); }
-body.pointing .aimbar { display: flex; position: absolute; z-index: 8; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 520px; margin: 0 auto; align-items: center; gap: 10px;
+body.pointing .aimbar { display: flex; position: absolute; z-index: 8; left: 10px; right: 10px; bottom: calc(10px + var(--edge-b)); max-width: 520px; margin: 0 auto; align-items: center; gap: 10px;
   padding: 8px 8px 8px 14px; min-height: 60px; background: #0a0908eb; border: 1px solid var(--line-2); border-radius: 16px; }
 .aimwords { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 #aimname { font: 600 16px/1.2 var(--sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -725,7 +726,8 @@ body.pointing .ruler { display: none; }
   .navlinks { max-height: calc(100vh - 64px); max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; }
   .navlinks a.navtour { display: block; text-align: left; padding: 11px 12px; font-size: 15px; font-weight: 600; color: var(--ember); min-height: 44px; text-decoration: none; border-radius: 8px; }
   /* the line about keeping the tour on this device is the menu's last line here (the page's code moves it): the opening has fewer words */
-  .navlinks .offline { margin: 6px 0 0; padding: 10px 12px 6px; border-top: 1px solid var(--line); max-width: 236px; min-height: 0; line-height: 1.5; }
+  .navlinks .offline { flex: none; margin: 6px 0 0; padding: 10px 12px 6px; border-top: 1px solid var(--line); max-width: 236px; min-height: 0; line-height: 1.5; }          /* flex: none: on a low screen the menu scrolls, its last lines must not be squeezed onto each other */
+  .navlinks .kept { margin-top: 0; border-top: 0; padding-top: 2px; }
   .navlinks .offline:empty { display: none; }
   .navlinks .offline button { display: block; padding: 6px 0; }
   /* the search box: out of sight until its button is pressed, then across the top, over the name and the buttons */
@@ -828,3 +830,25 @@ body.pointing .ruler { display: none; }
 body.embed #copylink, body.embed .top, body.embed .mapwrap, body.embed .ohead, body.embed .credits, body.embed details.fold, body.embed .wikibox, body.embed .lookbox, body.embed .more { display: none; }
 body.embed .app { display: block; }
 body.embed .panel { display: block !important; border: 0; }
+
+/* ---------- inside the Android app: the page has the whole glass ----------
+   The app hides the bar with the clock and lets the page reach under the phone's own buttons. It says how much of
+   each edge is taken (the camera's notch, the buttons' bar) in --sat, --sar, --sab and --sal (js/tabs.js). A phone
+   held upright: the map runs to the top of the glass and the buttons on it step down, clear of the notch; along the
+   bottom lies the app's bar of places (--tabs high, js/tabs.js), which takes the bottom edge on itself. Held sideways,
+   and on a wide screen, the page as a whole keeps clear of the edges. --edge-b is what is left for the page's own
+   bottom bars to keep clear of: the browser's figure outside the app, and inside it only where nothing else did. */
+:root { --edge-b: env(safe-area-inset-bottom, 0px); }
+html.in-app { --edge-b: var(--sab, 0px); }
+@media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
+  .top, .layerpick, .zoom, .pointbtn, .mapnote { translate: 0 var(--sat, 0px); }
+  .app[data-panel=closed] .mapwrap { height: calc(100vh - var(--tabs, 0px)); height: calc(100dvh - var(--tabs, 0px)); }
+  html.in-app .app[data-panel=open] .mapstage { height: calc(34vh + var(--sat, 0px)); height: calc(34dvh + var(--sat, 0px)); min-height: calc(230px + var(--sat, 0px)); }
+  html.in-app body.touring .app .mapstage { height: calc(var(--tourmap) + var(--sat, 0px)); }
+  html.in-app .navlinks { max-height: calc(100vh - 64px - var(--sat, 0px) - var(--tabs, 0px)); max-height: calc(100dvh - 64px - var(--sat, 0px) - var(--tabs, 0px)); }
+  html.in-app .sheetwrap { padding-top: calc(5vh + var(--sat, 0px)); padding-bottom: calc(5vh + var(--sab, 0px)); }
+  html.in-app .coach { bottom: var(--tabs, 0px); }
+}
+@media (min-width: 901px), (min-width: 600px) and (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  html.in-app body { box-sizing: border-box; padding: var(--sat, 0px) var(--sar, 0px) var(--sab, 0px) var(--sal, 0px); --edge-b: 0px; }
+}

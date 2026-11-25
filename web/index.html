@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
+<script src="js/tabs.js"></script>
 <meta name="theme-color" content="#0a0908">
 <title>ChronosphereX — the sky is not still · NASA SPHEREx sky explorer</title>
 <meta name="description" content="Fly over the whole sky as NASA's SPHEREx sees it, pick any point, and watch that spot change over time. See what moves, what flickers, and what it is made of.">
@@ -123,6 +125,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           <!-- phones: pick a year, meet the star whose light of tonight set out then (star.html) -->
           <a class="ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
         </div>
+        <!-- a phone on mobile data: what exploring costs, said before the first touch -->
+        <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. Exploring fetches about 5 MB a minute.</p>
         <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. --><span id="examples"><a href="3i-atlas.html">3I/ATLAS</a><a href="barnards-star.html">Barnard's Star</a><a href="epsilon-indi-b.html">Epsilon Indi B</a><a href="wise-0855.html">WISE 0855</a><a href="rw-aurigae.html">RW Aurigae</a><a href="r-draconis.html">R Draconis</a><a href="pluto.html">Pluto</a></span></p>
         <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->
         <button type="button" class="heroshot" id="heroshot">

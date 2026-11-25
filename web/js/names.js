@@ -41,7 +41,7 @@ export function things(ms, lat, lon, targets, say) {
   for (const b of wanderers(ms, lat, lon)) out.push({ name: say(b.id), ra: b.ra, dec: b.dec, kind: 'body', rank: b.id === 'sun' || b.id === 'moon' ? -6 : -5 });
   for (const t of targets) out.push({ name: t.label, ra: t.ra, dec: t.dec, kind: 'target', rank: -3, target: t });
   for (const [name, ra, dec, v, query] of data.stars) out.push({ name, ra, dec, kind: 'star', rank: v, query });          // a star's rank is its brightness
-  for (const [name, ra, dec, , query] of data.deep) out.push({ name, ra, dec, kind: 'deep', rank: 1.2, query });          // among the stars of the first magnitude
+  for (const [name, ra, dec, width, query] of data.deep) out.push({ name, ra, dec, kind: 'deep', rank: 1.2, query, width });          // among the stars of the first magnitude
   for (const o of out) o.v = vec(o.ra, o.dec);
   // a showcase object that is also on the list of stars or of clusters (the Pleiades, say) is named once, as the showcase
   return out.filter(o => o.kind === 'target' || o.kind === 'body' || !out.some(t => t.kind === 'target' && t.v[0] * o.v[0] + t.v[1] * o.v[1] + t.v[2] * o.v[2] > 0.99996));          // within half a degree

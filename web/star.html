@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
+<script src="js/tabs.js"></script>
 <meta name="theme-color" content="#0a0908">
 <title>The star of your year · ChronosphereX</title>
 <meta name="description" content="Starlight takes years to reach us. Pick any year from 1 to today, the year you were born or a year of history, and meet the star whose light, arriving tonight, set out that year. Distances from measured parallaxes.">
@@ -73,9 +75,9 @@
   }
   /* a phone held sideways: the picture on the left, as tall as the screen; the words and the buttons beside it */
   @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
-    body.shown .wrap { max-width: none; margin: 0; padding: 10px 16px 16px calc(100vh + 16px + env(safe-area-inset-left, 0px)); }
-    body.shown .stage { position: fixed; left: env(safe-area-inset-left, 0px); top: 0; width: 100vh; height: 100vh; border: 0; border-right: 1px solid var(--line); border-radius: 0; }
-    @supports (height: 100dvh) { body.shown .wrap { padding-left: calc(100dvh + 16px + env(safe-area-inset-left, 0px)); } body.shown .stage { width: 100dvh; height: 100dvh; } }
+    body.shown .wrap { max-width: none; margin: 0; padding: 10px 16px 16px calc(100vh + 16px + var(--sal, env(safe-area-inset-left, 0px))); }
+    body.shown .stage { position: fixed; left: var(--sal, env(safe-area-inset-left, 0px)); top: 0; width: 100vh; height: 100vh; border: 0; border-right: 1px solid var(--line); border-radius: 0; }
+    @supports (height: 100dvh) { body.shown .wrap { padding-left: calc(100dvh + 16px + var(--sal, env(safe-area-inset-left, 0px))); } body.shown .stage { width: 100dvh; height: 100dvh; } }
     body.shown h1, body.shown .lede, body.shown #asking { display: none; }
     .logo { font-size: 22px; }
     h1 { font-size: 28px; margin: 10px 0 4px; }

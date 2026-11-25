@@ -107,6 +107,7 @@ const dataUrl = (t, file) => `data/${t.slug}/${file}?v=${encodeURIComponent(t.bu
 
 // Finished live queries are kept on this device, so a repeat visit is instant and works offline.
 const liveKey = (ra, dec, size, det) => `${ra.toFixed(5)}_${dec.toFixed(5)}_${size}_${det}`;
+const KEPT = 'chrono-keep-v1';          // a cache that holds nothing: that it exists says the visitor asked for things to be kept on this device (sw.js)
 const Store = {
   name: 'chrono-live-v1', max: 120,
   async has(key) { try { return !!(await (await caches.open(this.name)).match(`./__live/${key}`)); } catch { return false; } },
@@ -126,18 +127,19 @@ const Store = {
       const c = await caches.open(this.name);
       await c.put(`./__live/${key}`, new Response(text, { headers: { 'content-type': 'application/x-ndjson' } }));
       const keys = await c.keys();
-      for (const k of keys.slice(0, Math.max(0, keys.length - this.max))) await c.delete(k);
+      const max = (await caches.has(KEPT)) ? this.max : 18;          // a device that asked for nothing keeps the last three places (six detectors each)
+      for (const k of keys.slice(0, Math.max(0, keys.length - max))) await c.delete(k);
     } catch { /* storage full or unavailable: nothing to do */ }
   },
 };
 
-async function go({ ra, dec, size, target = null, track = null, det, mode, info = null, hunt = null, fly = true, keepZoom = false }) {
+async function go({ ra, dec, size, target = null, track = null, det, mode, info = null, hunt = null, fly = true, keepZoom = false, called = '', mapFov = 0 }) {
   coachEnd();
   S.abort?.abort(); S.abort = new AbortController();
   const gen = ++S.gen;
   stop();
   Object.assign(S, { ra, dec, size: size || 5, target, track: track || (target && (target.eph ? { name: target.label, eph: target.eph } : target.resolved)) || null,
-    head: null, grid: null, dets: {}, seq: [], idx: 0, sel: null, gaia: null, catwise: null, deep: null, off: new Set(), stacks: null, epochs: null, pts: [], bandCache: {}, stackCache: {}, haloDets: [], years: null });
+    called, head: null, grid: null, dets: {}, seq: [], idx: 0, sel: null, gaia: null, catwise: null, deep: null, off: new Set(), stacks: null, epochs: null, pts: [], bandCache: {}, stackCache: {}, haloDets: [], years: null });
   S.info = info; S.infoState = info ? 'done' : 'loading'; S.wiki = null; S.found = null; S.moved = null; S.find = {};
   S.movers = null; S.bodyMemo = null; S.scMemo = null; S.hunt = hunt; S.expect = null;
   S.detPicked = !!det; S.autoNote = '';
@@ -149,10 +151,11 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
     // The panel opens (which changes the size of the map) and the map goes to the object, as one move.
     const opening = $('app').dataset.panel !== 'open';
     // A visitor who has zoomed in closer than the usual view of an object and clicks a star stays that close.
-    const zoomNow = Sky.fov(), width = w => (keepZoom ? clamp(zoomNow, 0.12, Sky.objectFov(S.size, w)) : Sky.objectFov(S.size, w));
+    // A star picked by its name on the sky above is shown from farther off (mapFov, degrees): see pointOpen.
+    const zoomNow = Sky.fov(), width = w => mapFov || (keepZoom ? clamp(zoomNow, 0.12, Sky.objectFov(S.size, w)) : Sky.objectFov(S.size, w));
     if (fly) Sky.flyTo(ra, dec, width, { layout: opening ? openPanel : null });
     else if (opening) Sky.reshape(openPanel);
-    Sky.mark(ra, dec, S.size, target ? nameOf(target) : info ? info.name : track?.name || '');
+    Sky.mark(ra, dec, S.size, target ? nameOf(target) : info ? info.name : called || track?.name || '');
   }
   openPanel();
   const mapFirst = Sky.isReady() ? Promise.race([Sky.onItsWay(), nap(450)]) : null;
@@ -1703,6 +1706,7 @@ async function loadInfo(gen) {
       if (gen !== S.gen) return;
       if (!found) { S.infoState = 'failed'; renderAbout(); return; }          // the catalogue did not answer
       S.info = found.best; S.moved = found.moved;
+      if (S.info && S.called) S.info.name = S.called;          // picked by this name: it keeps it (the catalogue calls Polaris "North Star")
       if (S.info && !S.target && Sky.isReady()) Sky.mark(S.ra, S.dec, S.size, S.info.name);      // now the marker can carry its name
     }
     S.infoState = 'done'; renderAbout();
@@ -1714,7 +1718,7 @@ async function loadInfo(gen) {
       const ids = await Info.aliases(S.info.oid);
       if (gen !== S.gen) return;
       const common = Info.commonName(ids);          // "Kapteyn's Star" reads better than "HD 33793"
-      if (common && !S.target) { S.info.name = common; renderAbout(); if (Sky.isReady()) Sky.mark(S.ra, S.dec, S.size, common); }
+      if (common && !S.target && !S.called) { S.info.name = common; renderAbout(); if (Sky.isReady()) Sky.mark(S.ra, S.dec, S.size, common); }
       titles.push(...Info.wikiTitles([S.info.mainId, ...ids]));
     }
     if (gen !== S.gen || !titles.length) return;
@@ -2561,7 +2565,7 @@ async function resolveName(name) {
 }
 const sepArcsec = (ra1, dec1, ra2, dec2) => Math.hypot((ra1 - ra2) * Math.cos(dec1 * Math.PI / 180), dec1 - dec2) * 3600;
 
-async function search(text) {
+async function search(text, called = '', mapFov = 0) {
   text = text.trim();
   if (!text) return;
   const size = fovPick();
@@ -2597,7 +2601,7 @@ async function search(text) {
   // "asteroid Iris", "(433) Eros", "2P/Encke": a body of the solar system is asked for outright
   const outright = Bodies.saysBody(text);
   if (outright && await openBody(text)) return;
-  note(T('note.lookingUpName', { name: text }));
+  note(T('note.lookingUpName', { name: called || text }));
   // A star, a galaxy? Or an asteroid, a comet, a planet? Both are asked at once. A star of that name wins ("Mira" is
   // the star, not asteroid 3633); a body is opened when no star is known by the name, or when the star catalogues
   // have not answered four seconds after the orbit service has.
@@ -2616,7 +2620,8 @@ async function search(text) {
     return;
   }
   note('');
-  go({ ra: r.ra, dec: r.dec, size, track: r, target: preset || null });
+  if (called) r.name = called;
+  go({ ra: r.ra, dec: r.dec, size, track: r, target: preset || null, called, mapFov });
 }
 
 /**
@@ -3465,11 +3470,26 @@ const TURN_SIGN = -1;          // the map library turns its picture anticlockwis
 const NAMES_SHOWN = 12, HOLD_IN = 38, HOLD_OUT = 54;          // names on the map at once; how near the middle (px) a name is taken into the ring, and how far it may stray before it is let go
 let pointStop = null, pointLock = null, pointSaid = '', pointHeld = null;
 const pointOn = () => document.body.classList.contains('pointing');
-/** Leave the following and open what the ring or a press chose. */
+/**
+ * Leave the following and open what the ring or a press chose.
+ * A star: its panel, under the name it carried on the sky, with the map held far enough off for it to be seen as a
+ * star. Every star bright enough to have a name of its own is too bright for SPHEREx: its middle is missing from
+ * the map, and at the depth an object is usually opened at that hole fills the view (the user, 25 November 2026:
+ * "there was no star where it showed"). The page says so in a note.
+ * A cluster, a nebula, a galaxy: no panel. The map goes there and shows the whole of it, where any point of it can
+ * then be picked; opened at its middle, the Pleiades were an empty patch between their stars.
+ */
 function pointOpen(thing) {
   pointEnd();
-  if (thing.target) openTarget(thing.target);
-  else search(thing.query);
+  if (thing.target) return openTarget(thing.target);
+  if (thing.kind === 'deep') {
+    S.busyUntil = performance.now() + 9000;
+    const say = () => note(`${thing.name}. ${T('note.explore')}`, 12000);
+    say(); Sky.flyTo(thing.ra, thing.dec, clamp(1.6 * thing.width / 60, 0.8, 20)).then(say);          // said again on arrival: the end of the following clears the note on its way
+    return;
+  }
+  S.busyUntil = performance.now() + 9000; Sky.flyTo(thing.ra, thing.dec, 2.2);          // the map goes at once: where the star is, is known; its catalogue entry is asked for meanwhile
+  search(thing.query, thing.name, 2.2).then(() => { if (S.called === thing.name) note(T('point.bright', { name: thing.name }), 12000); });
 }
 async function pointStart() {
   if (pointOn() || !Sky.isReady()) return;
@@ -3695,7 +3715,13 @@ $('layer').onchange = e => setLayer(e.target.value);
 // ------------------------------------------------------------ offline
 // The line that says what is kept on this device, and offers the rest: under the opening's words on a desk; on a phone,
 // held either way, the last line of the menu, so that the opening has fewer words.
-function seatOffline() { const el = $('offline'), home = isNarrow() || isSide() ? $('navlinks') : $('welcome'); if (el.parentNode !== home) home.appendChild(el); }
+// A phone's menu ends with what the site holds on the phone, in megabytes, and a button that empties it.
+const keptEl = Object.assign(document.createElement('p'), { id: 'kept', className: 'offline kept' });
+function seatOffline() {
+  const phone = isNarrow() || isSide(), el = $('offline'), home = phone ? $('navlinks') : $('welcome');
+  if (el.parentNode !== home) home.appendChild(el);
+  if (phone) $('navlinks').appendChild(keptEl); else keptEl.remove();
+}
 seatOffline(); window.addEventListener('resize', seatOffline);
 /** Sky-map tiles the guided tour shows: the wide views, the colour sweep and each of the five stops. */
 /** Size of the map, in pixels, during the tour: with no object open (wide) and with one open (open). */
@@ -3733,6 +3759,7 @@ function tourTiles() {
  */
 async function saveTourOffline(full) {
   if (!('caches' in window)) return;
+  await caches.open(KEPT).catch(() => null);          // from here on the map's tiles and the objects' data are kept as they pass (sw.js)
   const el = $('offline'), say = html => { if (el) el.innerHTML = html; };
   const files = [];
   for (const t of tourTargets()) {
@@ -3832,7 +3859,7 @@ function startOfflineSave() {
   const c = navigator.connection;
   // A phone fetches nothing unasked: the tool works online, and the menu offers the tour for use without a
   // connection to whoever wants it. Once asked for, it is kept whole on later visits too.
-  if (isNarrow() || isSide()) return offerOffline();
+  if (isNarrow() || isSide()) { tidyStorage().then(showKept); return offerOffline(); }
   if (c?.saveData) return;
   // Laptops and desktops take everything; a device on a very slow connection takes the light part and is offered
   // the rest. (The browser's estimate drops to "3g" on a fast line too, because the archive itself answers
@@ -3847,6 +3874,44 @@ function offerOffline() {
   if (kept === 'full') return saveTourOffline(true);          // asked for on an earlier visit: read again from this device, and whatever is new is added
   $('offline').innerHTML = `${kept === 'lite' ? `${esc(T('off.lite'))} ` : ''}<button type="button" id="savetour">${esc(T('off.full'))}</button>`;
   $('savetour').onclick = () => saveTourOffline(true);
+}
+/**
+ * A phone that asked for nothing keeps nothing but the site itself: map tiles and objects' data left by earlier
+ * versions of the site, which kept all that passed, are let go. Where the tour was asked for, it stays.
+ */
+async function tidyStorage() {
+  if (!('caches' in window)) return;
+  let asked = '';
+  try { asked = localStorage.getItem('chrono-offline') || ''; } catch { /* private mode */ }
+  try {
+    if (asked) { await caches.open(KEPT); return; }
+    if (await caches.has(KEPT)) return;          // being saved right now
+    for (const name of ['chrono-tiles-v1', 'chrono-data-v2']) await caches.delete(name);
+    const c = await caches.open(Store.name), keys = await c.keys();
+    for (const k of keys.slice(0, Math.max(0, keys.length - 18))) await c.delete(k);
+  } catch { /* storage unavailable */ }
+}
+/** The menu's last line on a phone: how much the site holds on this device, and the button that empties it. */
+async function showKept() {
+  if (!keptEl.isConnected || !navigator.storage?.estimate) return;
+  try {
+    const { usage = 0 } = await navigator.storage.estimate();
+    const mb = (usage / 1e6).toLocaleString(Lang.locale, { maximumFractionDigits: usage < 9.5e6 ? 1 : 0 });
+    keptEl.innerHTML = `${esc(T('kept.size', { mb }))} <button type="button" id="keptclear">${esc(T('kept.clear'))}</button>`;
+    $('keptclear').onclick = async e => {
+      e.stopPropagation();          // the menu stays open: the line says what is left
+      for (const name of ['chrono-tiles-v1', 'chrono-data-v2', Store.name, KEPT]) await caches.delete(name).catch(() => null);
+      try { localStorage.removeItem('chrono-offline'); } catch { /* private mode */ }
+      try { window.ChronoApp?.clearCache?.(); } catch { /* a browser, or an older app */ }          // the app empties its engine's own cache too
+      offerOffline(); await showKept();
+    };
+  } catch { /* the browser does not say */ }
+}
+$('menubtn').addEventListener('click', showKept);
+// A phone on mobile data (or one that asked to save data): the opening says what exploring costs.
+{
+  const c = navigator.connection, tell = () => { $('datanote').hidden = !((isNarrow() || isSide()) && c && (c.type === 'cellular' || c.saveData)); };
+  tell(); c?.addEventListener?.('change', tell);
 }
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   // A newer version of the site that turns up in the first seconds, before anything has been touched,
@@ -3903,5 +3968,9 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   if (q.get('sso')) return openBody(q.get('sso'), +q.get('at') || null, { det, mode, size: +q.get('fov') || 0 }).then(known => { if (!known) note(T('note.notFound', { name: q.get('sso') }), 8000); });
   if (q.has('hunt')) return startHunt(+q.get('hunt') || 0);          // ?hunt=1292 repeats the hunt for that asteroid: for testing, and for showing one to somebody
   if (q.has('tour')) tourGo(0);
+  if (q.has('point') && Point.able()) {          // from the app's bar of places on another page: straight to the sky above (the word leaves the address, so a reload does not start it again)
+    q.delete('point'); history.replaceState(history.state, '', `${location.pathname}${q.size ? `?${q}` : ''}${location.hash}`);
+    pointStart();
+  }
   if (PAGE_FILES[location.hash.slice(1)]) openSheet(location.hash.slice(1));
 })();
