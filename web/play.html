@@ -303,7 +303,10 @@ function dailyEnd(found, ms) {
     for (const k of Object.keys(days).sort().slice(0, -40)) delete days[k];
     d.days = days; keep(d);
   }
-  try { window.ChronoApp?.dailyDone?.(TODAY.key); } catch { /* a browser, or an older app */ }          // no reminder this evening: today's star is done
+  // No reminder this evening: today's star is done. The app counts the days it was found (1.1.3 on); version 1.1.2
+  // knows only the day, and refuses a call with more, so it is told the day alone.
+  const A = window.ChronoApp;
+  if (A && typeof A.dailyDone === 'function') { try { A.dailyDone(TODAY.key, !!found); } catch { try { A.dailyDone(TODAY.key); } catch { /* an older app */ } } }
   $('say').insertAdjacentHTML('beforeend', dailyLine());
   $('other').hidden = false;
 }
