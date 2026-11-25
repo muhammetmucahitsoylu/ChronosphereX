@@ -127,7 +127,7 @@ const Store = {
       const c = await caches.open(this.name);
       await c.put(`./__live/${key}`, new Response(text, { headers: { 'content-type': 'application/x-ndjson' } }));
       const keys = await c.keys();
-      const max = (await caches.has(KEPT)) ? this.max : 18;          // a device that asked for nothing keeps the last three places (six detectors each)
+      const max = (await caches.has(KEPT)) ? this.max : 30;          // a device that asked for nothing keeps the last five places (six detectors each)
       for (const k of keys.slice(0, Math.max(0, keys.length - max))) await c.delete(k);
     } catch { /* storage full or unavailable: nothing to do */ }
   },
@@ -3970,15 +3970,22 @@ async function keepLastObjects(list, say) {
   }
 }
 function startOfflineSave() {
-  const c = navigator.connection;
-  // A phone fetches nothing unasked: the tool works online, and the menu offers the tour for use without a
-  // connection to whoever wants it. Once asked for, it is kept whole on later visits too.
-  if (isNarrow() || isSide()) { tidyStorage().then(showKept); return offerOffline(); }
-  if (c?.saveData) return;
-  // Laptops and desktops take everything; a device on a very slow connection takes the light part and is offered
-  // the rest. (The browser's estimate drops to "3g" on a fast line too, because the archive itself answers
-  // slowly: that alone must not hold the save back.)
-  saveTourOffline(!(c && (c.effectiveType === '2g' || c.effectiveType === 'slow-2g')));
+  // Nothing is fetched unasked, on a phone or on a desk: the tool works online, and the tour for use without a
+  // connection (a class, a talk in a room with poor reception) is offered to whoever wants it. Once asked for, it is
+  // kept whole on later visits too. Until 25 November 2026 a desk saved it by itself, some 54 MB a visitor
+  // (gzipped) and the tour's map tiles from IRSA on top; what that left is let go once, below.
+  forgetDeskSave().then(tidyStorage).then(showKept);
+  offerOffline();
+}
+/** A desk saved the tour unasked until 25 November 2026: once, forget that, so the tour is kept only where it is asked for. */
+async function forgetDeskSave() {
+  if (isNarrow() || isSide() || !('caches' in window)) return;          // a phone never saved unasked: what it keeps, it asked for
+  try {
+    if (localStorage.getItem('chrono-desk-unasked-gone')) return;
+    localStorage.setItem('chrono-desk-unasked-gone', '1');
+    localStorage.removeItem('chrono-offline');          // done before offerOffline reads it (this part runs at once)
+  } catch { return; }
+  await caches.delete(KEPT).catch(() => null);
 }
 /** A phone's menu: what of the tour is on this device already, and the button that fetches the rest. */
 function offerOffline() {
@@ -3990,8 +3997,8 @@ function offerOffline() {
   $('savetour').onclick = () => saveTourOffline(true);
 }
 /**
- * A phone that asked for nothing keeps nothing but the site itself: map tiles and objects' data left by earlier
- * versions of the site, which kept all that passed, are let go. Where the tour was asked for, it stays.
+ * A device that asked for nothing keeps the site itself and the last five places opened: map tiles and objects'
+ * data left by earlier versions of the site, which kept all that passed, are let go. Where the tour was asked for, it stays.
  */
 async function tidyStorage() {
   if (!('caches' in window)) return;
@@ -4002,7 +4009,7 @@ async function tidyStorage() {
     if (await caches.has(KEPT)) return;          // being saved right now
     for (const name of ['chrono-tiles-v1', 'chrono-data-v2']) await caches.delete(name);
     const c = await caches.open(Store.name), keys = await c.keys();
-    for (const k of keys.slice(0, Math.max(0, keys.length - 18))) await c.delete(k);
+    for (const k of keys.slice(0, Math.max(0, keys.length - 30))) await c.delete(k);          // the last five places, as Store.put keeps them
   } catch { /* storage unavailable */ }
 }
 /** The menu's last line on a phone: how much the site holds on this device, and the button that empties it. */
