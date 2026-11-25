@@ -135,6 +135,9 @@ const Store = {
 
 async function go({ ra, dec, size, target = null, track = null, det, mode, info = null, hunt = null, fly = true, keepZoom = false, called = '', mapFov = 0 }) {
   coachEnd();
+  // Another object opens as the simple card; the same one (widened, re-centred, another detector) keeps what was chosen.
+  const away = Math.abs(dec - S.dec) > 1 / 60 || Math.abs(((ra - S.ra + 540) % 360) - 180) * Math.cos(dec * Math.PI / 180) > 1 / 60;
+  if (away || target !== S.target) { panelFull = fullFromLink; fullFromLink = false; }
   S.abort?.abort(); S.abort = new AbortController();
   const gen = ++S.gen;
   stop();
@@ -1688,20 +1691,19 @@ $('heroshot').onclick = () => {          // the front page's picture: Barnard's 
 
 // ------------------------------------------------------------ the simple card, or every measurement
 // A press on the map opens a simple card first: what it is and where, the loop of SPHEREx's visits, the answers a line
-// each, and one button to all the rest. Testers found the full panel too much at first sight. Whoever opens it keeps it
-// open (remembered on this device) until they press "Simple view". The tour, the walk through the panel, embedded pages,
-// passing bodies and the asteroid hunt (whose steps use the controls) and a link that asks for a particular way of
-// comparing always show the full panel.
-const FULL_KEY = 'chrono-panel-full';
-let panelFull = (() => { try { return localStorage.getItem(FULL_KEY) === '1'; } catch { return false; } })();
+// each, and one button to all the rest. Testers found the full panel too much at first sight. "All measurements" holds
+// for the object on show only: the next object opens as the simple card again (kept for good, one look into the full panel
+// kept a visitor there for ever). The tour, the walk through the panel, embedded pages, passing bodies and the asteroid
+// hunt (whose steps use the controls) and a link that asks for a particular way of comparing show the full panel.
+let panelFull = false, fullFromLink = false;
+try { localStorage.removeItem('chrono-panel-full'); } catch { /* private mode */ }          // what the first version kept on the device
 const simpleCard = () => !panelFull && !S.hunt && !(S.target?.body || S.track?.body);
 function applyPanelMode() {
   $('panel').classList.toggle('simple', simpleCard());
   $('loopline').hidden = S.mode !== 'epochs';
 }
-function setPanelFull(on, remember = true) {
+function setPanelFull(on) {
   panelFull = on;
-  if (remember) { try { if (on) localStorage.setItem(FULL_KEY, '1'); else localStorage.removeItem(FULL_KEY); } catch { /* private mode: for this visit only */ } }
   renderAbout();
   requestAnimationFrame(() => { specPlot.draw(); lcPlot.draw(); });          // the plots were drawn while hidden, at no size
 }
@@ -4132,7 +4134,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     }
   }
   const det = +q.get('det') || undefined, mode = q.get('mode') || undefined;
-  if (mode && !['epochs', 'years'].includes(mode)) panelFull = true;          // for this visit, not remembered
+  if (mode && !['epochs', 'years'].includes(mode)) fullFromLink = true;          // the object the link opens, not the ones after it
   Names.load().then(() => { if ($('app').dataset.panel === 'open') renderAbout(); }).catch(() => {});          // the constellation under the name
   S.wantBody = +q.get('body') || 0;          // a passing body that the link was following: taken up again once the search has found it
   const t = S.targets.find(x => x.slug === q.get('target'));
