@@ -46,7 +46,7 @@
   .row.off { opacity: .62; }
   .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .times div { text-align: center; }
-  .times b { display: block; font: 500 22px/1.2 var(--mono); }
+  .times b { display: block; font: 500 clamp(16px, 5.4vw, 22px)/1.2 var(--mono); white-space: nowrap; }
   .times span { color: var(--ink-2); font-size: 13px; }
   .moon { display: flex; align-items: center; gap: 16px; }
   .moon svg { flex: none; }
@@ -198,7 +198,7 @@ $('tool').href = `./?lang=${lang}`; document.querySelector('.logo').href = `./?l
 
 const RAD = Math.PI / 180, MIN = 60000, HOUR = 3600000;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const clock = new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' }), hm = t => clock.format(new Date(t));
+const clock = new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit' }), hm = t => clock.format(new Date(t));          // 17:26, or 5:26 PM where the language counts hours so
 const dirOf = az => T.dirs.split(',')[Math.round(az / 45) % 8];
 // a phone that can be held up to the sky (the same test as js/point.js): then each thing has a button that finds it there
 const canPoint = window.matchMedia('(pointer: coarse)').matches && ('ondeviceorientationabsolute' in window || typeof window.DeviceOrientationEvent?.requestPermission === 'function');
