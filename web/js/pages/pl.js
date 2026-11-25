@@ -36,7 +36,7 @@ export default {
     how: () => `
     <p class="eyebrow">Pod maską</p>
     <h1>Jak to działa</h1>
-    <p class="lead">Klikasz punkt na niebie. Kilka sekund później oglądasz wszystkie zdjęcia, jakie zrobił mu SPHEREx, wyrównane, z widmem pod spodem. Oto co dzieje się pomiędzy.</p>
+    <p class="lead">Klikasz punkt na niebie. Kilka sekund później oglądasz wszystkie zdjęcia, jakie zrobił mu SPHEREx, wyrównane, z kilkoma prostymi zdaniami o tym, co się przesunęło lub zmieniło. Widmo i wszystkie pozostałe pomiary są o jedno kliknięcie dalej. Oto co dzieje się pomiędzy.</p>
     <ol>
       <li><b>Wyszukanie w indeksie nieba.</b> Zwarty indeks wszystkich publicznych ekspozycji SPHEREx, około 1,6 miliona, podaje, które z nich były skierowane w pobliże twojego punktu. Indeks jest okresowo odbudowywany z archiwum NASA, więc nowe wydania danych pojawiają się bez dotykania kodu.</li>
       <li><b>Odczyt tylko potrzebnych pikseli.</b> Pełna ekspozycja to plik większy niż 60 megabajtów. Przeglądarka odczytuje jego nagłówek i tylko mały blok pikseli wokół twojego punktu, kilkaset kilobajtów, prosto z otwartych danych NASA w chmurze.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Powiedzenie, co to jest.</b> Katalog SIMBAD jest pytany, co leży w tym położeniu. Katalogi przechowują miejsce, w którym gwiazda była w roku 2000, więc bliskie gwiazdy, które od tamtej pory się przesunęły, są przed dopasowaniem przenoszone na dzisiejszą datę.</li>
     </ol>
     <h2>Bez serwera, działa też offline</h2>
-    <p>ChronosphereX nie ma własnego serwera. Strona to zestaw statycznych plików; cała reszta to twoja przeglądarka rozmawiająca bezpośrednio z otwartymi danymi NASA. Po naszej stronie nie ma więc niczego, co trzeba utrzymywać w ruchu, ani niczego, co mogłoby przestać działać. Wszystko, co raz otworzysz, łącznie z całą wycieczką, zapisuje się na twoim urządzeniu i działa dalej bez połączenia.</p>
+    <p>ChronosphereX nie ma własnego serwera. Strona to zestaw statycznych plików; cała reszta to twoja przeglądarka rozmawiająca bezpośrednio z otwartymi danymi NASA. Po naszej stronie nie ma więc niczego, co trzeba utrzymywać w ruchu, ani niczego, co mogłoby przestać działać. Twoje urządzenie zachowuje pięć ostatnio otwartych miejsc, a przycisk na stronie startowej zapisuje całą wycieczkę do użytku bez połączenia.</p>
     <h2>Jak czytać to, co widzisz</h2>
     <ul>
       <li><b>Obserwacje.</b> SPHEREx wraca do większości obszarów nieba mniej więcej co sześć miesięcy, a każda obserwacja trwa od kilku dni do kilku tygodni. Zsumowane obrazy, po jednym na obserwację, pokazywane po kolei, sprawiają, że małe przesunięcie łatwo dostrzec. W pobliżu biegunów płaszczyzny Układu Słonecznego patrzy niemal przy każdym okrążeniu, więc tam obrazy są grupowane według miesięcy.</li>

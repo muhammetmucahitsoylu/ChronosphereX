@@ -36,7 +36,7 @@ export default {
     how: () => `
     <p class="eyebrow">Perde arkası</p>
     <h1>Nasıl çalışır?</h1>
-    <p class="lead">Gökyüzünde bir noktaya tıklarsınız. Birkaç saniye sonra SPHEREx’in o noktadan çektiği bütün görüntüleri hizalanmış olarak, altında bir spektrumla izliyorsunuzdur. Arada şunlar olur.</p>
+    <p class="lead">Gökyüzünde bir noktaya tıklarsınız. Birkaç saniye sonra SPHEREx’in o noktadan çektiği bütün görüntüler hizalanmış olarak oynar, yanında da neyin yerinden oynadığını ya da değiştiğini anlatan birkaç satır belirir. Spektrum ve diğer bütün ölçümler tek dokunuş ötede. Arada şunlar olur.</p>
     <ol>
       <li><b>Gökyüzü dizininde arama.</b> Herkese açık bütün SPHEREx pozlarının, yaklaşık 1,6 milyon pozun, küçük bir dizini hangilerinin sizin noktanızın yakınına bakmış olduğunu söyler. Dizin belirli aralıklarla NASA’nın arşivinden yeniden kurulur; böylece yeni veri sürümleri kimse koda dokunmadan görünür.</li>
       <li><b>Yalnızca gereken pikselleri okuma.</b> Tam bir poz 60 megabayttan büyük bir dosyadır. Tarayıcınız dosyanın baş kısmını ve yalnızca noktanızın çevresindeki birkaç yüz kilobaytlık küçük piksel bloğunu, doğrudan NASA’nın buluttaki herkese açık verisinden okur.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Ne olduğunu söyleme.</b> SIMBAD kataloğuna o konumda ne bulunduğu sorulur. Kataloglar bir yıldızın 2000 yılında nerede olduğunu saklar; bu yüzden o zamandan beri yer değiştirmiş yakın yıldızlar eşleştirmeden önce bugünün tarihine taşınır.</li>
     </ol>
     <h2>Sunucu yok, internet olmadan da çalışır</h2>
-    <p>ChronosphereX’in kendi sunucusu yoktur. Sayfa bir dizi sabit dosyadan oluşur; geri kalan her şeyi tarayıcınız doğrudan NASA’nın herkese açık verisinden alır. Yani bizim tarafımızda çalışır durumda tutulacak ya da çökebilecek bir şey yok. Bir kez açtığınız her şey, rehberli turun tamamı da içinde, cihazınıza kaydedilir ve internet olmadan da çalışır.</p>
+    <p>ChronosphereX’in kendi sunucusu yoktur. Sayfa bir dizi sabit dosyadan oluşur; geri kalan her şeyi tarayıcınız doğrudan NASA’nın herkese açık verisinden alır. Yani bizim tarafımızda çalışır durumda tutulacak ya da çökebilecek bir şey yok. Cihazınız son açtığınız beş yeri saklar. Rehberli turun tamamını da açılış sayfasındaki düğmeyle kaydedip internet olmadan kullanabilirsiniz.</p>
     <h2>Gördüklerinizi nasıl okumalı</h2>
     <ul>
       <li><b>Gözlemler.</b> SPHEREx gökyüzünün çoğu bölümüne yaklaşık altı ayda bir geri gelir ve her gözlem birkaç günden birkaç haftaya kadar sürer. Her gözlem için üst üste toplanmış tek bir görüntü sırayla gösterilince küçük bir yer değişimi kolayca görülür. Güneş Sistemi düzleminin kutuplarına yakın yerlere neredeyse her yörüngede baktığı için orada görüntüler aylara göre gruplanır.</li>

@@ -36,7 +36,7 @@ export default {
     how: () => `
     <p class="eyebrow">Por dentro</p>
     <h1>Cómo funciona</h1>
-    <p class="lead">Haces clic en un punto del cielo. Unos segundos después estás viendo todas las imágenes que SPHEREx ha tomado de él, alineadas, con un espectro debajo. Esto es lo que ocurre entre medias.</p>
+    <p class="lead">Haces clic en un punto del cielo. Unos segundos después estás viendo todas las imágenes que SPHEREx ha tomado de él, alineadas, con unas frases sencillas sobre lo que se movió o cambió. El espectro y todas las demás medidas están a un clic. Esto es lo que ocurre entre medias.</p>
     <ol>
       <li><b>Buscarlo en el índice del cielo.</b> Un índice compacto de todas las exposiciones públicas de SPHEREx, alrededor de 1,6 millones, indica cuáles apuntaron cerca de tu punto. El índice se reconstruye periódicamente a partir del archivo de la NASA, así que las nuevas versiones de datos aparecen sin que nadie toque el código.</li>
       <li><b>Leer solo los píxeles que importan.</b> Una exposición completa es un archivo de más de 60 megabytes. Tu navegador lee su cabecera y solo el pequeño bloque de píxeles que rodea tu punto, unos cientos de kilobytes, directamente de los datos abiertos de la NASA en la nube.</li>
@@ -46,7 +46,7 @@ export default {
       <li><b>Decir qué es.</b> Se pregunta al catálogo SIMBAD qué hay en esa posición. Los catálogos guardan dónde estaba una estrella en el año 2000, así que las estrellas cercanas que se han desplazado desde entonces se llevan a la fecha de hoy antes de compararlas.</li>
     </ol>
     <h2>Sin servidor, y funciona sin conexión</h2>
-    <p>ChronosphereX no tiene servidor propio. La página es un conjunto de archivos estáticos; todo lo demás es tu navegador hablando directamente con los datos abiertos de la NASA. Eso significa que no hay nada que mantener en marcha ni nada que pueda caerse por nuestra parte. Todo lo que hayas abierto una vez, incluida la visita guiada completa, queda guardado en tu dispositivo y sigue funcionando sin conexión.</p>
+    <p>ChronosphereX no tiene servidor propio. La página es un conjunto de archivos estáticos; todo lo demás es tu navegador hablando directamente con los datos abiertos de la NASA. Eso significa que no hay nada que mantener en marcha ni nada que pueda caerse por nuestra parte. Tu dispositivo guarda los últimos cinco lugares que abriste, y un botón de la página de inicio guarda la visita guiada completa para usarla sin conexión.</p>
     <h2>Cómo leer lo que ves</h2>
     <ul>
       <li><b>Observaciones.</b> SPHEREx vuelve a la mayor parte del cielo cada seis meses aproximadamente, y cada observación dura de unos días a unas semanas. Una imagen sumada por observación, mostradas una tras otra, hace que un pequeño desplazamiento sea fácil de ver. Cerca de los polos del plano del sistema solar mira casi en cada órbita, así que allí las imágenes se agrupan por meses.</li>

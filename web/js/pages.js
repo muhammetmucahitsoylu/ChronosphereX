@@ -64,7 +64,7 @@ const ENGLISH = {
   how: () => `
     <p class="eyebrow">Under the hood</p>
     <h1>How it works</h1>
-    <p class="lead">You click a point of the sky. A few seconds later you are watching every picture SPHEREx has taken of it, lined up, with a spectrum underneath. Here is what happens in between.</p>
+    <p class="lead">You click a point of the sky. A few seconds later you are watching every picture SPHEREx has taken of it, lined up, with a few plain lines on what moved or changed. The spectrum and every other measurement are one press away. Here is what happens in between.</p>
     <ol>
       <li><b>Look it up in the sky index.</b> A compact index of every public SPHEREx exposure, about 1.6 million of them, says which ones were pointed near your spot. The index is rebuilt from NASA's archive on a schedule, so new data releases appear without anyone touching the code.</li>
       <li><b>Read only the pixels that matter.</b> A full exposure is a file of more than 60 megabytes. Your browser reads its header and just the small block of pixels around your spot, a few hundred kilobytes, straight from NASA's open data on the cloud.</li>
@@ -74,7 +74,7 @@ const ENGLISH = {
       <li><b>Say what it is.</b> The SIMBAD catalogue is asked what lies at that position. Catalogues store where a star was in the year 2000, so nearby stars that have drifted since are moved to today's date before matching.</li>
     </ol>
     <h2>No server, and it works offline</h2>
-    <p>ChronosphereX has no server of its own. The page is a set of static files; everything else is your browser talking directly to NASA's open data. That means there is nothing to keep running and nothing that can go down on our side. Whatever you have opened once, including the whole guided tour, is saved on your device and keeps working without a connection.</p>
+    <p>ChronosphereX has no server of its own. The page is a set of static files; everything else is your browser talking directly to NASA's open data. That means there is nothing to keep running and nothing that can go down on our side. Your device keeps the last five places you opened, and a button on the opening page saves the whole guided tour for use without a connection.</p>
     <h2>How to read what you see</h2>
     <ul>
       <li><b>Visits.</b> SPHEREx comes back to most parts of the sky about every six months, and each visit lasts from a few days to a few weeks. One stacked image per visit, shown in turn, makes a small shift easy to see. Near the poles of the solar system's plane it looks almost every orbit, so there the images are grouped by month instead.</li>
