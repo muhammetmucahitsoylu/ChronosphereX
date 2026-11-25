@@ -78,7 +78,7 @@ const ENGLISH = {
     <h2>How to read what you see</h2>
     <ul>
       <li><b>Visits.</b> SPHEREx comes back to most parts of the sky about every six months, and each visit lasts from a few days to a few weeks. One stacked image per visit, shown in turn, makes a small shift easy to see. Near the poles of the solar system's plane it looks almost every orbit, so there the images are grouped by month instead.</li>
-      <li><b>The shift table.</b> For a moving object, the position measured in each visit is compared with what the catalogue predicts: its steady motion across the sky plus, for the nearest stars, the yearly wobble caused by Earth's own orbit. The motion is measured separately in every detector that sees the object, and the detectors are compared with each other.</li>
+      <li><b>The shift table.</b> For a moving object, the position measured in each visit is compared with what the catalogue predicts: its steady motion across the sky plus, for the nearest stars, the yearly parallax shift caused by Earth's own orbit. The motion is measured separately in every detector that sees the object, and the detectors are compared with each other.</li>
       <li><b>The spectrum.</b> Each dot is one exposure: its wavelength, and how bright the circled spot was. Dots are coloured by visit.</li>
       <li><b>Molecule bands.</b> Shaded strips mark where common molecules absorb light. The table reports how deep a dip was measured there.</li>
       <li><b>Checked against its neighbours.</b> Under the brightness curve, the change of the circled spot between visits is set against ordinary stars in the same images. If they stayed steady and the spot did not, the change is real and not a quirk of the camera. The same is done for its position.</li>

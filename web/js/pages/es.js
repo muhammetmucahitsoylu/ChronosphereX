@@ -50,7 +50,7 @@ export default {
     <h2>Cómo leer lo que ves</h2>
     <ul>
       <li><b>Visitas.</b> SPHEREx vuelve a la mayor parte del cielo cada seis meses aproximadamente, y cada visita dura de unos días a unas semanas. Una imagen sumada por visita, mostradas una tras otra, hace que un pequeño desplazamiento sea fácil de ver. Cerca de los polos del plano del sistema solar mira casi en cada órbita, así que allí las imágenes se agrupan por meses.</li>
-      <li><b>La tabla de desplazamientos.</b> Para un objeto en movimiento, la posición medida en cada visita se compara con lo que predice el catálogo: su movimiento uniforme por el cielo más, en las estrellas más cercanas, la oscilación anual causada por la órbita de la propia Tierra. El movimiento se mide por separado en cada detector que ve el objeto, y los detectores se comparan entre sí.</li>
+      <li><b>La tabla de desplazamientos.</b> Para un objeto en movimiento, la posición medida en cada visita se compara con lo que predice el catálogo: su movimiento uniforme por el cielo más, en las estrellas más cercanas, la paralaje anual causada por la órbita de la propia Tierra. El movimiento se mide por separado en cada detector que ve el objeto, y los detectores se comparan entre sí.</li>
       <li><b>El espectro.</b> Cada punto es una exposición: su longitud de onda y el brillo que tenía el punto rodeado. Los puntos se colorean según la visita.</li>
       <li><b>Bandas moleculares.</b> Las franjas sombreadas marcan dónde absorben luz las moléculas comunes. La tabla indica qué profundidad tiene la caída medida allí.</li>
       <li><b>Comparado con sus vecinas.</b> Bajo la curva de brillo, el cambio del punto rodeado entre visitas se compara con las estrellas corrientes de las mismas imágenes. Si ellas se mantuvieron constantes y el punto no, el cambio es real y no una rareza de la cámara. Lo mismo se hace con su posición.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">Acerca de</p>
     <h1>Hecho para que más gente pueda mirar</h1>
-    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}, y seguimos ampliándolo. Hasta ahora han llegado la búsqueda de asteroides y cometas que cruzan un campo, la caza de asteroides con un informe listo para el Minor Planet Center, el cometa 3I/ATLAS y la vista «Años», que reúne 27 años de imágenes de 2MASS, WISE y SPHEREx en una misma cuadrícula.</p>
+    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}. Nuestra animación del centro galáctico, hecha con datos de SPHEREx, se publicó el 25 de noviembre de 2026 como <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) de la NASA. En el sitio puedes mirar cualquier punto del cielo en los 102 colores de SPHEREx y en 27 años de imágenes, cazar asteroides o jugar a «Encuentra la estrella que se movió».</p>
     ${team('El equipo')}
     <h2>Por qué lo hicimos</h2>
     <p>Plutón fue encontrado en 1930 por una persona que comparaba dos fotografías. Todavía hoy se encuentran mundos nuevos de esa manera. Voluntarios han localizado la mayoría de los más de 5000 cometas descubiertos en las imágenes de la nave SOHO, y unas 3000 candidatas a enana marrón en las imágenes del telescopio WISE de la NASA. SPHEREx está fotografiando ahora cientos de millones de objetos, una y otra vez: más de lo que cualquier grupo de profesionales puede inspeccionar.</p>

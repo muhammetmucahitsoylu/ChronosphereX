@@ -50,7 +50,7 @@ export default {
     <h2>Jak czytać to, co widzisz</h2>
     <ul>
       <li><b>Wizyty.</b> SPHEREx wraca do większości obszarów nieba mniej więcej co sześć miesięcy, a każda wizyta trwa od kilku dni do kilku tygodni. Jeden zsumowany obraz na wizytę, pokazywane po kolei, sprawiają, że małe przesunięcie łatwo dostrzec. W pobliżu biegunów płaszczyzny Układu Słonecznego patrzy niemal przy każdym okrążeniu, więc tam obrazy są grupowane według miesięcy.</li>
-      <li><b>Tabela przesunięć.</b> Dla obiektu w ruchu położenie zmierzone w każdej wizycie porównuje się z tym, co przewiduje katalog: jego jednostajnym ruchem po niebie oraz, dla najbliższych gwiazd, rocznym wahaniem wywołanym przez orbitę samej Ziemi. Ruch jest mierzony osobno w każdym detektorze, który widzi obiekt, a detektory są ze sobą porównywane.</li>
+      <li><b>Tabela przesunięć.</b> Dla obiektu w ruchu położenie zmierzone w każdej wizycie porównuje się z tym, co przewiduje katalog: jego jednostajnym ruchem po niebie oraz, dla najbliższych gwiazd, roczną paralaksą wywołaną przez orbitę samej Ziemi. Ruch jest mierzony osobno w każdym detektorze, który widzi obiekt, a detektory są ze sobą porównywane.</li>
       <li><b>Widmo.</b> Każdy punkt to jedna ekspozycja: jej długość fali i jasność zakreślonego miejsca. Punkty są pokolorowane według wizyty.</li>
       <li><b>Pasma cząsteczek.</b> Zacieniowane paski pokazują, gdzie pospolite cząsteczki pochłaniają światło. Tabela podaje, jak głęboki spadek tam zmierzono.</li>
       <li><b>Porównanie z sąsiadami.</b> Pod krzywą jasności zmiana zakreślonego miejsca między wizytami jest zestawiana ze zwykłymi gwiazdami na tych samych obrazach. Jeśli one pozostały stałe, a miejsce nie, zmiana jest prawdziwa, a nie jest kaprysem kamery. To samo robi się dla jego położenia.</li>
@@ -112,7 +112,7 @@ export default {
     about: () => `
     <p class="eyebrow">O projekcie</p>
     <h1>Zrobione po to, by mogło patrzeć więcej osób</h1>
-    <p class="lead">ChronosphereX tworzy i rozwija zespół ${TEAM.name}. Jak dotąd doszły wyszukiwanie planetoid i komet przecinających pole, polowanie na planetoidy z gotowym raportem dla Minor Planet Center, kometa 3I/ATLAS oraz widok „Lata”, który układa 27 lat obrazów z 2MASS, WISE i SPHEREx na jednej siatce.</p>
+    <p class="lead">ChronosphereX tworzy i rozwija zespół ${TEAM.name}. Nasza animacja centrum Galaktyki, przygotowana z danych SPHEREx, ukazała się 25 listopada 2026 roku jako <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) NASA. Na stronie możesz obejrzeć dowolny punkt nieba w 102 barwach SPHEREx i na zdjęciach z 27 lat, zapolować na planetoidy albo zagrać w „Znajdź gwiazdę, która się przesunęła”.</p>
     ${team('Zespół')}
     <h2>Dlaczego to zbudowaliśmy</h2>
     <p>Plutona odnalazł w 1930 roku człowiek porównujący dwie fotografie. Ludzie wciąż znajdują w ten sposób nowe światy. Wolontariusze wypatrzyli większość z ponad 5000 komet odkrytych na zdjęciach z sondy SOHO oraz około 3000 kandydatów na brązowe karły na zdjęciach z teleskopu WISE należącego do NASA. SPHEREx fotografuje teraz setki milionów obiektów, raz za razem: więcej, niż jakakolwiek grupa zawodowców zdoła przejrzeć.</p>

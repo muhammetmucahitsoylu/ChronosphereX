@@ -53,7 +53,7 @@ const TEXT = {
     'tour.end': 'End tour',
 
     'tour.1.title': 'SPHEREx',
-    'tour.1.text': `The *${SPHEREX}* will survey the entire sky in infrared light. During its planned two-year mission, it will collect data on more than 450 million galaxies and over 100 million stars in the Milky Way to explore the origins of the universe.`,
+    'tour.1.text': `The *${SPHEREX}* is surveying the entire sky in infrared light. During its planned two-year mission, it is collecting data on more than 450 million galaxies and over 100 million stars in the Milky Way to explore the origins of the universe.`,
     'tour.2.title': 'What is SPHEREx looking for?',
     'tour.2.text': 'SPHEREx maps the sky in 102 infrared bands. By measuring galaxy distances and the light they emit, it helps astronomers investigate the universe’s early expansion. It also studies water and other ices in cold, star-forming clouds across the Milky Way.',
     'tour.3.title': 'Why look at the same place twice?',
@@ -349,7 +349,7 @@ const TEXT = {
     'tour.end': 'Tour beenden',
 
     'tour.1.title': 'SPHEREx',
-    'tour.1.text': `Das *${SPHEREX}* wird den gesamten Himmel im Infrarotlicht durchmustern. Während seiner geplanten zweijährigen Mission wird es Daten zu mehr als 450 Millionen Galaxien und über 100 Millionen Sternen der Milchstraße sammeln, um die Ursprünge des Universums zu erforschen.`,
+    'tour.1.text': `Das *${SPHEREX}* durchmustert den gesamten Himmel im Infrarotlicht. Während seiner geplanten zweijährigen Mission sammelt es Daten zu mehr als 450 Millionen Galaxien und über 100 Millionen Sternen der Milchstraße, um die Ursprünge des Universums zu erforschen.`,
     'tour.2.title': 'Wonach sucht SPHEREx?',
     'tour.2.text': 'SPHEREx kartiert den Himmel in 102 Infrarotbändern. Indem es die Entfernungen von Galaxien und das von ihnen ausgesandte Licht misst, hilft es der Astronomie, die frühe Ausdehnung des Universums zu untersuchen. Außerdem untersucht es Wasser und andere Eise in kalten Sternentstehungswolken der Milchstraße.',
     'tour.3.title': 'Warum zweimal auf dieselbe Stelle schauen?',
@@ -497,7 +497,7 @@ const TEXT = {
     'tour.end': 'Quitter la visite',
 
     'tour.1.title': 'SPHEREx',
-    'tour.1.text': `Le *${SPHEREX}* observera tout le ciel en lumière infrarouge. Pendant sa mission prévue de deux ans, il recueillera des données sur plus de 450 millions de galaxies et plus de 100 millions d’étoiles de la Voie lactée afin d’explorer les origines de l’univers.`,
+    'tour.1.text': `Le *${SPHEREX}* observe tout le ciel en lumière infrarouge. Pendant sa mission prévue de deux ans, il recueille des données sur plus de 450 millions de galaxies et plus de 100 millions d’étoiles de la Voie lactée afin d’explorer les origines de l’univers.`,
     'tour.2.title': 'Que cherche SPHEREx ?',
     'tour.2.text': 'SPHEREx cartographie le ciel dans 102 bandes infrarouges. En mesurant les distances des galaxies et la lumière qu’elles émettent, il aide les astronomes à étudier l’expansion primordiale de l’univers. Il étudie aussi l’eau et d’autres glaces dans les nuages froids de la Voie lactée où naissent les étoiles.',
     'tour.3.title': 'Pourquoi regarder deux fois au même endroit ?',
@@ -645,7 +645,7 @@ const TEXT = {
     'tour.end': 'Zakończ wycieczkę',
 
     'tour.1.title': 'SPHEREx',
-    'tour.1.text': `*${SPHEREX}* przeskanuje całe niebo w świetle podczerwonym. Podczas planowanej dwuletniej misji zbierze dane o ponad 450 milionach galaktyk i ponad 100 milionach gwiazd Drogi Mlecznej, aby badać początki Wszechświata.`,
+    'tour.1.text': `*${SPHEREX}* skanuje całe niebo w świetle podczerwonym. Podczas planowanej dwuletniej misji zbiera dane o ponad 450 milionach galaktyk i ponad 100 milionach gwiazd Drogi Mlecznej, aby badać początki Wszechświata.`,
     'tour.2.title': 'Czego szuka SPHEREx?',
     'tour.2.text': 'SPHEREx tworzy mapę nieba w 102 pasmach podczerwieni. Mierząc odległości galaktyk i emitowane przez nie światło, pomaga astronomom badać wczesną ekspansję Wszechświata. Bada też wodę i inne lody w zimnych obłokach Drogi Mlecznej, w których powstają gwiazdy.',
     'tour.3.title': 'Po co patrzeć dwa razy w to samo miejsce?',
@@ -792,7 +792,7 @@ const TEXT = {
     'tour.end': 'Terminar la visita',
 
     'tour.1.title': 'SPHEREx',
-    'tour.1.text': `El *${SPHEREX}* explorará todo el cielo en luz infrarroja. Durante su misión prevista de dos años, recogerá datos de más de 450 millones de galaxias y más de 100 millones de estrellas de la Vía Láctea para explorar los orígenes del universo.`,
+    'tour.1.text': `El *${SPHEREX}* explora todo el cielo en luz infrarroja. Durante su misión prevista de dos años, recoge datos de más de 450 millones de galaxias y más de 100 millones de estrellas de la Vía Láctea para explorar los orígenes del universo.`,
     'tour.2.title': '¿Qué busca SPHEREx?',
     'tour.2.text': 'SPHEREx cartografía el cielo en 102 bandas infrarrojas. Al medir las distancias de las galaxias y la luz que emiten, ayuda a los astrónomos a investigar la expansión temprana del universo. También estudia el agua y otros hielos en las nubes frías de la Vía Láctea donde nacen las estrellas.',
     'tour.3.title': '¿Por qué mirar dos veces al mismo lugar?',
