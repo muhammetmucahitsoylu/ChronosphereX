@@ -30,7 +30,7 @@ export default {
       <li><b>Su ve yaşamın yapı taşları.</b> Yıldızların ve gezegenlerin oluştuğu bulutlardaki donmuş suyu, karbondioksiti ve öteki buzları tarar.</li>
     </ul>
     <h2>Bu arada yaptığı başka bir şey</h2>
-    <p>SPHEREx gökyüzünün her noktasına tekrar tekrar döndüğü için <b>hareket eden ya da değişen</b> her şeyi de kaydeder: asteroitler, kuyruklu yıldızlar, yakından geçen yıldızlar, kahverengi cüceler, şişip büzülen ya da ani parlamalar yapan yıldızlar. Yüz milyonlarca yıldızı ve gökadayı fotoğraflar; bu, hiçbir ekibin tek tek bakabileceğinden çok fazladır. Bu araç, daha çok insan bakabilsin diye var.</p>
+    <p>SPHEREx gökyüzünün her noktasına tekrar tekrar döndüğü için <b>hareket eden ya da değişen</b> her şeyi de kaydeder: asteroitler, kuyruklu yıldızlar, yakından geçen yıldızlar, kahverengi cüceler, şişip büzülen ya da ani parlamalar yapan yıldızlar. Yüz milyonlarca yıldızı ve gökadayı fotoğraflar. Bu, herhangi bir ekibin tek tek bakabileceğinden çok daha fazladır. Bu araç, daha çok insan bakabilsin diye var.</p>
     <p class="fine">Kaynaklar: <a href="https://www.jpl.nasa.gov/missions/spherex/" target="_blank" rel="noopener">NASA/JPL görev sayfası</a> · <a href="https://science.nasa.gov/mission/spherex/" target="_blank" rel="noopener">NASA Science</a> · <a href="https://irsa.ipac.caltech.edu/Missions/spherex.html" target="_blank" rel="noopener">NASA/IPAC arşivinde SPHEREx</a></p>`,
 
     how: () => `
@@ -115,7 +115,7 @@ export default {
     <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. Bugüne kadar bir alandan geçen asteroit ve kuyruklu yıldızları bulma, Minor Planet Center’a gönderilecek raporuyla birlikte asteroit avı, 3I/ATLAS kuyruklu yıldızı ve 2MASS, WISE ve SPHEREx’in 27 yıllık görüntülerini tek bir ızgarada birleştiren Yıllar görünümü eklendi.</p>
     ${team('Ekip')}
     <h2>Neden yaptık</h2>
-    <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor: hiçbir uzman grubunun inceleyebileceğinden çok fazlası.</p>
+    <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor. Bu, herhangi bir uzman grubunun inceleyebileceğinden çok daha fazlası.</p>
     <p>Hiçbir eğitimi olmayan birinin gökyüzünde bir nokta seçip orada bir şeyin hareket edip etmediğini ya da değişip değişmediğini kendi gözüyle görebileceği, sonra da bunu tek tıkla bağımsız kaynaklarla karşılaştırabileceği bir araç istedik.</p>
     <p>Dış güneş sisteminde bulunduğu varsayılan, henüz keşfedilmemiş X Gezegeni de böyle bulunabilir. SPHEREx onu görebilsin ya da göremesin, yakındaki bilinmeyen her cisim kendini Plüton’un ele verdiği yolla ele verir: hareket eden bir nokta olarak.</p>
     <h2>Kimler için</h2>
