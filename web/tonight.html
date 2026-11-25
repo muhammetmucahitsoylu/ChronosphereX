@@ -55,6 +55,7 @@
   .moon .what span { display: block; color: var(--ink-2); font-size: 14px; }
   button, .btn { font: 600 14px var(--sans); border-radius: 999px; padding: 8px 16px; min-height: 40px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .btn.find { border-color: var(--ember); color: var(--ember); }
+  .btn[aria-pressed=true] { border-color: #f2c14e66; color: var(--gold); }
   button.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; min-height: 46px; padding: 11px 20px; font-size: 15px; }
   button:focus-visible, .btn:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   #ask p { margin: 0 0 12px; color: var(--ink-2); }
@@ -85,7 +86,7 @@
       <section id="moon"><h2 id="moontitle"></h2><div class="moon"><svg id="moonpic" viewBox="-52 -52 104 104" width="84" height="84" aria-hidden="true"></svg><div class="what"><b id="moonphase"></b><span id="moonlit"></span><span id="moontimes"></span></div><a class="btn find" id="moonfind" hidden></a></div></section>
       <section id="planets" hidden><h2 id="planetstitle"></h2><div id="planetrows"></div></section>
       <section id="stars" hidden><h2 id="starstitle"></h2><div id="starrows"></div></section>
-      <section id="showers"><h2 id="showerstitle"></h2><div id="showerrows"></div></section>
+      <section id="showers"><h2 id="showerstitle"></h2><div id="showerrows"></div><p class="fine" id="evno" hidden style="color:var(--gold);margin-top:8px"></p></section>
     </div>
     <p class="fine" id="source"></p>
     <p class="fine"><a id="tool" href="./"></a></p>
@@ -106,7 +107,7 @@ const STR = {
     moon: 'The Moon', lit: '{p}% lit', rises: 'Rises {t}', sets: 'Sets {t}', upNow: 'In the sky now',
     phases: ['New Moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full Moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'],
     planets: 'Planets', best: 'Best at {t}: {dir}, {alt}° up', span: 'Visible {a}–{b}', notTonight: 'Not tonight: {why}', nearSun: 'too close to the Sun', down: 'below the horizon all night',
-    stars: 'Bright stars up now', starsAt: 'Bright stars up once it is dark ({t})', up: '{dir}, {alt}° up', find: 'Find',
+    stars: 'Bright stars up now', starsAt: 'Bright stars up once it is dark ({t})', up: '{dir}, {alt}° up', find: 'Find', evAsk: 'Remind me that night', evOn: 'Reminder set · Turn off', evTitle: 'The {name} peak tonight', evText: 'Find a dark place, give your eyes twenty minutes to get used to the dark, and watch a wide patch of sky.', evNo: 'The phone did not allow notifications. They can be turned on in its settings, under ChronosphereX.',
     showers: 'Meteor showers', peak: 'Best night {date}', rate: 'about {r} an hour under a dark sky', moonThen: 'Moon {p}% lit that night',
     source: 'Worked out on this device: the planets from JPL’s orbital elements, the Moon from the Astronomical Almanac’s series, good to a minute or two. Meteor showers: American Meteor Society.',
     tool: 'Open the whole tool', dirs: 'N,NE,E,SE,S,SW,W,NW', dateLoc: 'en-GB',
@@ -119,7 +120,7 @@ const STR = {
     moon: 'Ay', lit: '%{p} aydınlık', rises: 'Doğuş {t}', sets: 'Batış {t}', upNow: 'Şu an gökte',
     phases: ['Yeni Ay', 'Büyüyen hilal', 'İlk dördün', 'Büyüyen şişkin Ay', 'Dolunay', 'Küçülen şişkin Ay', 'Son dördün', 'Küçülen hilal'],
     planets: 'Gezegenler', best: 'En iyi saat {t}: {dir}, ufkun {alt}° üstü', span: 'Görünür: {a}–{b}', notTonight: 'Bu gece görünmüyor: {why}', nearSun: 'Güneş’e çok yakın', down: 'gece boyunca ufkun altında',
-    stars: 'Şu an tepedeki parlak yıldızlar', starsAt: 'Gök karardıktan sonra ({t}) tepedeki parlak yıldızlar', up: '{dir}, ufkun {alt}° üstü', find: 'Bul',
+    stars: 'Şu an tepedeki parlak yıldızlar', starsAt: 'Gök karardıktan sonra ({t}) tepedeki parlak yıldızlar', up: '{dir}, ufkun {alt}° üstü', find: 'Bul', evAsk: 'O gece hatırlat', evOn: 'Hatırlatılacak · Kapat', evTitle: '{name} meteor yağmuru bu gece', evText: 'Karanlık bir yer bulun, gözünüzü yirmi dakika karanlığa alıştırın ve göğün geniş bir parçasına bakın.', evNo: 'Telefon bildirimlere izin vermedi. Ayarlardan ChronosphereX’in bildirimlerini açabilirsiniz.',
     showers: 'Meteor yağmurları', peak: 'En iyi gecesi {date}', rate: 'karanlık gökte saatte yaklaşık {r} meteor', moonThen: 'O gece Ay %{p} aydınlık',
     source: 'Bu cihazda hesaplanır: gezegenler JPL’nin yörünge öğelerinden, Ay Astronomical Almanac’ın serisinden, bir iki dakikalık sapma olabilir. Meteor yağmurları: American Meteor Society.',
     tool: 'Aracın tamamını aç', dirs: 'K,KD,D,GD,G,GB,B,KB', dateLoc: 'tr',
@@ -132,7 +133,7 @@ const STR = {
     moon: 'Der Mond', lit: '{p} % beleuchtet', rises: 'Aufgang {t}', sets: 'Untergang {t}', upNow: 'Jetzt am Himmel',
     phases: ['Neumond', 'Zunehmende Sichel', 'Erstes Viertel', 'Zunehmender Mond', 'Vollmond', 'Abnehmender Mond', 'Letztes Viertel', 'Abnehmende Sichel'],
     planets: 'Planeten', best: 'Am besten um {t}: {dir}, {alt}° hoch', span: 'Sichtbar {a}–{b}', notTonight: 'Heute Nacht nicht: {why}', nearSun: 'zu nah an der Sonne', down: 'die ganze Nacht unter dem Horizont',
-    stars: 'Helle Sterne, jetzt', starsAt: 'Helle Sterne um {t}', up: '{dir}, {alt}° hoch', find: 'Finden',
+    stars: 'Helle Sterne, jetzt', starsAt: 'Helle Sterne um {t}', up: '{dir}, {alt}° hoch', find: 'Finden', evAsk: 'In der Nacht erinnern', evOn: 'Erinnerung gesetzt · Aus', evTitle: 'Heute Nacht: {name}', evText: 'Einen dunklen Ort suchen, den Augen zwanzig Minuten geben, sich an die Dunkelheit zu gewöhnen, und ein großes Stück Himmel beobachten.', evNo: 'Das Handy hat Benachrichtigungen nicht erlaubt. In den Einstellungen unter ChronosphereX lassen sie sich einschalten.',
     showers: 'Meteorströme', peak: 'Beste Nacht {date}', rate: 'etwa {r} pro Stunde bei dunklem Himmel', moonThen: 'Mond in dieser Nacht {p} % beleuchtet',
     source: 'Auf diesem Gerät berechnet: die Planeten aus den Bahnelementen des JPL, der Mond aus der Reihe des Astronomical Almanac, auf ein, zwei Minuten genau. Meteorströme: American Meteor Society.',
     tool: 'Das ganze Werkzeug öffnen', dirs: 'N,NO,O,SO,S,SW,W,NW', dateLoc: 'de',
@@ -145,7 +146,7 @@ const STR = {
     moon: 'La Lune', lit: 'éclairée à {p} %', rises: 'Lever {t}', sets: 'Coucher {t}', upNow: 'Dans le ciel maintenant',
     phases: ['Nouvelle Lune', 'Premier croissant', 'Premier quartier', 'Gibbeuse croissante', 'Pleine Lune', 'Gibbeuse décroissante', 'Dernier quartier', 'Dernier croissant'],
     planets: 'Planètes', best: 'Au mieux à {t} : {dir}, {alt}° de hauteur', span: 'Visible {a}–{b}', notTonight: 'Pas cette nuit : {why}', nearSun: 'trop près du Soleil', down: 'sous l’horizon toute la nuit',
-    stars: 'Étoiles brillantes, maintenant', starsAt: 'Étoiles brillantes à {t}', up: '{dir}, {alt}° de hauteur', find: 'Trouver',
+    stars: 'Étoiles brillantes, maintenant', starsAt: 'Étoiles brillantes à {t}', up: '{dir}, {alt}° de hauteur', find: 'Trouver', evAsk: 'Me le rappeler ce soir-là', evOn: 'Rappel prévu · Arrêter', evTitle: 'Cette nuit : les {name}', evText: 'Trouvez un endroit sombre, laissez vingt minutes à vos yeux pour s’habituer à l’obscurité et regardez une large partie du ciel.', evNo: 'Le téléphone n’a pas autorisé les notifications. Vous pouvez les activer dans ses réglages, sous ChronosphereX.',
     showers: 'Étoiles filantes', peak: 'Meilleure nuit {date}', rate: 'environ {r} par heure sous un ciel noir', moonThen: 'Lune éclairée à {p} % cette nuit-là',
     source: 'Calculé sur cet appareil : les planètes d’après les éléments orbitaux du JPL, la Lune d’après la série de l’Astronomical Almanac, à une ou deux minutes près. Étoiles filantes : American Meteor Society.',
     tool: 'Ouvrir l’outil complet', dirs: 'N,NE,E,SE,S,SO,O,NO', dateLoc: 'fr',
@@ -158,7 +159,7 @@ const STR = {
     moon: 'Księżyc', lit: 'oświetlony w {p}%', rises: 'Wschód {t}', sets: 'Zachód {t}', upNow: 'Teraz na niebie',
     phases: ['Nów', 'Przybywający sierp', 'Pierwsza kwadra', 'Przybywający garb', 'Pełnia', 'Ubywający garb', 'Ostatnia kwadra', 'Ubywający sierp'],
     planets: 'Planety', best: 'Najlepiej o {t}: {dir}, {alt}° nad horyzontem', span: 'Widoczna {a}–{b}', notTonight: 'Nie tej nocy: {why}', nearSun: 'zbyt blisko Słońca', down: 'całą noc pod horyzontem',
-    stars: 'Jasne gwiazdy teraz', starsAt: 'Jasne gwiazdy o {t}', up: '{dir}, {alt}° nad horyzontem', find: 'Znajdź',
+    stars: 'Jasne gwiazdy teraz', starsAt: 'Jasne gwiazdy o {t}', up: '{dir}, {alt}° nad horyzontem', find: 'Znajdź', evAsk: 'Przypomnij tej nocy', evOn: 'Przypomnienie ustawione · Wyłącz', evTitle: 'Dziś w nocy: {name}', evText: 'Znajdź ciemne miejsce, daj oczom dwadzieścia minut na przyzwyczajenie się do ciemności i patrz na duży kawałek nieba.', evNo: 'Telefon nie zezwolił na powiadomienia. Można je włączyć w ustawieniach, w ChronosphereX.',
     showers: 'Roje meteorów', peak: 'Najlepsza noc {date}', rate: 'około {r} na godzinę przy ciemnym niebie', moonThen: 'Księżyc tej nocy oświetlony w {p}%',
     source: 'Obliczone na tym urządzeniu: planety z elementów orbit JPL, Księżyc z szeregu Astronomical Almanac, z dokładnością do minuty, dwóch. Roje meteorów: American Meteor Society.',
     tool: 'Otwórz całe narzędzie', dirs: 'N,NE,E,SE,S,SW,W,NW', dateLoc: 'pl',
@@ -171,7 +172,7 @@ const STR = {
     moon: 'La Luna', lit: 'iluminada al {p} %', rises: 'Sale {t}', sets: 'Se pone {t}', upNow: 'En el cielo ahora',
     phases: ['Luna nueva', 'Creciente', 'Cuarto creciente', 'Gibosa creciente', 'Luna llena', 'Gibosa menguante', 'Cuarto menguante', 'Menguante'],
     planets: 'Planetas', best: 'Mejor a las {t}: {dir}, {alt}° de altura', span: 'Visible {a}–{b}', notTonight: 'Esta noche no: {why}', nearSun: 'demasiado cerca del Sol', down: 'bajo el horizonte toda la noche',
-    stars: 'Estrellas brillantes ahora', starsAt: 'Estrellas brillantes a las {t}', up: '{dir}, {alt}° de altura', find: 'Buscar',
+    stars: 'Estrellas brillantes ahora', starsAt: 'Estrellas brillantes a las {t}', up: '{dir}, {alt}° de altura', find: 'Buscar', evAsk: 'Recordármelo esa noche', evOn: 'Recordatorio puesto · Quitar', evTitle: 'Esta noche: las {name}', evText: 'Busca un lugar oscuro, deja que tus ojos se acostumbren veinte minutos a la oscuridad y mira una parte amplia del cielo.', evNo: 'El teléfono no permitió las notificaciones. Puedes activarlas en sus ajustes, en ChronosphereX.',
     showers: 'Lluvias de estrellas', peak: 'Mejor noche {date}', rate: 'unas {r} por hora con cielo oscuro', moonThen: 'Luna iluminada al {p} % esa noche',
     source: 'Calculado en este dispositivo: los planetas con los elementos orbitales del JPL, la Luna con la serie del Astronomical Almanac, con uno o dos minutos de error. Lluvias de estrellas: American Meteor Society.',
     tool: 'Abrir la herramienta completa', dirs: 'N,NE,E,SE,S,SO,O,NO', dateLoc: 'es',
@@ -202,6 +203,11 @@ const clock = new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit'
 const dirOf = az => T.dirs.split(',')[Math.round(az / 45) % 8];
 // a phone that can be held up to the sky (the same test as js/point.js): then each thing has a button that finds it there
 const canPoint = window.matchMedia('(pointer: coarse)').matches && ('ondeviceorientationabsolute' in window || typeof window.DeviceOrientationEvent?.requestPermission === 'function');
+// In the Android app: a reminder on the evening a meteor shower is best, at 21:00 (the app's own notification, which
+// opens this page). The app keeps them; this page shows which are set and asks for or drops one with a press.
+const app = window.ChronoApp, canRemind = !!app && typeof app.remindAt === 'function';
+let reminded = canRemind ? String(app.events() || '').split(',').filter(Boolean) : [];
+window.__chronoEvent = (id, on, refused) => { reminded = on ? [...new Set([...reminded, id])] : reminded.filter(k => k !== id); $('evno').hidden = !refused; render(); };
 const findLink = name => canPoint ? `<a class="btn find" href="./?point=1&find=${encodeURIComponent(name)}&lang=${lang}">${esc(T.find)}</a>` : '';
 
 /** Height above the horizon and compass bearing of a place in the sky (J2000 degrees) at a moment, from a place on Earth.
@@ -258,7 +264,10 @@ function render() {
   $('showerrows').innerHTML = next.map(([id, y, mo, d, rate]) => {
     const lit = moon(new Date(y, mo - 1, d, 23).getTime()).lit;
     const words = [fill(T.peak, { date: `${d}–${dm.format(new Date(y, mo - 1, d + 1))}` }), rate ? fill(T.rate, { r: rate }) : '', fill(T.moonThen, { p: Math.round(lit * 100) })].filter(Boolean);
-    return `<div class="row"><div class="what"><b>${esc(T.showerNames[id])}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div></div>`;
+    const ev = `${id}-${y}`, at = new Date(y, mo - 1, d, 21), on = reminded.includes(ev);
+    const when = `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}T21:00`;
+    const remind = canRemind && at > today ? `<button type="button" class="btn find" data-ev="${ev}" data-when="${when}" data-name="${esc(T.showerNames[id])}" aria-pressed="${on}">${esc(on ? T.evOn : T.evAsk)}</button>` : '';
+    return `<div class="row"><div class="what"><b>${esc(T.showerNames[id])}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div>${remind}</div>`;
   }).join('');
   $('showers').hidden = !next.length;
   if (!here) { $('ask').hidden = false; $('sun').hidden = $('planets').hidden = $('stars').hidden = true; $('moontimes').textContent = ''; $('moonfind').hidden = true; return; }
@@ -320,6 +329,13 @@ function render() {
   }
 }
 render();
+$('evno').textContent = T.evNo;
+$('showerrows').addEventListener('click', e => {
+  const b = e.target.closest('button[data-ev]');
+  if (!b || !canRemind) return;
+  if (b.getAttribute('aria-pressed') === 'true') app.remindAt(b.dataset.ev, '', '', '');
+  else app.remindAt(b.dataset.ev, b.dataset.when, fill(T.evTitle, { name: b.dataset.name }), T.evText);
+});
 $('askbtn').onclick = async () => {
   $('askbtn').disabled = true;
   const p = await place().catch(() => null);
