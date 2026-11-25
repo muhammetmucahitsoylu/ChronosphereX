@@ -5,7 +5,7 @@
 // For any other place, the 2MASS and AllWISE sky maps (HiPS) that NASA/IPAC's IRSA serves, read in this browser
 // and laid on the grid of the SPHEREx images: pictures on which a star's place is measured, not its brightness.
 import * as C from './core.js';
-import { G, N } from './lang.js';
+import { G, N, fx } from './lang.js';
 
 const HIPS = 'https://irsa.ipac.caltech.edu/data/hips/CDS';
 /** The band of 2MASS and the band of WISE nearest to each SPHEREx detector. */
@@ -143,7 +143,7 @@ export const bandName = b => `${b[0] === 'W' ? 'WISE' : '2MASS'} ${b}`;
 /** What an image of the view says about itself: when, which telescope and band, from how many exposures. */
 export function caption(f) {
   const when = f.survey === 'AllWISE' ? '2010' : f.guessed ? '1997–2001' : f.t0 !== undefined && f.t1 - f.t0 > 1 ? C.fmtRange(f.t0, f.t1) : C.fmtDate(f.mjd);
-  const what = f.survey === 'SPHEREx' ? `SPHEREx D${f.det}` : `${f.survey} ${f.band} · ${LAM[f.band].toFixed(2)} µm`;
+  const what = f.survey === 'SPHEREx' ? `SPHEREx D${f.det}` : `${f.survey} ${f.band} · ${fx(LAM[f.band], 2)} µm`;
   const how = f.pic ? G`sky map` : f.survey === '2MASS' ? G`Atlas Images` : f.n ? N(f.n, 'exposure') : '';
   return { title: f.survey === 'AllWISE' ? '2010' : f.guessed ? '1997–2001' : C.fmtMonth(f.mjd), sub: [what, how, f.guessed ? '' : when].filter(Boolean).join(' · ') };
 }

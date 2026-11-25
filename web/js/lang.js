@@ -916,6 +916,13 @@ function chosen() {
 export const lang = chosen();
 /** For dates and numbers: the language in use. */
 export const locale = lang === 'xx' ? 'en' : lang;
+/** The decimal mark of the language in use: a point in English, a comma in the others. */
+export const DEC = (1.5).toLocaleString(locale).charAt(1);
+/** A number with d decimals, written with the language's own mark: fx(10.44, 1) is 10.4 in English, 10,4 in Turkish.
+ *  Only for what people read: addresses, files, queries and reports keep toFixed and the point. */
+export const fx = (v, d) => (+v).toFixed(d).replace('.', DEC);
+/** A number as it stands (0.75, 5), with the language's own mark. */
+export const dn = v => String(v).replace('.', DEC);
 // A test language (?lang=xx): every text that goes through t, G or N comes out in ⟦brackets⟧, so
 // that whatever on the screen is not in brackets is a text that cannot yet be translated.
 const PSEUDO = lang === 'xx';

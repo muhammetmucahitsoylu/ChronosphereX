@@ -13,7 +13,7 @@ import * as Point from './point.js';
 import * as Names from './names.js';
 import { declination } from './magnet.js';
 
-const T = Lang.t, G = Lang.G;          // the words of the front page, the tour and the walk through the panel, in the language in use
+const T = Lang.t, G = Lang.G, fx = Lang.fx, dn = Lang.dn;          // the words of the front page, the tour and the walk through the panel, in the language in use
 const PAGE_FILES = { planetx: 'planet-x.html', hunt: 'find-asteroids.html', spherex: 'what-is-spherex.html', how: 'how-it-works.html', about: 'about.html' };
 const OBJECT_FILES = { barnard: 'barnards-star.html', epsindib: 'epsilon-indi-b.html', wise0855: 'wise-0855.html', rwaur: 'rw-aurigae.html', rdra: 'r-draconis.html', pluto: 'pluto.html', '3i-atlas': '3i-atlas.html' };
 /**
@@ -38,7 +38,7 @@ const isSide = () => window.matchMedia('(orientation: landscape) and (max-height
 const topH = () => (getComputedStyle($('top')).position === 'absolute' ? 0 : $('top').offsetHeight);
 const calmMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const yearNow = C.epochNow;
-const NUM = new Intl.NumberFormat('en'), NUM2 = new Intl.NumberFormat('en', { maximumFractionDigits: 2 });      // made once: making one per number is slow
+const NUM = new Intl.NumberFormat(Lang.locale), NUM2 = new Intl.NumberFormat(Lang.locale, { maximumFractionDigits: 2 });      // made once: making one per number is slow
 const nExp = n => Lang.N(n, 'exposure');
 // The showcase objects that have a name of their own in other languages (the tour's ladder of brightness names them).
 const NAMED = { barnard: 'ladder.r3', pluto: 'ladder.r4' };
@@ -376,7 +376,7 @@ function rebuild() {
   if (S.mode === 'frames') {
     seq = frames.map(f => ({ kind: 'frame', img: f.data, sig: f.sig, mjd: f.mjd, frame: f,
       ...(own ? { hi: stacks.find(st => st.ep.i === gEpoch(f.mjd))?.top } : {}),          // each exposure of a followed body on the scale of its own visit
-      title: C.fmtDate(f.mjd, true), sub: `${lamAt(f).toFixed(3)} µm · ${f.id}` }));
+      title: C.fmtDate(f.mjd, true), sub: `${fx(lamAt(f), 3)} µm · ${f.id}` }));
   } else if (S.mode === 'epochs') seq = stacks;
   else if (S.mode === 'years') seq = yearsSeq(stacks);
   else if (S.mode === 'deep') {
@@ -393,7 +393,7 @@ function rebuild() {
         const sub = fr.length > 80 ? fr.filter((_, i) => i % Math.ceil(fr.length / 80) === 0) : fr;
         const img = C.medianStack(sub, npx), st = C.robustStats(img);
         S.bandCache[d] = { key, kind: 'stack', det: d, img, sig: st.sig, hi: Math.max(st.p(0.997), 25 * st.sig), mjd: fr[fr.length >> 1].mjd,
-          n: fr.length, title: G`${C.DET_BANDS[d][0]} to ${C.DET_BANDS[d][1]} µm`, sub: own ? `${nExp(fr.length)} · ${C.fmtRange(fr[0].mjd, fr[fr.length - 1].mjd)}` : G`${nExp(fr.length)}, all visits` };
+          n: fr.length, title: G`${dn(C.DET_BANDS[d][0])} to ${dn(C.DET_BANDS[d][1])} µm`, sub: own ? `${nExp(fr.length)} · ${C.fmtRange(fr[0].mjd, fr[fr.length - 1].mjd)}` : G`${nExp(fr.length)}, all visits` };
       }
       per[d] = S.bandCache[d]; seq.push(per[d]);
     }
@@ -599,7 +599,7 @@ function renderYears() {
       if (!(p[0] > 2 && p[1] > 2 && p[0] < n - 3 && p[1] < n - 3)) {
         outside = true;
         const far = Math.hypot(p[0] - (n - 1) / 2, p[1] - (n - 1) / 2) * S.grid.scale / 60, need = [10, 20, 40].find(v => v / 2 > far + 0.7);
-        out += `<p class="yearsnote">${G`When 2MASS looked, in ${C.fmtMonth(old.mjd)}, ${esc(name)} stood ${far.toFixed(1)}′ from where it is now: outside this field.`}${need ? ` <button type="button" data-wider="${need}">${G`Open a field of ${need}′`}</button>` : ''}</p>`;
+        out += `<p class="yearsnote">${G`When 2MASS looked, in ${C.fmtMonth(old.mjd)}, ${esc(name)} stood ${fx(far, 1)}′ from where it is now: outside this field.`}${need ? ` <button type="button" data-wider="${need}">${G`Open a field of ${need}′`}</button>` : ''}</p>`;
       }
     }
     if (old?.guessed) out += `<p class="hint">${G`The night 2MASS looked at this place could not be looked up: its images are dated 1997 to 2001.`}</p>`;
@@ -654,20 +654,20 @@ function renderYears() {
   for (const q of seen) { const k = q.it.years.survey; if (!by.has(k)) by.set(k, []); by.get(k).push(q); }
   for (const [k, v] of by) {
     const r = Math.sqrt(v.reduce((s2, q) => s2 + q.dE ** 2 + q.dN ** 2, 0) / v.length), y0 = Math.floor(v[0].t), y1 = Math.floor(v[v.length - 1].t);
-    rows.push(`<tr><td>${k}</td><td>${v.length}</td><td>${y0 === y1 ? y0 : `${y0}–${y1}`}</td><td>${r.toFixed(1)}″</td></tr>`);
+    rows.push(`<tr><td>${k}</td><td>${v.length}</td><td>${y0 === y1 ? y0 : `${y0}–${y1}`}</td><td>${fx(r, 1)}″</td></tr>`);
   }
   const moved = cat * years;
   let say = '';
   if (moved >= 2 * g.scale) {
-    say = G`From ${a.it.years.survey} in ${C.fmtMonth(a.it.mjd)} to ${b.it.years.survey} in ${C.fmtMonth(b.it.mjd)}, ${esc(name)} moved ${arc(mine * years)} towards the ${compass(pmE, pmN)}. Measured in these ${seen.length} images: ${mine.toFixed(2)}″ a year; the catalogue gives ${cat.toFixed(2)}″.`;
+    say = G`From ${a.it.years.survey} in ${C.fmtMonth(a.it.mjd)} to ${b.it.years.survey} in ${C.fmtMonth(b.it.mjd)}, ${esc(name)} moved ${arc(mine * years)} towards the ${compass(pmE, pmN)}. Measured in these ${seen.length} images: ${fx(mine, 2)}″ a year; the catalogue gives ${fx(cat, 2)}″.`;
   } else {
-    say = G`In ${years.toFixed(0)} years, from ${a.it.years.survey} to ${b.it.years.survey}, ${esc(name)} moved less than this view can show (${(cat * years).toFixed(1)}″ by the catalogue).`;
+    say = G`In ${fx(years, 0)} years, from ${a.it.years.survey} to ${b.it.years.survey}, ${esc(name)} moved less than this view can show (${fx((cat * years), 1)}″ by the catalogue).`;
   }
   // a telescope in whose images it does not show at all: too faint, or too cold, at that wavelength (WISE 0855 in 2MASS)
   // only where there was no light at all: a bright star that could not be centred is not "too faint"
   const unseen = [...new Set(missed.filter(q => q.dark).map(q => q.it.years.survey))].filter(k => !by.has(k)).map(k => missed.find(q => q.dark && q.it.years.survey === k).it.years);
-  const none = unseen.map(f => G`It does not show in the ${f.survey} image (${f.band}, ${Years.LAM[f.band].toFixed(2)} µm, ${f.guessed ? '1997–2001' : C.fmtMonth(f.mjd)}): at that wavelength it is too faint for ${f.survey}.`).join(' ');
-  el.innerHTML = `<p class="yearssay">${say} ${G`Its light lies ${rms.toFixed(1)}″ (r.m.s.) from where the catalogue puts it on each date.`}${none ? ` ${none}` : ''}</p>${notes}
+  const none = unseen.map(f => G`It does not show in the ${f.survey} image (${f.band}, ${fx(Years.LAM[f.band], 2)} µm, ${f.guessed ? '1997–2001' : C.fmtMonth(f.mjd)}): at that wavelength it is too faint for ${f.survey}.`).join(' ');
+  el.innerHTML = `<p class="yearssay">${say} ${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}${none ? ` ${none}` : ''}</p>${notes}
     <table class="t"><thead><tr><th>${G`Telescope`}</th><th>${G`Images`}</th><th>${G`Years`}</th><th>${G`Off the catalogue`}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
   yearsHunt(el, name);
   yearsBrightness(el, name);
@@ -703,11 +703,11 @@ function yearsHunt(el, name) {
     mine.push({ ...t, it: at });
   }
   if (!mine.length) return;
-  const lam = Years.LAM[band].toFixed(1);
+  const lam = fx(Years.LAM[band], 1);
   const lines = mine.map(t => {
     const speed = Math.hypot(t.fvx, t.fvy) * g.scale, dir = compass(-t.fvx, t.fvy);
-    return t.it ? G`moving ${speed.toFixed(2)}″ a year towards the ${dir}, in ${t.hits} of the ${t.inside} visits: it is ${esc(name)}${S.track ? G` (${(Math.hypot(S.track.pmra || 0, S.track.pmdec || 0) / 1000).toFixed(2)}″ a year by the catalogue)` : ''}`
-      : G`moving ${speed.toFixed(2)}″ a year towards the ${dir}, in ${t.hits} of the ${t.inside} visits: not the object in the ring. Check it in the other tools before believing it`;
+    return t.it ? G`moving ${fx(speed, 2)}″ a year towards the ${dir}, in ${t.hits} of the ${t.inside} visits: it is ${esc(name)}${S.track ? G` (${fx((Math.hypot(S.track.pmra || 0, S.track.pmdec || 0) / 1000), 2)}″ a year by the catalogue)` : ''}`
+      : G`moving ${fx(speed, 2)}″ a year towards the ${dir}, in ${t.hits} of the ${t.inside} visits: not the object in the ring. Check it in the other tools before believing it`;
   });
   const cold = mine.some(t => t.it) && (S.target?.resolved?.otype || S.info?.otype) === 'BD*';          // a brown dwarf: the kind of world this is how one finds
   el.insertAdjacentHTML('beforeend', `<p class="yearssay huntsay"><b>${G`Found without being told where to look.`}</b> ${G`In the ${fr.length} visits of WISE and NEOWISE at ${lam} µm, the page looked for anything that moves in a straight line. It found:`} ${lines.join('; ')}.${cold ? ` ${G`This is how cold, faint worlds near the Sun are found: by their motion, in infrared images years apart.`}` : ''}</p>`);
@@ -837,9 +837,9 @@ function yearsBrightness(el, name) {
   const corr = pairs.reduce((a, p) => a + (p[0] - ax) * (p[1] - ay), 0) / Math.sqrt(pairs.reduce((a, p) => a + (p[0] - ax) ** 2, 0) * pairs.reduce((a, p) => a + (p[1] - ay) ** 2, 0));
   const hi = mine.reduce((a, m) => (m.rel > a.rel ? m : a)), lo = mine.reduce((a, m) => (m.rel < a.rel ? m : a));
   if (!(corr >= 0.8) || hi.rel / lo.rel < 4 / 3) return;
-  const lam = Years.LAM[band].toFixed(1);
-  const say = G`At ${lam} µm (${band}), ${esc(name)} changed from visit to visit. In these images, in the light of a ring around its saturated core, it was brightest in ${C.fmtMonth(hi.mjd)}, ${hi.rel.toFixed(1)} times its usual brightness, and faintest in ${C.fmtMonth(lo.mjd)}, ${lo.rel.toFixed(2)} times.`;
-  const theirs = G`The catalogue of WISE and NEOWISE, which fits the saturated star itself, follows the same ups and downs (correlation ${corr.toFixed(2)}), over a wider range: ${Math.min(...rel).toFixed(2)} to ${Math.max(...rel).toFixed(1)} times.`;
+  const lam = fx(Years.LAM[band], 1);
+  const say = G`At ${lam} µm (${band}), ${esc(name)} changed from visit to visit. In these images, in the light of a ring around its saturated core, it was brightest in ${C.fmtMonth(hi.mjd)}, ${fx(hi.rel, 1)} times its usual brightness, and faintest in ${C.fmtMonth(lo.mjd)}, ${fx(lo.rel, 2)} times.`;
+  const theirs = G`The catalogue of WISE and NEOWISE, which fits the saturated star itself, follows the same ups and downs (correlation ${fx(corr, 2)}), over a wider range: ${fx(Math.min(...rel), 2)} to ${fx(Math.max(...rel), 1)} times.`;
   el.insertAdjacentHTML('beforeend', `<p class="yearssay lcsay">${say} ${theirs}</p><div class="plotwrap"><canvas id="yearslc" aria-label="${esc(G`Brightness over the years`)}"></canvas><div class="tip" hidden></div></div>
     <div class="legend"><span><i style="background:#06d6a0"></i>${esc(G`these images (ring around the core)`)}</span><span><i style="background:#f2c14e"></i>${esc(G`catalogue of WISE and NEOWISE`)}</span></div>`);
   const cv2 = $('yearslc'), plot = new Plot(cv2, cv2.nextElementSibling);
@@ -847,9 +847,9 @@ function yearsBrightness(el, name) {
   const pts = [...cat.map((r, k) => ({ x: r[0], y: rel[k], err: rel[k] * 0.921 * r[2], color: '#f2c14e', what: G`catalogue` })), ...mine.map(m => ({ x: m.mjd, y: m.rel, color: '#06d6a0', what: G`these images` }))];
   const top = Math.max(...pts.map(p => p.y)) * 1.15;
   plot.set(pts, { ylim: [0, top], hline: 1, ylabel: G`× usual brightness`, xTicks: (a, b) => { const out = []; for (let y = Math.ceil(C.mjdToYear(a)); y <= C.mjdToYear(b); y++) if (y % 2 === 0) out.push({ v: 51544.5 + (y - 2000) * 365.25, label: String(y) }); return out; },
-    tipText: p => `${C.fmtMonth(p.x)} · ${p.what} · ×${p.y.toFixed(2)}` });
+    tipText: p => `${C.fmtMonth(p.x)} · ${p.what} · ×${fx(p.y, 2)}` });
 }
-const lamRange = fr => { const v = fr.map(f => f.lam).sort((a, b) => a - b); return v.length > 1 ? `${v[0].toFixed(2)}–${v[v.length - 1].toFixed(2)} µm` : `${v[0].toFixed(2)} µm`; };
+const lamRange = fr => { const v = fr.map(f => f.lam).sort((a, b) => a - b); return v.length > 1 ? `${fx(v[0], 2)}–${fx(v[v.length - 1], 2)} µm` : `${fx(v[0], 2)} µm`; };
 
 function defaultSelection() {
   if (S.track) { S.sel = { follow: true }; return; }
@@ -1039,7 +1039,7 @@ function overlays(it, W, H, s) {
           const [ra2, dec2] = C.propagate(src, S.gaia.epoch, year + 5), [x2, y2] = C.skyToGrid(g, ra2, dec2), [X2, Y2] = g2c(x2, y2, W, H, s);
           const len = Math.hypot(X2 - X, Y2 - Y), off = own ? clear : Math.max(3.5, 4 / g.scale * s) + 2;
           if (len > off + 8) arrow(X + (X2 - X) * off / len, Y + (Y2 - Y) * off / len, X2, Y2, '#ffd166');
-          ctx.fillStyle = '#ffd166'; ctx.fillText(G`${(pm / 1000).toFixed(1)}″/yr`, X2 + 6, Y2 - 6);
+          ctx.fillStyle = '#ffd166'; ctx.fillText(G`${fx((pm / 1000), 1)}″/yr`, X2 + 6, Y2 - 6);
         }
       }
     }
@@ -1239,7 +1239,7 @@ function drawPlots() {
     xlim: [0.7, 5.1], empty: S.failed ? G`No images to measure` : !S.grid ? G`Waiting for the images…` : S.sel ? G`Measuring…` : G`Click or tap a star in the image`,
     shade: [...(S.grid ? [{ x0: C.DET_BANDS[S.det][0], x1: C.DET_BANDS[S.det][1], color: '#ff7b3916' }] : []),
       ...(S.showBands ? (own ? C.GASES : bodyStops() ? C.ICES : C.MOLECULES).map((m, i) => ({ x0: m.band[0], x1: m.band[1], color: '#ffffff12', label: m.f, row: i % 2 })) : [])],
-    tipText: p => `${p.x.toFixed(3)} µm · ${relative ? `×${p.y.toFixed(2)}` : `${p.src.halo ? '≈ ' : ''}${p.y.toFixed(p.y >= 100 ? 0 : 2)}${p.src.halo ? '' : ` ± ${p.err.toFixed(2)}`} ${unit}`} · ${C.fmtDate(p.src.mjd)} · D${p.src.det}${p.src.spoiled === 'star' ? G` · a star behind it adds to this one` : p.src.spoiled === 'fault' ? G` · faulty pixels in the circle` : ''}`,
+    tipText: p => `${fx(p.x, 3)} µm · ${relative ? `×${fx(p.y, 2)}` : `${p.src.halo ? '≈ ' : ''}${fx(p.y, p.y >= 100 ? 0 : 2)}${p.src.halo ? '' : ` ± ${fx(p.err, 2)}`} ${unit}`} · ${C.fmtDate(p.src.mjd)} · D${p.src.det}${p.src.spoiled === 'star' ? G` · a star behind it adds to this one` : p.src.spoiled === 'fault' ? G` · faulty pixels in the circle` : ''}`,
     onPick: p => jumpTo(p.src),
   });
   // Variability: each point relative to the spot's own median spectrum.
@@ -1262,17 +1262,17 @@ function drawPlots() {
   lcPlot.set(lc, own ? {
     xlabel: G`date`, ylabel: G`brightness (${unit})`, logY: true, ylim: [floor, 2 * peak], xTicks: dateTicks,
     empty: S.failed ? G`No images to measure` : G`Waiting for the images…`,
-    tipText: p => `${C.fmtDate(p.x)} · ${p.y.toFixed(p.y >= 100 ? 0 : 2)} ${unit} · ${p.src.lam.toFixed(2)} µm`,
+    tipText: p => `${C.fmtDate(p.x)} · ${fx(p.y, p.y >= 100 ? 0 : 2)} ${unit} · ${fx(p.src.lam, 2)} µm`,
     onPick: p => jumpTo(p.src),
   } : {
     xlabel: G`date`, ylabel: G`relative brightness`, ylim: [lo - 0.1, hi + 0.1], hline: 1, errors: lc.length < 400,
     band: check?.steady != null ? { y0: 1 - check.steady, y1: 1 + check.steady } : null,
     xTicks: dateTicks, empty: pts.length ? G`Too faint (or saturated) in D${S.det} to measure changes` : S.failed ? G`No images to measure` : !S.grid ? G`Waiting for the images…` : G`Click or tap a star in the image`,
-    tipText: p => `${C.fmtDate(p.x)} · ×${p.y.toFixed(2)} · ${p.src.lam.toFixed(2)} µm`,
+    tipText: p => `${C.fmtDate(p.x)} · ×${fx(p.y, 2)} · ${fx(p.src.lam, 2)} µm`,
     onPick: p => jumpTo(p.src),
   });
   renderMolecules(own ? pts : steadied(pts));
-  $('lctitle').textContent = G`Brightness over time · D${S.det} (${C.DET_BANDS[S.det].join('–')} µm)`;
+  $('lctitle').textContent = G`Brightness over time · D${S.det} (${C.DET_BANDS[S.det].map(dn).join('–')} µm)`;
   $('speclegend').innerHTML = (S.head?.epochs || []).map((e, i) => `<span><i style="background:${C.EPOCH_COLORS[i % C.EPOCH_COLORS.length]}"></i>${C.fmtMonth((e[0] + e[1]) / 2)}</span>`).join('');
   const loadingMore = !!S.head && [1, 2, 3, 4, 5, 6].some(d => +S.head.avail[d] > 0 && !S.dets[d]?.done);
   const haloNote = !S.haloDets?.length ? ''
@@ -1310,8 +1310,8 @@ function followedChange(pts) {
   const a = v[0], z = v[v.length - 1];
   if (v.length < 2 || !(a.mid > 0) || !(z.mid > 0)) { el.innerHTML = ''; S.find.change = null; renderFindings(); return null; }
   const eps = S.head.epochs, when = x => C.fmtMonth((eps[x.k][0] + eps[x.k][1]) / 2), up = z.mid >= a.mid, times = up ? z.mid / a.mid : a.mid / z.mid;
-  const shown = times >= 10 ? String(Math.round(times)) : times.toFixed(1), vis = S.target.body?.visits || [], far = vis[a.k], near = vis[z.k];
-  const au = x => x.sun.map(d => d.toFixed(2)).join('–');
+  const shown = times >= 10 ? String(Math.round(times)) : fx(times, 1), vis = S.target.body?.visits || [], far = vis[a.k], near = vis[z.k];
+  const au = x => x.sun.map(d => fx(d, 2)).join('–');
   const where = far && near ? G` It was ${au(far)} au from the Sun at the first of those visits and ${au(near)} au at the last: 1 au is the distance from the Earth to the Sun.` : '';
   el.innerHTML = up
     ? G`<p class="hint verdict"><b>${shown} times as bright in ${when(z)} as in ${when(a)}</b>, in D${S.det}: the middle value of ${z.n} exposures against that of ${a.n}, each the light within 9″ of the comet's centre.${where}</p>`
@@ -1329,8 +1329,8 @@ function renderGlow(pts) {
   const lit = visits.map(v => ({ when: v.when, names: v.rows.filter(m => m.glows).map(m => G(m.said)) })).filter(v => v.names.length);
   S.find.bands = lit.length ? { cls: 'found', html: G`<b>Gas glowing around it:</b> ${lit.map(v => `${and(v.names)} (${v.when})`).join('; ')}.` } : null;
   renderFindings();
-  const cell = m => (m.times === null ? '–' : !m.glows ? G`no clear glow` : m.times > 100 ? G`more than ×100` : `×${m.times >= 10 ? Math.round(m.times) : m.times.toFixed(1)}`);
-  const rows = C.GASES.map((g, i) => `<tr><td>${G(g.name)} <span class="none">${g.f}</span></td><td>${g.band[0].toFixed(2)}–${g.band[1].toFixed(2)}</td>${visits.map(v => `<td class="${v.rows[i].glows ? 'peak' : 'none'}">${cell(v.rows[i])}</td>`).join('')}</tr>`).join('');
+  const cell = m => (m.times === null ? '–' : !m.glows ? G`no clear glow` : m.times > 100 ? G`more than ×100` : `×${m.times >= 10 ? Math.round(m.times) : fx(m.times, 1)}`);
+  const rows = C.GASES.map((g, i) => `<tr><td>${G(g.name)} <span class="none">${g.f}</span></td><td>${fx(g.band[0], 2)}–${fx(g.band[1], 2)}</td>${visits.map(v => `<td class="${v.rows[i].glows ? 'peak' : 'none'}">${cell(v.rows[i])}</td>`).join('')}</tr>`).join('');
   el.innerHTML = G`<table class="t mol"><thead><tr><th>Gas</th><th>Band <span class="asis">(µm)</span></th>${visits.map(v => `<th>${v.when}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
     <p class="hint">×49 means: inside the band the comet is, at its brightest measurement there, 49 times as bright as in the plain spectrum beside the band. A gas around a comet takes up sunlight and gives it back at its own wavelengths: that is the glow. It counts when two or more measurements in the band stand clear of the spectrum beside it; hollow points are left out. The SPHEREx team reports these gases from the same exposures: <a href="https://irsa.ipac.caltech.edu/data/SPHEREx/docs/comet3iatlas/index.html" target="_blank" rel="noopener">its papers, listed at IRSA</a>.</p>`;
 }
@@ -1379,7 +1379,7 @@ function renderMolecules(pts) {
     }
     // Brighter inside the band than beside it: nothing absorbs there, something glows.
     const label = cls === 'peak' ? `${G(m.glow || 'Something glowing')} <span class="none">${G`emission`}</span>` : `${G(m.name)} <span class="none">${m.f}</span>`;
-    return `<tr><td>${label}</td><td>${m.band[0].toFixed(2)}–${m.band[1].toFixed(2)}</td><td class="${cls}">${txt}</td></tr>`;
+    return `<tr><td>${label}</td><td>${fx(m.band[0], 2)}–${fx(m.band[1], 2)}</td><td class="${cls}">${txt}</td></tr>`;
   }).join('');
   if (rowsData.every(m => m.depth === null)) {
     el.innerHTML = G`<p class="hint">Molecule bands cannot be measured here: ${whyNot(rowsData.find(m => m.why === 'star too bright to tell') || rowsData.find(m => m.why === 'too faint to tell') || rowsData.find(m => m.why === 'too uneven to tell') || {})}.</p>`;
@@ -1537,7 +1537,7 @@ function realityCheck(lc) {
   else if (change >= Math.max(2 * steady, 0.04) && sig >= 3) { word = 'maybe'; verdict = G`Possibly changing: ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for ${stars} in the same images. Worth a closer look.`; }
   else { word = 'steady'; verdict = G`<b>No significant change.</b> Between visits the spot differs by ${pc(change)} in D${S.det}; ${stars} in the same images differ by up to ${pc(steady)}.`; }
   const rows = visits.length <= 6 ? G`<table class="t"><thead><tr><th>${S.head.split ? G`Month` : G`Visit`}</th><th>This spot</th><th>Ordinary stars</th></tr></thead><tbody>${target.map((t, i) =>
-    `<tr><td><i style="background:${C.EPOCH_COLORS[t.k % C.EPOCH_COLORS.length]}"></i>${C.fmtMonth((eps[t.k][0] + eps[t.k][1]) / 2)}</td><td>${i ? `×${t.rel.toFixed(2)}` : G`reference`}</td><td>${i ? (steadyAt(i) == null ? '–' : G`within ${pc(steadyAt(i))}`) : ''}</td></tr>`).join('')}</tbody></table>` : '';
+    `<tr><td><i style="background:${C.EPOCH_COLORS[t.k % C.EPOCH_COLORS.length]}"></i>${C.fmtMonth((eps[t.k][0] + eps[t.k][1]) / 2)}</td><td>${i ? `×${fx(t.rel, 2)}` : G`reference`}</td><td>${i ? (steadyAt(i) == null ? '–' : G`within ${pc(steadyAt(i))}`) : ''}</td></tr>`).join('')}</tbody></table>` : '';
   el.innerHTML = `${sn >= 5 ? rows : ''}<p class="hint verdict">${verdict}${steady != null && sn >= 5 ? G` The grey band in the plot is that steadiness.` : ''}</p>`;
   const spread = Math.max(...target.map(t => t.rel)) - Math.min(...target.map(t => t.rel));      // from the faintest visit to the brightest
   S.find.change = sn < 5 ? null
@@ -1625,7 +1625,7 @@ function scanField() {
   for (const s of usableStars) {
     const own = S.track && eps.some(e => { const t = trackPos((e[0] + e[1]) / 2); return Math.hypot(t[0] - s.x, t[1] - s.y) < 4; });
     if (s.shift != null && s.real && s.shift > Math.max(3.5 * Math.hypot(align, s.fuzz), 2)) {
-      flags.push({ s, own, kind: 'moved', text: G`Moved ${s.shift.toFixed(1)}″ ${compass(s.dE, s.dN)}`, note: G`about ${(s.shift / s.years).toFixed(1)}″ per year` });
+      flags.push({ s, own, kind: 'moved', text: G`Moved ${fx(s.shift, 1)}″ ${compass(s.dE, s.dN)}`, note: G`about ${fx((s.shift / s.years), 1)}″ per year` });
     } else if (s.change && Math.abs(s.change.ch) >= Math.max(0.15, 5 * steady) && s.change.sig >= 6) {
       const mon = k => C.fmtMonth((eps[k][0] + eps[k][1]) / 2);
       flags.push({ s, own, kind: 'changed', text: G`${s.change.ch > 0 ? G`Brightened` : G`Faded`} by ${Math.round(Math.abs(s.change.ch) * 100)}%`, note: G`between ${mon(s.change.from)} and ${mon(s.change.to)}` });
@@ -1645,7 +1645,7 @@ function renderScan() {
   const r = scanResult;
   if (!r || r.checked < 4) { el.innerHTML = r ? G`<p class="hint">Too few clear stars in this field to check them against each other.</p>` : ''; return; }
   const steadyN = r.checked - r.flags.length;
-  const head = G`<p class="hint verdict"><b>Every clear star in this field, checked.</b> ${r.checked} stars in D${S.det}: ${r.flags.length ? G`${steadyN} did not move or change, ${r.flags.length} stand${r.flags.length === 1 ? 's' : ''} out.` : G`none moved, none changed.`} Here, positions repeat to ${r.align.toFixed(1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`;
+  const head = G`<p class="hint verdict"><b>Every clear star in this field, checked.</b> ${r.checked} stars in D${S.det}: ${r.flags.length ? G`${steadyN} did not move or change, ${r.flags.length} stand${r.flags.length === 1 ? 's' : ''} out.` : G`none moved, none changed.`} Here, positions repeat to ${fx(r.align, 1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`;
   const list = r.flags.length ? `<ul class="flags">${r.flags.map((f, i) => `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}${f.own ? G` · the catalogued object` : ''}</span></li>`).join('')}</ul>
     <p class="hint">${G`Press one to circle it. A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
   el.innerHTML = head + list;
@@ -1751,7 +1751,7 @@ function renderAbout() {
   // A star that catalogues list here, at its year-2000 place, but that has moved on since.
   const mv = !t && !i ? S.moved : null, mvPm = mv ? Math.hypot(mv.pmra, mv.pmdec) / 1000 : 0;
   const gloss = t ? G(t.blurb) : i ? i.gloss || Info.gloss(i.otype, i.sptype)
-    : mv ? G`${mv.name} was at this spot in the year 2000, which is where catalogues still list it. It moves ${mvPm.toFixed(1)}″ a year and is now ${(mv.dist / 60).toFixed(1)}′ away.`
+    : mv ? G`${mv.name} was at this spot in the year 2000, which is where catalogues still list it. It moves ${fx(mvPm, 1)}″ a year and is now ${fx((mv.dist / 60), 1)}′ away.`
       : S.infoState === 'failed' ? G`The catalogue that names objects could not be reached just now, so this spot is not identified.`
         : S.infoState === 'done' ? G`No catalogue lists an object exactly here. SPHEREx still has images of this patch: what do you see?` : '';
   const facts = [];
@@ -1767,22 +1767,22 @@ function renderAbout() {
     // A body that is followed: when SPHEREx had it in view, and the two dates of its passage that are asked about most.
     const b = body, on = mjd => C.fmtRange(mjd, mjd);
     fact(G`Seen by SPHEREx`, b.visits.map(v => C.fmtRange(v.t0, v.t1)).join('<br>'), b.visits.map(v => nExp(v.exposures)).join(' + '), G`The days on which SPHEREx had it in view`);
-    if (b.peri) fact(G`Closest to the Sun`, on(b.peri.mjd), G`${b.peri.au.toFixed(2)} au; 1 au is the distance from the Earth to the Sun`, G`From ${b.source}`);
-    if (b.near) fact(G`Closest to Earth`, on(b.near.mjd), G`${b.near.au.toFixed(2)} au`, G`From ${b.source}`);
+    if (b.peri) fact(G`Closest to the Sun`, on(b.peri.mjd), G`${fx(b.peri.au, 2)} au; 1 au is the distance from the Earth to the Sun`, G`From ${b.source}`);
+    if (b.near) fact(G`Closest to Earth`, on(b.near.mjd), G`${fx(b.near.au, 2)} au`, G`From ${b.source}`);
   } else if (body) {
     // A body of the solar system has no place of its own in the sky: what is told is when it was here, and where it was then.
     const b = body;
     fact(G`Crossed this field`, span(b.from, b.to), G`${arc(b.moved)} across the sky`, G`The days on which it was inside these images, and how far it moved meanwhile`);
-    if (b.mag === b.mag) fact(G`Brightness`, G`magnitude ${b.mag.toFixed(1)}`, G`one SPHEREx exposure reaches about 19`, G`How bright it looked on those days, from ${b.source}`);
-    fact(G`Distance`, G`${b.sun.toFixed(1)} au from the Sun`, G`${b.earth.toFixed(1)} au from Earth; 1 au is the distance from the Earth to the Sun`, G`On those days, from ${b.source}`);
+    if (b.mag === b.mag) fact(G`Brightness`, G`magnitude ${fx(b.mag, 1)}`, G`one SPHEREx exposure reaches about 19`, G`How bright it looked on those days, from ${b.source}`);
+    fact(G`Distance`, G`${fx(b.sun, 1)} au from the Sun`, G`${fx(b.earth, 1)} au from Earth; 1 au is the distance from the Earth to the Sun`, G`On those days, from ${b.source}`);
   } else {
   const [sra, sdec] = C.fmtSex(S.ra, S.dec).split(' ');
   fact(fast ? G`Position today` : G`Position`, `${sra}<br>${sdec}`,
-    fast ? G`${(pm * (yearNow() - 2000)).toFixed(0)}″ from its year-2000 place` : `${S.ra.toFixed(5)}°, ${S.dec >= 0 ? '+' : ''}${S.dec.toFixed(5)}°`,
+    fast ? G`${fx(pm * (yearNow() - 2000), 0)}″ from its year-2000 place` : `${S.ra.toFixed(5)}°, ${S.dec >= 0 ? '+' : ''}${S.dec.toFixed(5)}°`,
     fast ? G`Catalogues list where a star was in the year 2000. This one has moved since; the position shown is for today.` : G`Right ascension and declination (ICRS)`);
   if (pmSrc) {
-    fact(G`Moves across the sky`, G`${pm.toFixed(pm < 0.1 ? 3 : 2)}″ per year`,
-      pm >= 0.3 ? G`${(pm / 6.15).toFixed(2)} SPHEREx pixels a year` : pm > 0.003 ? G`one SPHEREx pixel in ${NUM.format(Math.round(6.15 / pm))} years` : G`too slow to see here`,
+    fact(G`Moves across the sky`, G`${fx(pm, pm < 0.1 ? 3 : 2)}″ per year`,
+      pm >= 0.3 ? G`${fx((pm / 6.15), 2)} SPHEREx pixels a year` : pm > 0.003 ? G`one SPHEREx pixel in ${NUM.format(Math.round(6.15 / pm))} years` : G`too slow to see here`,
       G`Proper motion${pmSrc.src ? `, ${pmSrc.src}` : G`, from SIMBAD`}`);
   }
   // Distance: only from a parallax measured to better than 20%.
@@ -1791,7 +1791,7 @@ function renderAbout() {
     fact(G`Distance`, fmtDistance(plx, plxErr), G(t?.dist?.src || 'from its parallax'),
       G`Parallax ${plx} ${plxErr != null ? `± ${plxErr} ` : ''}milliarcseconds`);
   }
-  if (i?.redshift > 0.002) fact(G`Redshift`, i.redshift.toFixed(4), G`its light is stretched by the expanding universe`);
+  if (i?.redshift > 0.002) fact(G`Redshift`, fx(i.redshift, 4), G`its light is stretched by the expanding universe`);
   }
   if (S.head && !led) {
     const eps = S.head.epochs, split = !!S.head.split;
@@ -1879,7 +1879,7 @@ function renderLook() {
 }
 function renderWiki() {
   const w = S.wiki, i = S.info, el = $('wikibox');
-  const mags = i ? ['V', 'J', 'K'].filter(b => i.mags?.[b] != null).map(b => `${b} ${(+i.mags[b]).toFixed(1)}`) : [];
+  const mags = i ? ['V', 'J', 'K'].filter(b => i.mags?.[b] != null).map(b => `${b} ${fx((+i.mags[b]), 1)}`) : [];
   const others = (mags.length > 1 ? G`<p class="others" title="V is visible light; J (1.2 µm) and K (2.2 µm) are near-infrared">Catalogued brightness (SIMBAD): magnitude ${mags.join(', ')}. Lower numbers are brighter.</p>` : '')
     + (i?.others?.length ? G`<p class="others">Also catalogued at this position: ${i.others.map(o => `${esc(o.name)} (${esc(G(o.type))})`).join(', ')}</p>` : '');
   el.hidden = !w && !others;
@@ -1979,7 +1979,7 @@ function renderMotion() {
   const sum = (cls, html) => { S.find.motion = cls ? { cls, html } : null; renderFindings(); };
   if (S.grid && bodyStops()) return bodyMotion(el, sum);
   if (!S.grid || !S.sel || !S.stacks || S.stacks.length < 2) { el.innerHTML = ''; sum(null); return; }
-  const g = S.grid, n = g.n, as = v => (v * g.scale).toFixed(1);
+  const g = S.grid, n = g.n, as = v => fx((v * g.scale), 1);
   const tracked = !!(S.sel.follow && S.track && S.track.pmra != null);
   const catPm = tracked ? Math.hypot(S.track.pmra, S.track.pmdec) / 1000 : 0;          // arcseconds per year, from the catalogue
   const rows = positionsIn(S.stacks, tracked);
@@ -1989,10 +1989,10 @@ function renderMotion() {
   const list = d => d.map(x => 'D' + x).join(', ').replace(/, (D\d)$/, ` ${G`and`} $1`);
   if (seen.length < 2) {
     const holes = rows.filter(r => C.coreMasked(r.st.img, n, g.scale, r.p[0], r.p[1], 6) > 0).length > rows.length / 2;
-    const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${every.rate.toFixed(1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${catPm.toFixed(1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
+    const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${fx(every.rate, 1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${fx(catPm, 1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
     el.innerHTML = holes ? G`<p class="hint">The star's core is saturated in D${S.det}, so its position cannot be measured here.${elsewhere}</p>`
       : tracked && catPm >= 0.1 ? G`<p class="hint">The target is too faint in this detector to be located, so its motion cannot be measured here.${elsewhere || G` Try another detector.`}</p>` : '';
-    if (every) sum('found', G`<b>Moving ${every.rate.toFixed(1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${catPm.toFixed(1)}″.` : ''}`);
+    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`);
     else sum(null);
     return;
   }
@@ -2011,8 +2011,8 @@ function renderMotion() {
   const fuzz = r => 8 / Math.max(4, r.m.peak / r.st.sig);                              // faint spots are located less precisely
   const sigma = Math.hypot(align, fuzz(first), fuzz(end));
   const span = G`${C.fmtMonth(first.st.mjd)} and ${C.fmtMonth(end.st.mjd)}`;
-  const yard = comp.length >= 3 ? G`Ordinary stars in the same images stay put to within ${align.toFixed(1)}″.` : '';
-  const agree = every && every.dets.length > 1 ? G`, in ${list(every.dets)} independently (they agree to ${Math.max(0.1, every.spread).toFixed(1)}″ per year)` : every ? G`, in ${list(every.dets)}` : G`, in these D${S.det} images`;
+  const yard = comp.length >= 3 ? G`Ordinary stars in the same images stay put to within ${fx(align, 1)}″.` : '';
+  const agree = every && every.dets.length > 1 ? G`, in ${list(every.dets)} independently (they agree to ${fx(Math.max(0.1, every.spread), 1)}″ per year)` : every ? G`, in ${list(every.dets)}` : G`, in these D${S.det} images`;
 
   if (tracked && catPm >= 0.1) {
     // Measured minus predicted for every visit. One common offset is taken out (the catalogue position
@@ -2025,29 +2025,29 @@ function renderMotion() {
       const dot = `<i style="background:${epochColor(st.mjd)}"></i>${C.fmtMonth(st.mjd)}`;
       if (!m) return G`<tr><td>${dot}</td><td colspan="3">not detected</td></tr>`;
       const r = [-(m.x - p[0]) * g.scale - off[0], (m.y - p[1]) * g.scale - off[1]];
-      return `<tr><td>${dot}</td><td>${as(Math.hypot(m.x - m0.x, m.y - m0.y))}″</td><td>${as(Math.hypot(p[0] - p0[0], p[1] - p0[1]))}″</td><td>${Math.hypot(r[0], r[1]).toFixed(1)}″</td></tr>`;
+      return `<tr><td>${dot}</td><td>${as(Math.hypot(m.x - m0.x, m.y - m0.y))}″</td><td>${as(Math.hypot(p[0] - p0[0], p[1] - p0[1]))}″</td><td>${fx(Math.hypot(r[0], r[1]), 1)}″</td></tr>`;
     }).join('');
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
-      <p class="hint verdict"><b>Measured: ${rate.toFixed(1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${catPm.toFixed(1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>`;
+      <p class="hint verdict"><b>Measured: ${fx(rate, 1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${fx(catPm, 1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
-    sum('found', G`<b>Moving ${rate.toFixed(1)}″ a year</b> towards the ${dir}. The catalogue says ${catPm.toFixed(1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`);
+    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`);
     return;
   }
   if (d > Math.max(3 * sigma, 1.5) && !lightMoved(first.st, end.st, first.m, end.m)) {
-    el.innerHTML = G`<p class="hint verdict"><b>Probably two stars, not motion.</b> The measured position differs by ${d.toFixed(1)}″ between ${span} in D${S.det}, but the light did not leave the old spot or build up at the new one. That is what a close pair of stars looks like. ${yard}</p>`;
+    el.innerHTML = G`<p class="hint verdict"><b>Probably two stars, not motion.</b> The measured position differs by ${fx(d, 1)}″ between ${span} in D${S.det}, but the light did not leave the old spot or build up at the new one. That is what a close pair of stars looks like. ${yard}</p>`;
     sum('none', G`<b>Not motion:</b> the position shifts, but in the way a close pair of stars does.`);
     return;
   }
   if (d > Math.max(3 * sigma, 1.5)) {
-    const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${(Math.hypot(S.info.pmra, S.info.pmdec) / 1000).toFixed(2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
+    const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
-    el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${d.toFixed(1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${rate.toFixed(1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>`;
-    sum('found', G`<b>This spot moved</b> ${d.toFixed(1)}″ towards the ${compass(dE, dN)} between ${span}: about ${rate.toFixed(1)}″ a year.`);
+    el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>`;
+    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`);
     return;
   }
-  el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${Math.max(d, 0.1).toFixed(1)}″. ${yard} Anything slower than about ${(Math.max(3 * sigma, 1.5) / years).toFixed(1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
-  sum('none', G`<b>No motion:</b> the same place to within ${Math.max(d, 0.1).toFixed(1)}″ between ${span}.`);
+  el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
+  sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`);
 }
 function renderModes() {
   const body = !!(S.grid && bodyStops()), own = followed();
@@ -2065,8 +2065,8 @@ function renderModes() {
 
 // ------------------------------------------------------------ bodies of the solar system passing through
 const nap0 = () => new Promise(r => setTimeout(r, 0));
-const arc = v => (v >= 90 ? `${(v / 60).toFixed(1)}′` : `${v.toFixed(v < 10 ? 1 : 0)}″`);                        // a length on the sky
-const pace = r => (r >= 2 ? G`${r.toFixed(1)}″ an hour` : G`${(r * 24).toFixed(r * 24 < 10 ? 1 : 0)}″ a day`);      // a speed on the sky, given in arcseconds an hour
+const arc = v => (v >= 90 ? `${fx((v / 60), 1)}′` : `${fx(v, v < 10 ? 1 : 0)}″`);                        // a length on the sky
+const pace = r => (r >= 2 ? G`${fx(r, 1)}″ an hour` : G`${fx((r * 24), r * 24 < 10 ? 1 : 0)}″ a day`);      // a speed on the sky, given in arcseconds an hour
 const clock = mjd => C.fmtDate(mjd, true).slice(11, 16);
 const span = (a, b) => (C.fmtDate(a) === C.fmtDate(b) ? `${C.fmtRange(a, a)}, ${clock(a)}–${clock(b)} UTC` : C.fmtRange(a, b));          // when: "6 Oct 2025, 02:04–15:09 UTC", "25 Sep – 12 Oct 2025"
 const lasting = hours => (hours >= 48 ? Lang.N(Math.round(hours / 24), 'day') : Lang.N(Math.max(1, Math.round(hours)), 'hour'));
@@ -2166,7 +2166,7 @@ function renderMovers() {
   }
   const row = (t, i) => {
     const b = t.body, v = t.sightings, one = v.length === 1, on = S.sel?.trail === t || (b?.own && S.sel?.follow);
-    const what = (b?.own ? G`found by this search too` : b?.name ? `${b.kind}${b.v === b.v ? G`, magnitude ${b.v.toFixed(1)}` : ''}`
+    const what = (b?.own ? G`found by this search too` : b?.name ? `${b.kind}${b.v === b.v ? G`, magnitude ${fx(b.v, 1)}` : ''}`
       : b?.none ? G`no catalogued body is there` : b?.unknown ? G`not looked up: no connection` : G`looking it up…`) + (t.expected ? G` · the one this field was picked for` : '');
     const seen = one ? G`${Lang.N(v[0].hits.length, 'image')} within ${Lang.N(Math.max(1, Math.round((v[0].t1 - v[0].t0) * 1440)), 'minute')}, ${C.fmtDate(v[0].mjd, true)}`
       : G`${Lang.N(v.length, 'stop')}, ${span(t.t0, t.t1)} · ${arc(t.path)} at ${pace(t.rate)}`;
@@ -2199,7 +2199,7 @@ function renderBodyBox() {
   if (!el) return;
   if (!t) { el.hidden = true; el.innerHTML = ''; leadState(); return; }
   const b = t.body || {};
-  const facts = b.name ? [b.kind, b.v === b.v ? G`magnitude ${b.v.toFixed(1)}` : '', b.dh ? G`${b.dh.toFixed(2)} au from the Sun, ${b.dg.toFixed(2)} au from Earth` : ''].filter(Boolean).join(' · ')
+  const facts = b.name ? [b.kind, b.v === b.v ? G`magnitude ${fx(b.v, 1)}` : '', b.dh ? G`${fx(b.dh, 2)} au from the Sun, ${fx(b.dg, 2)} au from Earth` : ''].filter(Boolean).join(' · ')
     : b.none ? G`SkyBoT lists no body of the solar system within 25″ of this place at that moment. Most often such a dot is a fault in an image that the checks missed; now and then it is a body nobody has catalogued. Three steps tell which:`
     : b.unknown ? G`Not looked up: SkyBoT could not be reached.` : G`Asking SkyBoT what it is…`;
   const link = b.name && !Info.isMajor(b) ? ` ${Info.bodyLinks(b.num || b.name).map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.title)}">${l.label}</a>`).join(' · ')}` : '';
@@ -2259,7 +2259,7 @@ function renderHunt() {
   if (!el) return;
   let html = '';
   if (h && !S.failed) {
-    const m = S.movers, when = span(h.from, h.to), mag = h.v.toFixed(1), tracks = m?.tracks || [];
+    const m = S.movers, when = span(h.from, h.to), mag = fx(h.v, 1), tracks = m?.tracks || [];
     const again = `<button type="button" class="ghost" data-hunt="again">${G`Hunt in another field`}</button>`;
     const guide = `<a href="${esc(pageAddress('hunt'))}" data-hunt="guide">${G`What can be done with a find?`}</a>`;
     const names = v => v.map(t => `<button type="button" class="linkish" data-hunt-body="${tracks.indexOf(t)}">${esc(bodyLabel(t))}</button>`).join(', ');
@@ -2310,7 +2310,7 @@ $('huntbox').addEventListener('click', e => {
  */
 function followedMotion(el, sum) {
   const b = S.target.body, n = S.grid.n, c = (n - 1) / 2;
-  const rows = b.visits.map(v => `<tr><td>${C.fmtRange(v.t0, v.t1)}</td><td>${pace(v.rate)}</td><td>${v.sun.map(x => x.toFixed(2)).join('–')}</td><td>${v.earth.map(x => x.toFixed(2)).join('–')}</td></tr>`).join('');
+  const rows = b.visits.map(v => `<tr><td>${C.fmtRange(v.t0, v.t1)}</td><td>${pace(v.rate)}</td><td>${v.sun.map(x => fx(x, 2)).join('–')}</td><td>${v.earth.map(x => fx(x, 2)).join('–')}</td></tr>`).join('');
   // the check: the exposures in which it is bright and nothing else is in the circle
   const off = [];
   for (const f of usable(S.det)) {
@@ -2319,7 +2319,7 @@ function followedMotion(el, sum) {
     if (m && m.peak > 12 * f.sig) off.push(Math.hypot(m.x - c, m.y - c) * S.grid.scale);
   }
   off.sort((p, q) => p - q);
-  const check = off.length >= 8 ? G` In the ${off.length} exposures of D${S.det} in which it is bright, its light lies typically ${off[off.length >> 1].toFixed(1)}″ from that place, at the worst ${off[off.length - 1].toFixed(1)}″. One SPHEREx pixel is 6.15″.` : '';
+  const check = off.length >= 8 ? G` In the ${off.length} exposures of D${S.det} in which it is bright, its light lies typically ${fx(off[off.length >> 1], 1)}″ from that place, at the worst ${fx(off[off.length - 1], 1)}″. One SPHEREx pixel is 6.15″.` : '';
   el.innerHTML = G`<table class="t wrap"><thead><tr><th>Visit</th><th title="How fast it moved across the sky">Across the sky</th><th title="1 au is the distance from the Earth to the Sun">From the Sun <span class="asis">(au)</span></th><th title="1 au is the distance from the Earth to the Sun">From Earth <span class="asis">(au)</span></th></tr></thead><tbody>${rows}</tbody></table>
     <p class="hint verdict"><b>Followed, not searched for.</b> Every exposure is cut out around the place that NASA's JPL Horizons gives for the comet at the middle of that exposure, seen from where the spacecraft was at that moment.${check}</p>`;
   const last = b.visits[b.visits.length - 1];
@@ -2340,11 +2340,11 @@ function bodyMotion(el, sum) {
   const found = !t && (S.movers?.tracks || []).find(x => x.body?.own);
   if (found) {
     const off = found.sightings.map(q => { const p = trackPos(q.mjd); return Math.hypot(p[0] - q.x, p[1] - q.y) * as; }).filter(d => d === d).sort((p, q) => p - q);
-    check = G` The search for moving dots, which is not told where to look, found it at ${found.sightings.length} of them, typically ${off[off.length >> 1].toFixed(1)}″ from where its orbit puts it.`;
+    check = G` The search for moving dots, which is not told where to look, found it at ${found.sightings.length} of them, typically ${fx(off[off.length >> 1], 1)}″ from where its orbit puts it.`;
   } else if (!t && S.track?.eph && S.movers?.state === 'done') {
     // a body asked for by name that the search did not find: said plainly, since the ring then marks only where its orbit puts it
     check = G` The search for moving dots, which is not told where to look, did not find it at these stops: it is too faint for a single exposure there, or stood in front of a star.`;
-  } else if (b?.name && b.rate && hours < 48) check = G` SkyBoT's orbit for ${esc(b.name)} gives ${pace(b.rate)} at that moment, ${b.d.toFixed(0)}″ from this track.`;      // over days a body speeds up or slows down: one moment's speed is no yardstick then
+  } else if (b?.name && b.rate && hours < 48) check = G` SkyBoT's orbit for ${esc(b.name)} gives ${pace(b.rate)} at that moment, ${fx(b.d, 0)}″ from this track.`;      // over days a body speeds up or slows down: one moment's speed is no yardstick then
   const rows = v.length <= 8 ? G`<table class="t"><thead><tr><th>Stop</th><th title="How far it has moved since the first stop">Moved</th><th>Detectors</th></tr></thead><tbody>${v.map((q, i) =>
     `<tr><td>${C.fmtDate(q.mjd, true)}</td><td>${i ? arc(Math.hypot(q.x - a.x, q.y - a.y) * as) : G`first`}</td><td>${q.dets.map(d => 'D' + d).join(' + ')}</td></tr>`).join('')}</tbody></table>` : '';
   el.innerHTML = G`${rows}<p class="hint verdict"><b>Moved ${arc(Math.hypot(dE, dN))} towards the ${compass(dE, dN)}</b> (${span(a.mjd, z.mjd)}): ${pace(rate)}. Stops of the telescope that caught it: ${v.length}.${check} One SPHEREx pixel is 6.15″.</p>`;
@@ -2360,13 +2360,13 @@ function renderDets() {
     b.setAttribute('aria-pressed', d === S.det);
     b.disabled = avail === 0;
     if (D?.loading) b.classList.add('loading');
-    b.title = G`Detector ${d}: ${a} to ${z} microns${avail ? `, ${nExp(avail)}` : avail === 0 ? G`, no exposures here` : ''}`;
+    b.title = G`Detector ${d}: ${dn(a)} to ${dn(z)} microns${avail ? `, ${nExp(avail)}` : avail === 0 ? G`, no exposures here` : ''}`;
     b.onclick = () => { S.det = d; S.detPicked = true; S.autoNote = ''; renderDets(); rebuild(); refreshPlots(); syncUrl(); if (!S.dets[d]) setStatus(G`Detector ${d} is still loading…`); };
     el.appendChild(b);
   }
   const D = S.dets[S.det], [a, z] = C.DET_BANDS[S.det];
   const n = D ? (D.loading ? G`loading ${D.frames.length} of ${D.total || '…'} exposures` : nExp(D.frames.length)) : S.head ? nExp(S.head.avail[S.det]) : '';
-  $('detnote').textContent = G`${S.autoNote ? S.autoNote + ' ' : ''}Detector ${S.det}: ${a} to ${z} µm${n ? ` · ${n}` : ''}. Pick a wavelength band above.`;
+  $('detnote').textContent = G`${S.autoNote ? S.autoNote + ' ' : ''}Detector ${S.det}: ${dn(a)} to ${dn(z)} µm${n ? ` · ${n}` : ''}. Pick a wavelength band above.`;
 }
 function renderReleases() {
   const el = $('releases'); el.innerHTML = '';
@@ -2484,13 +2484,13 @@ function renderMeta() {
   if (it.frame) {
     const f = it.frame;
     add(G`Date`, `${C.fmtDate(f.mjd, true)} (MJD ${f.mjd.toFixed(4)})`);
-    add(G`Wavelength`, G`${lamAt(f).toFixed(4)} µm at the circle, bandwidth ${f.bw.toFixed(3)} µm`);
-    add(G`Detector`, `D${f.det} (${C.DET_BANDS[f.det].join('–')} µm)`);
+    add(G`Wavelength`, G`${fx(lamAt(f), 4)} µm at the circle, bandwidth ${fx(f.bw, 3)} µm`);
+    add(G`Detector`, `D${f.det} (${C.DET_BANDS[f.det].map(dn).join('–')} µm)`);
     add(G`Release`, f.coll);
-    add(G`Exposure`, `${f.id}${f.exp ? `, ${f.exp.toFixed(0)} s` : ''}`);
+    add(G`Exposure`, `${f.id}${f.exp ? `, ${fx(f.exp, 0)} s` : ''}`);
     add(G`Detector pixel`, `x ${f.px[0]}, y ${f.px[1]}`);
-    add(G`Sky level removed`, `${f.bg.toFixed(3)} MJy/sr`);
-    add(G`Noise (1σ)`, `${f.sig.toFixed(3)} MJy/sr`);
+    add(G`Sky level removed`, `${fx(f.bg, 3)} MJy/sr`);
+    add(G`Noise (1σ)`, `${fx(f.sig, 3)} MJy/sr`);
     add(G`Coverage`, G`${Math.round(f.cov * 100)}% of the field`);
     add(G`PSF width`, `${f.fwhm}″`);
     add(G`Source file`, G`<a href="${f.url}" target="_blank" rel="noopener">FITS at IRSA</a>`);
@@ -2498,20 +2498,20 @@ function renderMeta() {
   } else if (it.years) {
     const f = it.years;
     add(G`Image`, it.title);
-    add(G`Telescope`, f.survey === 'SPHEREx' ? `SPHEREx D${f.det} (${C.DET_BANDS[f.det].join('–')} µm)` : `${f.survey} ${f.band} (${Years.LAM[f.band].toFixed(2)} µm)`);
+    add(G`Telescope`, f.survey === 'SPHEREx' ? `SPHEREx D${f.det} (${C.DET_BANDS[f.det].map(dn).join('–')} µm)` : `${f.survey} ${f.band} (${fx(Years.LAM[f.band], 2)} µm)`);
     add(G`Taken`, f.survey === 'AllWISE' ? G`in WISE’s passes over this place in 2010 and early 2011, added together` : f.guessed ? G`between 1997 and 2001 (the night could not be looked up)` : f.t1 - f.t0 > 1 ? C.fmtRange(f.t0, f.t1) : C.fmtDate(f.mjd));
     if (f.n) add(G`Built from`, f.survey === '2MASS' ? G`${f.n} Atlas Images of 2MASS, joined` : G`${nExp(f.n)}, the middle value of each pixel`);
-    if (!f.pic) add(G`Noise (1σ)`, `${f.sig.toFixed(3)} MJy/sr`);
+    if (!f.pic) add(G`Noise (1σ)`, `${fx(f.sig, 3)} MJy/sr`);
     add(G`Source`, f.pic ? G`sky map (HiPS) at NASA/IPAC, as its makers stretched it: where the light lies is measured, not how bright it is` : f.survey === 'SPHEREx' ? G`SPHEREx level 2 exposures at NASA/IPAC` : f.survey === '2MASS' ? G`2MASS Atlas Images at NASA/IPAC` : G`WISE and NEOWISE single exposures (level 1b) at NASA/IPAC`);
   } else {
     add(G`Image`, it.title);
     add(G`Built from`, it.sub);
-    if (it.det !== 0) { const d = it.det || S.det; add(G`Detector`, `D${d} (${C.DET_BANDS[d].join('–')} µm)`); }
-    if (it.sig) add(G`Noise (1σ)`, `${it.sig.toFixed(3)} MJy/sr`);
+    if (it.det !== 0) { const d = it.det || S.det; add(G`Detector`, `D${d} (${C.DET_BANDS[d].map(dn).join('–')} µm)`); }
+    if (it.sig) add(G`Noise (1σ)`, `${fx(it.sig, 3)} MJy/sr`);
     if (it.ep) add(G`Releases`, [...new Set(it.ep.frames.map(f => f.coll))].join(', '));
     add(G`Pixel flags`, G`Flags belong to single exposures: choose “Exposures” above, then read them here.`);
   }
-  if (S.grid) add(G`Pixel scale`, G`${vg().scale.toFixed(2)}″ (resampled, north up, east left)`);
+  if (S.grid) add(G`Pixel scale`, G`${fx(vg().scale, 2)}″ (resampled, north up, east left)`);
   el.innerHTML = rows.join('');
   if (it.frame) {
     const f = it.frame;
@@ -2584,7 +2584,7 @@ async function search(text, called = '', mapFov = 0) {
       }
       if (near && here > 15) {
         const el = $('notice');
-        el.innerHTML = G`These look like older coordinates of <b>${t.label}</b>. It has since moved ${(here / 60).toFixed(1)}′ from here.<br><button type="button">Jump to where it is now</button>`;
+        el.innerHTML = G`These look like older coordinates of <b>${t.label}</b>. It has since moved ${fx((here / 60), 1)}′ from here.<br><button type="button">Jump to where it is now</button>`;
         el.hidden = false;
         el.querySelector('button').onclick = () => openTarget(t);
       }
@@ -2988,7 +2988,7 @@ const nap = ms => new Promise(r => setTimeout(r, ms));
 const warm = Sky.prefetch;
 function showWave(z) {
   $('wave').value = z;
-  $('wavelabel').textContent = `${Sky.waves()[z].toFixed(2)} µm`;
+  $('wavelabel').textContent = `${fx(Sky.waves()[z], 2)} µm`;
 }
 /** Show one colour of the SPHEREx map. The map dissolves into it once it is complete. */
 function setWave(z) {
@@ -4062,6 +4062,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   if (q.has('debug')) window.__app = { S, C, findComparisons, usable, gEpoch, scan: () => scanResult };      // for inspection from the console
   if (S.embed) document.body.classList.add('embed');
   Lang.applyStatic();
+  if (Lang.DEC !== '.') for (const el of document.querySelectorAll('.rulerticks span, .detticks span, #wavelabel')) el.textContent = el.textContent.replace(/(\d)\.(\d)/, `$1${Lang.DEC}$2`);          // the wavelength scales of the HTML: 0,75 µm in the languages that write a comma
   document.title = HOME_TITLE;
   const pick = $('lang');
   pick.innerHTML = Object.entries(Lang.LANGS).map(([code, name]) => `<option value="${code}"${code === Lang.lang ? ' selected' : ''}>${name}</option>`).join('');
@@ -4073,7 +4074,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   $('layer').innerHTML = Sky.LAYERS.map(l => `<option value="${l.id}">${G(l.label)}</option>`).join('');
   if (!S.embed) {
     try {
-      await Sky.init('#map', { still: !(q.has('target') || (q.has('ra') && q.has('dec'))), onClick: openAt, onFov: f => { $('fovlabel').textContent = f >= 10 ? `${Math.round(f)}°` : f >= 1 ? `${f.toFixed(1)}°` : `${Math.round(f * 60)}′`; } });
+      await Sky.init('#map', { still: !(q.has('target') || (q.has('ra') && q.has('dec'))), onClick: openAt, onFov: f => { $('fovlabel').textContent = f >= 10 ? `${Math.round(f)}°` : f >= 1 ? `${fx(f, 1)}°` : `${Math.round(f * 60)}′`; } });
       setWave(25);
       document.querySelector('#map .aladin-input-text')?.setAttribute('aria-label', T('search.label'));          // the map library's own position box has no name of its own
       // On a slow connection the first picture takes a few seconds: say so, instead of an empty map.

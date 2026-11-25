@@ -1,6 +1,6 @@
 // Minimal scatter plot on a canvas: axes, error bars, hover tooltip, click-to-select.
 
-import { G, locale } from './lang.js';
+import { G, locale, DEC } from './lang.js';
 function niceTicks(lo, hi, target = 5) {
   const span = hi - lo || 1, raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= target + 1) || raw;
@@ -10,7 +10,7 @@ function niceTicks(lo, hi, target = 5) {
 }
 const fmtNum = (v, step) => {
   const d = Math.max(0, Math.min(4, -Math.floor(Math.log10(step) + 1e-9)));
-  return Math.abs(v) >= 1e6 ? v.toExponential(1) : v.toFixed(step < 1 ? d : 0);
+  return (Math.abs(v) >= 1e6 ? v.toExponential(1) : v.toFixed(step < 1 ? d : 0)).replace('.', DEC);          // the axis in the language's own decimal mark
 };
 
 export class Plot {
@@ -70,7 +70,7 @@ export class Plot {
     c.strokeStyle = grid; c.fillStyle = ink; c.lineWidth = 1;
     const yt = log ? { ticks: Array.from({ length: Math.floor(Math.log10(y1)) - Math.ceil(Math.log10(y0)) + 1 }, (_, i) => 10 ** (Math.ceil(Math.log10(y0)) + i)), step: 0 } : niceTicks(y0, y1, 4);
     c.textAlign = 'right'; c.textBaseline = 'middle';
-    for (const v of yt.ticks) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(W - R, Y(v)); c.stroke(); c.fillText(log ? String(+v.toPrecision(1)) : fmtNum(v, yt.step), L - 6, Y(v)); }
+    for (const v of yt.ticks) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(W - R, Y(v)); c.stroke(); c.fillText(log ? String(+v.toPrecision(1)).replace('.', DEC) : fmtNum(v, yt.step), L - 6, Y(v)); }
     c.textAlign = 'center'; c.textBaseline = 'top';
     if (o.xTicks) { const tk = o.xTicks(x0, x1), every = Math.max(1, Math.ceil(tk.length * 58 / pw)); tk.forEach((t, i) => { if (i % every) return; c.beginPath(); c.moveTo(X(t.v), T + ph); c.lineTo(X(t.v), T + ph + 4); c.stroke(); c.fillText(t.label, X(t.v), T + ph + 6); }); }
     else { const xt = niceTicks(x0, x1, 6); for (const v of xt.ticks) { c.beginPath(); c.moveTo(X(v), T + ph); c.lineTo(X(v), T + ph + 4); c.stroke(); c.fillText(fmtNum(v, xt.step), X(v), T + ph + 6); } }
