@@ -737,10 +737,13 @@ function renderYears() {
   };
   const eE = lineErr('dE'), eN = lineErr('dN');
   const off = eE == null || eN == null || !(mine > 0) || !(years > 0) ? null : Math.max(Math.hypot(pmE * eE, pmN * eN) / mine, rms / years);
+  // Whose figure is whose is said in the same words everywhere: "this page's estimate" with its margin, "the astronomers'
+  // value (catalogue)", which is the one to rely on.
+  const margin = off != null ? fx(Math.max(0.01, Math.ceil(off * 100) / 100), 2) : '';
   let say = '', whose = '';
   if (moved >= 2 * g.scale) {
-    say = G`From ${a.it.years.survey} in ${C.fmtMonth(a.it.mjd)} to ${b.it.years.survey} in ${C.fmtMonth(b.it.mjd)}, ${esc(name)} moved ${arc(mine * years)} towards the ${compass(pmE, pmN)}. Measured in these ${seen.length} images: ${fx(mine, 2)}″ a year; the catalogue gives ${fx(cat, 2)}″.`;
-    whose = ` ${off != null ? G`The first figure is this page’s own estimate, good to about ±${fx(Math.max(0.01, Math.ceil(off * 100) / 100), 2)}″ a year; the catalogue’s is the reference value.` : G`The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.`}`;
+    say = G`From ${a.it.years.survey} in ${C.fmtMonth(a.it.mjd)} to ${b.it.years.survey} in ${C.fmtMonth(b.it.mjd)}, ${esc(name)} moved ${arc(mine * years)} towards the ${compass(pmE, pmN)}.`;
+    whose = ` ${margin ? G`This page’s estimate from these ${seen.length} images: ${fx(mine, 2)}″ ± ${margin}″ a year. The astronomers’ value (catalogue) is ${fx(cat, 2)}″, and it is the one to rely on.` : G`This page’s estimate from these ${seen.length} images: ${fx(mine, 2)}″ a year. The astronomers’ value (catalogue) is ${fx(cat, 2)}″, and it is the one to rely on.`}`;
   } else {
     say = G`In ${fx(years, 0)} years, from ${a.it.years.survey} to ${b.it.years.survey}, ${esc(name)} moved less than this view can show (${fx((cat * years), 1)}″ by the catalogue).`;
   }
@@ -752,9 +755,8 @@ function renderYears() {
   // used: "eğitsel tahmin"; "measurement" sounded firmer than it is) with its margin, the astronomers'
   // value under it; then the way to the method page (and, where a telescope's image does not show the object, the line
   // that says so). Each figure carries whose it is. The sentences are for the full panel (style.css shows one or the other).
-  const margin = off != null ? fx(Math.max(0.01, Math.ceil(off * 100) / 100), 2) : '';
   const brief = !whose ? '' : `<div class="yearsline"><b>${G`Its yearly motion across the sky`}</b><span>${margin ? G`This page’s estimate: ${fx(mine, 2)}″ ± ${margin}″` : G`This page’s estimate: ${fx(mine, 2)}″`}</span><span>${G`Astronomers’ value (catalogue): ${fx(cat, 2)}″`}</span></div>
-    <p class="yearsnote">${none ? `${none} ` : ''}${methodLink()}</p>`;
+    <p class="yearsway">${none ? `${none} ` : ''}${methodLink()}</p>`;
   el.innerHTML = `${brief}<p class="yearssay${whose ? ' long' : ''}">${say}${whose} <span class="fine">${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}</span>${none ? ` ${none}` : ''}${whose ? ` ${methodLink()}` : ''}</p>${notes}
     <table class="t"><thead><tr><th>${G`Telescope`}</th><th>${G`Images`}</th><th>${G`Years`}</th><th>${G`Off the catalogue`}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
   yearsHunt(el, name);
@@ -2157,6 +2159,7 @@ function motionEverywhere(tracked) {
 function renderMotion() {
   const el = $('motion');
   if (!el) return;
+  el.classList.remove('hasline');          // set again below where the two short lines of the simple card are written
   const sum = (cls, html, plain) => { S.find.motion = cls ? { cls, html, plain } : null; renderFindings(); };
   if (S.grid && bodyStops()) return bodyMotion(el, sum);
   if (!S.grid || !S.sel || !S.stacks || S.stacks.length < 2) { el.innerHTML = ''; sum(null); return; }
@@ -2208,9 +2211,22 @@ function renderMotion() {
       const r = [-(m.x - p[0]) * g.scale - off[0], (m.y - p[1]) * g.scale - off[1]];
       return `<tr><td>${dot}</td><td>${as(Math.hypot(m.x - m0.x, m.y - m0.y))}″</td><td>${as(Math.hypot(p[0] - p0[0], p[1] - p0[1]))}″</td><td>${fx(Math.hypot(r[0], r[1]), 1)}″</td></tr>`;
     }).join('');
-    const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
-    el.innerHTML = G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
-      <p class="hint verdict"><b>Measured: ${fx(rate, 1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${fx(catPm, 1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${G`The measured figure is this page’s own estimate; the catalogue’s is the reference value.`} ${methodLink()}</p>`;
+    // The rate on show: all the detectors' where they have arrived, else this detector's, with the yearly wobble of a near
+    // star taken out as it is there (visits half a year apart see it from opposite sides of the Earth's orbit).
+    let oE = dE, oN = dN; const plx = S.target?.dist?.plx ?? S.track.plx ?? 0;
+    if (!every && plx > 20) {
+      const [ra, dec] = C.gridToSky(g, first.m.x, first.m.y), pa = C.parallaxOffset(ra, dec, plx, first.st.mjd), pb = C.parallaxOffset(ra, dec, plx, end.st.mjd);
+      oE -= pb[0] - pa[0]; oN -= pb[1] - pa[1];
+    }
+    const rate = every ? every.rate : Math.hypot(oE, oN) / years, dir = every ? compass(every.e, every.n) : compass(oE, oN);
+    // How far off may it be? As far as positions repeat between the first visit and the last, spread over the time between
+    // them; and where several detectors measured it, never less than they differ.
+    const far = Math.max(every ? every.spread : 0, sigma / years), margin = fx(Math.max(0.1, Math.ceil(far * 10) / 10), 1);
+    // the simple card's two short lines (as in the years view), shown while the estimate is worth more than its margin
+    const brief = far < rate ? `<div class="yearsline"><b>${G`Its yearly motion across the sky`}</b><span>${G`This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″`}</span><span>${G`Astronomers’ value (catalogue): ${fx(catPm, 2)}″`}</span></div><p class="yearsway">${methodLink()}</p>` : '';
+    el.classList.toggle('hasline', !!brief);
+    el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
+      <p class="hint verdict"><b>This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″ per year towards the ${dir}</b>${agree}. The astronomers’ value (catalogue): ${fx(catPm, 2)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}, and it is the one to rely on. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${methodLink()}</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
     sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir));
     return;
