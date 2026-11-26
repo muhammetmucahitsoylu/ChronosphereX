@@ -22,17 +22,43 @@ const HIPS = 'https://irsa.ipac.caltech.edu/data/hips';
 const MAPS = [`${HIPS}/SPHEREx/spherex_allsky_cube`, `${HIPS}/CDS/2MASS/Color`, `${HIPS}/CDS/AllWISE/RGB-W4-W2-W1`, `${HIPS}/CDS/DSS2/color`];
 const MAP_FILES = [...MAPS.map(m => `${m}/properties`), `${MAPS[0]}/Moc.fits`];
 
+let askedFor = 0;          // when this version began to arrive: a moment after the page that asked for it was opened
 self.addEventListener('install', e => {
+  askedFor = Date.now();
   // Only the site's own files hold up a new version; they come from one place and arrive together. Each is checked
   // with the server ("no-cache"), so a file the page has just fetched itself is confirmed, not downloaded twice.
   e.waitUntil(caches.open(SHELL).then(c => Promise.all(SHELL_FILES.map(f => c.add(new Request(f, { cache: 'no-cache' })).catch(() => null))))
     .then(() => self.skipWaiting()));
 });
+/** A page that was opened under the older version runs that version's code until it is loaded again. Such a page reloads
+ *  itself when the new version turns up within its first seconds and nothing has been pressed; one that was pressed
+ *  stayed on the old site for the whole visit (26 Nov 2026: someone told "it is changed now" who presses the star's card
+ *  at once would have seen the old words). So the map's page, where it is the one being looked at and still the old
+ *  one a moment after this version took over, is loaded again from here, once: what it shows is in its address. Not
+ *  the game or the other pages (a level under way would be lost), not a tab in the background, and not where this
+ *  version took long to arrive (a visit well under way is left alone, as before). */
+async function loadAgain(ids, tool) {
+  await new Promise(done => setTimeout(done, 1500));          // the page's own reload comes first where it applies
+  const now = await self.clients.matchAll({ type: 'window' }).catch(() => []);
+  await Promise.all(now.filter(c => ids.has(c.id) && c.visibilityState === 'visible' && tool(c.url)).map(c => c.navigate(c.url).catch(() => null)));
+}
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('chrono-') && !KEEP.has(k)).map(k => caches.delete(k))))
-    .then(() => self.clients.claim())
+  let again = null;
+  const tool = u => /\/(index\.html)?$/.test(new URL(u).pathname);          // the map's page itself
+  e.waitUntil((async () => {
+    const ks = await caches.keys(), older = ks.some(k => k.startsWith('chrono-shell-') && k !== SHELL);
+    const before = new Set((await self.clients.matchAll({ type: 'window', includeUncontrolled: true }).catch(() => [])).map(c => c.id));
+    await Promise.all(ks.filter(k => k.startsWith('chrono-') && !KEEP.has(k)).map(k => caches.delete(k)));
+    await self.clients.claim();
+    if (older && askedFor && Date.now() - askedFor < 15000) again = before;
     // The archive can be slow to answer, so its small map files are fetched after taking over, not before.
-    .then(() => caches.open(LOOKUP)).then(c => Promise.all(MAP_FILES.map(f => c.match(f).then(hit => hit || c.add(f)).catch(() => null)))));
+    const c = await caches.open(LOOKUP);
+    await Promise.all(MAP_FILES.map(f => c.match(f).then(hit => hit || c.add(f)).catch(() => null)));
+  })().then(() => {
+    // Not waited for: a page asked to load again asks this worker for its files, and a worker still taking over keeps
+    // such requests waiting, so the two would wait for each other (tried on 26 Nov 2026: the page stood empty for five minutes).
+    if (again) loadAgain(again, tool).catch(() => null);
+  }));
 });
 
 const storable = r => r && r.ok && r.status === 200 && (r.type === 'basic' || r.type === 'cors');
