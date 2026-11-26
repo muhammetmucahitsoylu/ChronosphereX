@@ -748,7 +748,7 @@ function renderYears() {
   // only where there was no light at all: a bright star that could not be centred is not "too faint"
   const unseen = [...new Set(missed.filter(q => q.dark).map(q => q.it.years.survey))].filter(k => !by.has(k)).map(k => missed.find(q => q.dark && q.it.years.survey === k).it.years);
   const none = unseen.map(f => G`It does not show in the ${f.survey} image (${f.band}, ${fx(Years.LAM[f.band], 2)} µm, ${f.guessed ? '1997–2001' : C.fmtMonth(f.mjd)}): at that wavelength it is too faint for ${f.survey}.`).join(' ');
-  el.innerHTML = `<p class="yearssay">${say}${whose} ${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}${none ? ` ${none}` : ''}${whose ? ` ${methodLink()}` : ''}</p>${notes}
+  el.innerHTML = `<p class="yearssay">${say}${whose} <span class="fine">${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}</span>${none ? ` ${none}` : ''}${whose ? ` ${methodLink()}` : ''}</p>${notes}
     <table class="t"><thead><tr><th>${G`Telescope`}</th><th>${G`Images`}</th><th>${G`Years`}</th><th>${G`Off the catalogue`}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
   yearsHunt(el, name);
   yearsBrightness(el, name);
@@ -1522,7 +1522,7 @@ function lightHere() {
   return null;
 }
 /** The lead of the panel (what to look for, what the measurements say) takes no room while it has nothing to say. */
-function leadState() { document.querySelector('.cols').classList.toggle('nolook', !$('lookbox').innerHTML && $('findings').hidden && $('bodybox').hidden && $('huntbox').hidden); }
+function leadState() { document.querySelector('.cols').classList.toggle('nolook', ($('lookbox').hidden || !$('lookbox').innerHTML) && $('findings').hidden && $('bodybox').hidden && $('huntbox').hidden); }
 $('findings').addEventListener('click', e => {
   const to = e.target.closest('button')?.dataset.to;
   if (to === 'here') { const t = lightHere()?.follow; if (t) followBody(t); return; }
@@ -1755,6 +1755,10 @@ function renderChips() {
     const a = document.createElement('a'), file = OBJECT_FILES[t.slug];
     a.href = file ? (Lang.lang === 'en' ? '' : `${Lang.lang}/`) + file : `?target=${t.slug}`;
     a.textContent = nameOf(t);
+    // A phone's opening names only what the tour does not visit, and says what it is (style.css: .intour hidden there,
+    // .startkind shown there). The tour's stops are named in the tour.
+    if (!t.extra) a.className = 'intour';
+    else if (t.type) { const kind = document.createElement('span'); kind.className = 'startkind'; kind.textContent = ` · ${G(t.type)}`; a.appendChild(kind); }
     a.onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); openTarget(t); };
     el.appendChild(a);
   }
@@ -2007,22 +2011,39 @@ const PLAIN_LOOK = {
   rwaur: 'The pictures loop through SPHEREx’s visits. In this light the star lost almost half its brightness within a year, while the stars around it stayed the same.',
   rdra: 'Each picture covers about a month. Watch the star brighten and fade. It was brightest in July 2025, about half as bright that autumn, and it is climbing again in the latest pictures.',
 };
+/** In the simple card the words on what to look for describe SPHEREx's own pictures. While the pictures of the years play
+ *  they give way to the words under those, and the way back to SPHEREx's pictures stands where the way to the years stood. */
+function lookFits() {
+  const box = $('lookbox'), years = S.mode === 'years';
+  const plain = box.querySelector('.look.plain'), go = box.querySelector('.yearsgo:not(.yearsback)'), back = box.querySelector('.yearsback');
+  if (plain) plain.hidden = years;
+  if (go) go.hidden = years;
+  if (back) back.hidden = !(years && simpleCard());
+  box.hidden = ![...box.children].some(x => !x.hidden);
+  leadState();
+}
 function renderLook() {
   const t = S.target, b = S.track?.body, on = tourIdx < 0 && !S.embed;
-  const look = t && simpleCard() && PLAIN_LOOK[t.slug] ? G(PLAIN_LOOK[t.slug]) : t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.` : '';
+  const plain = !!(t && simpleCard() && PLAIN_LOOK[t.slug]);
+  const look = plain ? G(PLAIN_LOOK[t.slug]) : t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.` : '';
   // a body opened by name: the other times SPHEREx had it in view are one press away
   const times = b?.visits?.length > 1 ? `<p class="look visits"><b>${G`SPHEREx had it in view at these times`}</b>${b.visits.map(v =>
     `<button type="button" data-at="${v.mjd.toFixed(2)}" aria-pressed="${v.mjd >= b.from - 0.01 && v.mjd <= b.to + 0.01}" title="${esc(G`Stops of the telescope with it in one field: ${v.stops}`)}">${span(v.t0, v.t1).replace(/, .*/, '')}</button>`).join('')}</p>` : '';
   // a showcase star with images of a quarter of a century built for it: one press to watch them
   const Y = t && isPreset() && S.yearsIdx?.[t.slug], years = Y ? Math.round((Y.span[1] - Y.span[0]) / 365.25) : 0;
-  const invite = Y ? `<p class="look yearsgo"${S.mode === 'years' ? ' hidden' : ''}><button type="button" data-years>${G`Watch it over ${years} years: 2MASS, WISE, SPHEREx`}</button></p>` : '';
-  $('lookbox').innerHTML = on && look ? `<p class="look"><b>${G`What to look for`}</b>${esc(look)}</p>${times}${invite}` : '';
+  const invite = Y ? `<p class="look yearsgo"${S.mode === 'years' ? ' hidden' : ''}><button type="button" data-years>${G`Watch it over ${years} years: 2MASS, WISE, SPHEREx`}</button></p><p class="look yearsgo yearsback" hidden><button type="button" data-back>${G`Watch SPHEREx’s own pictures`}</button></p>` : '';
+  $('lookbox').innerHTML = on && look ? `<p class="look${plain ? ' plain' : ''}"><b>${G`What to look for`}</b>${esc(look)}</p>${times}${invite}` : '';
   $('panel').classList.toggle('haslook', !!(on && look));          // where the card is one column, these words stand in for the general line under the pictures
   $('lookbox').querySelectorAll('[data-at]').forEach(x => { x.onclick = () => openBody(b.query, +x.dataset.at); });
   $('lookbox').querySelector('[data-years]')?.addEventListener('click', () => {
     S.mode = 'years'; S.wantPlay = !calmMotion(); renderModes(); rebuild(); syncUrl(); maybeAutoplay();
     $('sky').scrollIntoView({ block: 'nearest', behavior: calmMotion() ? 'auto' : 'smooth' });
   });
+  // and the way back from the years to the object's usual view (the simple card has no other: its view buttons are in the full panel)
+  $('lookbox').querySelector('[data-back]')?.addEventListener('click', () => {
+    stop(); S.mode = MODES[t.view?.mode] ? t.view.mode : 'epochs'; S.seq = []; S.idx = 0; S.wantPlay = !calmMotion(); renderModes(); rebuild(); syncUrl(); maybeAutoplay();
+  });
+  lookFits();
   leadState();
 }
 function renderWiki() {
@@ -2216,7 +2237,7 @@ function renderModes() {
     b.hidden = m === 'trail' ? !body : m === 'years' ? !yearsOk() : own && ['color', 'diff', 'deep'].includes(m);          // views that set one patch of sky against itself: not for a followed body
   }
   $('explain').textContent = (own && FOLLOWED[S.mode]) || (S.mode === 'years' && S.years?.src === 'maps' ? YEARS_MAPS : MODES[S.mode]);
-  const inv = $('lookbox').querySelector('.yearsgo'); if (inv) inv.hidden = S.mode === 'years';
+  lookFits();
   $('loopline').hidden = S.mode !== 'epochs';
   const small = $('overtime');
   if (small) small.textContent = S.mode === 'years' ? G`2MASS, WISE and SPHEREx images of this spot` : G`every SPHEREx exposure of this spot`;
@@ -3773,7 +3794,15 @@ async function pointStart() {
     const [ra, dec] = Sky.center();          // nothing in the ring: stay here and come closer, where single objects can be pressed
     pointEnd(); S.busyUntil = performance.now() + 9000; Sky.flyTo(ra, dec, 10);
   };
-  /** Which names to show: of those in view the most worth it, none on top of another; a name already shown keeps its button. */
+  /** The buttons, chips and cards that lie over the map while the phone is held up, as boxes on the names' sheet. */
+  const KEEP_CLEAR = '#top .brand, #top .nav > button, #search, #mapstage .mapui, #findway, #aimbar, #map .aladin-logo';
+  const seen = el => !el.checkVisibility || el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true });
+  const walls = () => {
+    const o = layer.getBoundingClientRect();
+    return [...document.querySelectorAll(KEEP_CLEAR)].filter(seen).map(el => el.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0)
+      .map(r => [r.left - o.left - 4, r.top - o.top - 3, r.right - o.left + 4, r.bottom - o.top + 3]);
+  };
+  /** Which names to show: of those in view the most worth it, none on top of another and none under a button; a name already shown keeps its button. */
   const choose = sky => {
     const W = layer.clientWidth, H = layer.clientHeight, reach = Math.cos(Math.min(89, Sky.fov() * Math.hypot(W, H) / W * 0.6) * Math.PI / 180);
     const inView = [];
@@ -3789,10 +3818,23 @@ async function pointStart() {
     const worth = c => (c.thing === pointHeld ? -99 : c === aimedAt ? -98 : c.thing === found ? -97 : c.thing.rank);
     inView.sort((a, b) => worth(a) - worth(b));
     const wide = c => nameWide(c.thing.name), tall = c => (nameLong(c.thing.name) ? 24 : 20);          // a name's room on the screen, near enough (two lines of 12 px letters stand 29 px high, one line 12 px)
-    const span = c => (nameFlips(c.x, c.thing.name, W) ? [c.x - wide(c), c.x] : [c.x, c.x + wide(c)]);
+    // The side of its dot a name is written on: the usual one (nameFlips), or the other where a button lies on the usual
+    // one and the other is free and on the screen. Where a button lies on both, the name is left out, unless it is the
+    // one the phone is aimed at or the one looked for.
+    const blocks = walls(), sideSpan = (c, left) => (left ? [c.x - wide(c), c.x] : [c.x, c.x + wide(c)]);
+    const under = (c, left) => { const [x0, x1] = sideSpan(c, left), h = tall(c) / 2; return blocks.some(b => x0 < b[2] && b[0] < x1 && c.y - h < b[3] && b[1] < c.y + h); };
+    for (const c of inView) {
+      const usual = nameFlips(c.x, c.thing.name, W), [x0, x1] = sideSpan(c, !usual);
+      c.left = usual;
+      if (!under(c, usual)) continue;
+      if (x0 >= 4 && x1 <= W - 4 && !under(c, !usual)) { c.left = !usual; c.turned = true; }
+      else c.covered = c.thing !== pointHeld && c !== aimedAt && c.thing !== found;
+    }
+    const span = c => sideSpan(c, c.left);
     const next = [];
     for (const c of inView) {
       if (next.length >= NAMES_SHOWN) break;
+      if (c.covered) continue;
       if (!next.some(n => Math.abs(n.y - c.y) < (tall(n) + tall(c)) / 2 && span(c)[0] - 6 < span(n)[1] && span(n)[0] - 6 < span(c)[1])) next.push(c);          // no name on top of another
     }
     const free = pool.filter(el => !next.some(n => shown.find(s => s.thing === n.thing)?.el === el));
@@ -3800,7 +3842,7 @@ async function pointStart() {
       const had = shown.find(s => s.thing === n.thing), el = had ? had.el : free.pop();
       if (!had) { el.textContent = n.thing.name; el.className = `skyname ${n.thing.kind}${nameLong(n.thing.name) ? ' long' : ''}`; }
       el.hidden = false; el.classList.toggle('found', n.thing === found);
-      return { thing: n.thing, el };
+      return { thing: n.thing, el, side: n.turned ? n.left : undefined };          // side: written on the other side of its dot until the names are chosen again
     });
     for (const el of free) el.hidden = true;
   };
@@ -3825,7 +3867,7 @@ async function pointStart() {
     for (const s of shown) {
       const p = Sky.screenOf(s.thing.ra, s.thing.dec);
       if (!p) { s.el.style.transform = 'translate3d(-999px,-999px,0)'; continue; }
-      const flip = nameFlips(p[0], s.thing.name, cx * 2);
+      const flip = s.side ?? nameFlips(p[0], s.thing.name, cx * 2);
       if (flip !== s.flip) { s.flip = flip; s.el.classList.toggle('flip', flip); }
       s.el.style.transform = `translate3d(${p[0].toFixed(1)}px,${p[1].toFixed(1)}px,0) translate(${flip ? '-100%' : '0'},-50%)`;
       const off = Math.hypot(p[0] - cx, p[1] - cy);

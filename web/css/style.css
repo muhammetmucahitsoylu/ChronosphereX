@@ -83,6 +83,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .startwith { margin: 18px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.9; }
 .startwith a { display: inline-block; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; padding: 2px 0; margin: 0 8px 0 4px; white-space: nowrap; }
 .startwith a:hover { text-decoration-color: var(--ember); color: var(--ember); }
+.startkind { display: none; }          /* what an object is: said on phones, where it stands alone */
 .datanote { margin: 10px 0 0; font: 11.5px/1.45 var(--mono); color: var(--ink-2); pointer-events: auto; }
 .offline { margin: 10px 0 0; font: 11.5px var(--mono); color: var(--ink-3); min-height: 16px; }
 .offline button { font: inherit; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; padding: 4px 0; text-align: left; }
@@ -100,6 +101,14 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 @media (min-width: 1600px) and (min-height: 880px) { .hero { padding-right: 372px; max-width: 1052px; } .heroshot { width: 296px; font-size: 14px; } .shotcap b { font-size: 23px; } }
 /* a narrow window on a desk: the picture keeps clear of the map's buttons on the right */
 @media (min-width: 901px) and (max-width: 1010px) { .hero { padding-right: 336px; } .heroshot { right: 62px; } }
+/* On a desk the picture's card stands at the map's right side, beside the column of the map's own buttons and above the
+   map library's badge: the middle of the map (on the opening view the band of the Milky Way) stays in sight and the words
+   keep the left. Until 26 Nov 2026 it stood at the right end of the words, which on a wide screen is the middle of the map.
+   Its place is measured against the map's box; an engine without container units keeps the old place. */
+@supports (width: 1cqw) {
+  .heroshot { right: auto; left: calc(100cqw - 302px); bottom: 132px; }
+  @media (min-width: 1600px) and (min-height: 880px) { .heroshot { left: calc(100cqw - 362px); } }
+}
 /* a short window on a desk: no room for the picture, and a smaller title, so that nothing is cut off at the top */
 @media (min-width: 901px) and (max-height: 640px) { .heroshot { display: none; } .hero { padding-top: 24px; } .hero h1 { font-size: 52px; } }
 
@@ -643,8 +652,13 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
      asteroid hunt reads hundreds of exposures live and is slow on a phone: it stays in the menu */
   #huntbtn, #tourbtn2 { display: none; }          /* the tour is the first line of the menu */
   #starlink { display: inline-flex; }
-  .startwith { align-self: stretch; white-space: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -18px; padding-right: 18px; -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent 100%); mask-image: linear-gradient(90deg, #000 86%, transparent 100%); }
-  .startwith::-webkit-scrollbar { display: none; }
+  /* Phones: the opening names only what the two-minute tour does not visit (today the comet 3I/ATLAS), and says what it
+     is. The tour's six stops are in the tour, which says what each one is, and Barnard's Star is the card above. Until
+     26 Nov 2026 seven bare names stood here in one line that slid sideways under a fading edge, five of them out of sight. */
+  .startwith { align-self: stretch; }
+  .startwith a { margin-left: 0; }          /* on a line of its own it starts where the words above it start */
+  .startwith a.intour { display: none; }
+  .startkind { display: inline-block; color: var(--ink-2); white-space: pre; }
   /* the moving picture's card: what it shows and where it leads; the line about the three telescopes is said again where it leads */
   .shotcap [data-t="hero.shot.text"] { display: none; }
   .heroshot img { width: 72px; }
@@ -653,6 +667,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
 @container stage (max-width: 600px) and (max-height: 620px) { .hero > .lede { display: none; } }
 @container stage (max-width: 600px) and (max-height: 540px) { .hero h1 { font-size: 32px; } }          /* the smallest phones: the title on one line also where it is long (French), so that it stays clear of the map chooser */
 @container stage (max-width: 600px) and (max-height: 470px) { .hero .heroshot { display: none; } }
+@container stage (max-width: 340px) { .startkind { display: none; } }          /* the narrowest phones: the name alone, on the label's line, so that a long title (German) stays clear of the map chooser */
 @media (max-width: 380px) {
   .heroshot img { width: 64px; }
   .herobtns .cta, .herobtns .ghost { font-size: 14px; padding-left: 12px; padding-right: 12px; }
@@ -795,8 +810,10 @@ body.pointing .ruler { display: none; }
   .shotgo { margin-top: 2px; }
   .lede { font-size: 15px; margin-top: 8px; max-width: 600px; }
   .herobtns { margin-top: 12px; gap: 8px; }
-  .startwith { margin-top: 8px; align-self: stretch; line-height: 1.6; white-space: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, #000 90%, transparent 100%); }
-  .startwith::-webkit-scrollbar { display: none; }
+  .startwith { margin-top: 8px; align-self: stretch; line-height: 1.6; }          /* as on an upright phone: only what the tour does not visit, with what it is */
+  .startwith a { margin-left: 0; }          /* on a line of its own it starts where the words above it start */
+  .startwith a.intour { display: none; }
+  .startkind { display: inline-block; color: var(--ink-2); white-space: pre; }
   @container stage (min-height: 334px) { .hero > .heroshot { display: flex; } }
   @container stage (min-height: 392px) { .hero > .lede { display: block; } }
 
@@ -910,7 +927,7 @@ body.pointing .figures { display: block; position: absolute; inset: 0; width: 10
 .loopline, .fullwrap { display: none; }
 body:not(.touring):not(.embed) #panel.simple :is(#modes, #explain, .detwrap, details.display, .export, #reportask, #motion, #scan, #movers,
   details.fold, .stack, #howto, #seek, #count, #fps, #caption span, .viewer .blocktitle small) { display: none !important; }
-body:not(.touring):not(.embed) #panel.simple #years :is(table, .plotwrap, .legend) { display: none; }
+body:not(.touring):not(.embed) #panel.simple #years :is(table, .plotwrap, .legend, .huntsay, .fine) { display: none; }
 body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { display: block; margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: #dcd4c7; }
 body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 4px; }
 .fullbtn { border: 1px solid var(--ember); color: var(--ember); border-radius: 999px; padding: 9px 18px; min-height: 40px; font-weight: 600; }

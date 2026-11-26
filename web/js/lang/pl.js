@@ -881,4 +881,5 @@ export default {
   "The first figure is this page’s own estimate, good to about ±{0}″ a year; the catalogue’s is the reference value.": "Pierwsza liczba to własne oszacowanie tej strony, z dokładnością do około ±{0}″ na rok; wartością odniesienia jest ta z katalogu.",
   "The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.": "Pierwsza liczba to własne oszacowanie tej strony z dwóch obrazów; wartością odniesienia jest ta z katalogu.",
   "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "Zmierzona liczba to własne oszacowanie tej strony; wartością odniesienia jest ta z katalogu.",
+  "Watch SPHEREx’s own pictures": "Zobacz zdjęcia SPHEREx",
 };
