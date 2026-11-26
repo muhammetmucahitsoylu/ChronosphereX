@@ -877,4 +877,8 @@ export default {
   "Video ready.": "Video hazır.",
   "Share": "Paylaş",
   "Save": "Kaydet",
+  "Gaia: {0}″/yr": "Gaia: {0}″/yıl",
+  "The first figure is this page’s own estimate, good to about ±{0}″ a year; the catalogue’s is the reference value.": "İlk sayı bu sayfanın kendi tahminidir, yılda yaklaşık ±{0}″ şaşabilir. Esas alınacak değer katalogdakidir.",
+  "The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.": "İlk sayı bu sayfanın iki görüntüden yaptığı kendi tahminidir. Esas alınacak değer katalogdakidir.",
+  "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "Ölçülen sayı bu sayfanın kendi tahminidir. Esas alınacak değer katalogdakidir.",
 };

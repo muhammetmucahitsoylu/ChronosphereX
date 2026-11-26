@@ -557,7 +557,10 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .app[data-panel=open] .zoom { top: 56px; }
   @container stage (min-height: 225px) and (max-height: 280px) { .app[data-panel=open] .zoom { display: flex; } }
   body.canpoint:not(.touring) .app[data-panel=closed] .zoom { top: 152px; }          /* under the button that points the map where the phone looks */
-  body.pointing .mapnote { right: 128px; text-align: left; }          /* where the phone looks stays on show: beside the map chooser, not over it */
+  /* what the map says lies beside the map chooser, not over it: while the phone is held up to the sky, and on the open
+     map (the first words after "Explore the sky" lay across the chooser, 26 November 2026). With an object open the
+     chooser is up in the row of buttons, and the words have the whole width. */
+  body.pointing .mapnote, .app[data-panel=closed] .mapnote { right: 128px; text-align: left; }
   .mapstage:has(> .hero:not([hidden])) .pointbtn { display: none; }          /* the opening has that button among its own, in words: a long title on two lines needs the corner */
   .aladin-location { display: none !important; }
   .aladin-logo-container { right: auto !important; left: 10px !important; bottom: 70px !important; }          /* the zoom buttons own the right edge of a short map */
@@ -915,3 +918,53 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
 .fullwrap small { font-size: 13px; line-height: 1.4; color: var(--ink-2); max-width: 52ch; }
 .simplebtn { margin-left: 0; border-color: var(--line-2); color: var(--ink-2); }
 .simplebtn:hover { background: var(--line-2); color: var(--ink); }
+
+/* ---------- the simple card where the panel is one column: the pictures first ----------
+   Phones, upright or sideways, and a narrow window on a desk. The pictures are what a press on the map is for, and on
+   a phone they began more than a screen down (846 to 920 px from the top on screens 640 to 800 px high, measured on
+   26 November 2026), under words that spoke of them. Now: the name, the pictures, what to look for, the answers, the
+   button to everything else. The parts keep their places in the page's code; only their order on the screen changes. */
+@container (max-width: 639.98px) {
+  body:not(.touring):not(.embed) #panel.simple .cols { display: flex; flex-direction: column; gap: 0; }
+  body:not(.touring):not(.embed) #panel.simple :is(.lead, .viewer) { display: contents; }
+  body:not(.touring):not(.embed) #panel.simple .viewer .blocktitle { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }          /* the date on the pictures says it; still read out */
+  body:not(.touring):not(.embed) #panel.simple .stage { order: 1; }
+  body:not(.touring):not(.embed) #panel.simple .transport { order: 2; }
+  body:not(.touring):not(.embed) #panel.simple #years { order: 3; }
+  body:not(.touring):not(.embed) #panel.simple #lookbox { order: 4; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { order: 5; margin-top: 14px; }
+  body:not(.touring):not(.embed) #panel.simple.haslook .loopline:not([hidden]) { display: none; }          /* this object has words of its own on what to look for */
+  body:not(.touring):not(.embed) #panel.simple #findings { order: 6; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel.simple .fullwrap { order: 7; margin-top: 18px; }
+  body:not(.touring):not(.embed) #panel.simple .more { order: 8; margin-top: 22px; }
+}
+/* A phone held upright: under the simple card the map is a low strip, just high enough for the square that marks the
+   field and the name above it, below the row of buttons. The map itself reaches as far below the strip as that row
+   takes at the top (out of sight), so that its middle, where the object is, is the middle of what can be seen. The
+   colour bar would lie across the object here, as in the tour: it is back with "All measurements" and on the open map. */
+@media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
+  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .mapstage { height: calc(184px + var(--sat, 0px)); min-height: 0; }
+  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] #map { bottom: calc(-48px - var(--sat, 0px)); }
+  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .ruler { display: none; }
+  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .aladin-logo-container { bottom: calc(58px + var(--sat, 0px)) !important; }
+}
+/* On a phone the simple card's head is the kind, the name and what it is: the small picture (the encyclopedia's card
+   below shows it whole) and the line that opens the facts and links make room for the pictures. Both are back with
+   "All measurements". */
+@media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
+  body:not(.touring):not(.embed) #panel.simple .ohead :is(.thumb, .factsrow) { display: none; }
+  body:not(.touring):not(.embed) #panel.simple .ohead { padding-bottom: 10px; margin-bottom: 12px; }
+}
+/* what "All measurements" will download, while the simple card holds the other detectors back (app.js, restSay) */
+.fullwrap .fullcost { color: var(--ink); }
+/* one column: the words on what is arriving lie at the top of the pictures, under the date (at their foot they were below the first screen of a small phone) */
+@container (max-width: 639.98px) { body:not(.touring):not(.embed) #panel.simple #status { top: 42px; bottom: auto; } }
+
+/* ---------- a desk: the simple card is a narrow panel ----------
+   The panel is as wide as everything it can hold (62 per cent of the window): with the simple card in it, the pictures
+   sat small in one corner of an almost empty panel (the user's screen of 1832 px, 26 November 2026). So the simple card
+   takes the width its pictures and words need, and the map has the rest; "All measurements" widens the panel to what it
+   was. The tour and embedded pages keep the wide panel. Inside, the card is the one column described above. */
+@media (min-width: 901px) and (min-height: 501px), (min-width: 1101px) {          /* a desk, not a large phone held sideways (which keeps its two columns) */
+  body:not(.touring):not(.embed) .app.simplecard { --panelw: clamp(400px, 30vw, 480px); }
+}

@@ -131,6 +131,9 @@ export function makeGrid(ra, dec, sizeArcmin) {
 }
 
 // ------------------------------------------------------------------ FITS
+let read = 0;
+/** Bytes read from the archive since the page opened: what an exposure costs is worked out from it. */
+export const bytesRead = () => read;
 async function range(key, start, end, signal, suffix) {
   const hdr = { Range: suffix ? `bytes=-${suffix}` : `bytes=${start}-${end}` };
   let last;
@@ -139,7 +142,9 @@ async function range(key, start, end, signal, suffix) {
       const r = await fetch(S3 + key, { headers: hdr, signal });
       if (r.status === 404 || r.status === 403) { const e = new Error('missing'); e.missing = true; throw e; }
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.arrayBuffer();
+      const got = await r.arrayBuffer();
+      read += got.byteLength;
+      return got;
     } catch (e) {
       if (e.name === 'AbortError' || e.missing) throw e;
       last = e; await new Promise(res => setTimeout(res, 400 * (attempt + 1)));

@@ -877,4 +877,8 @@ export default {
   "Video ready.": "Vídeo listo.",
   "Share": "Compartir",
   "Save": "Guardar",
+  "Gaia: {0}″/yr": "Gaia: {0}″/año",
+  "The first figure is this page’s own estimate, good to about ±{0}″ a year; the catalogue’s is the reference value.": "La primera cifra es la estimación propia de esta página, con un margen de unos ±{0}″ al año; el valor de referencia es el del catálogo.",
+  "The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.": "La primera cifra es la estimación propia de esta página a partir de dos imágenes; el valor de referencia es el del catálogo.",
+  "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "La cifra medida es la estimación propia de esta página; el valor de referencia es el del catálogo.",
 };

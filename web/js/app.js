@@ -145,7 +145,8 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
     called, head: null, grid: null, dets: {}, seq: [], idx: 0, sel: null, gaia: null, catwise: null, deep: null, off: new Set(), stacks: null, epochs: null, pts: [], bandCache: {}, stackCache: {}, haloDets: [], years: null });
   S.info = info; S.infoState = info ? 'done' : 'loading'; S.wiki = null; S.found = null; S.moved = null; S.find = {};
   S.movers = null; S.bodyMemo = null; S.scMemo = null; S.hunt = hunt; S.expect = null;
-  S.detPicked = !!det; S.autoNote = '';
+  S.detPicked = !!det; S.autoNote = ''; S.rest = null; S.perExposure = 0;
+  S.again = () => go({ ra, dec, size: S.size, target, track, det: S.det, mode: S.mode, info, hunt, fly: false });
   S.wantPlay = !calmMotion();          // the sequence starts playing by itself once it has loaded
   S.busyUntil = performance.now() + 9000;
   if (det) S.det = det;
@@ -156,11 +157,13 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
     // A visitor who has zoomed in closer than the usual view of an object and clicks a star stays that close.
     // A star picked by its name on the sky above is shown from farther off (mapFov, degrees): see pointOpen.
     const zoomNow = Sky.fov(), width = w => mapFov || (keepZoom ? clamp(zoomNow, 0.12, Sky.objectFov(S.size, w)) : Sky.objectFov(S.size, w));
-    if (fly) Sky.flyTo(ra, dec, width, { layout: opening ? openPanel : null });
-    else if (opening) Sky.reshape(openPanel);
+    // Which card this object opens as decides the height of a phone's map: settled within the same move.
+    const layout = opening ? () => { syncCard(); openPanel(); } : cardFlips() && !isSide() ? syncCard : null;
+    if (fly) Sky.flyTo(ra, dec, width, { layout });
+    else if (layout) Sky.reshape(layout);
     Sky.mark(ra, dec, S.size, target ? nameOf(target) : info ? info.name : called || track?.name || '');
   }
-  openPanel();
+  syncCard(); openPanel();
   const mapFirst = Sky.isReady() ? Promise.race([Sky.onItsWay(), nap(450)]) : null;
   loadInfo(gen);
   // A followed body has one size of field, its own: the size the visitor had chosen comes back with the next object.
@@ -174,29 +177,92 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
     if (S.showWise && !followed()) setTimeout(loadCatwise, 1500);
     // The map and the images want the same processor: the map goes first (it needs a fraction of a second).
     if (mapFirst) { await mapFirst; if (gen !== S.gen) return; }
+    const read0 = Archive.bytesRead();
     await loadDet(S.det, gen);
     if (gen !== S.gen) return;
     if (!S.head || !S.head.total) return;
-    for (let d = 1; d <= 6; d++) {
+    if (restWaits() && !(await restKept())) {
       if (gen !== S.gen) return;
-      if (!S.dets[d] && +S.head.avail[d] > 0) await loadDet(d, gen);
+      // what an exposure of this field costs, for the card's line on the rest: by the exposures asked for, as the
+      // other detectors are counted (one that turns out not to cover the spot costs as much as one that does)
+      const n = Math.min(+S.head.avail[S.det] || 0, Archive.MAX_PER_DET), spent = Archive.bytesRead() - read0;
+      S.perExposure = n && spent ? spent / n : 0;
+      // Where the detector on show cannot show the target, the longest wavelengths are read as well, and the pictures
+      // move there if they show it (autoDetector, of what is here): a star whose core is saturated is faintest there,
+      // and a catalogued object too faint to see at short wavelengths (a cold brown dwarf) is brightest there. A spot
+      // where no catalogue has anything is left as it is: nothing says there is more to find.
+      const far = [6, 5, 4].find(d => d !== S.det && !S.dets[d] && +S.head.avail[d] > 0), why = far && restWaits() ? shownBadly() : null;
+      if (why === 'saturated' || (why === 'faint' && S.info)) { await loadDet(far, gen); if (gen !== S.gen) return; autoDetector(); }
+      // (asked again: "All measurements" may have been pressed while those were being read)
+      if (restWaits()) { S.rest = 'later'; setStatus(''); renderMotion(); maybeAutoplay(); renderFindings(); restSay(); return; }
     }
-    if (gen === S.gen) { setStatus(''); autoDetector(); renderMotion(); maybeAutoplay(); if (!followed()) findBodies(gen); }
-  } catch (e) {
-    if (e.name === 'AbortError' || gen !== S.gen) return;
-    console.error(e);
-    // Say what happened and offer to try again; a returning connection retries by itself.
-    const retry = () => go({ ra, dec, size: S.size, target, track, det: S.det, mode: S.mode, info, hunt, fly: false });
-    S.failed = retry;
-    setStatus(''); renderHunt();
-    const el = $('notice');
-    el.innerHTML = G`${S.head ? G`The connection dropped while the images were loading.` : G`NASA’s open archive could not be reached just now.`} Objects you have already opened still work offline.<br><button type="button">Try again</button>`;
-    el.hidden = false;
-    el.querySelector('button').onclick = retry;
-    refreshPlots();
-  }
+    if (gen !== S.gen) return;
+    await loadRest(gen);
+  } catch (e) { loadFailed(e, gen); }
 }
 window.addEventListener('online', () => { if (S.failed) S.failed(); });
+
+// ------------------------------------------------------------ the simple card reads what it shows
+// A place read live costs about 0.4 MB an exposure, and the six detectors of an ordinary star some 250 MB (Vega's
+// field, 26 November 2026: 55 MB for the detector on show, 200 MB for the other five; 130 to 370 MB across the sky).
+// The simple card shows the pictures of one detector and what they say. So the other five wait until they are asked
+// for ("All measurements", or a press on one of the answers), and the card says what they will cost: on a phone, where
+// data is counted, and on a desk, where the page is quicker for it and NASA's archive is asked for a fifth as much. A
+// showcase object comes as six small files and is read whole, as is a place this device already keeps.
+const restWaits = () => simpleCard() && !isPreset() && tourIdx < 0 && !S.embed;
+async function restKept() {
+  for (let d = 1; d <= 6; d++) if (!S.dets[d] && +S.head.avail[d] > 0 && !(await Store.has(liveKey(S.ra, S.dec, S.size, d)))) return false;
+  return true;
+}
+/**
+ * Can the detector on show show the target? 'saturated' where the star's core is saturated in it, 'faint' where the
+ * spot is too faint to see there, null where it shows well (the two things autoDetector asks, of what has arrived).
+ */
+function shownBadly() {
+  if (S.detPicked || !S.grid || !S.sel) return null;
+  const sn = measureAll().filter(p => p.det === S.det && !p.halo).map(p => p.flux / p.err).sort((a, b) => a - b);
+  if ((S.haloDets || []).includes(S.det)) return 'saturated';
+  return (sn.length >= 5 ? sn[sn.length >> 1] : 0) < 5 ? 'faint' : null;
+}
+/** The detectors not read yet, one after the other, and then what waits for all of them. */
+async function loadRest(gen) {
+  S.rest = 'loading'; restSay();
+  for (let d = 1; d <= 6; d++) {
+    if (gen !== S.gen) return;
+    if (!S.dets[d] && +S.head.avail[d] > 0) await loadDet(d, gen);
+  }
+  if (gen !== S.gen) return;
+  S.rest = 'done';
+  setStatus(''); autoDetector(); renderMotion(); maybeAutoplay(); if (!followed()) findBodies(gen);
+}
+/** The detectors that waited are asked for now. */
+function loadTheRest() {
+  if (S.rest !== 'later') return;
+  const gen = S.gen;
+  loadRest(gen).catch(e => loadFailed(e, gen));
+}
+/** Under "All measurements", while the other detectors wait: what reading them will cost, in megabytes. */
+function restSay() {
+  const el = $('fullcost');
+  let n = 0;
+  if (S.rest === 'later' && S.head) for (let d = 1; d <= 6; d++) if (!S.dets[d]) n += Math.min(+S.head.avail[d] || 0, Archive.MAX_PER_DET);
+  const mb = n * (S.perExposure || 77000 * S.size) / 1e6;          // without a count of its own (the pictures came from this device): 0.4 MB an exposure at 5 arcminutes
+  el.hidden = mb < 1;
+  if (mb >= 1) el.textContent = T('panel.fullCost', { n: mb >= 20 ? Math.round(mb / 10) * 10 : Math.round(mb) });
+}
+/** Reading failed: say what happened and offer to try again; a returning connection retries by itself. */
+function loadFailed(e, gen) {
+  if (e.name === 'AbortError' || gen !== S.gen) return;
+  console.error(e);
+  const retry = S.again;
+  S.failed = retry;
+  setStatus(''); renderHunt();
+  const el = $('notice');
+  el.innerHTML = G`${S.head ? G`The connection dropped while the images were loading.` : G`NASA’s open archive could not be reached just now.`} Objects you have already opened still work offline.<br><button type="button">Try again</button>`;
+  el.hidden = false;
+  el.querySelector('button').onclick = retry;
+  refreshPlots();
+}
 
 async function loadDet(det, gen) {
   const D = S.dets[det] = { frames: [], total: 0, done: false, loading: true };
@@ -660,9 +726,21 @@ function renderYears() {
     rows.push(`<tr><td>${k}</td><td>${v.length}</td><td>${y0 === y1 ? y0 : `${y0}–${y1}`}</td><td>${fx(r, 1)}″</td></tr>`);
   }
   const moved = cat * years;
-  let say = '';
+  // How far off may the rate measured here be? As far as the straight line through the offsets is uncertain (its
+  // standard error, from how the images scatter about it), and never less than the scatter of one image spread over
+  // the whole span: the telescopes' own grids differ by that much. With two images there is no scatter to go by.
+  const lineErr = key => {
+    if (seen.length < 3) return null;
+    const tm = seen.reduce((s2, q) => s2 + q.t, 0) / seen.length, vm = seen.reduce((s2, q) => s2 + q[key], 0) / seen.length, k = fit(key);
+    const den = seen.reduce((s2, q) => s2 + (q.t - tm) ** 2, 0), left = seen.reduce((s2, q) => s2 + ((q[key] - vm) - k * (q.t - tm)) ** 2, 0);
+    return den > 0 ? Math.sqrt(left / (seen.length - 2) / den) : null;
+  };
+  const eE = lineErr('dE'), eN = lineErr('dN');
+  const off = eE == null || eN == null || !(mine > 0) || !(years > 0) ? null : Math.max(Math.hypot(pmE * eE, pmN * eN) / mine, rms / years);
+  let say = '', whose = '';
   if (moved >= 2 * g.scale) {
     say = G`From ${a.it.years.survey} in ${C.fmtMonth(a.it.mjd)} to ${b.it.years.survey} in ${C.fmtMonth(b.it.mjd)}, ${esc(name)} moved ${arc(mine * years)} towards the ${compass(pmE, pmN)}. Measured in these ${seen.length} images: ${fx(mine, 2)}″ a year; the catalogue gives ${fx(cat, 2)}″.`;
+    whose = ` ${off != null ? G`The first figure is this page’s own estimate, good to about ±${fx(Math.max(0.01, Math.ceil(off * 100) / 100), 2)}″ a year; the catalogue’s is the reference value.` : G`The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.`}`;
   } else {
     say = G`In ${fx(years, 0)} years, from ${a.it.years.survey} to ${b.it.years.survey}, ${esc(name)} moved less than this view can show (${fx((cat * years), 1)}″ by the catalogue).`;
   }
@@ -670,7 +748,7 @@ function renderYears() {
   // only where there was no light at all: a bright star that could not be centred is not "too faint"
   const unseen = [...new Set(missed.filter(q => q.dark).map(q => q.it.years.survey))].filter(k => !by.has(k)).map(k => missed.find(q => q.dark && q.it.years.survey === k).it.years);
   const none = unseen.map(f => G`It does not show in the ${f.survey} image (${f.band}, ${fx(Years.LAM[f.band], 2)} µm, ${f.guessed ? '1997–2001' : C.fmtMonth(f.mjd)}): at that wavelength it is too faint for ${f.survey}.`).join(' ');
-  el.innerHTML = `<p class="yearssay">${say} ${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}${none ? ` ${none}` : ''}</p>${notes}
+  el.innerHTML = `<p class="yearssay">${say}${whose} ${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}${none ? ` ${none}` : ''}${whose ? ` ${methodLink()}` : ''}</p>${notes}
     <table class="t"><thead><tr><th>${G`Telescope`}</th><th>${G`Images`}</th><th>${G`Years`}</th><th>${G`Off the catalogue`}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
   yearsHunt(el, name);
   yearsBrightness(el, name);
@@ -1042,7 +1120,7 @@ function overlays(it, W, H, s) {
           const [ra2, dec2] = C.propagate(src, S.gaia.epoch, year + 5), [x2, y2] = C.skyToGrid(g, ra2, dec2), [X2, Y2] = g2c(x2, y2, W, H, s);
           const len = Math.hypot(X2 - X, Y2 - Y), off = own ? clear : Math.max(3.5, 4 / g.scale * s) + 2;
           if (len > off + 8) arrow(X + (X2 - X) * off / len, Y + (Y2 - Y) * off / len, X2, Y2, '#ffd166');
-          ctx.fillStyle = '#ffd166'; ctx.fillText(G`${fx((pm / 1000), 1)}″/yr`, X2 + 6, Y2 - 6);
+          ctx.fillStyle = '#ffd166'; ctx.fillText(G`Gaia: ${fx((pm / 1000), 1)}″/yr`, X2 + 6, Y2 - 6);          // the catalogue's figure, and said to be
         }
       }
     }
@@ -1428,7 +1506,7 @@ function renderFindings() {
  */
 /** A field read live is searched once all six detectors have arrived, which takes minutes when it is wide: said meanwhile. */
 function stillLooking() {
-  if (S.target || S.hunt || S.failed || !S.grid || !S.head) return null;          // a showcase object is searched in seconds; a hunt tells its own story
+  if (S.target || S.hunt || S.failed || !S.grid || !S.head || S.rest === 'later') return null;          // a showcase object is searched in seconds; a hunt tells its own story; the simple card has not read the other detectors
   const all = [1, 2, 3, 4, 5, 6].every(d => S.dets[d]?.done);
   if (S.movers ? S.movers.state !== 'working' : all) return null;
   return { cls: 'wait', html: G`<b>Still looking</b> for asteroids and other bodies passing through this field…` };
@@ -1702,12 +1780,21 @@ $('heroshot').onclick = () => {          // the front page's picture: Barnard's 
 let panelFull = false, fullFromLink = false;
 try { localStorage.removeItem('chrono-panel-full'); } catch { /* private mode */ }          // what the first version kept on the device
 const simpleCard = () => !panelFull && !S.hunt && !(S.target?.body || S.track?.body);
+// The simple card leaves the map more room (style.css, .app.simplecard): on a phone the map is a low strip, so that the
+// pictures come onto the first screen; on a desk the card is a narrow panel beside a wide map, and "All measurements"
+// widens it. The map is told when the card beside it changes, like any other change of its size. (A phone held
+// sideways keeps its two columns as they are.)
+const cardFlips = () => $('app').classList.contains('simplecard') !== simpleCard();
+const syncCard = () => { $('app').classList.toggle('simplecard', simpleCard()); };
 function applyPanelMode() {
   $('panel').classList.toggle('simple', simpleCard());
+  if (cardFlips()) { if ($('app').dataset.panel === 'open' && !isSide() && tourIdx < 0 && Sky.isReady()) Sky.reshape(syncCard); else syncCard(); }
   $('loopline').hidden = S.mode !== 'epochs';
+  restSay();
 }
 function setPanelFull(on) {
   panelFull = on;
+  if (on) loadTheRest();          // the simple card held the other detectors back until now
   renderAbout(); renderFindings();
   requestAnimationFrame(() => { specPlot.draw(); lcPlot.draw(); });          // the plots were drawn while hidden, at no size
 }
@@ -1818,7 +1905,7 @@ function renderAbout() {
     fast ? G`Catalogues list where a star was in the year 2000. This one has moved since; the position shown is for today.` : G`Right ascension and declination (ICRS)`);
   if (pmSrc) {
     fact(G`Moves across the sky`, G`${fx(pm, pm < 0.1 ? 3 : 2)}″ per year`,
-      pm >= 0.3 ? G`${fx((pm / 6.15), 2)} SPHEREx pixels a year` : pm > 0.003 ? G`one SPHEREx pixel in ${NUM.format(Math.round(6.15 / pm))} years` : G`too slow to see here`,
+      `${pm >= 0.3 ? G`${fx((pm / 6.15), 2)} SPHEREx pixels a year` : pm > 0.003 ? G`one SPHEREx pixel in ${NUM.format(Math.round(6.15 / pm))} years` : G`too slow to see here`} · ${esc(pmSrc.src || 'SIMBAD')}`,
       G`Proper motion${pmSrc.src ? `, ${pmSrc.src}` : G`, from SIMBAD`}`);
   }
   // Distance: only from a parallax measured to better than 20%.
@@ -1930,6 +2017,7 @@ function renderLook() {
   const Y = t && isPreset() && S.yearsIdx?.[t.slug], years = Y ? Math.round((Y.span[1] - Y.span[0]) / 365.25) : 0;
   const invite = Y ? `<p class="look yearsgo"${S.mode === 'years' ? ' hidden' : ''}><button type="button" data-years>${G`Watch it over ${years} years: 2MASS, WISE, SPHEREx`}</button></p>` : '';
   $('lookbox').innerHTML = on && look ? `<p class="look"><b>${G`What to look for`}</b>${esc(look)}</p>${times}${invite}` : '';
+  $('panel').classList.toggle('haslook', !!(on && look));          // where the card is one column, these words stand in for the general line under the pictures
   $('lookbox').querySelectorAll('[data-at]').forEach(x => { x.onclick = () => openBody(b.query, +x.dataset.at); });
   $('lookbox').querySelector('[data-years]')?.addEventListener('click', () => {
     S.mode = 'years'; S.wantPlay = !calmMotion(); renderModes(); rebuild(); syncUrl(); maybeAutoplay();
@@ -2094,7 +2182,7 @@ function renderMotion() {
     }).join('');
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
-      <p class="hint verdict"><b>Measured: ${fx(rate, 1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${fx(catPm, 1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>`;
+      <p class="hint verdict"><b>Measured: ${fx(rate, 1)}″ per year towards the ${dir}</b>${agree}. The catalogue says ${fx(catPm, 1)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${G`The measured figure is this page’s own estimate; the catalogue’s is the reference value.`} ${methodLink()}</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
     sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir));
     return;
@@ -2107,13 +2195,18 @@ function renderMotion() {
   if (d > Math.max(3 * sigma, 1.5)) {
     const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
-    el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>`;
+    el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>` + `<p class="hint">${methodLink()}</p>`;
     sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`);
     return;
   }
   el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
   sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`, G`<b>It has not moved.</b> It stays in the same place from one visit to the next.`);
 }
+/**
+ * Beside a figure the page measured itself: the way to the method page's part on what the tool cannot tell (a plain
+ * link for a new tab or a search engine; a plain press opens the same words over the map).
+ */
+const methodLink = () => `<a class="methodlink" href="${(NAV ? `${Lang.lang}/` : '') + PAGE_FILES.how}#limits" data-sheet="how" data-at="limits">${esc(T('panel.method'))}</a>`;
 function renderModes() {
   const body = !!(S.grid && bodyStops()), own = followed();
   $('saveades').hidden = !body || own;          // the places of a body can be saved while one is followed through a field; the place of a body the images are centred on was not measured
@@ -3460,7 +3553,7 @@ $('hidewelcome').onclick = () => { $('welcome').hidden = true; note(T('note.expl
 
 // ------------------------------------------------------------ article sheets
 let sheetOpener = null, sheetTok = 0;
-function openSheet(id) {
+function openSheet(id, at = '') {
   if (!SHEETS[id] && !PAGE_FILES[id]) return;
   sheetOpener = document.activeElement;
   const wrap = $('sheetwrap'), sh = $('sheet'), tok = ++sheetTok;
@@ -3472,6 +3565,7 @@ function openSheet(id) {
   };
   fill(SHEETS[id] ? SHEETS[id]() : '');
   wrap.hidden = false; wrap.scrollTop = 0; sh.focus();
+  if (at) requestAnimationFrame(() => sh.querySelector(`#${at}`)?.scrollIntoView({ block: 'start' }));          // a link to one part of the page opens on that part
   if (!SHEETS[id]) pageWords(id).then(html => { if (tok === sheetTok && !wrap.hidden) fill(html); })
     .catch(() => { if (tok === sheetTok) location.href = pageAddress(id); });          // not to be had as a sheet: the page itself
 }
@@ -3511,6 +3605,12 @@ $('sheet').addEventListener('keydown', e => {
 // The pages also exist as plain pages with addresses of their own (scripts/build_pages.mjs): a plain click opens
 // the words over the map, a click meant for a new tab or window follows the link. The three whose words are in
 // pages.js are shown from there; "Planet X", written by that script from the tour's words, is read from its plain page.
+// links to a page written into the panel later (beside a measured figure): a plain press opens the page's words over the map, at the part the link names
+$('panel').addEventListener('click', e => {
+  const a = e.target.closest?.('a[data-sheet]');
+  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  e.preventDefault(); openSheet(a.dataset.sheet, a.dataset.at || '');
+});
 document.querySelectorAll('[data-sheet]').forEach(b => {
   b.href = SHEETS[b.dataset.sheet] ? (NAV ? `${Lang.lang}/` : '') + PAGE_FILES[b.dataset.sheet] : pageAddress(b.dataset.sheet);
   b.onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); openSheet(b.dataset.sheet); };

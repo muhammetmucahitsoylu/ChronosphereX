@@ -136,7 +136,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           <a class="ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
         </div>
         <!-- a phone on mobile data: what exploring costs, said before the first touch -->
-        <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. Exploring fetches about 5 MB a minute.</p>
+        <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. The pictures of one star you pick on the map take 20 to 60 MB.</p>
         <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. --><span id="examples"><a href="3i-atlas.html">3I/ATLAS</a><a href="barnards-star.html">Barnard's Star</a><a href="epsilon-indi-b.html">Epsilon Indi B</a><a href="wise-0855.html">WISE 0855</a><a href="rw-aurigae.html">RW Aurigae</a><a href="r-draconis.html">R Draconis</a><a href="pluto.html">Pluto</a></span></p>
         <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->
         <button type="button" class="heroshot" id="heroshot">
@@ -230,7 +230,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           </select>
         </div>
         <p class="loopline" id="loopline" data-t="panel.loop">One picture for each time SPHEREx looked here, in a loop. Anything that moved jumps from one to the next.</p>
-        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
+        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
         <div class="seg" role="group" aria-label="How to compare" id="modes">
           <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
           <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>

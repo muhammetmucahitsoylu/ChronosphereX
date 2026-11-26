@@ -44,6 +44,9 @@
   .row span { display: block; color: var(--ink-2); font-size: 14px; }
   .row .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); }
   .row.off { opacity: .62; }
+  /* a meteor shower with its reminder button (the app): the button under the words. Beside them, on a phone 360 px wide,
+     it left the words a column of five short lines (26 November 2026). */
+  .row.shower { flex-direction: column; align-items: flex-start; gap: 10px; }
   .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .times div { text-align: center; }
   .times b { display: block; font: 500 clamp(16px, 5.4vw, 22px)/1.2 var(--mono); white-space: nowrap; }
@@ -268,7 +271,7 @@ function render() {
     const ev = `${id}-${y}`, at = new Date(y, mo - 1, d, 21), on = reminded.includes(ev);
     const when = `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}T21:00`;
     const remind = canRemind && at > today ? `<button type="button" class="btn find" data-ev="${ev}" data-when="${when}" data-name="${esc(T.showerNames[id])}" aria-pressed="${on}">${esc(on ? T.evOn : T.evAsk)}</button>` : '';
-    return `<div class="row"><div class="what"><b>${esc(T.showerNames[id])}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div>${remind}</div>`;
+    return `<div class="row${remind ? ' shower' : ''}"><div class="what"><b>${esc(T.showerNames[id])}</b>${words.map(w => `<span>${esc(w)}</span>`).join('')}</div>${remind}</div>`;
   }).join('');
   $('showers').hidden = !next.length;
   if (!here) { $('ask').hidden = false; $('sun').hidden = $('planets').hidden = $('stars').hidden = true; $('moontimes').textContent = ''; $('moonfind').hidden = true; return; }
