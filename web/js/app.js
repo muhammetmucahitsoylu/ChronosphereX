@@ -2204,12 +2204,17 @@ function renderMotion() {
     const res = seen.map(r => [-(r.m.x - r.p[0]) * g.scale, (r.m.y - r.p[1]) * g.scale]);
     const mid = v => { const q = [...v].sort((x, y) => x - y); return q.length % 2 ? q[q.length >> 1] : (q[q.length / 2 - 1] + q[q.length / 2]) / 2; };
     const off = [mid(res.map(v => v[0])), mid(res.map(v => v[1]))];
-    const m0 = first.m, p0 = first.p;
+    const p0 = first.p;
     const body = rows.map(({ st, p, m }) => {
       const dot = `<i style="background:${epochColor(st.mjd)}"></i>${C.fmtMonth(st.mjd)}`;
-      if (!m) return G`<tr><td>${dot}</td><td colspan="3">not detected</td></tr>`;
+      if (!m) return G`<tr><td>${dot}</td><td colspan="3">not detected</td></tr>`.replace('colspan="3"', 'colspan="2"');          // two columns of figures since 26 Nov 2026
+      // Both figures of a row are read against one thing, the place the catalogue gives for that visit: how far that place
+      // has come since the first visit, and how far from it the star was measured (one offset common to all visits taken
+      // out). A third figure stood between them until 26 Nov 2026, the path from the first measured place; beside the
+      // other two it did not add up (Barnard's Star: 0.0″, 0.0″, 1.7″ at the first visit), because a sideways slip of one
+      // visit counted in it and in the last column in different ways.
       const r = [-(m.x - p[0]) * g.scale - off[0], (m.y - p[1]) * g.scale - off[1]];
-      return `<tr><td>${dot}</td><td>${as(Math.hypot(m.x - m0.x, m.y - m0.y))}″</td><td>${as(Math.hypot(p[0] - p0[0], p[1] - p0[1]))}″</td><td>${fx(Math.hypot(r[0], r[1]), 1)}″</td></tr>`;
+      return `<tr><td>${dot}</td><td>${as(Math.hypot(p[0] - p0[0], p[1] - p0[1]))}″</td><td>${fx(Math.hypot(r[0], r[1]), 1)}″</td></tr>`;
     }).join('');
     // The rate on show: all the detectors' where they have arrived, else this detector's, with the yearly wobble of a near
     // star taken out as it is there (visits half a year apart see it from opposite sides of the Earth's orbit).
@@ -2225,7 +2230,7 @@ function renderMotion() {
     // the simple card's two short lines (as in the years view), shown while the estimate is worth more than its margin
     const brief = far < rate ? `<div class="yearsline"><b>${G`Its yearly motion across the sky`}</b><span>${G`This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″`}</span><span>${G`Astronomers’ value (catalogue): ${fx(catPm, 2)}″`}</span></div><p class="yearsway">${methodLink()}</p>` : '';
     el.classList.toggle('hasline', !!brief);
-    el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far it has moved since the first visit, in these images">Moved</th><th title="How far the catalogue says it should have moved: proper motion and parallax">Predicted</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Off by</th></tr></thead><tbody>${body}</tbody></table>
+    el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far the catalogue says it should have moved since the first visit: proper motion and parallax">Predicted path</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Measured place: off by</th></tr></thead><tbody>${body}</tbody></table>
       <p class="hint verdict"><b>This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″ per year towards the ${dir}</b>${agree}. The astronomers’ value (catalogue): ${fx(catPm, 2)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}, and it is the one to rely on. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${methodLink()}</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
     sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir));
