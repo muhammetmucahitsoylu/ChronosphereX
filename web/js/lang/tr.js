@@ -883,7 +883,7 @@ export default {
   "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "Ölçülen sayı bu sayfanın kendi tahminidir. Esas alınacak değer katalogdakidir.",
   "Watch SPHEREx’s own pictures": "SPHEREx’in kendi görüntülerini izle",
   "Its yearly motion across the sky": "Gökteki yıllık hareketi",
-  "This page’s measurement: {0}″ ± {1}″": "Bu sayfanın ölçümü: {0}″ ± {1}″",
-  "This page’s measurement: {0}″": "Bu sayfanın ölçümü: {0}″",
+  "This page’s estimate: {0}″ ± {1}″": "Bu sayfanın tahmini: {0}″ ± {1}″",
+  "This page’s estimate: {0}″": "Bu sayfanın tahmini: {0}″",
   "Astronomers’ value (catalogue): {0}″": "Gökbilimcilerin değeri (katalog): {0}″",
 };

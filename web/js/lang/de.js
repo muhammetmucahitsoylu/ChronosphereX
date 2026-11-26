@@ -883,7 +883,7 @@ export default {
   "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "Die gemessene Zahl ist die eigene Schätzung dieser Seite; maßgeblich ist der Katalogwert.",
   "Watch SPHEREx’s own pictures": "Die Bilder von SPHEREx ansehen",
   "Its yearly motion across the sky": "Jährliche Bewegung am Himmel",
-  "This page’s measurement: {0}″ ± {1}″": "Messung dieser Seite: {0}″ ± {1}″",
-  "This page’s measurement: {0}″": "Messung dieser Seite: {0}″",
+  "This page’s estimate: {0}″ ± {1}″": "Schätzung dieser Seite: {0}″ ± {1}″",
+  "This page’s estimate: {0}″": "Schätzung dieser Seite: {0}″",
   "Astronomers’ value (catalogue): {0}″": "Wert der Astronomen (Katalog): {0}″",
 };

@@ -748,11 +748,12 @@ function renderYears() {
   // only where there was no light at all: a bright star that could not be centred is not "too faint"
   const unseen = [...new Set(missed.filter(q => q.dark).map(q => q.it.years.survey))].filter(k => !by.has(k)).map(k => missed.find(q => q.dark && q.it.years.survey === k).it.years);
   const none = unseen.map(f => G`It does not show in the ${f.survey} image (${f.band}, ${fx(Years.LAM[f.band], 2)} µm, ${f.guessed ? '1997–2001' : C.fmtMonth(f.mjd)}): at that wavelength it is too faint for ${f.survey}.`).join(' ');
-  // The simple card says it in two short lines under a heading: this page's measurement with its margin, the astronomers'
+  // The simple card says it in two short lines under a heading: this page's estimate (the word the editors of Evrim Ağacı
+  // used: "eğitsel tahmin"; "measurement" sounded firmer than it is) with its margin, the astronomers'
   // value under it; then the way to the method page (and, where a telescope's image does not show the object, the line
   // that says so). Each figure carries whose it is. The sentences are for the full panel (style.css shows one or the other).
   const margin = off != null ? fx(Math.max(0.01, Math.ceil(off * 100) / 100), 2) : '';
-  const brief = !whose ? '' : `<div class="yearsline"><b>${G`Its yearly motion across the sky`}</b><span>${margin ? G`This page’s measurement: ${fx(mine, 2)}″ ± ${margin}″` : G`This page’s measurement: ${fx(mine, 2)}″`}</span><span>${G`Astronomers’ value (catalogue): ${fx(cat, 2)}″`}</span></div>
+  const brief = !whose ? '' : `<div class="yearsline"><b>${G`Its yearly motion across the sky`}</b><span>${margin ? G`This page’s estimate: ${fx(mine, 2)}″ ± ${margin}″` : G`This page’s estimate: ${fx(mine, 2)}″`}</span><span>${G`Astronomers’ value (catalogue): ${fx(cat, 2)}″`}</span></div>
     <p class="yearsnote">${none ? `${none} ` : ''}${methodLink()}</p>`;
   el.innerHTML = `${brief}<p class="yearssay${whose ? ' long' : ''}">${say}${whose} <span class="fine">${G`Its light lies ${fx(rms, 1)}″ (r.m.s.) from where the catalogue puts it on each date.`}</span>${none ? ` ${none}` : ''}${whose ? ` ${methodLink()}` : ''}</p>${notes}
     <table class="t"><thead><tr><th>${G`Telescope`}</th><th>${G`Images`}</th><th>${G`Years`}</th><th>${G`Off the catalogue`}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
