@@ -4,7 +4,10 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.chronospherex.app",
-      "sha256_cert_fingerprints": ["46:C3:AC:CB:D4:F3:80:2E:F7:F6:B3:BC:02:3C:4D:7B:CF:32:1E:69:C1:8D:0C:10:73:F2:F8:21:4C:E8:91:88"]
+      "sha256_cert_fingerprints": [
+        "92:58:D4:7C:F2:73:5C:2B:AB:4E:3E:05:5A:32:5B:39:96:61:B8:10:0E:70:76:C0:5D:1C:7C:38:35:8C:F3:82",
+        "46:C3:AC:CB:D4:F3:80:2E:F7:F6:B3:BC:02:3C:4D:7B:CF:32:1E:69:C1:8D:0C:10:73:F2:F8:21:4C:E8:91:88"
+      ]
     }
   }
 ]
