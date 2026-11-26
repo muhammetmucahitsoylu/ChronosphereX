@@ -388,6 +388,12 @@ table.t td i { display: inline-block; width: 8px; height: 8px; border-radius: 50
 #years:empty { display: none; }
 .yearssay { margin: 0 0 10px; font-size: 14px; line-height: 1.5; }
 .yearssay.huntsay, .yearssay.lcsay { margin-top: 14px; }
+/* the simple card's short form of the measured motion: a heading, this page's figure, the astronomers' under it, the way to the method page (shown there instead of the sentences) */
+.yearsline, .yearsnote { display: none; }
+.yearsline { margin: 0 0 6px; }
+.yearsline b { display: block; font: 500 11px var(--mono); letter-spacing: 1.2px; text-transform: uppercase; color: var(--ember); margin-bottom: 3px; }
+.yearsline span { display: block; font-size: 15px; line-height: 1.5; color: var(--ink); }
+.yearsnote { margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); max-width: 62ch; }
 .yearsnote { margin: 0; font-size: 13.5px; line-height: 1.5; }
 .yearsnote button { border: 1px solid var(--gold); color: var(--gold); border-radius: 999px; padding: 3px 12px; font-size: 13px; min-height: 30px; margin-left: 6px; }
 .yearsnote button:hover { background: #f2c14e22; }
@@ -927,7 +933,8 @@ body.pointing .figures { display: block; position: absolute; inset: 0; width: 10
 .loopline, .fullwrap { display: none; }
 body:not(.touring):not(.embed) #panel.simple :is(#modes, #explain, .detwrap, details.display, .export, #reportask, #motion, #scan, #movers,
   details.fold, .stack, #howto, #seek, #count, #fps, #caption span, .viewer .blocktitle small) { display: none !important; }
-body:not(.touring):not(.embed) #panel.simple #years :is(table, .plotwrap, .legend, .huntsay, .fine) { display: none; }
+body:not(.touring):not(.embed) #panel.simple #years :is(table, .plotwrap, .legend, .huntsay, .fine, .yearssay.long) { display: none; }
+body:not(.touring):not(.embed) #panel.simple #years :is(.yearsline, .yearsnote) { display: block; }
 body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { display: block; margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: #dcd4c7; }
 body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 4px; }
 .fullbtn { border: 1px solid var(--ember); color: var(--ember); border-radius: 999px; padding: 9px 18px; min-height: 40px; font-weight: 600; }
@@ -947,7 +954,7 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
   body:not(.touring):not(.embed) #panel.simple .viewer .blocktitle { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }          /* the date on the pictures says it; still read out */
   body:not(.touring):not(.embed) #panel.simple .stage { order: 1; }
   body:not(.touring):not(.embed) #panel.simple .transport { order: 2; }
-  body:not(.touring):not(.embed) #panel.simple #years { order: 3; }
+  body:not(.touring):not(.embed) #panel.simple #years { order: 3; align-self: stretch; }          /* as wide as the pictures: its two short lines would make it, and the rule above it, narrower */
   body:not(.touring):not(.embed) #panel.simple #lookbox { order: 4; margin-top: 16px; }
   body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { order: 5; margin-top: 14px; }
   body:not(.touring):not(.embed) #panel.simple.haslook .loopline:not([hidden]) { display: none; }          /* this object has words of its own on what to look for */

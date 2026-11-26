@@ -882,4 +882,8 @@ export default {
   "The first figure is this page’s own estimate from two images; the catalogue’s is the reference value.": "Pierwsza liczba to własne oszacowanie tej strony z dwóch obrazów; wartością odniesienia jest ta z katalogu.",
   "The measured figure is this page’s own estimate; the catalogue’s is the reference value.": "Zmierzona liczba to własne oszacowanie tej strony; wartością odniesienia jest ta z katalogu.",
   "Watch SPHEREx’s own pictures": "Zobacz zdjęcia SPHEREx",
+  "Its yearly motion across the sky": "Roczny ruch na niebie",
+  "This page’s measurement: {0}″ ± {1}″": "Pomiar tej strony: {0}″ ± {1}″",
+  "This page’s measurement: {0}″": "Pomiar tej strony: {0}″",
+  "Astronomers’ value (catalogue): {0}″": "Wartość astronomów (katalog): {0}″",
 };
