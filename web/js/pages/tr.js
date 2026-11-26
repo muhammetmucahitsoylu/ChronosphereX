@@ -113,7 +113,7 @@ export default {
     about: () => `
     <p class="eyebrow">Hakkında</p>
     <h1>Daha çok insan bakabilsin diye yapıldı</h1>
-    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. SPHEREx verisinden hazırladığımız galaksi merkezi animasyonu 25 Kasım 2026’da NASA’nın <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Günün Astronomi Fotoğrafı</a> (APOD) sayfasında yayımlandı. Sitede gökyüzünün herhangi bir noktasını SPHEREx’in 102 renginde ve 27 yılın görüntülerinde inceleyebilir, asteroit avına çıkabilir ya da hareket eden yıldızı bulma oyununu oynayabilirsiniz.</p>
+    <p class="lead">ChronosphereX’i ${TEAM.name} takımı geliştiriyor. SPHEREx verisinden hazırladığımız galaksi merkezi animasyonu 25 Kasım 2026’da NASA’nın <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Günün Astronomi Fotoğrafı</a> (APOD) sayfasında yayımlandı. Sitede gökyüzünün herhangi bir noktasını SPHEREx’in 102 renginde ve 27 yılın görüntülerinde inceleyebilir, asteroit avına çıkabilir ya da hareket eden noktayı bulma oyununu oynayabilirsiniz.</p>
     ${team('Ekip')}
     <h2>Neden yaptık</h2>
     <p>Plüton 1930’da iki fotoğrafı karşılaştıran bir insan tarafından bulundu. İnsanlar hâlâ yeni dünyaları bu yolla buluyor. SOHO uzay aracının görüntülerinde keşfedilen 5.000’den fazla kuyruklu yıldızın çoğunu ve NASA’nın WISE teleskobunun görüntülerindeki yaklaşık 3.000 kahverengi cüce adayını gönüllüler fark etti. SPHEREx şimdi yüz milyonlarca cismi tekrar tekrar fotoğraflıyor. Bu, herhangi bir uzman grubunun inceleyebileceğinden çok daha fazlası.</p>

@@ -113,7 +113,7 @@ export default {
     about: () => `
     <p class="eyebrow">O projekcie</p>
     <h1>Zrobione po to, by mogło patrzeć więcej osób</h1>
-    <p class="lead">ChronosphereX tworzy i rozwija zespół ${TEAM.name}. Nasza animacja centrum Galaktyki, przygotowana z danych SPHEREx, ukazała się 25 listopada 2026 roku jako <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) NASA. Na stronie możesz obejrzeć dowolny punkt nieba w 102 barwach SPHEREx i na zdjęciach z 27 lat, zapolować na planetoidy albo zagrać w „Znajdź gwiazdę, która się przesunęła”.</p>
+    <p class="lead">ChronosphereX tworzy i rozwija zespół ${TEAM.name}. Nasza animacja centrum Galaktyki, przygotowana z danych SPHEREx, ukazała się 25 listopada 2026 roku jako <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) NASA. Na stronie możesz obejrzeć dowolny punkt nieba w 102 barwach SPHEREx i na zdjęciach z 27 lat, zapolować na planetoidy albo zagrać w „Znajdź punkt, który się przesunął”.</p>
     ${team('Zespół')}
     <h2>Dlaczego to zbudowaliśmy</h2>
     <p>Plutona odnalazł w 1930 roku człowiek porównujący dwie fotografie. Ludzie wciąż znajdują w ten sposób nowe światy. Wolontariusze wypatrzyli większość z ponad 5000 komet odkrytych na zdjęciach z sondy SOHO oraz około 3000 kandydatów na brązowe karły na zdjęciach z teleskopu WISE należącego do NASA. SPHEREx fotografuje teraz setki milionów obiektów, raz za razem: więcej, niż jakakolwiek grupa zawodowców zdoła przejrzeć.</p>

@@ -113,7 +113,7 @@ export default {
     about: () => `
     <p class="eyebrow">Acerca de</p>
     <h1>Hecho para que más gente pueda mirar</h1>
-    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}. Nuestra animación del centro galáctico, hecha con datos de SPHEREx, se publicó el 25 de noviembre de 2026 como <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) de la NASA. En el sitio puedes mirar cualquier punto del cielo en los 102 colores de SPHEREx y en 27 años de imágenes, cazar asteroides o jugar a «Encuentra la estrella que se movió».</p>
+    <p class="lead">ChronosphereX lo construye el equipo ${TEAM.name}. Nuestra animación del centro galáctico, hecha con datos de SPHEREx, se publicó el 25 de noviembre de 2026 como <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) de la NASA. En el sitio puedes mirar cualquier punto del cielo en los 102 colores de SPHEREx y en 27 años de imágenes, cazar asteroides o jugar a «Encuentra el punto que se movió».</p>
     ${team('El equipo')}
     <h2>Por qué lo hicimos</h2>
     <p>Plutón fue encontrado en 1930 por una persona que comparaba dos fotografías. Todavía hoy se encuentran mundos nuevos de esa manera. Voluntarios han localizado la mayoría de los más de 5000 cometas descubiertos en las imágenes de la nave SOHO, y unas 3000 candidatas a enana marrón en las imágenes del telescopio WISE de la NASA. SPHEREx está fotografiando ahora cientos de millones de objetos, una y otra vez: más de lo que cualquier grupo de profesionales puede inspeccionar.</p>

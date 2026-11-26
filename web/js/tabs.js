@@ -2,7 +2,7 @@
 // Everywhere: night mode, the page in red light, kept on this device. Inside the Android app, and nowhere else: the
 // app's window lets the page have the whole glass and tells it how much of each edge is taken (the camera's notch, the
 // bar of the phone's own buttons), and a phone held upright gets the app's bar of places along the bottom: the sky,
-// tonight's sky, the phone held up to it, the star of a year, today's star.
+// tonight's sky, the phone held up to it, the star of a year, today's puzzle.
 (function () {
   var A = window.ChronoApp, h = document.documentElement;
   // Night mode: red light leaves eyes used to the dark as they are (white light undoes twenty minutes of getting used
@@ -34,9 +34,9 @@
   var page = /\/star\.html$/.test(path) ? 'star' : /\/play\.html$/.test(path) ? 'daily' : /\/tonight\.html$/.test(path) ? 'tonight' : 'sky';
   var lang = q.get('lang');
   try { lang = lang || localStorage.getItem('chrono-lang'); } catch (e) { /* private mode */ }
-  var WORDS = {          // the sky, tonight, the phone held up, the star of a year, today's star
-    en: ['Sky', 'Tonight', 'Point', 'Your year', 'Today’s star'], tr: ['Gökyüzü', 'Bu gece', 'Göğe tut', 'Yılın yıldızı', 'Günün yıldızı'], de: ['Himmel', 'Heute Nacht', 'Ausrichten', 'Dein Jahr', 'Stern des Tages'],
-    fr: ['Ciel', 'Cette nuit', 'Viser', 'Votre année', 'Étoile du jour'], pl: ['Niebo', 'Dziś w nocy', 'Wskaż', 'Twój rok', 'Gwiazda dnia'], es: ['Cielo', 'Esta noche', 'Apuntar', 'Tu año', 'Estrella de hoy'],
+  var WORDS = {          // the sky, tonight, the phone held up, the star of a year, today's puzzle (the game's objects are brown dwarfs: never "star")
+    en: ['Sky', 'Tonight', 'Point', 'Your year', 'Puzzle'], tr: ['Gökyüzü', 'Bu gece', 'Göğe tut', 'Yılın yıldızı', 'Bulmaca'], de: ['Himmel', 'Heute Nacht', 'Ausrichten', 'Dein Jahr', 'Rätsel'],
+    fr: ['Ciel', 'Cette nuit', 'Viser', 'Votre année', 'Défi'], pl: ['Niebo', 'Dziś w nocy', 'Wskaż', 'Twój rok', 'Zagadka'], es: ['Cielo', 'Esta noche', 'Apuntar', 'Tu año', 'Reto'],
   };
   if (!WORDS[lang]) lang = page === 'sky' ? '' : ((navigator.languages || [navigator.language || 'en']).map(function (l) { return l.slice(0, 2).toLowerCase(); }).filter(function (l) { return WORDS[l]; })[0] || '');
   var W = WORDS[lang] || WORDS.en, to = lang ? 'lang=' + lang : '';

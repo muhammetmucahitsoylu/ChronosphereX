@@ -141,7 +141,7 @@ const ENGLISH = {
   about: () => `
     <p class="eyebrow">About</p>
     <h1>Built so that more people can look</h1>
-    <p class="lead">ChronosphereX is built by the team ${TEAM.name}. Our animation of the Galactic Centre, made from SPHEREx data, was NASA’s <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> on 25 November 2026. On the site you can look at any point of the sky in SPHEREx’s 102 colours and in 27 years of images, hunt for asteroids, or play Find the star that moved.</p>
+    <p class="lead">ChronosphereX is built by the team ${TEAM.name}. Our animation of the Galactic Centre, made from SPHEREx data, was NASA’s <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> on 25 November 2026. On the site you can look at any point of the sky in SPHEREx’s 102 colours and in 27 years of images, hunt for asteroids, or play Find the dot that moved.</p>
     ${team('The team')}
     <h2>Why we built it</h2>
     <p>Pluto was found in 1930 by a person comparing two photographs. People still find new worlds that way. Volunteers have spotted most of the more than 5,000 comets discovered in images from the SOHO spacecraft, and about 3,000 candidate brown dwarfs in images from NASA's WISE telescope. SPHEREx is now photographing hundreds of millions of objects, again and again: more than any group of professionals can inspect.</p>

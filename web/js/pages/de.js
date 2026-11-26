@@ -113,7 +113,7 @@ export default {
     about: () => `
     <p class="eyebrow">Über uns</p>
     <h1>Gemacht, damit mehr Menschen hinsehen können</h1>
-    <p class="lead">ChronosphereX wird vom Team ${TEAM.name} entwickelt. Unsere Animation des galaktischen Zentrums aus SPHEREx-Daten erschien am 25. November 2026 als <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) der NASA. Auf der Seite können Sie jeden Punkt des Himmels in den 102 Farben von SPHEREx und in Bildern aus 27 Jahren ansehen, auf Asteroidenjagd gehen oder „Finde den Stern, der sich bewegt hat“ spielen.</p>
+    <p class="lead">ChronosphereX wird vom Team ${TEAM.name} entwickelt. Unsere Animation des galaktischen Zentrums aus SPHEREx-Daten erschien am 25. November 2026 als <a href="https://science.nasa.gov/image-article/apod-2026-november-25-spherex-seeing-through-dust/" target="_blank" rel="noopener">Astronomy Picture of the Day</a> (APOD) der NASA. Auf der Seite können Sie jeden Punkt des Himmels in den 102 Farben von SPHEREx und in Bildern aus 27 Jahren ansehen, auf Asteroidenjagd gehen oder „Finde den Punkt, der sich bewegt hat“ spielen.</p>
     ${team('Das Team')}
     <h2>Warum wir es gebaut haben</h2>
     <p>Pluto wurde 1930 von einem Menschen gefunden, der zwei Fotografien verglich. Noch heute werden neue Welten auf diese Weise gefunden. Freiwillige haben die meisten der mehr als 5000 Kometen entdeckt, die in Bildern der Raumsonde SOHO gefunden wurden, und rund 3000 Kandidaten für Braune Zwerge in Bildern des NASA-Teleskops WISE. SPHEREx fotografiert nun Hunderte Millionen Objekte, immer wieder: mehr, als irgendeine Gruppe von Fachleuten durchsehen kann.</p>
