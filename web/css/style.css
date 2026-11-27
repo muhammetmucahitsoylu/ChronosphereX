@@ -439,43 +439,25 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 @keyframes waiting { 50% { opacity: .25; } }
 .findings li b { color: var(--ink); font-weight: 600; }
 .findings button { display: block; width: 100%; padding: 0; text-align: left; font: inherit; color: inherit; line-height: inherit; }      /* the whole line leads to its details */
-/* guess first: the answers as a game (app.js, quizHtml) */
-.findings.quiz { padding: 12px; width: 100%; box-sizing: border-box; justify-self: stretch; }
+/* the answers as cards (app.js, answerCards): the question, the answer in large letters with its picture, the sentence in full */
+.findings.cards { padding: 12px; width: 100%; box-sizing: border-box; justify-self: stretch; }
+.findings.cards h2.ic::before { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; }
 .findings .qcard { padding: 11px 12px; font-size: inherit; }
 .findings .qcard::before { content: none; }
-.findings .qbtns button { text-align: center; padding: 0 12px; }
-.findings .qbtns button:hover, .findings .qproof:hover, .findings .qnext:hover { text-decoration: none; }
 .findings .qproof { display: inline-flex; align-items: center; width: auto; padding: 4px 0; color: var(--ember); }
-.findings .qnext { display: inline-flex; align-items: center; justify-content: center; width: auto; padding: 0 16px; text-align: center; color: var(--ember-ink); line-height: 1.2; }
-.findings .qhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.findings .qhead h2.ic::before { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; }
-.qprog { display: inline-flex; align-items: center; gap: 5px; }
-.qprog i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--line-2); }
-.qprog i.on { background: var(--ember); border-color: var(--ember); }
-.qprog b { margin-left: 4px; font: 500 12px var(--mono); color: var(--ink-2); }
+.findings .qproof:hover { text-decoration: underline; text-underline-offset: 3px; }
 .qlist { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
-.qcard { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 11px 12px; }
-.qcard.right { border-color: color-mix(in srgb, var(--mint) 55%, var(--line)); }
-.qcard.wrong { border-color: color-mix(in srgb, var(--ember) 55%, var(--line)); }
-.qcard.maybe { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); }
-.qq { margin: 0; font: 600 15.5px/1.3 var(--sans); color: var(--ink); padding-right: 6px; }
-.qq.ic::before { width: 22px; height: 22px; margin-right: 9px; vertical-align: -6px; }
-.qcard:is(.right, .wrong, .maybe) .qq { font-size: 13.5px; font-weight: 500; color: var(--ink-2); padding-right: 92px; }
-.qcard:is(.right, .wrong, .maybe) .qq.ic::before { width: 17px; height: 17px; margin-right: 7px; vertical-align: -3px; }
-.qbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-.qbtns button { min-height: 42px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface-2); font: 600 15px var(--sans); color: var(--ink); cursor: pointer; }
-.qbtns button:hover { border-color: var(--ember); }
-.qbtns button:active { transform: scale(.97); }
-.qmark { position: absolute; top: 9px; right: 10px; padding: 3px 9px; border-radius: 999px; font: 600 12px var(--sans); }
-.qcard.right .qmark { background: color-mix(in srgb, var(--mint) 18%, transparent); color: var(--mint); }
-.qcard.wrong .qmark { background: color-mix(in srgb, var(--ember) 18%, transparent); color: var(--ember); }
-.qcard.maybe .qmark { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold); }
-.qcard.right .qmark::before { content: "✓ "; } .qcard.wrong .qmark::before { content: "✗ "; } .qcard.maybe .qmark::before { content: "≈ "; }
+.qcard { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.qcard.found { border-color: color-mix(in srgb, var(--mint) 55%, var(--line)); }
+.qcard.unsure { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); }
+.qq { margin: 0; font: 500 13.5px/1.3 var(--sans); color: var(--ink-2); }
+.qq.ic::before { width: 17px; height: 17px; margin-right: 7px; vertical-align: -3px; }
 .qans { display: flex; align-items: center; gap: 12px; margin-top: 9px; min-width: 0; }
-.qtxt { min-width: 0; flex: 1; display: grid; gap: 3px; }
+.qtxt { min-width: 0; flex: 1; display: grid; gap: 4px; }
 .qtxt b { font: 600 17px/1.25 var(--sans); color: var(--ink); }
-.qtxt span { font-size: 13px; line-height: 1.4; color: var(--ink-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
-.qtxt span b { font: inherit; color: inherit; }
+.qcard.found .qtxt > b { color: var(--mint); } .qcard.unsure .qtxt > b { color: var(--gold); }
+.qtxt span { font-size: 13.5px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
+.qtxt span b { font: inherit; font-weight: 600; color: inherit; }
 .qviz { flex: none; width: 56px; height: 56px; }
 .qmove .ring { fill: none; stroke: var(--mint); stroke-width: 1.6; opacity: .75; }
 .qmove .was { fill: none; stroke: var(--ink-3); stroke-width: 1.6; stroke-dasharray: 2 2; }
@@ -484,56 +466,53 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .qmove .head { fill: var(--gold); }
 .qchips { flex: none; display: flex; flex-wrap: wrap; gap: 5px; max-width: 45%; }
 .qchips i { font: 600 13px var(--sans); font-style: normal; padding: 4px 9px; border-radius: 8px; background: color-mix(in srgb, var(--mint) 14%, transparent); color: var(--mint); border: 1px solid color-mix(in srgb, var(--mint) 40%, transparent); }
-.qproof { margin-top: 8px; padding: 4px 0; font: 500 13px var(--sans); color: var(--ember); cursor: pointer; }
+.qproof { margin-top: 8px; font: 500 13px var(--sans); cursor: pointer; }
 .qproof.ic::before { width: 14px; height: 14px; margin-right: 5px; vertical-align: -2px; }
-.qproof:hover { text-decoration: underline; text-underline-offset: 3px; }
-.qcard.fresh .qmark { animation: qpop .45s cubic-bezier(.2, 1.6, .4, 1); }
-.qcard.fresh .qans { animation: qrise .4s ease-out; }
-@keyframes qpop { from { transform: scale(.3); opacity: 0; } }
-@keyframes qrise { from { transform: translateY(6px); opacity: 0; } }
-.qend { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 10px; padding: 11px 12px; border-radius: 12px; background: color-mix(in srgb, var(--gold) 10%, var(--bg)); border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent); }
-.qend > div { display: grid; gap: 1px; flex: 1; min-width: 150px; }
-.qend b { font: 600 16px var(--sans); color: var(--ink); }
-.qend span:not(.qcup) { font-size: 13px; color: var(--ink-2); }
-.qcup.ic::before { width: 34px; height: 34px; margin: 0; vertical-align: middle; }
-.qend.fresh .qcup { display: inline-block; animation: qcup .7s cubic-bezier(.2, 1.5, .4, 1); }
-@keyframes qcup { from { transform: scale(.2) rotate(-25deg); opacity: 0; } 60% { transform: scale(1.25) rotate(8deg); } }
-.qnext { margin-left: auto; min-height: 38px; padding: 0 14px; border-radius: 999px; background: var(--ember); color: var(--ember-ink); font: 600 14px var(--sans); cursor: pointer; }
 .qextra { margin-top: 10px !important; }
-@media (prefers-reduced-motion: reduce) { .qcard.fresh .qmark, .qcard.fresh .qans, .qend.fresh .qcup { animation: none; } }
 /* the brightness of each visit against the first, as bars; the dashed line is the first visit's level */
-.vbars { position: relative; display: flex; align-items: flex-end; gap: 6px; height: 74px; margin: 6px 0 22px; padding-top: 16px; }
+.vbars { position: relative; display: flex; align-items: flex-end; gap: 5px; }
 .vbars::before { content: ""; position: absolute; left: 0; right: 0; bottom: var(--ref); border-top: 1.5px dashed var(--ink-3); opacity: .7; }
 .vbars span { position: relative; flex: 1 1 0; max-width: 64px; height: var(--h); border-radius: 5px 5px 2px 2px; background: var(--c); }
-.vbars em { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 2px; font: 500 11px var(--mono); font-style: normal; color: var(--ink); white-space: nowrap; }
-.vbars small { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 4px; font: 500 10.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
+.vbars em { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 2px; font: 500 10.5px var(--mono); font-style: normal; color: var(--ink); white-space: nowrap; }
+.vbars small { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 4px; font: 500 9.5px var(--mono); letter-spacing: -.2px; color: var(--ink-3); white-space: nowrap; }
 .vbars.many em, .vbars.many span:not(:first-child):not(:last-child) small { display: none; }
-.qbars { flex: none; width: 48%; max-width: 168px; height: 58px; margin: 0 0 16px; padding-top: 14px; gap: 5px; }
-.qbars small { font-size: 9.5px; letter-spacing: -.2px; }
-.qbars em { font-size: 10.5px; }
-/* "What to look for" as a hint that opens */
-details.look.hintfold { border-left: 0; padding: 0; max-width: none; }
-details.hintfold > summary { list-style: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 13px; border-radius: 999px; border: 1px dashed color-mix(in srgb, var(--gold) 60%, transparent); color: var(--gold); font: 500 13.5px var(--sans); cursor: pointer; }
-details.hintfold > summary::-webkit-details-marker { display: none; }
-details.hintfold > summary.ic::before { width: 17px; height: 17px; margin-right: 6px; vertical-align: -3px; }
-details.hintfold[open] > summary { border-style: solid; }
-details.hintfold > p { margin: 9px 0 0; padding-left: 12px; border-left: 2px solid var(--gold); font-size: 14px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
-/* the molecules as chips: the formula, its name, what was measured (the band in the title) */
-.molchips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; }
-.molchips li { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "f s" "n n"; align-items: baseline; column-gap: 6px; row-gap: 1px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.qbars { flex: none; width: 48%; max-width: 168px; height: 58px; margin: 0 0 16px; padding-top: 14px; }
+/* the light-curve table: each visit's level as a bar in its row */
+.t td.lvl { white-space: nowrap; text-align: left; }
+.t td.lvl span { display: inline-block; position: relative; width: 64px; height: 9px; margin-right: 8px; border-radius: 3px; background: var(--surface-2); vertical-align: 1px; overflow: hidden; }
+.t td.lvl i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+/* the molecules as chips: the formula and what was measured, its name, its band */
+.molchips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.molchips li { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "f s" "n n" "w w"; align-items: baseline; column-gap: 6px; row-gap: 1px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
 .molchips b { grid-area: f; font: 600 15px var(--sans); color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
-.molchips small { grid-area: n; font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .molchips em { grid-area: s; font: 500 11.5px var(--mono); font-style: normal; color: var(--ink-3); }
+.molchips small { grid-area: n; font-size: 12px; line-height: 1.3; color: var(--ink-2); }
+.molchips .band { grid-area: w; font: 500 11px var(--mono); color: var(--ink-3); }
 .molchips li.dip { border-color: color-mix(in srgb, var(--mint) 50%, transparent); } .molchips li.dip b, .molchips li.dip em { color: var(--mint); }
 .molchips li.peak { border-color: color-mix(in srgb, var(--gold) 50%, transparent); } .molchips li.peak b, .molchips li.peak em { color: var(--gold); }
 .molchips + .hint { margin-top: 10px; }
-/* long notes: two lines, the rest on a press */
-.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; position: relative; cursor: pointer; }
-.clamp::after { content: "▾"; position: absolute; right: 0; bottom: 0; padding: 0 2px 0 2.6em; background: linear-gradient(90deg, transparent, var(--bg) 55%); color: var(--ember); font-weight: 600; }
-.wiki p.clamp { -webkit-line-clamp: 5; }
-.clamp.open { display: block; -webkit-line-clamp: unset; }
-.clamp.open::after { content: "▴"; position: static; padding: 0 0 0 6px; background: none; }
-.clamp:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+/* the verdicts under the plots: their answer in bold as a line of its own, the rest under it */
+:is(#motion, #scan, #movers, #lccheck) > p.verdict { border-left: 3px solid var(--line-2); padding-left: 12px; }
+:is(#motion, #scan, #movers, #lccheck) > p.verdict > b:first-child { display: block; margin-bottom: 2px; font-size: 15.5px; color: var(--ink); }
+/* the years view's words: the span, what moved in large letters, the figures as labelled lines */
+.yrs { display: inline-block; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line-2); font: 600 12.5px var(--mono); color: var(--gold); }
+.yearsbox { display: grid; gap: 6px; margin: 0 0 12px; }
+.yearsbox .yrs { justify-self: start; }
+.yearsbox .went { font: 600 19px/1.25 var(--sans); color: var(--ink); }
+.yearsbox > small { font-size: 13px; color: var(--ink-2); margin-top: -3px; }
+.yearsfacts { display: grid; gap: 0; margin: 4px 0 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.yearsfacts > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 11px; border-top: 1px solid var(--line); }
+.yearsfacts > div:first-child { border-top: 0; }
+.yearsfacts dt { font-size: 13px; color: var(--ink-2); }
+.yearsfacts dd { margin: 0; font: 600 14px var(--mono); color: var(--ink); white-space: nowrap; }
+.yearsnote2 { margin: 2px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.t td.tel b { display: block; font-weight: 600; color: var(--ink); }
+.t td.tel small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: normal; }
+/* the view buttons: the name, and under it what the view shows */
+.seg button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; white-space: normal; line-height: 1.2; }
+.seg button b { font-weight: inherit; }
+.seg button small { font-size: 11px; color: var(--ink-3); font-weight: 400; }
+.seg button[aria-pressed=true] small { color: color-mix(in srgb, var(--bg) 70%, transparent); }
 .findings button:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
 #specnote .hint { margin-top: 8px; }
 #specnote details { margin-top: 4px; }

@@ -260,14 +260,15 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
         <p class="loopline" id="loopline" data-t="panel.loop">One picture for each time SPHEREx looked here, in a loop. Anything that moved jumps from one to the next.</p>
         <div class="fullwrap"><button type="button" class="ic ic-chart fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><button type="button" class="ghost cmpopen" id="cmpopen" hidden></button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
         <div class="seg" role="group" aria-label="How to compare" id="modes">
-          <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
-          <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>
-          <button data-mode="frames" title="Every single exposure, in time order.">Exposures</button>
-          <button data-mode="color" title="Time shown as colour: anything that moved or changed shows up coloured.">Time as colour</button>
-          <button data-mode="diff" title="A later visit minus an earlier one.">Difference</button>
-          <button data-mode="bands" title="The same sky in each of the six detectors, from 0.75 to 5 microns.">Wavelengths</button>
-          <button data-mode="deep" title="All exposures added together: the deepest image.">Deep</button>
-          <button data-mode="trail" hidden title="One image for every stop of the telescope that caught the body: the stars stay, the body moves on.">Passing body</button>
+          <!-- each view's name and, under it, what it shows in a few words (the user, 27 Nov 2026: "2MASS ne, insanlar bilmiyor"); the years' span is written by app.js (renderModes) -->
+          <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx."><b>Years</b><small>2000 → 2026</small></button>
+          <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion."><b>Visits</b><small data-t="mode.epochs">every 6 months</small></button>
+          <button data-mode="frames" title="Every single exposure, in time order."><b>Exposures</b><small data-t="mode.frames">one by one</small></button>
+          <button data-mode="color" title="Time shown as colour: anything that moved or changed shows up coloured."><b>Time as colour</b><small data-t="mode.color">what moved turns colour</small></button>
+          <button data-mode="diff" title="A later visit minus an earlier one."><b>Difference</b><small data-t="mode.diff">what changed?</small></button>
+          <button data-mode="bands" title="The same sky in each of the six detectors, from 0.75 to 5 microns."><b>Wavelengths</b><small data-t="mode.bands">6 infrared colours</small></button>
+          <button data-mode="deep" title="All exposures added together: the deepest image."><b>Deep</b><small data-t="mode.deep">all stacked: sharpest</small></button>
+          <button data-mode="trail" hidden title="One image for every stop of the telescope that caught the body: the stars stay, the body moves on."><b>Passing body</b><small data-t="mode.trail">stop by stop</small></button>
         </div>
         <p id="explain" class="hint"></p>
         <div class="detwrap">
