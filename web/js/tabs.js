@@ -72,9 +72,9 @@
       '.placesbar a[aria-current]{color:#ff7b39}' +
       // the star's and the game's own pages: the bar says where one is and leads everywhere, so their top line (the name, the language) steps aside
       'html.in-app .wrap>header,html.in-app #tool{display:none}' +
-      // the map's page: what the bar of places offers is not offered again. The opening has the tour instead of the
-      // bar's two places, and the round button that points the map where the phone looks gives its corner to the next
-      'html.in-app #pointbtn2,html.in-app #starlink,html.in-app .pointbtn{display:none!important}html.in-app #tourbtn2{display:inline-flex!important}' +
+      // the map's page: what the bar of places offers is not offered again, and the round button that points the map
+      // where the phone looks gives its corner to the next
+      'html.in-app #pointbtn2,html.in-app #starlink,html.in-app .pointbtn{display:none!important}' +
       // and the menu does not say again what the bar says: tonight's sky and the star of a year (the game's ten levels stay: the bar has today's board only)
       ON + ' .navlinks a.navstar,' + ON + ' .navlinks a.navtonight{display:none}' +
       'html.in-app body.canpoint:not(.touring) .app[data-panel=closed] .zoom{top:104px}html.in-app body.pointing .nightbtn{top:104px}html.in-app body.pointing .seebtn{top:152px}html.in-app body.canpoint.pointing:not(.touring) .app[data-panel=closed] .zoom{top:200px}' +

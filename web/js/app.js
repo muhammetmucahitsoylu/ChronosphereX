@@ -1547,6 +1547,7 @@ function renderMolecules(pts) {
         plain: [dips.length > 1 ? G`<b>Its light shows traces of ${dips[0]} and other molecules.</b>` : dips.length ? G`<b>Its light shows traces of ${dips[0]}.</b>` : '', glows.length ? G`<b>Glowing gas around it</b> (${and(glows)}).` : ''].filter(Boolean).join(' ') }          // the first name only: a list of 'or's reads as a riddle
       : maybe.length ? { cls: 'unsure', html: G`<b>A possible dip</b> in its spectrum where ${maybe.join('; ')} absorb${maybe.length > 1 ? '' : 's'}.`, plain: '' }
         : measured >= 4 && !rowsData.some(seen) ? { cls: 'none', html: G`<b>Smooth spectrum:</b> no dips at the molecule bands checked.`, plain: '' } : null;
+    if (S.find.bands && S.find.bands.cls === 'found') S.find.bands.viz = { chips: [...new Set(rowsData.filter(sure).map(m => (m.depth < 0 ? G(m.glow || 'Something') : m.f)))] };
     renderFindings();
   }
   let glow = false;
@@ -1561,14 +1562,13 @@ function renderMolecules(pts) {
     }
     // Brighter inside the band than beside it: nothing absorbs there, something glows.
     const label = cls === 'peak' ? `${G(m.glow || 'Something glowing')} <span class="none">${G`emission`}</span>` : `${G(m.name)} <span class="none">${m.f}</span>`;
-    return `<tr><td>${label}</td><td>${fx(m.band[0], 2)}–${fx(m.band[1], 2)}</td><td class="${cls}">${txt}</td></tr>`;
+    return `<li class="${cls}" title="${esc(`${G(m.name)} · ${fx(m.band[0], 2)}–${fx(m.band[1], 2)} µm`)}"><b>${cls === 'peak' ? esc(G(m.glow || 'Something glowing')) : m.f}</b><small>${cls === 'peak' ? G`emission` : esc(G(m.name))}</small><em>${txt}</em></li>`;
   }).join('');
   if (rowsData.every(m => m.depth === null)) {
     el.innerHTML = G`<p class="hint">Molecule bands cannot be measured here: ${whyNot(rowsData.find(m => m.why === 'star too bright to tell') || rowsData.find(m => m.why === 'too faint to tell') || rowsData.find(m => m.why === 'too uneven to tell') || {})}.</p>`;
     return;
   }
-  el.innerHTML = G`<table class="t mol"><thead><tr><th>Molecule</th><th>Band <span class="asis">(µm)</span></th><th>Measured</th></tr></thead><tbody>${rows}</tbody></table>
-    <p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(iced ? G` The narrow carbon dioxide ice dip at 4.27 µm is clear: on its way to us this light passes through icy dust, which also reddens it. So the ice bands are measured here, not the gases of the star's own atmosphere.` : '') + (glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (unmeasured.length ? G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).` : '')}</p>`;
+  el.innerHTML = `<ul class="molchips">${rows}</ul>` + G`<p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(iced ? G` The narrow carbon dioxide ice dip at 4.27 µm is clear: on its way to us this light passes through icy dust, which also reddens it. So the ice bands are measured here, not the gases of the star's own atmosphere.` : '') + (glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (unmeasured.length ? G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).` : '')}</p>`;
 }
 function markCurrent() {
   const cur = S.seq[S.idx]?.frame;
@@ -1583,6 +1583,89 @@ function jumpTo(src) {
   syncUrl();
 }
 
+// ------------------------------------------------------------ guess first: the answers as a game
+// Visitors do not read paragraphs (the user, 27 Nov 2026: "kimse bunları tek tek okuyup bir şey anlayamaz"). The answers
+// become questions with Yes and No: the visitor guesses from the pictures, then the measurement answers, with a small
+// picture of its own and the way to its numbers. Guessing before seeing is what makes a demonstration teach (Crouch,
+// Fagen, Callan & Mazur 2004, Am. J. Phys. 72, 835). Guesses are remembered per object, in this browser only.
+const QUIZ = [{ to: 'motion', key: 'quiz.motion', ic: 'path' }, { to: 'lccheck', key: 'quiz.change', ic: 'sun' }, { to: 'molecules', key: 'quiz.bands', ic: 'flask' }, { to: 'movers', key: 'quiz.movers', ic: 'meteor' }];
+const QUIZ_KEY = 'chrono-quiz';
+let quizShown = [];          // the questions on show
+function quizAll() { try { return JSON.parse(localStorage.getItem(QUIZ_KEY) || '{}') || {}; } catch { return {}; } }
+function quizKeep(all) { try { localStorage.setItem(QUIZ_KEY, JSON.stringify(all)); } catch { /* private mode: the game plays, unremembered */ } }
+// a showcase object by its name; a star the visitor rang, or a field read live, by its place
+const quizId = () => (S.target && !S.sel?.mine ? S.target.slug : `${S.ra.toFixed(4)},${S.dec.toFixed(4)}${S.sel?.x != null ? `@${Math.round(S.sel.x)},${Math.round(S.sel.y)}` : ''}`);
+// the tour, embeds, the hunt and bodies of the solar system keep the plain list (the tour's cards speak of its lines)
+const quizOn = () => !S.embed && !S.hunt && tourIdx < 0 && !(S.target?.body || S.track?.body) && !followed() && !S.sel?.trail;
+const quizTruth = r => (r.cls === 'found' ? 'yes' : r.cls === 'none' ? 'no' : 'maybe');
+/** The measurement's words split into the answer in bold and what follows it. */
+function quizSplit(h) {
+  const m = /^\s*<b>([\s\S]*?)<\/b>\s*[:;,.]?\s*([\s\S]*)$/.exec(h || '');
+  return m ? [m[1].replace(/[\s:;,.]+$/, ''), m[2].trim()] : ['', h || ''];
+}
+/** Bars for the brightness of each visit against the first; the line is the first visit's level. */
+function visitBars(bars, cls = 'vbars') {
+  const top = Math.max(1, ...bars.map(b => b.v));
+  return `<div class="${cls}${bars.length > (cls.includes('qbars') ? 3 : 4) ? ' many' : ''}" style="--ref:${(100 / top).toFixed(1)}%" aria-hidden="true">${bars.map((b, i) =>
+    `<span style="--h:${Math.max(3, b.v / top * 100).toFixed(1)}%;--c:${b.c}"><em>${i ? `×${fx(b.v, 2)}` : '1'}</em><small>${esc(b.m)}</small></span>`).join('')}</div>`;
+}
+/** The measurement's own picture. */
+function quizViz(to, r) {
+  const v = r.viz;
+  if (to === 'motion') {
+    // the ring and the dot, north up and east to the left as in the pictures: where it was (hollow) and where it went
+    let dots = '<circle r="4.6" class="now"/>';
+    if (r.cls === 'found' && v && Math.hypot(v.e, v.n) > 0) {
+      const k = 13 / Math.hypot(v.e, v.n), x = -v.e * k, y = -v.n * k, ux = x / 13, uy = y / 13;
+      const hx = x - ux * 6, hy = y - uy * 6, px = -uy * 4, py = ux * 4;
+      dots = `<circle cx="${(-x).toFixed(1)}" cy="${(-y).toFixed(1)}" r="4.2" class="was"/><path d="M${(-x + ux * 6).toFixed(1)} ${(-y + uy * 6).toFixed(1)}L${hx.toFixed(1)} ${hy.toFixed(1)}" class="way"/>`
+        + `<path d="M${(hx + px).toFixed(1)} ${(hy + py).toFixed(1)}L${(x - ux * 1.5).toFixed(1)} ${(y - uy * 1.5).toFixed(1)}L${(hx - px).toFixed(1)} ${(hy - py).toFixed(1)}Z" class="head"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.6" class="now"/>`;
+    }
+    return `<svg class="qviz qmove" viewBox="-26 -26 52 52" aria-hidden="true"><circle r="22" class="ring"/>${dots}</svg>`;
+  }
+  if (to === 'lccheck' && v?.bars?.length > 1) return visitBars(v.bars, 'vbars qbars');
+  if (v?.chips?.length) return `<span class="qchips">${v.chips.map(x => `<i>${esc(x)}</i>`).join('')}</span>`;
+  return '';
+}
+function quizHtml(rows, say) {
+  const all = quizAll(), mine = all[quizId()]?.a || {};
+  const qs = rows.filter(([to, r]) => QUIZ.some(q => q.to === to) && r.cls !== 'wait'), rest = rows.filter(x => !qs.includes(x));
+  quizShown = qs.map(([to]) => to);
+  const card = ([to, r]) => {
+    const q = QUIZ.find(x => x.to === to), g = mine[to], head = `<p class="qq ic ic-${q.ic}">${esc(T(q.key))}</p>`;
+    if (!g) return `<li class="qcard" data-q="${to}">${head}<div class="qbtns"><button type="button" data-guess="yes">${esc(T('quiz.yes'))}</button><button type="button" data-guess="no">${esc(T('quiz.no'))}</button></div></li>`;
+    const t = quizTruth(r), ok = t === 'maybe' ? 'maybe' : g === t ? 'right' : 'wrong', [big, sub] = quizSplit(say(r));
+    return `<li class="qcard ${ok}" data-q="${to}">${head}<span class="qmark">${esc(T(`quiz.${ok}`))}</span>`
+      + `<div class="qans">${quizViz(to, r)}<div class="qtxt">${big ? `<b>${big}</b>` : ''}${sub ? `<span>${sub}</span>` : ''}</div></div>`
+      + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button></li>`;
+  };
+  const n = qs.length, done = qs.filter(([to]) => mine[to]).length;
+  let end = '';
+  if (n && done === n) {
+    const right = qs.filter(([to, r]) => { const t = quizTruth(r); return t === 'maybe' || mine[to] === t; }).length;
+    const solved = Object.values(all).filter(x => x?.done).length;
+    const next = (S.targets || []).find(t => !t.follow && !t.body && t.slug !== S.target?.slug && !all[t.slug]?.done);
+    end = `<div class="qend"><span class="qcup ic ic-trophy" aria-hidden="true"></span><div><b>${esc(T('quiz.score', { n: right, m: n }))}</b><span>${esc(T('quiz.solved', { n: solved }))}</span></div>`
+      + `${next ? `<button type="button" class="qnext" data-next="${esc(next.slug)}">${esc(T('quiz.next'))}: ${esc(nameOf(next))} →</button>` : ''}</div>`;
+  }
+  const extra = rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '';
+  return `<div class="qhead"><h2 class="ic ic-quiz">${esc(T('quiz.title'))}</h2>${n ? `<span class="qprog" role="img" aria-label="${done}/${n}">${qs.map(([to]) => `<i${mine[to] ? ' class="on"' : ''}></i>`).join('')}<b>${done}/${n}</b></span>` : ''}</div>`
+    + (n ? `<ol class="qlist">${qs.map(card).join('')}</ol>` : '') + end + extra;
+}
+/** A guess: kept, the answer shown with a pop (and a short buzz on a phone); the last one brings the cup. */
+function quizGuess(to, g) {
+  const all = quizAll(), id = quizId(), it = all[id] ||= { a: {} };
+  it.a[to] = g;
+  const fresh = [to];
+  if (!it.done && quizShown.every(q => it.a[q])) { it.done = Date.now(); fresh.push('end'); }
+  quizKeep(all);
+  renderFindings();
+  const el = $('findings'), card = el.querySelector(`.qcard[data-q="${to}"]`);
+  card?.classList.add('fresh');
+  if (fresh.includes('end')) el.querySelector('.qend')?.classList.add('fresh');
+  try { navigator.vibrate?.(card?.classList.contains('wrong') ? [8, 60, 8] : 14); } catch { /* not every phone */ }
+}
+
 /**
  * The answer first: what the sections below have measured, in a few words each. Every line is
  * written by the function that makes the detailed section, from the same numbers, so the two
@@ -1594,8 +1677,10 @@ function renderFindings() {
   const f = S.find || {}, ready = !!S.dets[S.det]?.done, here = lightHere();
   const simple = simpleCard(), say = r => (simple && r.plain != null ? r.plain : r.html);          // the simple card: the everyday version
   const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1] && say(r[1])) : [];
-  const html = rows.length ? G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '';
+  const quiz = !!rows.length && quizOn();
+  const html = !rows.length ? '' : quiz ? quizHtml(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
   if (el.dataset.was !== html) { el.dataset.was = html; el.innerHTML = html; }
+  el.classList.toggle('quiz', quiz);
   el.hidden = !rows.length;
   leadState();
 }
@@ -1624,12 +1709,42 @@ function lightHere() {
 /** The lead of the panel (what to look for, what the measurements say) takes no room while it has nothing to say. */
 function leadState() { document.querySelector('.cols').classList.toggle('nolook', ($('lookbox').hidden || !$('lookbox').innerHTML) && $('findings').hidden && $('bodybox').hidden && $('huntbox').hidden); }
 $('findings').addEventListener('click', e => {
-  const to = e.target.closest('button')?.dataset.to;
+  const b = e.target.closest('button');
+  if (b?.dataset.guess) { quizGuess(b.closest('[data-q]').dataset.q, b.dataset.guess); return; }
+  if (b?.dataset.next) { const t = (S.targets || []).find(x => x.slug === b.dataset.next); if (t) openTarget(t); return; }
+  const to = b?.dataset.to;
   if (to === 'here') { const t = lightHere()?.follow; if (t) followBody(t); return; }
   if (!to) return;
   if (simpleCard()) setPanelFull(true);
   requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' }));
 });
+
+// ------------------------------------------------------------ long notes, two lines
+// The notes under the plots open with their verdict in bold; past two lines they are cut, with a mark to open them
+// (the user, 27 Nov 2026: "dümdüz paragraf var her yerde"). Marked again whenever a section is rewritten.
+const CLAMPS = '#explain, #motion > p.hint, #scan > p.hint, #movers > p.hint, #specnote > p.hint, #speccmp > p.hint, #molecules > p.hint, #lcnote, #lccheck > p.hint, .wiki p';
+let clampRaf = 0;
+function clampNotes() {
+  clampRaf = 0;
+  for (const p of $('panel').querySelectorAll(CLAMPS)) {
+    const key = `${p.clientWidth}:${p.textContent.length}`;
+    if (p.classList.contains('open') || p.dataset.clampw === key) continue;
+    p.classList.add('clamp');
+    const long = p.scrollHeight > p.clientHeight + 3;
+    p.classList.toggle('clamp', long); p.dataset.clampw = key;
+    if (long) { p.tabIndex = 0; p.setAttribute('aria-expanded', 'false'); }
+  }
+}
+const clampSoon = () => { if (!clampRaf) clampRaf = requestAnimationFrame(clampNotes); };
+new MutationObserver(clampSoon).observe($('panel'), { childList: true, subtree: true });
+new ResizeObserver(clampSoon).observe($('panel'));
+$('panel').addEventListener('click', e => {
+  const p = e.target.closest('.clamp');
+  if (!p || e.target.closest('a, button, summary')) return;
+  const open = !p.classList.contains('open');
+  p.classList.toggle('open', open); p.setAttribute('aria-expanded', String(open));
+});
+$('panel').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('clamp')) { e.preventDefault(); e.target.click(); } });
 
 // ------------------------------------------------------------ is the change real?
 /**
@@ -1723,8 +1838,9 @@ function realityCheck(lc) {
   else { word = 'steady'; verdict = G`<b>No significant change.</b> Between visits the spot differs by ${pc(change)} in D${S.det}; ${stars} in the same images differ by up to ${pc(steady)}.`; }
   const rows = visits.length <= 6 ? G`<table class="t"><thead><tr><th>${S.head.split ? G`Month` : G`Visit`}</th><th>This spot</th><th>Ordinary stars</th></tr></thead><tbody>${target.map((t, i) =>
     `<tr><td><i style="background:${C.EPOCH_COLORS[t.k % C.EPOCH_COLORS.length]}"></i>${C.fmtMonth((eps[t.k][0] + eps[t.k][1]) / 2)}</td><td>${i ? `×${fx(t.rel, 2)}` : G`reference`}</td><td>${i ? (steadyAt(i) == null ? '–' : G`within ${pc(steadyAt(i))}`) : ''}</td></tr>`).join('')}</tbody></table>` : '';
-  el.innerHTML = `${sn >= 5 ? rows : ''}<p class="hint verdict">${verdict}${steady != null && sn >= 5 ? G` The grey band in the plot is that steadiness.` : ''}</p>`;
+  el.innerHTML = `${sn >= 5 && rows ? visitBars(target.map(t => ({ v: t.rel, c: C.EPOCH_COLORS[t.k % C.EPOCH_COLORS.length], m: C.fmtMonth((eps[t.k][0] + eps[t.k][1]) / 2) }))) : ''}<p class="hint verdict">${verdict}${steady != null && sn >= 5 ? G` The grey band in the plot is that steadiness.` : ''}</p>`;
   const spread = Math.max(...target.map(t => t.rel)) - Math.min(...target.map(t => t.rel));      // from the faintest visit to the brightest
+  const bars = target.map(t => ({ v: t.rel, c: C.EPOCH_COLORS[t.k % C.EPOCH_COLORS.length], m: C.fmtMonth((eps[t.k][0] + eps[t.k][1]) / 2).replace(/\s*\d{2}(\d{2})$/, ' ’$1') }));
   S.find.change = sn < 5 ? null
     : word === 'real' ? { cls: 'found', html: G`<b>${biggest.rel > 1 ? G`Brightened` : G`Faded`} by ${pc(change)}</b> between visits in D${S.det}, while ${stars} nearby stayed within ${pc(steady)}.`,
       plain: biggest.rel > 1 ? G`<b>It got brighter.</b> Its light rose by ${pc(change)} between the visits, while the stars around it stayed steady.`
@@ -1732,6 +1848,7 @@ function realityCheck(lc) {
     : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.`, plain: G`<b>It may be changing a little.</b> The difference is too small to be sure.` }
     : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
     : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
+  if (S.find.change) S.find.change.viz = { bars };
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }
@@ -2155,7 +2272,7 @@ function renderLook() {
   // a showcase star with images of a quarter of a century built for it: one press to watch them
   const Y = t && isPreset() && S.yearsIdx?.[t.slug], years = Y ? Math.round((Y.span[1] - Y.span[0]) / 365.25) : 0;
   const invite = Y ? `<p class="look yearsgo"${S.mode === 'years' ? ' hidden' : ''}><button type="button" data-years>${G`Watch it over ${years} years: 2MASS, WISE, SPHEREx`}</button></p><p class="look yearsgo yearsback" hidden><button type="button" data-back>${G`Watch SPHEREx’s own pictures`}</button></p>` : '';
-  $('lookbox').innerHTML = on && look ? `<p class="look${plain ? ' plain' : ''}"><b>${G`What to look for`}</b>${esc(look)}</p>${times}${invite}` : '';
+  $('lookbox').innerHTML = !(on && look) ? '' : (quizOn() ? `<details class="look hintfold${plain ? ' plain' : ''}"><summary class="ic ic-tip">${esc(T('quiz.tip'))}</summary><p>${esc(look)}</p></details>` : `<p class="look${plain ? ' plain' : ''}"><b>${G`What to look for`}</b>${esc(look)}</p>`) + times + invite;
   $('panel').classList.toggle('haslook', !!(on && look));          // where the card is one column, these words stand in for the general line under the pictures
   $('lookbox').querySelectorAll('[data-at]').forEach(x => { x.onclick = () => openBody(b.query, +x.dataset.at); });
   $('lookbox').querySelector('[data-years]')?.addEventListener('click', () => {
@@ -2167,7 +2284,7 @@ function renderLook() {
     stop(); S.mode = MODES[t.view?.mode] ? t.view.mode : 'epochs'; S.seq = []; S.idx = 0; S.wantPlay = !calmMotion(); renderModes(); rebuild(); syncUrl(); maybeAutoplay();
   });
   lookFits();
-  leadState();
+  renderFindings();          // the tour's start and end come by here: the game gives way to the plain list and back
 }
 function renderWiki() {
   const w = S.wiki, i = S.info, el = $('wikibox');
@@ -2274,7 +2391,7 @@ function renderMotion() {
   const el = $('motion');
   if (!el) return;
   el.classList.remove('hasline');          // set again below where the two short lines of the simple card are written
-  const sum = (cls, html, plain) => { S.find.motion = cls ? { cls, html, plain } : null; renderFindings(); };
+  const sum = (cls, html, plain, viz) => { S.find.motion = cls ? { cls, html, plain, viz } : null; renderFindings(); };
   if (S.grid && bodyStops()) return bodyMotion(el, sum);
   if (!S.grid || !S.sel || !S.stacks || S.stacks.length < 2) { el.innerHTML = ''; sum(null); return; }
   const g = S.grid, n = g.n, as = v => fx((v * g.scale), 1);
@@ -2290,7 +2407,7 @@ function renderMotion() {
     const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${fx(every.rate, 1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${fx(catPm, 1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
     el.innerHTML = holes ? G`<p class="hint">The star's core is saturated in D${S.det}, so its position cannot be measured here.${elsewhere}</p>`
       : tracked && catPm >= 0.1 ? G`<p class="hint">The target is too faint in this detector to be located, so its motion cannot be measured here.${elsewhere || G` Try another detector.`}</p>` : '';
-    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)));
+    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)), { e: every.e, n: every.n });
     else sum(null);
     return;
   }
@@ -2347,7 +2464,7 @@ function renderMotion() {
     el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far the catalogue says it should have moved since the first visit: proper motion and parallax">Predicted path</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Measured place: off by</th></tr></thead><tbody>${body}</tbody></table>
       <p class="hint verdict"><b>This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″ per year towards the ${dir}</b>${agree}. The astronomers’ value (catalogue): ${fx(catPm, 2)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}, and it is the one to rely on. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${methodLink()}</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
-    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir));
+    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir), every ? { e: every.e, n: every.n } : { e: oE, n: oN });
     return;
   }
   if (d > Math.max(3 * sigma, 1.5) && !lightMoved(first.st, end.st, first.m, end.m)) {
@@ -2359,7 +2476,7 @@ function renderMotion() {
     const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>` + `<p class="hint">${methodLink()}</p>`;
-    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`);
+    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`, { e: dE, n: dN });
     return;
   }
   el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
@@ -3281,7 +3398,7 @@ function pick(X, Y) {
   const img = it && it.img ? it.img : S.deep;
   const hit = img && C.centroid(img, S.grid.n, gx, gy, 2.5);
   const was = S.sel?.trail;
-  S.sel = hit ? { x: hit.x, y: hit.y } : { x: gx, y: gy };
+  S.sel = hit ? { x: hit.x, y: hit.y, mine: true } : { x: gx, y: gy, mine: true };
   if (was || S.mode === 'trail') { S.mode = 'frames'; rebuild(); renderMovers(); syncUrl(); }
   paint(); renderMeta(); renderMotion(); refreshPlots();
 }
@@ -3836,7 +3953,7 @@ function tourEnd() {
   sweep(false); renderLook(); relayout();
   if (Sky.isReady()) Sky.reshape();
 }
-$('tourbtn').onclick = $('tourbtn2').onclick = () => tourGo(0);
+$('tourbtn').onclick = () => tourGo(0);
 $('tourlink').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); tourGo(0); };          // the same button as a line of the phone's menu
 $('huntbtn').onclick = () => startHunt();
 $('tournext').onclick = () => {
