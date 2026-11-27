@@ -1607,7 +1607,9 @@ const cardsOn = () => !S.embed && !S.hunt && tourIdx < 0 && !(S.target?.body || 
 /** The measurement's words split into the answer in bold and what follows it. */
 function answerSplit(h) {
   const m = /^\s*<b>([\s\S]*?)<\/b>\s*[:;,.]?\s*([\s\S]*)$/.exec(h || '');
-  return m ? [m[1].replace(/[\s:;,.]+$/, ''), m[2].trim()] : ['', h || ''];
+  if (m) return [m[1].replace(/[\s:;,.]+$/, ''), m[2].trim()];
+  const b = /<b>([\s\S]*?)<\/b>/.exec(h || '');          // a language that puts the answer mid-sentence: the answer, and the sentence whole
+  return b ? [b[1].replace(/[\s:;,.]+$/, ''), h.replace(/<\/?b>/g, '')] : ['', h || ''];
 }
 /** Bars for the brightness of each visit against the first; the dashed line is the first visit's level. */
 function visitBars(bars, cls = 'vbars') {
@@ -1652,7 +1654,10 @@ function storyQuiet(rows) {
     + (next ? `<button type="button" class="nextobj" data-next="${esc(next.slug)}">${esc(T('story.seeChange', { name: nameOf(next) }))}</button>` : '');
 }
 const STORY_ORDER = ['motion', 'lccheck', 'molecules', 'movers'];
-function storyLeadOf(rows) { for (const to of STORY_ORDER) { const r = rows.find(x => x[0] === to && x[1].cls === 'found'); if (r) return r; } return null; }
+function storyLeadOf(rows) {
+  for (const to of STORY_ORDER) { const r = rows.find(x => x[0] === to && x[1].cls === 'found'); if (r) return r; }
+  return rows.find(x => x[0] === 'lccheck' && x[1].cls === 'unsure') || null;          // a change that could not be checked against neighbours still leads
+}
 /** The brightness of each visit as a circle (its area the brightness), beside the same for the ordinary stars around it. */
 function storyCircles(v) {
   const top = Math.max(1, ...v.bars.map(b => b.v)), n = v.bars.length, W = 236, x = i => (n < 2 ? W / 2 : 26 + i * (W - 52) / (n - 1));
@@ -1714,6 +1719,7 @@ function resultBlock(to, r) {
     body = `<p class="rlabel">${esc(T('res.vs1'))}</p><div class="rbars" style="--ref:${ref}%">${v.bars.map(b => `<div class="rb"><span class="m">${esc(b.m)}</span>`
       + `<span class="bar"><i style="width:${(b.v / top * 100).toFixed(1)}%;background:${b.c}"></i></span><b>${pc(b.v)}</b></div>`).join('')}</div>` + dl([
       v.comps >= 2 && v.steady != null ? [Lang.N(v.comps, 'ordinary star'), esc(T('res.varied', { v: pc(v.steady) }))] : null,
+      v.sig > 0 ? [T('res.sig'), v.sig >= 100 ? '> 100σ' : `${fx(v.sig, v.sig < 10 ? 1 : 0)}σ`] : null,
       [T('res.det'), det(v.det)],
     ]);
   } else if (to === 'molecules') {
@@ -1958,7 +1964,7 @@ function realityCheck(lc) {
     : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.`, plain: G`<b>It may be changing a little.</b> The difference is too small to be sure.` }
     : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
     : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
-  if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real', change, up: biggest.rel > 1, det: S.det };
+  if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real', change, up: biggest.rel > 1, det: S.det, sig };
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }

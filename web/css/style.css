@@ -526,7 +526,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .crow:first-child > span { color: var(--ink); }
 .crow svg { width: 100%; height: auto; max-width: 236px; }
 .cmonths { display: flex; justify-content: space-between; margin-left: 88px; max-width: 236px; padding: 0 4px; }
-.cmonths small { font: 500 10.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
+.cmonths small { font: 500 10px var(--mono); letter-spacing: -.3px; color: var(--ink-3); white-space: nowrap; }
 .realchip { margin: 0; padding: 8px 11px; border-radius: 10px; background: color-mix(in srgb, var(--mint) 12%, var(--bg)); color: var(--mint); font: 600 13.5px/1.35 var(--sans); }
 .realchip::before { content: "✓ "; }
 .leadbox.quiet { border-color: var(--line-2); }
