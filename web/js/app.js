@@ -1848,7 +1848,7 @@ function sentencesOf(html) {
     if (depth) continue;
     const rest = html.slice(i);
     const end = /[.!?…]/.test(c) ? /^(\s+)(?=[\p{Lu}\d%“"«¿¡(])/u.exec(rest) : c === ';' && cur.length > 30 ? /^(\s+)(?=\S[^<]{30})/u.exec(rest) : null;
-    if (end) { out.push(c === ';' ? cur.slice(0, -1).trim() : cur.trim()); cur = ''; i += end[1].length; }
+    if (end) { out.push(c === ';' ? `${cur.slice(0, -1).trim()}.` : cur.trim()); cur = ''; i += end[1].length; }
   }
   if (cur.trim()) out.push(cur.trim());
   return out;
@@ -1867,8 +1867,10 @@ function bulletize(p) {
   p.classList.add('bullets');
 }
 let bulletRaf = 0;
-const bulletSoon = () => { if (!bulletRaf) bulletRaf = requestAnimationFrame(() => { bulletRaf = 0; for (const p of $('panel').querySelectorAll(BULLETED)) bulletize(p); }); };
+const SHEET_BULLETED = ':is(#sheet, #sheet article) > p:not(.eyebrow):not(.lead):not(.docgo)';          // the information sheets over the map
+const bulletSoon = () => { if (!bulletRaf) bulletRaf = requestAnimationFrame(() => { bulletRaf = 0; for (const p of $('panel').querySelectorAll(BULLETED)) bulletize(p); for (const p of document.querySelectorAll(SHEET_BULLETED)) bulletize(p); }); };
 new MutationObserver(bulletSoon).observe($('panel'), { childList: true, subtree: true });
+if ($('sheet')) new MutationObserver(bulletSoon).observe($('sheet'), { childList: true, subtree: true });
 bulletSoon();
 
 // ------------------------------------------------------------ is the change real?
