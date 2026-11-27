@@ -449,6 +449,10 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .qtxt span.bullets .bli { margin-top: 2px; }
 .verdict.bullets .bhead b { font-size: 15.5px; color: var(--ink); }
 :is(#motion, #scan, #movers, #lccheck) > p.verdict.bullets { border-left: 0; padding-left: 0; }
+/* the information pages' top bar on a phone: the name and the button to the map share the width (28 Nov 2026: the button
+   ran off the right edge, the page moved sideways) */
+@media (max-width: 359px) { .doctop .brand span { display: none; } }          /* too narrow for the name and the button: the mark alone, never a cut name */
+@media (max-width: 480px) { .doctop { gap: 8px; } .doctop .brand { min-width: 0; flex: 0 1 auto; } .doctop .brand span { font-size: 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .doctop .cta { flex: none; margin-left: auto; padding: 8px 13px; font-size: 13.5px; min-height: 38px; } }
 /* the glossary (js/glossary.js): a harder word underlined with dots where it first appears; a press says what it means */
 #panel .term, #rg .term, #sheet .term, .term { display: inline !important; width: auto !important; min-height: 0; padding: 0 !important; margin: 0; border: 0; border-radius: 0; background: none; font: inherit; color: inherit; line-height: inherit; text-align: inherit; white-space: normal; text-decoration: underline dotted var(--ember) 1.5px; text-underline-offset: 3px; cursor: help; }
 .term:hover, .term:focus-visible { color: var(--ink); text-decoration-style: solid; }
