@@ -1362,6 +1362,20 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
    26 November 2026), under words that spoke of them. Now: the name, the pictures, what to look for, the answers, the
    button to everything else. The parts keep their places in the page's code; only their order on the screen changes. */
 @container (max-width: 639.98px) {
+  /* the whole panel in one column: the timelapse, then the answer, then the controls, then the plots (28 Nov 2026) */
+  body:not(.touring):not(.embed) #panel:not(.simple) .cols { display: flex; flex-direction: column; gap: 0; }
+  body:not(.touring):not(.embed) #panel:not(.simple) :is(.lead, .viewer) { display: contents; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .viewer > * { order: 6; min-width: 0; max-width: 100%; }
+  body:not(.touring):not(.embed) #panel:not(.simple) :is(.lead > *, .stack, .more) { min-width: 0; max-width: 100%; }          /* a flex column lets nothing push the page sideways */
+  body:not(.touring):not(.embed) #panel:not(.simple) .viewer > .blocktitle { order: 0; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .viewer > .stage { order: 1; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .viewer > .transport { order: 2; }
+  body:not(.touring):not(.embed) #panel:not(.simple) :is(#huntbox, #bodybox) { order: 3; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) #findings { order: 4; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) #lookbox { order: 5; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .viewer > #modes { margin-top: 18px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .stack { order: 7; margin-top: 22px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) .more { order: 8; margin-top: 22px; }
   body:not(.touring):not(.embed) #panel.simple .cols { display: flex; flex-direction: column; gap: 0; }
   body:not(.touring):not(.embed) #panel.simple :is(.lead, .viewer) { display: contents; }
   body:not(.touring):not(.embed) #panel.simple .viewer .blocktitle { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }          /* the date on the pictures says it; still read out */
