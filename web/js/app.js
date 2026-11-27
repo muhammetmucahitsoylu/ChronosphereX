@@ -2457,7 +2457,7 @@ async function startHunt(only = 0) {
   let pick = null, reached = true;
   try { pick = await Bodies.pickHunt(SURVEY0, surveyDays(), undefined, { tries: 10, only: only > 0 ? Math.floor(only) : 0 }); } catch (e) { console.error(e); reached = false; }
   if (tok !== S.openTok) return;
-  if (!pick) { note(reached ? G`No field came up this time. Press “Find an asteroid” once more.` : orbitsDown(), 9000); return; }
+  if (!pick) { note(reached ? G`No field came up this time. Try once more: Menu, “Asteroid hunt”, then “Start a hunt”.` : orbitsDown(), 9000); return; }
   note(''); $('q').value = '';
   const { body, visit, rows } = pick;
   go({ ra: visit.ra, dec: visit.dec, size: 10, info: { name: G`Asteroid hunt`, type: 'A patch of sky near the ecliptic', hunt: true },

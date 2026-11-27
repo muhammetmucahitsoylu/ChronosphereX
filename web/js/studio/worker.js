@@ -43,7 +43,7 @@ self.onmessage = e => {
     if (m.t === 'open') {
       stopper?.abort(); opened++;
       frame = makeFrame(m.frame); map = makeMap(frame); bench = new Bench(frame.W, frame.H, m.previewMax || 1100);
-      return say({ t: 'opened', id: m.id, frame, tiles: map.tiles.length, bytesPerPlane: bytesPerPlane(map), w: bench.w, h: bench.h, f: bench.f });
+      return say({ t: 'opened', id: m.id, frame, tiles: map.tiles.length, tileIds: Array.from(map.tiles), bytesPerPlane: bytesPerPlane(map), w: bench.w, h: bench.h, f: bench.f });
     }
     if (!bench) return say({ t: 'error', id: m.id, message: 'no frame' });
     if (m.t === 'stop') { stopper?.abort(); return; }

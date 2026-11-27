@@ -2,8 +2,8 @@
 // adjust the picture, take it away. The arithmetic runs in a worker (worker.js); this file is the screen.
 import A from 'https://cdn.jsdelivr.net/npm/aladin-lite@3.8.2/dist/aladin.js';
 import { STR, LANGS } from './words.js';
-import { makeFrame, galacticUp, NATIVE, WAVES, BLANK } from './geom.js';
-import { cost } from './cube.js';
+import { makeFrame, galacticUp, NATIVE, WAVES, BLANK, planeNear } from './geom.js';
+import { cost, SOURCES } from './cube.js';
 import { RECIPES, LINES, lineSrc, around, ownRecipe, OWN_MAX, OWN_START } from './recipes.js';
 import { planesOf, DEFAULT_LOOK } from './process.js';
 import { png16, tiff16, fits, toQuery, fromQuery } from './files.js';
@@ -31,7 +31,7 @@ const SHAPES = [['1:1', 1], ['4:5', 4 / 5], ['3:4', 3 / 4], ['9:16', 9 / 16], ['
 // places whose pictures were looked at before they were listed (spike/studio/batch.mjs): [key, ra, dec, width in degrees, shape, recipe, turn]
 const PLACES = [['p_orion', 83.9, -4.2, 4.5, '3:4', 'gas'], ['p_carina', 161.0, -59.7, 4, '1:1', 'gas'], ['p_cygnus', 308.0, 41.5, 6, '3:2', 'gas'], ['p_rosette', 98.0, 4.95, 3, '1:1', 'gas'],
   ['p_rho', 246.7, -23.6, 4, '1:1', 'gas'], ['p_tarantula', 84.7, -69.1, 2.2, '1:1', 'gas'], ['p_m17', 275.2, -16.2, 3, '1:1', 'gas'], ['p_gc', 266.894, -29.196, 4.5, '3:2', 'dust', 'level'], ['p_m31', 10.68, 41.27, 4, '3:2', 'stars']];
-const MAPS = [['wise', 'mapWise', 'https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1'], ['dss', 'mapDss', 'https://irsa.ipac.caltech.edu/data/hips/CDS/DSS2/color'], ['2mass', 'map2mass', 'https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/Color']];
+const MAPS = [['spherex', 'mapSpherex', 'https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube'], ['wise', 'mapWise', 'https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1'], ['dss', 'mapDss', 'https://irsa.ipac.caltech.edu/data/hips/CDS/DSS2/color'], ['2mass', 'map2mass', 'https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/Color']];
 const SET = Prefs.load(phone), MIN_W = 300, maxPx = () => SET.maxMP * 1e6;
 const S = {
   mode: 'basic', shape: '1:1', ratio: 1, turn: 'north', recipe: 'gas', quality: 1, al: null,
@@ -59,7 +59,7 @@ const ask = (msg, progress) => new Promise((ok, no) => { const id = nextId++; wa
 // ------------------------------------------------------------------------------------------------------ words on the page
 function words() {
   const set = (id, key, attr) => { const e = $(id); if (!e) return; if (attr) e.setAttribute(attr, T[key]); else e.textContent = T[key]; };
-  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'], ['h_proframe', 'proFrame'], ['l_ra', 'l_ra'], ['l_dec', 'l_dec'], ['l_w', 'l_w'], ['l_h', 'l_h'], ['l_pa', 'l_pa'], ['prohint', 'proHint'],
+  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'], ['h_proframe', 'proFrame'], ['l_ra', 'l_ra'], ['l_dec', 'l_dec'], ['l_w', 'l_w'], ['l_h', 'l_h'], ['l_pa', 'l_pa'], ['prohint', 'proHint'], ['qall', 'qAll'], ['mapnote', 'mapNote'],
     ['h_quality', 'quality'], ['get', 'get'], ['go', 'go'], ['stop', 'stop'], ['another', 'another'], ['openmap', 'openMap'], ['h_edit', 'edit'], ['reset', 'reset'], ['reset2', 'reset'], ['h_layers', 'layers'], ['addband', 'addBand'],
     ['h_combine', 'combine'], ['h_whole', 'whole'], ['h_out', 'out'], ['tobox', 'out'], ['share', 'share'], ['save', 'save'], ['copy', 'copy'], ['link', 'link'], ['neednow', 'readNow'], ['rawnote', 'rawNote']]) set(id, key);
   set('q', 'search', 'placeholder'); set('q', 'search', 'aria-label'); set('zin', 'zoomIn', 'aria-label'); set('zout', 'zoomOut', 'aria-label'); set('mode', 'modeLabel', 'aria-label');
@@ -157,11 +157,11 @@ function typed(which) {
 /** Pro's fourth kind: the strip of SPHEREx's wavelengths to press, and what is chosen. Quality (how many neighbouring
  *  wavelengths are averaged) has no say there: exactly the chosen ones are read. */
 function buildOwn() {
-  const box = $('ownbox'), on = S.recipe === 'own', was = box.querySelector('.strip')?.scrollLeft ?? null;
-  box.hidden = !on; for (const id of ['h_quality', 'quality', 'qsay']) $(id).hidden = on;
+  const box = $('ownbox'), on = S.recipe === 'own';
+  box.hidden = !on; for (const id of ['h_quality', 'quality', 'qsay', 'qall']) $(id).hidden = on;
   if (!on) return;
   box.innerHTML = ''; const L = { src: { kind: 'band', planes: S.own } };
-  strip(box, L, { done: () => { S.own = L.src.planes; buildOwn(); tell(); }, max: OWN_MAX, scroll: was, plain: true });
+  strip(box, L, { done: () => { S.own = L.src.planes; buildOwn(); tell(); }, max: OWN_MAX, plain: true, key: 'own' });
   const say = document.createElement('p'); say.className = 'fine'; say.id = 'ownsays';
   say.textContent = fill(T.ownSays, { n: S.own.length, max: OWN_MAX, list: S.own.map(z => num(WAVES[z], 2)).join(' · ') }); box.append(say);
 }
@@ -170,11 +170,21 @@ function pickRecipe(r) { S.recipe = r; marks('kind', 'r', r); marks('kind2', 'r'
 function pickQuality(n) { S.quality = n; marks('quality', 'q', n); marks('quality2', 'q', n); $('qsay').textContent = T[`q${n}d`]; tell(); }
 function pickShape(s) { if (s === 'free') S.ratio = boxH ? boxW / boxH : 1; S.shape = s; marks('shape', 's', s); const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, Math.max(f.w, f.h) * Math.min(1, shapeOf())); tell(); }
 
+const MAP_Z = 62;          // the map's frame of the SPHEREx cube: 3.29 µm
+/** Tell the map library to show frame MAP_Z of the SPHEREx cube (the main map's own rule, sky.js). */
+function mapSlice(h) {
+  if (!h?.cubeDepth) return false; if (h.chronoZ === MAP_Z) return true;
+  const c = 299792458, fMin = c / h.emMax, fMax = c / h.emMin, f = fMin + (MAP_Z + 0.5) * (fMax - fMin) / h.cubeDepth;
+  h.setSliceNumber((c / f - h.emMin) / (h.emMax - h.emMin) * h.cubeDepth); h.chronoZ = MAP_Z; return true;
+}
+function mapSliceSoon() { const t0 = Date.now(), kick = () => { const h = S.al?.getBaseImageLayer?.(); if (!(h && mapSlice(h)) && Date.now() - t0 < 15000) requestAnimationFrame(kick); }; kick(); }
 async function initMap(start) {
   await A.init;
-  const layer = id => { const m = MAPS.find(x => x[0] === id) || MAPS[0]; return A.HiPS(m[2], { name: m[0] }); };
+  // SPHEREx's own sky is the first map, its cube shown at 3.3 µm where the clouds that make good pictures glow (the
+  // library opens a cube on its middle frame, which is blank in this one: it is sent to that frame at once)
+  const layer = id => { const m = MAPS.find(x => x[0] === id) || MAPS[0]; return A.HiPS(m[2], { name: m[0], successCallback: h => { if (m[0] === 'spherex') mapSlice(h); } }); };
   S.al = A.aladin('#map', {
-    survey: layer('wise'), target: `${start.ra} ${start.dec}`, fov: 12, projection: 'TAN', cooFrame: 'ICRS',
+    survey: layer('spherex'), target: `${start.ra} ${start.dec}`, fov: 12, projection: 'TAN', cooFrame: 'ICRS',
     showReticle: false, showLayersControl: false, showProjectionControl: false, showFullscreenControl: false, showFrame: false, showCooGridControl: false,
     showSettingsControl: false, showShareControl: false, showZoomControl: false, showCooLocation: false, showFov: false, showStatusBar: false, showContextMenu: false,
     backgroundColor: 'rgb(5, 7, 12)', log: false,
@@ -182,7 +192,8 @@ async function initMap(start) {
   try { S.al.contextMenu = null; S.al.on('rightClickMove', () => {}); } catch { /* cosmetic */ }
   layFrame(); showOnMap(start.ra, start.dec, start.w, start.rot ?? 0);
   for (const ev of ['positionChanged', 'zoomChanged']) { try { S.al.on(ev, () => { if (S.turn === 'level' && ev === 'positionChanged') applyTurn(); tell(); }); } catch { /* older builds */ } }
-  $('maplayer').onchange = e => { try { S.al.setBaseImageLayer(layer(e.target.value)); } catch { /* the map keeps what it shows */ } };
+  $('maplayer').onchange = e => { try { S.al.setBaseImageLayer(layer(e.target.value)); } catch { /* the map keeps what it shows */ } if (e.target.value === 'spherex') mapSliceSoon(); $('mapnote').hidden = e.target.value === 'spherex'; };
+  mapSliceSoon();
   setInterval(tell, 1500);          // a twist with two fingers changes nothing the map reports: look again now and then
   tell();
 }
@@ -353,13 +364,38 @@ function notesFor(p) {
 }
 
 // ------------------------------------------------------------------------------------------------------ controls
-function slider(host, label, min, max, step, get, set, fmt = v => num(v, 2), live = true, key = '') {
-  const d = document.createElement('div'); d.className = 'ctl'; if (key) d.dataset.k = key;
+/** A slider: its name; its value, which can also be typed in; ↺, which brings it back to where the picture started;
+ *  and the bar, coloured from that starting point (a small mark) to the value, so that what was changed, and which way,
+ *  shows at a glance. A double click on the bar or on the name also brings it back. def: the starting point (none: the
+ *  bar is coloured from its left end and there is nothing to go back to); parse: a number typed in the units the value
+ *  is shown in, as the bar's own value (for bars that are not linear, or shown as a percentage). */
+function slider(host, label, min, max, step, get, set, fmt = v => num(v, 2), live = true, key = '', def = null, parse = null) {
+  const d = document.createElement('div'); d.className = 'ctl sl'; if (key) d.dataset.k = key;
   const id = `c${Math.random().toString(36).slice(2, 9)}`;
-  d.innerHTML = `<label for="${id}"></label><output></output><input id="${id}" type="range" min="${min}" max="${max}" step="${step}">`;
-  const [lb, out, inp] = d.children; lb.textContent = label; inp.value = get(); out.textContent = fmt(+inp.value);
-  inp.addEventListener(live ? 'input' : 'change', () => { set(+inp.value); out.textContent = fmt(+inp.value); changed(); });
-  if (!live) inp.addEventListener('input', () => { out.textContent = fmt(+inp.value); });
+  d.innerHTML = `<label for="${id}"></label><input id="${id}" type="range" min="${min}" max="${max}" step="${step}"><input class="val" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><button type="button" class="reset">↺</button>`;
+  const [lb, inp, val, rs] = d.children, frac = v => (clamp(v, min, max) - min) / (max - min || 1);
+  lb.textContent = label; val.setAttribute('aria-label', label); rs.title = T.reset; rs.setAttribute('aria-label', `${T.reset}: ${label}`);
+  inp.style.setProperty('--d', def == null ? 0 : frac(def));
+  const show = () => {
+    const v = +inp.value; inp.style.setProperty('--v', frac(v));
+    if (document.activeElement !== val) val.value = fmt(v);
+    d.classList.toggle('moved', def != null && Math.abs(v - def) > step / 2);
+  };
+  const put = v => { inp.value = clamp(v, min, max); set(+inp.value); show(); changed(); };
+  inp.value = get(); show();
+  inp.addEventListener(live ? 'input' : 'change', () => { set(+inp.value); show(); changed(); });
+  if (!live) inp.addEventListener('input', show);
+  val.onfocus = () => val.select();
+  val.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); val.blur(); } else if (e.key === 'Escape') { val.value = fmt(+inp.value); val.blur(); } };
+  val.onchange = () => {
+    const x = parseFloat(val.value.replace(/\s/g, '').replace(',', '.').replace(/[−–]/g, '-').replace(/[^0-9.eE+-]/g, ''));
+    const v = isFinite(x) ? (parse ? parse(x) : x) : NaN;
+    if (isFinite(v)) put(v); else show();
+  };
+  val.onblur = show;
+  const back = () => { if (def != null) put(def); };
+  rs.onclick = back; inp.ondblclick = back; lb.ondblclick = back;
+  if (def == null) rs.hidden = true;
   host.append(d); return inp;
 }
 function chooser(host, label, options, get, set, key = '') {
@@ -379,16 +415,16 @@ function changed(rebuild = false) {
 const log = (lo, hi) => ({ to: v => Math.log(v / lo) / Math.log(hi / lo), from: t => lo * Math.pow(hi / lo, t) });
 
 function buildBasic() {
-  const host = $('basic'), d = S.doc, base = baseOf(d); host.innerHTML = '';
-  slider(host, T.bright, -2, 2, 0.02, () => d.look.bright ?? 0, v => { d.look.bright = v; }, v => (v > 0 ? '+' : '') + num(v, 1));
-  slider(host, T.contrast, -0.6, 0.9, 0.02, () => d.look.contrast ?? 0, v => { d.look.contrast = v; }, v => (v > 0 ? '+' : '') + num(v, 1));
-  slider(host, T.colour, 0, 2.4, 0.02, () => d.look.sat ?? 1, v => { d.look.sat = v; }, v => num(v, 1));
+  const host = $('basic'), d = S.doc, base = baseOf(d), lk = { ...DEFAULT_LOOK, ...(base?.look || {}) }; host.innerHTML = '';
+  slider(host, T.bright, -2, 2, 0.02, () => d.look.bright ?? 0, v => { d.look.bright = v; }, v => (v > 0 ? '+' : '') + num(v, 1), true, '', lk.bright);
+  slider(host, T.contrast, -0.6, 0.9, 0.02, () => d.look.contrast ?? 0, v => { d.look.contrast = v; }, v => (v > 0 ? '+' : '') + num(v, 1), true, '', lk.contrast);
+  slider(host, T.colour, 0, 2.4, 0.02, () => d.look.sat ?? 1, v => { d.look.sat = v; }, v => num(v, 1), true, '', lk.sat);
   // faint detail: the strength of every layer's curve, as a multiple of the recipe's own
   const k0 = L => base?.layers.find(x => x.id === L.id)?.k ?? 8, s0 = base?.stretch?.k ?? 10;
   const now = () => (d.blend === 'ratio' ? Math.log2((d.stretch?.k ?? s0) / s0) / 2 : (d.layers[0] ? Math.log2(d.layers[0].k / k0(d.layers[0])) / 2 : 0));
-  slider(host, T.faint, -1.5, 1.5, 0.02, now, v => { const m = Math.pow(4, v); for (const L of d.layers) L.k = clamp(k0(L) * m, 0.3, 400); if (d.stretch) d.stretch.k = clamp(s0 * m, 0.3, 400); }, v => (v > 0 ? '+' : '') + num(v, 1), true, 'faint');
-  slider(host, T.sharp, 0, 1.6, 0.02, () => d.look.sharpen ?? 0, v => { d.look.sharpen = v; }, v => num(v, 1));
-  slider(host, T.speckle, 0, 6, 0.1, () => d.look.chroma ?? 0, v => { d.look.chroma = v; }, v => num(v, 1));
+  slider(host, T.faint, -1.5, 1.5, 0.02, now, v => { const m = Math.pow(4, v); for (const L of d.layers) L.k = clamp(k0(L) * m, 0.3, 400); if (d.stretch) d.stretch.k = clamp(s0 * m, 0.3, 400); }, v => (v > 0 ? '+' : '') + num(v, 1), true, 'faint', 0);
+  slider(host, T.sharp, 0, 1.6, 0.02, () => d.look.sharpen ?? 0, v => { d.look.sharpen = v; }, v => num(v, 1), true, '', lk.sharpen);
+  slider(host, T.speckle, 0, 6, 0.1, () => d.look.chroma ?? 0, v => { d.look.chroma = v; }, v => num(v, 1), true, '', lk.chroma);
 }
 
 const rgbHex = c => '#' + c.map(v => Math.round(clamp(v, 0, 1) * 255).toString(16).padStart(2, '0')).join('');
@@ -396,26 +432,98 @@ const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
 const STOPS = [[0.75, [120, 170, 255]], [1.2, [110, 225, 255]], [1.7, [130, 255, 190]], [2.2, [240, 245, 140]], [2.9, [255, 190, 90]], [3.4, [255, 140, 60]], [4.1, [255, 85, 55]], [5.0, [225, 45, 85]]];
 const tintOf = um => { let i = 0; while (i < STOPS.length - 2 && um > STOPS[i + 1][0]) i++; const [a, ca] = STOPS[i], [b, cb] = STOPS[i + 1], t = clamp((um - a) / (b - a), 0, 1); return `rgb(${ca.map((v, k) => Math.round(v + (cb[k] - v) * t)).join(',')})`; };
 
+/** The 102 wavelengths as one bar the width of the panel (until 27 Nov 2026 a strip 1,600 px long that scrolled
+ *  sideways). Pressing or dragging along it shows the wavelength under the pointer; letting go chooses it, or lets it
+ *  go. A line layer: once for the line, again for its continuum, again to let it go. The chosen ones are listed under
+ *  the bar, each with × to take it away. Keys: ← → move, Enter or Space choose, Home and End.
+ *  o: { done (instead of redrawing the panel), max (how many may be chosen), plain (no marks of what is downloaded), key } */
 function strip(host, L, o = {}) {
-  const wrap = document.createElement('div'); wrap.className = 'strip';
-  const cells = document.createElement('div'); cells.className = 'cells'; const ticks = document.createElement('div'); ticks.className = 'ticks';
-  const isLine = L.src.kind === 'line', onSet = new Set(isLine ? L.src.on : L.src.planes), offSet = new Set(isLine ? L.src.off.map(o => o[0]) : []);
-  let lastTick = -9;
-  WAVES.forEach((um, z) => {
-    const b = document.createElement('button'); b.type = 'button'; b.style.background = BLANK.has(z) ? '#222' : tintOf(um); b.disabled = BLANK.has(z);
-    b.title = `${num(um, 3)} µm`; b.setAttribute('aria-label', b.title);
-    b.className = (onSet.has(z) ? 'on' : offSet.has(z) ? 'off' : '') + (S.have?.has(z) && !o.plain ? ' have' : '');
-    b.onclick = () => {
-      if (isLine) { if (onSet.has(z)) { onSet.delete(z); offSet.add(z); } else if (offSet.has(z)) offSet.delete(z); else onSet.add(z); if (!onSet.size) onSet.add(z); L.src = offSet.size ? lineSrc([...onSet].sort((a, c) => a - c), [...offSet].sort((a, c) => a - c)) : { kind: 'line', on: [...onSet].sort((a, c) => a - c), off: [] }; }
-      else { if (onSet.has(z)) { if (onSet.size > 1) onSet.delete(z); } else if (!o.max || onSet.size < o.max) onSet.add(z); L.src = { kind: 'band', planes: [...onSet].sort((a, c) => a - c) }; }
-      if (o.done) o.done(); else changed(true);
-    };
-    cells.append(b);
-    const t = document.createElement('span'); if (um - lastTick >= 0.5 || z === 0) { t.textContent = num(um, 1); lastTick = um; } ticks.append(t);
+  const isLine = L.src.kind === 'line', onSet = new Set(isLine ? L.src.on : L.src.planes), offSet = new Set(isLine ? L.src.off.map(x => x[0]) : []);
+  const N = WAVES.length, uid = `s${Math.random().toString(36).slice(2, 8)}`, fkey = o.key || L.id || 'layer', sorted = s => [...s].sort((a, b) => a - b);
+  const wrap = document.createElement('div'); wrap.className = 'strip spec';
+  const marks = document.createElement('div'); marks.className = 'specmarks';
+  const bar = document.createElement('div'); bar.className = 'specbar'; bar.tabIndex = 0;
+  bar.setAttribute('role', 'listbox'); bar.setAttribute('aria-multiselectable', 'true'); bar.setAttribute('aria-label', isLine ? T.pickLine : T.pick);
+  const have = document.createElement('div'); have.className = 'spechave';
+  const ticks = document.createElement('div'); ticks.className = 'specticks';
+  const lens = document.createElement('div'); lens.className = 'speclens'; lens.hidden = true;
+  const cells = WAVES.map((um, z) => {
+    const c = document.createElement('span'), blank = BLANK.has(z), on = onSet.has(z), off = offSet.has(z);
+    c.id = `${uid}-${z}`; c.setAttribute('role', 'option'); c.setAttribute('aria-label', `${num(um, 3)} µm`); c.setAttribute('aria-selected', String(on || off));
+    if (blank) { c.className = 'blank'; c.setAttribute('aria-disabled', 'true'); } else { c.style.background = tintOf(um); c.className = on ? 'on' : off ? 'off' : ''; }
+    bar.append(c);
+    if (on || off) { const m = document.createElement('i'); if (off) m.className = 'off'; m.style.left = `${z / N * 100}%`; marks.append(m); }
+    if (!o.plain && S.have?.has(z)) { const h = document.createElement('i'); h.style.left = `${z / N * 100}%`; have.append(h); }
+    return c;
   });
-  wrap.append(cells, ticks); host.append(wrap);
+  const marksAt = [0.75, 1, 1.5, 2, 3, 4, 5];
+  marksAt.forEach((um, i) => {
+    const t = document.createElement('span'), z = planeNear(um);
+    t.style.left = i === 0 ? '0%' : i === marksAt.length - 1 ? '100%' : `${(z + 0.5) / N * 100}%`;
+    t.textContent = i === marksAt.length - 1 ? `${num(um, 0)} µm` : num(um, um % 1 ? (um * 10 % 1 ? 2 : 1) : 0); ticks.append(t);
+  });
+  wrap.append(marks, bar, have, ticks, lens); host.append(wrap);
+  // what is under the pointer, the finger or the keys
+  let cur = -1;
+  const point = (z, label = true) => {
+    if (cur >= 0) cells[cur].classList.remove('cur');
+    cur = z;
+    if (z < 0) { lens.hidden = true; bar.removeAttribute('aria-activedescendant'); return; }
+    cells[z].classList.add('cur'); bar.setAttribute('aria-activedescendant', cells[z].id);
+    if (!label) return;
+    lens.hidden = false; lens.textContent = `${num(WAVES[z], 2)} µm${BLANK.has(z) ? ' —' : onSet.has(z) ? ' ✓' : offSet.has(z) ? ' ○' : ''}`;
+    const w = wrap.clientWidth || 1, half = (lens.offsetWidth || 60) / 2;
+    lens.style.left = `${clamp((z + 0.5) / N * w, half, w - half)}px`;
+  };
+  const apply = () => {
+    L.src = isLine ? (offSet.size ? lineSrc(sorted(onSet), sorted(offSet)) : { kind: 'line', on: sorted(onSet), off: [] }) : { kind: 'band', planes: sorted(onSet) };
+    if (o.done) o.done(); else changed(true);
+  };
+  const toggle = (z, byKey = false) => {
+    if (z < 0 || BLANK.has(z)) return;
+    if (isLine) {
+      if (onSet.has(z)) { if (onSet.size < 2) return; onSet.delete(z); offSet.add(z); }          // a line keeps at least one wavelength of its own
+      else if (offSet.has(z)) offSet.delete(z); else onSet.add(z);
+    } else if (onSet.has(z)) { if (onSet.size < 2) return; onSet.delete(z); }
+    else if (!o.max || onSet.size < o.max) onSet.add(z); else return;
+    if (byKey) S.focusStrip = { key: fkey, z };          // the panel is drawn again: the keys stay on this bar
+    apply();
+  };
+  const zAt = x => { const r = bar.getBoundingClientRect(); return clamp(Math.floor((x - r.left) / (r.width || 1) * N), 0, N - 1); };
+  let drag = null;
+  bar.addEventListener('pointerdown', e => { if (e.button > 0) return; drag = { id: e.pointerId, z: zAt(e.clientX) }; try { bar.setPointerCapture(e.pointerId); } catch { /* an old engine */ } point(drag.z); });
+  bar.addEventListener('pointermove', e => { if (drag && e.pointerId === drag.id) { drag.z = zAt(e.clientX); point(drag.z); } else if (!drag && e.pointerType === 'mouse') point(zAt(e.clientX)); });
+  bar.addEventListener('pointerup', e => { if (!drag || e.pointerId !== drag.id) return; const z = drag.z; drag = null; point(-1); toggle(z); });
+  bar.addEventListener('pointercancel', () => { drag = null; point(-1); });          // the browser took the finger for scrolling the page
+  bar.addEventListener('pointerleave', e => { if (!drag && e.pointerType === 'mouse') point(-1); });
+  bar.addEventListener('keydown', e => {
+    let z = cur < 0 ? (sorted(onSet)[0] ?? 0) : cur;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') z = Math.min(N - 1, z + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') z = Math.max(0, z - 1);
+    else if (e.key === 'PageUp') z = Math.min(N - 1, z + 10);
+    else if (e.key === 'PageDown') z = Math.max(0, z - 10);
+    else if (e.key === 'Home') z = 0;
+    else if (e.key === 'End') z = N - 1;
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (cur >= 0) toggle(cur, true); return; }
+    else return;
+    e.preventDefault(); point(z);
+  });
+  bar.addEventListener('focus', () => { if (cur < 0 && !drag) point(sorted(onSet)[0] ?? 0); });
+  bar.addEventListener('blur', () => { if (!drag) point(-1); });
+  // the chosen ones, each with × to take it away (not the last one: a layer needs a wavelength)
+  const chips = document.createElement('div'); chips.className = 'specchips';
+  const chip = (z, off) => {
+    const b = document.createElement('button'), dot = document.createElement('i'); b.type = 'button'; if (off) b.className = 'off';
+    dot.style.background = tintOf(WAVES[z]); b.append(dot, `${num(WAVES[z], 2)} µm`);
+    b.disabled = !off && onSet.size < 2; b.setAttribute('aria-label', `${T.remove}: ${num(WAVES[z], 2)} µm`);
+    b.onclick = () => { if (off) offSet.delete(z); else if (onSet.size > 1) onSet.delete(z); else return; apply(); };
+    chips.append(b);
+  };
+  for (const z of sorted(onSet)) chip(z, false);
+  for (const z of sorted(offSet)) chip(z, true);
+  host.append(chips);
   const hint = document.createElement('p'); hint.className = 'pickhint'; hint.textContent = isLine ? T.pickLine : T.pick; host.append(hint);
-  const first = [...onSet][0]; if (o.scroll != null) wrap.scrollLeft = o.scroll; else if (first !== undefined) requestAnimationFrame(() => { wrap.scrollLeft = Math.max(0, first * 16 - wrap.clientWidth / 2); });
+  if (S.focusStrip?.key === fkey) { const z = S.focusStrip.z; S.focusStrip = null; requestAnimationFrame(() => { try { bar.focus({ preventScroll: true }); } catch { bar.focus(); } point(z); }); }
 }
 function buildLayers() {
   const host = $('layers'), d = S.doc; host.innerHTML = '';
@@ -430,6 +538,8 @@ function buildLayers() {
     head.append(on, col, name, x); card.append(head);
     const body = document.createElement('div'); body.className = 'body'; card.append(body);
     if (S.openLayer === L.id) {
+      // where each slider starts: the recipe's own layer, or what a layer added by hand starts with
+      const b0 = baseOf(d)?.layers.find(x => x.id === L.id) || (L.src.kind === 'line' ? { lo: 50, loS: 6, hi: 99.8, k: 8, smooth: 0.6, gain: 1 } : { lo: 50, loS: 0, hi: 99.8, k: 8, smooth: 0, gain: 1 });
       const cv = document.createElement('canvas'); cv.className = 'hist'; cv.id = 'hist'; cv.width = 360; cv.height = 56; body.append(cv);
       chooser(body, T.from, [['band', T.band], ['line', T.line]], () => L.src.kind, v => {
         if (v === L.src.kind) return;
@@ -438,16 +548,16 @@ function buildLayers() {
       });
       strip(body, L);
       chooser(body, T.bg, [['level', T.bgLevel], ['slope', T.bgSlope], ['none', T.bgNone]], () => L.bg, v => { L.bg = v; });
-      slider(body, T.black, 0, 99.9, 0.1, () => L.lo, v => { L.lo = v; }, v => num(v, 1) + ' %', true, 'black');
-      slider(body, T.blackS, 0, 12, 0.1, () => L.loS || 0, v => { L.loS = v; }, v => num(v, 1) + ' σ');
-      slider(body, T.white, 90, 100, 0.01, () => L.hi, v => { L.hi = v; }, v => num(v, 2) + ' %');
+      slider(body, T.black, 0, 99.9, 0.1, () => L.lo, v => { L.lo = v; }, v => fill(T.pct, { n: num(v, 1) }), true, 'black', b0.lo);
+      slider(body, T.blackS, 0, 12, 0.1, () => L.loS || 0, v => { L.loS = v; }, v => num(v, 1) + ' σ', true, '', b0.loS ?? 0);
+      slider(body, T.white, 90, 100, 0.01, () => L.hi, v => { L.hi = v; }, v => fill(T.pct, { n: num(v, 2) }), true, '', b0.hi);
       if (d.blend !== 'ratio' || d.layout === 'panels') {
         chooser(body, T.curve, ['asinh', 'log', 'sqrt', 'linear', 'gamma'].map(c => [c, T['c_' + c]]), () => L.curve, v => { L.curve = v; if (v === 'gamma' && L.k > 5) L.k = 2.2; }, 'curve');
-        const sc = log(0.3, 400); slider(body, T.strength, 0, 1, 0.005, () => sc.to(clamp(L.k, 0.3, 400)), v => { L.k = sc.from(v); }, v => num(sc.from(v), sc.from(v) < 10 ? 1 : 0));
+        const sc = log(0.3, 400); slider(body, T.strength, 0, 1, 0.005, () => sc.to(clamp(L.k, 0.3, 400)), v => { L.k = sc.from(v); }, v => num(sc.from(v), sc.from(v) < 10 ? 1 : 0), true, '', sc.to(clamp(b0.k ?? 8, 0.3, 400)), x => sc.to(clamp(x, 0.3, 400)));
       }
-      slider(body, T.smooth, 0, 5, 0.1, () => L.smooth || 0, v => { L.smooth = v; }, v => num(v, 1) + ' px');
-      if (L.src.kind === 'line') slider(body, T.clean, 0, 3, 1, () => L.clean ?? 1, v => { L.clean = v; }, v => `${v} px`, false, 'clean');
-      slider(body, T.weight, 0, 2, 0.01, () => L.gain ?? 1, v => { L.gain = v; }, v => Math.round(v * 100) + ' %');
+      slider(body, T.smooth, 0, 5, 0.1, () => L.smooth || 0, v => { L.smooth = v; }, v => num(v, 1) + ' px', true, '', b0.smooth ?? 0);
+      if (L.src.kind === 'line') slider(body, T.clean, 0, 3, 1, () => L.clean ?? 1, v => { L.clean = v; }, v => `${v} px`, false, 'clean', b0.clean ?? 1);
+      slider(body, T.weight, 0, 2, 0.01, () => L.gain ?? 1, v => { L.gain = v; }, v => fill(T.pct, { n: Math.round(v * 100) }), true, '', b0.gain ?? 1, x => x / 100);
     }
     host.append(card);
   });
@@ -458,23 +568,24 @@ function buildPro() {
   chooser(c, T.combine, [['add', T.b_add], ['screen', T.b_screen], ['ratio', T.b_ratio]], () => d.blend, v => { d.blend = v; if (v === 'ratio' && !d.stretch) d.stretch = { k: 10, depth: 0.7, blur: 2.5 }; });
   chooser(c, T.layout, [['one', T.l_one], ['panels', T.l_panels]], () => d.layout, v => { d.layout = v; });
   if (d.blend === 'ratio' && d.layout !== 'panels') {
-    const sc = log(0.3, 400); slider(c, T.strength, 0, 1, 0.005, () => sc.to(clamp(d.stretch.k, 0.3, 400)), v => { d.stretch.k = sc.from(v); }, v => num(sc.from(v), sc.from(v) < 10 ? 1 : 0));
-    slider(c, T.depth, 0, 1.5, 0.01, () => d.stretch.depth ?? 0.7, v => { d.stretch.depth = v; }, v => num(v, 2));
-    slider(c, T.speckle, 0, 8, 0.1, () => d.stretch.blur ?? 2.5, v => { d.stretch.blur = v; }, v => num(v, 1) + ' px');
+    const sc = log(0.3, 400); slider(c, T.strength, 0, 1, 0.005, () => sc.to(clamp(d.stretch.k, 0.3, 400)), v => { d.stretch.k = sc.from(v); }, v => num(sc.from(v), sc.from(v) < 10 ? 1 : 0), true, '', sc.to(clamp(baseOf(d)?.stretch?.k ?? 10, 0.3, 400)), x => sc.to(clamp(x, 0.3, 400)));
+    slider(c, T.depth, 0, 1.5, 0.01, () => d.stretch.depth ?? 0.7, v => { d.stretch.depth = v; }, v => num(v, 2), true, '', baseOf(d)?.stretch?.depth ?? 0.7);
+    slider(c, T.speckle, 0, 8, 0.1, () => d.stretch.blur ?? 2.5, v => { d.stretch.blur = v; }, v => num(v, 1) + ' px', true, '', baseOf(d)?.stretch?.blur ?? 2.5);
   } else if (d.layout !== 'panels') chooser(c, T.balance, [['own', T.bal_own], ['stars', T.bal_stars], ['linked', T.bal_linked]], () => d.balance, v => { d.balance = v; });
-  const w = $('whole'), k = d.look; w.innerHTML = '';
+  // the whole picture's sliders, in three groups split by a thin line: light, colour, detail
+  const w = $('whole'), k = d.look, lk = { ...DEFAULT_LOOK, ...(baseOf(d)?.look || {}) }, sep = () => { const hr = document.createElement('hr'); hr.className = 'sep'; w.append(hr); }; w.innerHTML = '';
   const sg = v => (v > 0 ? '+' : '') + num(v, 2);
-  slider(w, T.bright, -2, 2, 0.01, () => k.bright ?? 0, v => { k.bright = v; }, sg);
-  slider(w, T.contrast, -0.6, 0.9, 0.01, () => k.contrast ?? 0, v => { k.contrast = v; }, sg);
-  slider(w, T.blackLevel, -0.1, 0.4, 0.002, () => k.black ?? 0, v => { k.black = v; }, v => num(v, 3));
-  slider(w, T.mid, 0.4, 2.5, 0.01, () => k.gamma ?? 1, v => { k.gamma = v; });
-  slider(w, T.colour, 0, 2.4, 0.01, () => k.sat ?? 1, v => { k.sat = v; });
-  slider(w, T.scnr, 0, 1, 0.01, () => k.scnr ?? 0, v => { k.scnr = v; });
-  slider(w, T.speckle, 0, 8, 0.1, () => k.chroma ?? 0, v => { k.chroma = v; }, v => num(v, 1) + ' px');
-  slider(w, T.soften, 0, 4, 0.05, () => k.soften ?? 0, v => { k.soften = v; }, v => num(v, 2) + ' px');
-  slider(w, T.sharp, 0, 2, 0.01, () => k.sharpen ?? 0, v => { k.sharpen = v; });
-  slider(w, T.sharpR, 0.5, 6, 0.1, () => k.sharpenR ?? 1.5, v => { k.sharpenR = v; }, v => num(v, 1) + ' px');
-  slider(w, T.local, 0, 1.5, 0.01, () => k.local ?? 0, v => { k.local = v; });
+  slider(w, T.bright, -2, 2, 0.01, () => k.bright ?? 0, v => { k.bright = v; }, sg, true, '', lk.bright);
+  slider(w, T.contrast, -0.6, 0.9, 0.01, () => k.contrast ?? 0, v => { k.contrast = v; }, sg, true, '', lk.contrast);
+  slider(w, T.blackLevel, -0.1, 0.4, 0.002, () => k.black ?? 0, v => { k.black = v; }, v => num(v, 3), true, '', lk.black);
+  slider(w, T.mid, 0.4, 2.5, 0.01, () => k.gamma ?? 1, v => { k.gamma = v; }, undefined, true, '', lk.gamma); sep();
+  slider(w, T.colour, 0, 2.4, 0.01, () => k.sat ?? 1, v => { k.sat = v; }, undefined, true, '', lk.sat);
+  slider(w, T.scnr, 0, 1, 0.01, () => k.scnr ?? 0, v => { k.scnr = v; }, undefined, true, '', lk.scnr);
+  slider(w, T.speckle, 0, 8, 0.1, () => k.chroma ?? 0, v => { k.chroma = v; }, v => num(v, 1) + ' px', true, '', lk.chroma); sep();
+  slider(w, T.soften, 0, 4, 0.05, () => k.soften ?? 0, v => { k.soften = v; }, v => num(v, 2) + ' px', true, '', lk.soften);
+  slider(w, T.sharp, 0, 2, 0.01, () => k.sharpen ?? 0, v => { k.sharpen = v; }, undefined, true, '', lk.sharpen);
+  slider(w, T.sharpR, 0.5, 6, 0.1, () => k.sharpenR ?? 1.5, v => { k.sharpenR = v; }, v => num(v, 1) + ' px', true, '', lk.sharpenR);
+  slider(w, T.local, 0, 1.5, 0.01, () => k.local ?? 0, v => { k.local = v; }, undefined, true, '', lk.local);
 }
 async function hist() {
   const cv = $('hist'), L = S.doc?.layers.find(x => x.id === S.openLayer); if (!cv || !L || S.mode !== 'pro') return;
@@ -487,6 +598,42 @@ async function hist() {
   if (pi) { x.fillStyle = '#fff'; x.fillRect(at(pi.black) - 1, 0, 2, H); x.fillRect(Math.min(W - 2, at(pi.white)) - 1, 0, 2, H); }
 }
 
+/** The picture's own size at the data's full resolution, as the worker lays it out (panels one beside or under the other). */
+function fullSize() {
+  const f = S.opened?.frame, d = S.doc; if (!f || !d) return [0, 0];
+  const n = d.layers.filter(l => l.on).length;
+  if (d.layout !== 'panels' || n < 2) return [f.W, f.H];
+  const gap = Math.max(2, Math.round(Math.max(f.W, f.H) / 300)), down = f.W >= f.H;
+  return down ? [f.W, f.H * n + gap * (n - 1)] : [f.W * n + gap * (n - 1), f.H];
+}
+/** The largest picture this device can draw and save: phones and Safari draw at most 16.7 million pixels. */
+const outCap = () => { const ua = navigator.userAgent, apple = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|Firefox|Android/.test(ua); return phone || apple || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 16e6 : 60e6; };
+/** W x H fitted inside a box of a by b, the box turned the way the picture is. */
+const fitIn = (W, H, a, b) => { const [bw, bh] = W >= H ? [Math.max(a, b), Math.min(a, b)] : [Math.min(a, b), Math.max(a, b)], k = Math.min(bw / W, bh / H); return [Math.round(W * k), Math.round(H * k)]; };
+/** The size of a saved picture: 'native' (each pixel one pixel of the data), a percentage, a use, or a width of one's own. */
+function sizeOf(key, W, H) {
+  if (!W || !H || key === 'native') return [W, H];
+  const p = /^p(\d+)$/.exec(key); if (p) return [Math.round(W * p[1] / 100), Math.round(H * p[1] / 100)];
+  if (key === 'ig') return [1080, Math.round(1080 * H / W)];
+  if (key === 'hd') return fitIn(W, H, 1920, 1080);
+  if (key === '4k') return fitIn(W, H, 3840, 2160);
+  if (key === 'a4') return fitIn(W, H, 3508, 2480);
+  if (key === 'a3') return fitIn(W, H, 4961, 3508);
+  if (key === 'custom') { const w = clamp(Math.round(S.customW || W), 16, 20000); return [w, Math.round(w * H / W)]; }
+  if (/^\d+$/.test(key)) return [+key, Math.round(+key * H / W)];          // an older choice: a width
+  return [W, H];
+}
+const mbOf = bytes => `${num(bytes / 1e6, bytes < 1e7 ? 1 : 0)} ${lang === 'fr' ? 'Mo' : 'MB'}`;
+/** Where the picture's data come from, said under the panel: the cube, its makers, when it was observed, the
+ *  wavelengths read for this picture and the very files (27 Nov 2026: "are you sure these are SPHEREx pictures?"). */
+function tellSource() {
+  if (!S.doc) return;
+  const zs = uniquePlanes(S.doc), tiles = S.opened?.tileIds || [];
+  $('srcline').textContent = fill(T.srcLine, { list: zs.map(z => num(WAVES[z], 2)).join(' · ') });
+  $('srcsum').textContent = fill(T.srcFiles, { n: tiles.length });
+  $('srcfiles').innerHTML = tiles.map(t => `<li><a href="${SOURCES[0]}/Norder5/Dir${Math.floor(t / 10000) * 10000}/Npix${t}_cube.fits" target="_blank" rel="noopener">Npix${t}_cube.fits</a></li>`).join('');
+  $('srcbox').hidden = !zs.length;
+}
 function buildOut() {
   const host = $('out'), d = S.doc; host.innerHTML = '';
   const text = (label, get, set, max = 60, key = '') => {
@@ -502,15 +649,29 @@ function buildOut() {
     l.append(c, document.createTextNode(label)); ch.append(l);
   }
   host.append(ch);
-  const W = S.pic?.W && S.full ? S.pic.W : (S.opened ? (d.layout === 'panels' && S.opened.frame.W < S.opened.frame.H ? S.opened.frame.W * d.layers.filter(l => l.on).length : S.opened.frame.W) : 0);
-  const sizes = [['native', `${T.sizeNative}${W ? ` (${W} px)` : ''}`], ['1080', '1080 px'], ['2160', '2160 px'], ['3840', '3840 px (4K)']];
-  chooser(host, T.size, sizes, () => S.size, v => { S.size = v; });
   const fmts = [['jpg', T.fmt_jpg], ['png', T.fmt_png]];
   if (S.mode === 'pro' && !inApp) fmts.push(['png16', T.fmt_png16], ['tiff16', T.fmt_tiff16], ['fits', T.fmt_fits], ['fitsall', T.fmt_fitsall], ['json', T.fmt_json]);
   if (!fmts.some(f => f[0] === S.format)) S.format = 'jpg';
   chooser(host, T.format, fmts, () => S.format, v => { S.format = v; }, 'format');
-  if (S.mode === 'pro' && S.format === 'jpg') slider(host, T.jpgQ, 0.5, 1, 0.01, () => S.jpgQ, v => { S.jpgQ = v; }, v => Math.round(v * 100) + ' %');
   const raw = ['png16', 'tiff16', 'fits', 'fitsall', 'json'].includes(S.format);
+  if (!raw) {
+    // the size: the data's own (every pixel of the picture one pixel of the cube), enlarged, or made for a use; each with its pixels
+    const [W, H] = fullSize(), cap = outCap(), say = (k, name) => { const [w, h] = sizeOf(k, W, H); return k === 'native' || (w * h <= cap && w >= 16) ? [k, `${name} · ${w} × ${h}`] : null; };
+    const sizes = [say('native', T.sizeNative), ...[150, 200, 300, 400].map(n => say('p' + n, fill(T.pct, { n }))), say('ig', 'Instagram'), say('hd', 'Full HD'), say('4k', '4K'), say('a4', T.sz_a4), say('a3', T.sz_a3), S.mode === 'pro' ? ['custom', T.sz_custom] : null].filter(Boolean);
+    if (!sizes.some(x => x[0] === S.size)) S.size = 'native';
+    chooser(host, T.size, sizes, () => S.size, v => { S.size = v; }, 'size');
+    if (S.size === 'custom') {
+      const wmax = Math.max(16, Math.floor(Math.sqrt(cap * W / Math.max(1, H)))), f = document.createElement('div'), id = `c${Math.random().toString(36).slice(2, 9)}`;
+      f.className = 'ctl inline'; f.dataset.k = 'width'; f.innerHTML = `<label for="${id}"></label><input id="${id}" type="text" inputmode="numeric" autocomplete="off">`;
+      f.children[0].textContent = T.widthPx; f.children[1].value = String(sizeOf('custom', W, H)[0]);
+      f.children[1].onchange = e => { const v = parseFloat(e.target.value.replace(/\s/g, '').replace(',', '.')); if (isFinite(v)) S.customW = clamp(Math.round(v), 16, wmax); buildOut(); };
+      host.append(f);
+    }
+    const [w2, h2] = sizeOf(S.size, W, H);
+    if (w2 > W) { const p = document.createElement('p'); p.className = 'fine'; p.textContent = T.upNote; host.append(p); }
+    if (S.mode === 'pro' && (w2 !== W || h2 !== H)) chooser(host, T.interp, [['cubic', T.i_cubic], ['linear', T.i_linear], ['none', T.i_none]], () => S.interp || 'cubic', v => { S.interp = v; }, 'interp');
+    if (S.mode === 'pro' && S.format === 'jpg') slider(host, T.jpgQ, 0.5, 1, 0.01, () => S.jpgQ, v => { S.jpgQ = v; }, v => fill(T.pct, { n: Math.round(v * 100) }), true, '', 0.92, x => x / 100);
+  }
   $('rawnote').hidden = !raw; $('copy').hidden = raw || !(navigator.clipboard && window.ClipboardItem);
   $('share').hidden = !navigator.share;
 }
@@ -520,7 +681,7 @@ function build() {
   marks('kind2', 'r', S.doc.recipe); marks('quality2', 'q', S.doc.quality); $('quality2').hidden = S.doc.recipe === 'own';
   const f = S.doc.frame; $('openmap').href = `./?ra=${f.ra.toFixed(5)}&dec=${f.dec.toFixed(5)}&fov=${Math.max(f.w, f.h).toFixed(2)}&lang=${lang}`;
   if (S.mode === 'basic') buildBasic(); else buildPro();
-  buildOut();
+  buildOut(); tellSource();
 }
 function setMode(m) {
   S.mode = m; document.body.dataset.mode = m; for (const b of $('mode').children) b.setAttribute('aria-pressed', b.dataset.m === m);
@@ -573,13 +734,13 @@ async function makeFile() {
   // an 8-bit picture: the full frame, brought to the size asked for, with the words drawn on it
   const p = await ask({ t: 'render', doc: d, target: 'full' }); if (p.missing) throw new Error('missing');
   const src = document.createElement('canvas'); src.width = p.W; src.height = p.H; src.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.W, p.H), 0, 0);
-  const k = S.size === 'native' ? 1 : +S.size / p.W, W = Math.round(p.W * k), H = Math.round(p.H * k);
+  const [W, H] = sizeOf(S.size, p.W, p.H), how = S.mode === 'pro' ? S.interp || 'cubic' : 'cubic';
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
-  x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(src, 0, 0, W, H);
+  x.imageSmoothingEnabled = how !== 'none' || W < p.W; x.imageSmoothingQuality = how === 'linear' ? 'low' : 'high'; x.drawImage(src, 0, 0, W, H);
   try { await document.fonts.ready; } catch { /* the fallback faces will do */ }
   drawMarks(x, W, H, { doc: d, rects: p.rects, picW: p.W, picH: p.H, name: S.name, T, lang });
   const type = S.format === 'png' ? 'image/png' : 'image/jpeg', blob = await new Promise(done => cv.toBlob(done, type, S.jpgQ));
-  return { blob, name: `${base}.${S.format === 'png' ? 'png' : 'jpg'}` };
+  return { blob, name: `${base}.${S.format === 'png' ? 'png' : 'jpg'}`, W, H };
 }
 const outSay = t => { $('outsay').textContent = t; };
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 8000); }
@@ -598,7 +759,7 @@ async function take(how) {
       if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], text }); outSay(''); count(`share-${S.format}`); S.took = (S.took || 0) + 1; return; }
       if (navigator.share) { await navigator.share({ text, url: `${location.origin}${location.pathname}?${toQuery(S.doc)}` }); outSay(''); count('share-link'); return; }
     }
-    download(f.blob, f.name); outSay(fill(T.saved, { name: f.name })); count(`save-${S.format}`); S.took = (S.took || 0) + 1;
+    download(f.blob, f.name); outSay(`${fill(T.saved, { name: f.name })} · ${f.W ? `${f.W} × ${f.H} · ` : ''}${mbOf(f.blob.size)}`); count(`save-${S.format}`); S.took = (S.took || 0) + 1;
   } catch (e) { outSay(e?.name === 'AbortError' ? '' : String(e?.message || e)); }
 }
 

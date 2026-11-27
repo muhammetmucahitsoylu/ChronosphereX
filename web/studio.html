@@ -82,10 +82,12 @@
         <label><span id="l_turn">Which way is up</span><select id="turn"></select></label>
         <label><span id="l_map">Map shown</span><select id="maplayer"></select></label>
       </div>
+      <p class="fine" id="mapnote" hidden></p>
       <p class="says" id="framesays" role="status"></p>
       <h2 id="h_quality">Quality</h2>
       <div class="seg" id="quality" role="group"></div>
       <p class="fine" id="qsay"></p>
+      <p class="fine" id="qall"></p>
       <h2 id="h_kind">What kind of picture</h2>
       <div class="cards" id="kind" role="radiogroup"></div>
       <!-- Pro's fourth kind, "your own wavelengths": the 102 of them to press -->
@@ -129,6 +131,11 @@
         <div class="rowbtns big"><button type="button" class="cta" id="share">Share</button><button type="button" class="cta" id="save">Save</button><button type="button" class="ghost" id="copy">Copy</button><button type="button" class="ghost" id="link">Copy link</button></div>
         <p class="says" id="outsay" role="status"></p>
         <p class="fine" id="rawnote" hidden></p>
+      </section>
+      <!-- where the data come from: the cube, its makers, the wavelengths and the very files read -->
+      <section class="src" id="srcbox" hidden>
+        <p class="fine" id="srcline"></p>
+        <details><summary id="srcsum"></summary><ul id="srcfiles"></ul></details>
       </section>
     </div>
   </aside>
