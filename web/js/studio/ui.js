@@ -83,8 +83,13 @@ const shapeOf = () => (S.shape === 'free' ? S.ratio : SHAPES.find(s => s[0] === 
 /** A kind of picture as layers: one of the ready ones, or (Pro) the wavelengths chosen by hand. */
 const known = r => r === 'own' || r in RECIPES, recipeOf = (r, q) => (r === 'own' ? ownRecipe(S.own) : RECIPES[r](q));
 let boxW = 0, boxH = 0;
+/** How wide the frame may be: on a phone, clear of the zoom buttons at the map's right edge (12 px + 46 px + a gap, on
+ *  both sides so it stays in the middle); a frame wider than that put its corner grip under the + button. */
+const frameRoomW = w => (narrow ? Math.max(160, w - 132) : w * 0.74);
+/** How high: on a phone, clear of the search box at the top (12 px + 46 px + a gap, both sides likewise). */
+const frameRoomH = h => (narrow ? Math.max(120, Math.min(h * 0.6, h - 136)) : h * (h < 420 ? 0.66 : 0.72));
 function layFrame() {
-  const st = $('stage').getBoundingClientRect(), a = shapeOf(), roomW = st.width * (narrow ? 0.86 : 0.74), roomH = st.height * (narrow ? 0.6 : st.height < 420 ? 0.66 : 0.72);
+  const st = $('stage').getBoundingClientRect(), a = shapeOf(), roomW = frameRoomW(st.width), roomH = frameRoomH(st.height);
   boxW = Math.max(60, Math.round(Math.min(roomW, roomH * a) * (S.frameK || 1))); boxH = Math.round(boxW / a);
   $('frame').style.width = boxW + 'px'; $('frame').style.height = boxH + 'px';
 }
@@ -480,7 +485,7 @@ function wireFrameGrips() {
       e.preventDefault(); e.stopPropagation();
       try { g.setPointerCapture(e.pointerId); } catch { /* an old engine */ }
       const st = $('stage').getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
-      const roomW = st.width * (narrow ? 0.86 : 0.74), roomH = st.height * (narrow ? 0.6 : st.height < 420 ? 0.66 : 0.72);
+      const roomW = frameRoomW(st.width), roomH = frameRoomH(st.height);
       const move = ev => {
         const w = Math.max(60, 2 * Math.abs(ev.clientX - cx)), h = Math.max(60, 2 * Math.abs(ev.clientY - cy));
         if (S.shape === 'free') { S.ratio = clamp(w / h, 0.2, 5); }
