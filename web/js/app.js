@@ -2378,7 +2378,7 @@ function renderMovers() {
   const row = (t, i) => {
     const b = t.body, v = t.sightings, one = v.length === 1, on = S.sel?.trail === t || (b?.own && S.sel?.follow);
     const what = (b?.own ? G`found by this search too` : b?.name ? `${b.kind}${b.v === b.v ? G`, magnitude ${fx(b.v, 1)}` : ''}`
-      : b?.none ? G`no catalogued body is there` : b?.unknown ? G`not looked up: no connection` : G`looking it up…`) + (t.expected ? G` · the one this field was picked for` : '');
+      : b?.none ? G`no catalogued body is there` : b?.unknown ? (navigator.onLine === false ? G`not looked up: no connection` : G`not looked up: the catalogue service did not answer`) : G`looking it up…`) + (t.expected ? G` · the one this field was picked for` : '');
     const seen = one ? G`${Lang.N(v[0].hits.length, 'image')} within ${Lang.N(Math.max(1, Math.round((v[0].t1 - v[0].t0) * 1440)), 'minute')}, ${C.fmtDate(v[0].mjd, true)}`
       : G`${Lang.N(v.length, 'stop')}, ${span(t.t0, t.t1)} · ${arc(t.path)} at ${pace(t.rate)}`;
     return `<li><button type="button" data-body="${i}" aria-pressed="${!!on}">${esc(bodyLabel(t))}</button><span>${what} · ${seen}</span></li>`;
@@ -2846,7 +2846,7 @@ async function openBody(text, when = null, view = {}, known = null) {
   const led = followedNamed(text);          // an address written before the body became a showcase object, or a name written in full
   if (led) { openTarget(led); return true; }
   const tok = ++S.openTok, say = (words, ms) => { if (tok === S.openTok) note(words, ms); };
-  say(T('note.lookingUpName', { name: text }));
+  say(T('note.lookingUpName', { name: Info.localName(text) }));
   let b, visits, fine, v, o, name;
   try {
     b = known || await Bodies.lookup(text, SURVEY0, surveyDays());
@@ -2856,7 +2856,10 @@ async function openBody(text, when = null, view = {}, known = null) {
     say(G`Looking through SPHEREx's exposures for ${name}…`);
     visits = await Bodies.visitsOf(b.rows);
     if (tok !== S.openTok) return true;
-    if (!visits.length) { say(G`SPHEREx has not had ${name} in view in the exposures published so far.`, 9000); return true; }
+    if (!visits.length) {          // Mercury and Venus never: SPHEREx looks 70 to 110 degrees from the Sun, they stay within 28 and 47
+      say(G`SPHEREx has not had ${name} in view in the exposures published so far.` + (/^(Mercury|Venus)$/.test(b.name) ? ' ' + G`This planet never gets far enough from the Sun: SPHEREx looks at the sky roughly 70 to 110 degrees away from the Sun.` : ''), 12000);
+      return true;
+    }
     v = (when && visits.find(x => when >= x.t0 - 1 && when <= x.t1 + 1)) || [...visits].sort((p, q) => q.inField - p.inField || q.t1 - p.t1)[0];
     // its path through that field hour by hour (a fast one: every twenty minutes), with its distance
     const quick = v.rate > 60;
@@ -2864,13 +2867,15 @@ async function openBody(text, when = null, view = {}, known = null) {
     if (!fine) throw new Error('no path');
   } catch (e) { console.error(e); say(orbitsDown(), 9000); return true; }
   if (tok !== S.openTok) return true;
-  const at = Bodies.pathAt(fine.rows), p0 = at(v.from), p1 = at(v.to), dwarf = Info.bodyName(o) === b.name && o.num;
+  const at = Bodies.pathAt(fine.rows), p0 = at(v.from), p1 = at(v.to), dwarf = Info.bodyName(o) === Info.localName(b.name) && o.num;
   const body = { number: o.num, id: o.num || b.code || b.name, code: b.code, kind: b.kind, query: text, mag: v.v, sun: v.sun, earth: v.delta, from: v.from, to: v.to,
     moved: p0 && p1 ? sepArcsec(p0.ra, p0.dec, p1.ra, p1.dec) : 0, source: 'Miriade (IMCCE)', visits: visits.map(x => ({ mjd: x.mjd, t0: x.from, t1: x.to, stops: x.inField })) };
   const wiki = b.kind === 'planet' ? [`${b.name} (planet)`, b.name] : b.kind === 'comet' ? [b.name, `Comet ${b.name.replace(/^\S+\//, '')}`] : dwarf ? [`${b.name} (dwarf planet)`, b.name] : o.num ? [`${o.num} ${b.name}`] : [b.name];
   say(''); $('q').value = name;
   go({ ra: v.ra, dec: v.dec, size: view.size || v.size, mode: 'trail', ...(view.det ? { det: view.det } : {}), ...(view.mode ? { mode: view.mode } : {}),
-    track: { name, eph: fine.rows.map(r => [+r.mjd.toFixed(5), +r.ra.toFixed(6), +r.dec.toFixed(6), +r.delta.toFixed(6)]), body }, info: { name, type: Info.bodyKindEn(o), body: true, wiki } });          // the kind in English: the header says it in the language in use
+    track: { name, eph: fine.rows.map(r => [+r.mjd.toFixed(5), +r.ra.toFixed(6), +r.dec.toFixed(6), +r.delta.toFixed(6)]), body }, info: { name, type: Info.bodyKindEn(o), body: true, wiki } });
+  // Jupiter and Saturn are far brighter than anything SPHEREx is made for: the exposures show them, the numbers cannot
+  if (/^(Jupiter|Saturn)$/.test(b.name)) setTimeout(() => say(G`${name} is too bright for SPHEREx: its detectors saturate, so the planet's own light cannot be measured here.`, 14000), 900);          // the kind in English: the header says it in the language in use
   return true;
 }
 

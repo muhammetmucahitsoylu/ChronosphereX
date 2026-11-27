@@ -116,6 +116,8 @@ export const ITEMS = {
   atlas: { do: { target: '3i-atlas' }, words: ['3i atlas', 'atlas', 'c/2025 n1'] },
   jupiter: { do: { body: 'Jupiter' }, kind: 'planet', name: L6('Jupiter', 'Jüpiter', 'Jupiter', 'Jupiter', 'Júpiter', 'Jowisz'), words: [] },
   saturn: { do: { body: 'Saturn' }, kind: 'planet', name: L6('Saturn', 'Satürn', 'Saturn', 'Saturne', 'Saturno', 'Saturn'), words: [] },
+  uranus: { do: { body: 'Uranus' }, kind: 'planet', name: L6('Uranus', 'Uranüs', 'Uranus', 'Uranus', 'Urano', 'Uran'), words: ['uranus', 'uranüs', 'urano', 'uran'] },
+  neptune: { do: { body: 'Neptune' }, kind: 'planet', name: L6('Neptune', 'Neptün', 'Neptun', 'Neptune', 'Neptuno', 'Neptun'), words: ['neptune', 'neptün', 'neptun', 'neptuno'] },
   hunt: { do: { sheet: 'hunt' }, kind: 'page', words: ['asteroid', 'asteroit', 'asteroids', 'asteroitler', 'göktaşı', 'planetoida', 'astéroïde', 'asteroide', 'asteroiden'] },
   planetx: { do: { sheet: 'planetx' }, kind: 'page', words: ['planet x', 'x gezegeni', 'planet nine', 'dokuzuncu gezegen', 'planète x', 'planeta x', 'planeta dziewiąta'] },
   game: { do: { href: 'play.html' }, kind: 'page', name: L6('Game: find the dot that moved', 'Oyun: hareket eden noktayı bul', 'Spiel: Finde den Punkt, der sich bewegt hat', 'Jeu : trouvez le point qui a bougé', 'Juego: encuentra el punto que se movió', 'Gra: znajdź punkt, który się przesunął'), words: ['oyun', 'game', 'spiel', 'jeu', 'juego', 'gra'] },
@@ -141,7 +143,7 @@ export const TOPICS = [
     say: L6('Planets, comets and asteroids move across the sky: each opens where and when SPHEREx had it in view.', 'Gezegenler, kuyruklu yıldızlar ve asteroitler gökte yer değiştirir: her biri, SPHEREx’in onu gördüğü yerde ve günde açılır.',
       'Planeten, Kometen und Asteroiden wandern über den Himmel: Jeder öffnet sich dort und dann, wo SPHEREx ihn im Blick hatte.', 'Planètes, comètes et astéroïdes se déplacent dans le ciel : chacun s’ouvre là et au moment où SPHEREx l’a vu.',
       'Planetas, cometas y asteroides se mueven por el cielo: cada uno se abre donde y cuando SPHEREx lo tuvo a la vista.', 'Planety, komety i planetoidy wędrują po niebie: każda otwiera się tam i wtedy, gdzie SPHEREx ją widział.'),
-    items: ['pluto', 'atlas', 'jupiter', 'saturn', 'hunt', 'planetx'] },
+    items: ['uranus', 'neptune', 'pluto', 'atlas', 'hunt', 'planetx'] },          // Jupiter and Saturn: too bright for SPHEREx (they still answer by name)
   { id: 'nebulae', name: L6('Nebulae', 'Bulutsular', 'Nebel', 'Nébuleuses', 'Nebulosas', 'Mgławice'),
     words: ['nebula', 'nebulae', 'bulutsu', 'nebula', 'nebel', 'nébuleuse', 'nebulosa', 'mgławica', 'mgławice', 'star formation', 'yıldız oluşumu', 'yıldız doğumu'],
     say: L6('Clouds of gas and dust where stars are born; infrared sees into the dust that blocks visible light.', 'Yıldızların doğduğu gaz ve toz bulutları; kızılötesi, görünür ışığı kesen tozun içini görür.',

@@ -2,7 +2,7 @@
 // one-click links that open the same coordinates in independent tools.
 
 import { propagate, epochNow } from './core.js';
-import { G } from './lang.js';
+import { G, lang } from './lang.js';
 
 const SIMBAD_TAP = [
   'https://simbad.cds.unistra.fr/simbad/sim-tap/sync',
@@ -362,8 +362,17 @@ export function bodyLinks(id) {
 }
 /** A planet or one of its moons: SkyBoT numbers them too (7 is Uranus, 703 Titania), but those are not the numbers of minor planets. */
 export const isMajor = o => /^(planet|satellite)/i.test(o?.cls || '');
-/** The name people know a body by: "Pluto", "(6747) Ozegahara", "2015 TX457", "Titania". */
-export const bodyName = o => (DWARFS[o.num] ? DWARFS[o.num] : o.num && !isMajor(o) ? `(${o.num}) ${o.name}` : o.name);
+// The planets and dwarf planets as each language calls them (Wikipedia's titles; order tr, de, fr, es, pl): Miriade and
+// SkyBoT answer in English, and SkyBoT names some moons in French ("Europe" is Europa).
+const LOCAL_NAMES = { Mercury: ['Merkür', 'Merkur', 'Mercure', 'Mercurio', 'Merkury'], Venus: ['Venüs', 'Venus', 'Vénus', 'Venus', 'Wenus'], Mars: ['Mars', 'Mars', 'Mars', 'Marte', 'Mars'],
+  Jupiter: ['Jüpiter', 'Jupiter', 'Jupiter', 'Júpiter', 'Jowisz'], Saturn: ['Satürn', 'Saturn', 'Saturne', 'Saturno', 'Saturn'], Uranus: ['Uranüs', 'Uranus', 'Uranus', 'Urano', 'Uran'],
+  Neptune: ['Neptün', 'Neptun', 'Neptune', 'Neptuno', 'Neptun'], Pluto: ['Plüton', 'Pluto', 'Pluton', 'Plutón', 'Pluton'], Ceres: ['Ceres', 'Ceres', 'Cérès', 'Ceres', 'Ceres'] };
+const MOON_EN = { Europe: 'Europa', 'Ganymède': 'Ganymede', Encelade: 'Enceladus', 'Téthys': 'Tethys', 'Dioné': 'Dione', 'Rhéa': 'Rhea', Japet: 'Iapetus', 'Hypérion': 'Hyperion', 'Phœbé': 'Phoebe', 'Phébé': 'Phoebe', 'Néréide': 'Nereid' };
+const LI = ['tr', 'de', 'fr', 'es', 'pl'].indexOf(lang);
+/** A planet's, a dwarf planet's or a moon's name in the language in use; any other name as it is. */
+export const localName = n => { const e = MOON_EN[n] || n; return LI >= 0 && LOCAL_NAMES[e] ? LOCAL_NAMES[e][LI] : e; };
+/** The name people know a body by: "Pluto" ("Plüton" in Turkish), "(6747) Ozegahara", "2015 TX457", "Titania". */
+export const bodyName = o => localName(DWARFS[o.num] ? DWARFS[o.num] : o.num && !isMajor(o) ? `(${o.num}) ${o.name}` : o.name);
 /** What kind of body it is, in plain words, from the class SkyBoT gives ("MB>Outer", "KBO>Resonant>3:2", "NEA>Apollo"…). */
 export function bodyKindEn(o) {
   const c = o.cls;
