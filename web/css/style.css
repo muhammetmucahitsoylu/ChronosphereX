@@ -451,6 +451,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 :is(#motion, #scan, #movers, #lccheck) > p.verdict.bullets { border-left: 0; padding-left: 0; }
 /* the guide (guide.js): a card with a sentence or two and the thing it is about ringed; the visitor does the step */
 .rg { position: fixed; z-index: 70; left: 16px; bottom: 16px; width: min(380px, calc(100vw - 32px)); box-sizing: border-box; background: color-mix(in srgb, var(--surface) 96%, transparent); border: 1px solid var(--ember); border-radius: 14px; padding: 11px 14px 12px; box-shadow: 0 18px 50px #000c; color: var(--ink); }
+.rg.attop { top: 108px; bottom: auto; }          /* while the map is the thing to touch, the card keeps clear of the colour bar at the bottom */
 .rg header { display: flex; align-items: center; gap: 10px; }
 .rg header b { flex: 1; min-width: 0; font: 600 12px/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ember); }
 .rg header span { font: 500 12px var(--mono); color: var(--ink-3); white-space: nowrap; }
