@@ -11,6 +11,7 @@ import * as Lang from './lang.js';
 import * as Years from './years.js';
 import * as Point from './point.js';
 import * as Names from './names.js';
+import * as Topics from './topics.js';
 import { declination } from './magnet.js';
 
 const T = Lang.t, G = Lang.G, fx = Lang.fx, dn = Lang.dn;          // the words of the front page, the tour and the walk through the panel, in the language in use
@@ -2924,12 +2925,145 @@ function syncUrl() {
   history.replaceState(history.state, '', '?' + p.toString());
 }
 
+// ------------------------------------------------------------ the search box's list: topics and names
+// Someone who knows no name types "galaksi" or "kara delik", or nothing at all (27 Nov 2026: 32 of 40 such Turkish
+// searches found nothing). The list under the box offers ready-made searches (topics) while it is empty, the things that
+// fit what is typed as it is typed, and always the archives' own search (names, catalogues, coordinates).
+const Finder = (() => {
+  const box = $('finder'), q = $('q');
+  let rows = [], at = -1, inTopic = null;
+  const L = () => Lang.lang, W = k => Topics.say(Topics.WORDS[k], L());
+  const targetOf = slug => S.targets.find(t => t.slug === slug);
+  const sheetName = id => (id === 'planetx' ? T('tour.px.title') : (NAV && NAV[id]) || id);
+  const usable = id => { const d = Topics.ITEMS[id]?.do; return !!d && (!d.target || !!targetOf(d.target)); };
+  const nameOfItem = id => {
+    const d = Topics.ITEMS[id].do;
+    if (d.target) { const t = targetOf(d.target); return t ? nameOf(t) : id; }
+    if (d.sheet) return sheetName(d.sheet);
+    return Topics.say(Topics.ITEMS[id].name, L());
+  };
+  const lineOf = id => {
+    const it = Topics.ITEMS[id], d = it.do;
+    if (d.target) { const t = targetOf(d.target); return t?.type ? G(t.type) : ''; }
+    return [Topics.kindWord(it.kind, L()), it.note ? Topics.say(it.note, L()) : ''].filter(Boolean).join(' · ');
+  };
+  // the site's own names of its showcase objects and pages, in the language in use, to be found by too
+  const extra = () => {
+    const o = {};
+    for (const [id, it] of Object.entries(Topics.ITEMS)) {
+      const d = it.do;
+      if (d.target) { const t = targetOf(d.target); if (t) o[id] = [nameOf(t), t.label]; }
+      else if (d.sheet) o[id] = [sheetName(d.sheet)];
+    }
+    return o;
+  };
+  const shown = () => !box.hidden;
+  function hide() { box.hidden = true; at = -1; q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); }
+  function row(r, i, chip) {
+    const id = `fnd${i}`;
+    if (r.kind === 'topic') {
+      const t = Topics.topic(r.id), name = esc(Topics.say(t.name, L()));
+      return chip ? `<button type="button" role="option" id="${id}" class="fchip" data-i="${i}">${name}</button>`
+        : `<button type="button" role="option" id="${id}" class="frow topic" data-i="${i}"><b>${name}</b><span>${esc(W('count').replace('{n}', t.items.filter(usable).length))}</span></button>`;
+    }
+    if (r.kind === 'search') return `<button type="button" role="option" id="${id}" class="frow plain" data-i="${i}"><b>${esc(W('searchFor').replace('{q}', r.text))}</b></button>`;
+    return `<button type="button" role="option" id="${id}" class="frow" data-i="${i}"><b>${esc(nameOfItem(r.id))}</b><span>${esc(lineOf(r.id))}</span></button>`;
+  }
+  function render() {
+    if (pointOn()) { hide(); return; }          // the phone held up: the box finds things in the sky above, with its own list
+    const text = q.value.trim(), home = !text && !inTopic;
+    let head = '';
+    if (inTopic) {
+      const t = Topics.topic(inTopic);
+      rows = t.items.filter(usable).map(id => ({ kind: 'item', id }));
+      head = `<button type="button" class="fback" data-back>← ${esc(W('back'))}</button><p class="ftitle">${esc(Topics.say(t.name, L()))}</p><p class="fsay">${esc(Topics.say(t.say, L()))}</p>`;
+    } else if (home) {
+      rows = Topics.TOPICS.map(t => ({ kind: 'topic', id: t.id }));
+      head = `<p class="ftitle">${esc(W('ask'))}</p>`;
+    } else {
+      rows = Topics.find(text, L(), extra()).filter(r => r.kind === 'topic' || usable(r.id));
+      rows.push({ kind: 'search', text });
+    }
+    box.innerHTML = head + `<div class="${home ? 'fchips' : 'flist'}">${rows.map((r, i) => row(r, i, home)).join('')}</div>` + (home ? `<p class="fhint">${esc(W('hint'))}</p>` : '');
+    box.setAttribute('aria-label', W('label'));
+    box.hidden = false; at = -1; q.setAttribute('aria-expanded', 'true'); q.removeAttribute('aria-activedescendant');
+    box.querySelector('[data-back]')?.addEventListener('click', () => { inTopic = null; render(); refocus(); });
+  }
+  // a mouse or the keys keep the typing in the box; a finger does not (the keyboard would cover the list)
+  let byTouch = false;
+  const refocus = () => { if (!byTouch) q.focus({ preventScroll: true }); };
+  box.addEventListener('pointerdown', e => { byTouch = e.pointerType === 'touch'; if (!byTouch) e.preventDefault(); });
+  box.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) act(+b.dataset.i); });
+  function mark(i) {
+    at = i; box.querySelectorAll('[role=option]').forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
+    if (i >= 0) { q.setAttribute('aria-activedescendant', `fnd${i}`); $(`fnd${i}`)?.scrollIntoView({ block: 'nearest' }); } else q.removeAttribute('aria-activedescendant');
+  }
+  function act(i) {
+    const r = rows[i]; if (!r) return;
+    if (r.kind === 'topic') { inTopic = r.id; render(); refocus(); count('topic-' + r.id); return; }
+    if (r.kind === 'search') { hide(); submitSearch(); return; }
+    open(r.id);
+  }
+  function open(id) {
+    const d = Topics.ITEMS[id].do, name = nameOfItem(id);
+    hide(); inTopic = null; q.value = name; count('item-' + id);
+    afterSearchCloses(() => {
+      if (d.sky) go({ ra: d.sky[0], dec: d.sky[1], size: fovPick(), called: name, mapFov: d.sky[2] });
+      else if (d.name) search(d.name, name);
+      else if (d.target) openTarget(targetOf(d.target));
+      else if (d.body) openBody(d.body);
+      else if (d.sheet) openSheet(d.sheet);
+      else if (d.href) location.href = d.href + (L() !== 'en' ? `?lang=${L()}` : '');
+    });
+  }
+  const count = path => { try { window.goatcounter?.count?.({ path: `search-${path}`, title: path, event: true }); } catch { /* blocked: fine */ } };
+  q.addEventListener('focus', () => { if (!shown()) render(); });
+  q.addEventListener('input', () => { inTopic = null; render(); });
+  q.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' && !shown()) { e.preventDefault(); render(); return; }
+    if (!shown()) return;
+    const n = rows.length;
+    if (e.key === 'ArrowDown') { e.preventDefault(); mark(Math.min(n - 1, at + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); mark(Math.max(-1, at - 1)); }
+    else if (e.key === 'Enter') {
+      // a picked line; or, typed, a topic or a thing that fits the words well (not coordinates: those go to the archives' search)
+      const strong = !inTopic && q.value.trim() && !C.parseCoords(q.value) && rows[0] && rows[0].kind !== 'search' && Topics.find(q.value, L(), extra())[0]?.score >= 60;          // 60: a slip of a letter too ("glaksi")
+      if (at >= 0 || strong) { e.preventDefault(); e.stopImmediatePropagation(); act(at >= 0 ? at : 0); }
+      else hide();
+    } else if (e.key === 'Escape') {
+      if (inTopic) { e.preventDefault(); e.stopImmediatePropagation(); inTopic = null; render(); } else hide();
+    }
+  });
+  // the list closes when something else is pressed, or when the keys leave the search for another part of the page
+  document.addEventListener('pointerdown', e => {
+    if ($('search').contains(e.target) || $('searchbtn').contains(e.target)) return;
+    if (shown()) hide();
+    if ($('top').classList.contains('searching') && document.activeElement !== q) searchBox(false);
+  }, true);
+  $('search').addEventListener('focusout', e => { if (e.relatedTarget && !$('search').contains(e.relatedTarget)) hide(); });
+  return { hide, render, shown, open };
+})();
+function submitSearch() { const text = $('q').value; Finder.hide(); afterSearchCloses(() => { if (pointOn() && pointFind) pointFind(text); else search(text); }); }
+/**
+ * Close the phone's search and then do what was asked. Its box was a step in the browser's history (Back closes it);
+ * closing it goes one step back, and the page's address must be written after that step, not before: a place opened
+ * at once (a topic's line, coordinates) would otherwise keep the address of the view before it (27 Nov 2026).
+ */
+function afterSearchCloses(fn) {
+  const was = $('top').classList.contains('searching');
+  searchBox(false); $('q').blur();
+  if (!was || !backOn) { fn(); return; }
+  let done = false;
+  const run = () => { if (done) return; done = true; window.removeEventListener('popstate', run); fn(); };
+  window.addEventListener('popstate', run); setTimeout(run, 400);
+}
+
 // ------------------------------------------------------------ events
-$('search').onsubmit = e => { e.preventDefault(); searchBox(false); $('q').blur(); if (pointOn() && pointFind) pointFind($('q').value); else search($('q').value); };          // the phone held up: found in the sky above
+$('search').onsubmit = e => { e.preventDefault(); submitSearch(); };          // the phone held up: found in the sky above
 // Phones: the search box opens from its button, across the top of the map, and steps aside again when it is left.
 function searchBox(on) { $('top').classList.toggle('searching', on); $('searchbtn').setAttribute('aria-expanded', String(on)); }
 $('searchbtn').onclick = () => { closeMenu(); searchBox(true); $('q').focus(); };
-$('search').addEventListener('focusout', e => { if (!$('search').contains(e.relatedTarget)) searchBox(false); });
+$('search').addEventListener('focusout', e => { if (!$('search').contains(e.relatedTarget) && $('finder').hidden) searchBox(false); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Escape' && $('top').classList.contains('searching')) $('q').blur(); });
 $('fov').onchange = () => { if (S.grid || S.ra) go({ ra: S.ra, dec: S.dec, size: +$('fov').value, target: S.target, track: S.track, hunt: S.hunt, info: S.info?.body || S.info?.hunt ? S.info : null }); };
 $('play').onclick = () => { S.wantPlay = false; S.playing ? stop() : play(); };
@@ -3812,6 +3946,7 @@ async function pointStart() {
   const placeholder = $('q').placeholder, suggestions = $('suggest').innerHTML;
   $('q').placeholder = T('find.placeholder');
   $('suggest').innerHTML = [...new Set(all.filter(t => t.kind !== 'target').map(t => t.name))].map(n => `<option value="${esc(n)}">`).join('');
+  $('q').setAttribute('list', 'suggest'); Finder.hide();
   if (findLater) { const w = findLater; findLater = ''; pointFind(w); }
   else if (!findHinted) { findHinted = true; setTimeout(() => { if (pointOn() && !found && $('mapnote').textContent === T('point.on')) note(pointSaid = T('find.hint'), 9000); }, 8500); }          // takes the place of the first words only, never of what a press just said
   layer.onclick = e => {
@@ -3939,7 +4074,7 @@ async function pointStart() {
   navigator.wakeLock?.request('screen').then(lock => { if (pointOn()) pointLock = lock; else lock.release(); }).catch(() => { /* the screen may dim */ });
   pointStop = () => {
     cancelAnimationFrame(raf); quit(); layer.onclick = null; layer.textContent = ''; ring.classList.remove('on'); $('aimname').textContent = $('aimsub').textContent = '';
-    way.hidden = true; pointFind = null; $('q').placeholder = placeholder; $('suggest').innerHTML = suggestions; sketch.remove();
+    way.hidden = true; pointFind = null; $('q').placeholder = placeholder; $('suggest').innerHTML = suggestions; $('q').removeAttribute('list'); sketch.remove();
   };
 }
 function pointEnd() {

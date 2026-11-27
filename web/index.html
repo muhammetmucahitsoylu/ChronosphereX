@@ -69,9 +69,11 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
   </a>
   <form id="search" autocomplete="off" role="search">
     <label class="sr" for="q" data-t="search.label">Object name or coordinates</label>
-    <input id="q" type="text" inputmode="search" enterkeyhint="search" list="suggest" placeholder="Search the sky: a name, or RA and Dec" data-t-placeholder="search.placeholder">
+    <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Search the sky: a name, a topic, or coordinates" data-t-placeholder="search.placeholder" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="finder">
     <datalist id="suggest"></datalist>
     <button type="submit" aria-label="Search" data-t="search.go">Go</button>
+    <!-- under the box: ready-made searches for someone who knows no name, things that fit what is typed (js/topics.js) -->
+    <div id="finder" class="finder" role="listbox" hidden></div>
   </form>
   <nav class="nav" id="nav" aria-label="About this site">
     <div class="navlinks" id="navlinks" lang="en">

@@ -19,7 +19,7 @@ const SPHEREX = 'Spectro-Photometer for the History of the Universe, Epoch of Re
 const TEXT = {
   en: {
     'search.label': 'Object name or coordinates',
-    'search.placeholder': 'Search the sky: a name, or RA and Dec',
+    'search.placeholder': 'Search the sky: a name, a topic, or coordinates',
     'search.go': 'Go',
     'nav.tour': 'Guided tour',
     'nav.language': 'Language',
@@ -157,7 +157,7 @@ const TEXT = {
     'note.zoomIn': 'Zooming in. Pick an object when you are closer.',
     'note.lookingUp': 'Looking up what is here…',
     'note.lookingUpName': 'Looking up “{name}”…',
-    'note.notFound': 'No object called “{name}” was found. Check the spelling, or use coordinates, for example 269.446 4.771',
+    'note.notFound': 'No object called “{name}” was found. Check the spelling, pick a topic under the search box, or use coordinates, for example 269.446 4.771',
     'note.unreachable': 'The name services could not be reached. Coordinates still work, for example 269.446 4.771',
     'note.needsConnection': '{name} is read live from NASA’s archive, which needs a connection. Objects already opened on this device work without one.',
     'note.colourNotSaved': 'That colour is not saved on this device.',
@@ -182,7 +182,7 @@ const TEXT = {
 
   tr: {
     'search.label': 'Nesne adı ya da koordinat',
-    'search.placeholder': 'Gökyüzünde ara: bir ad ya da RA ve Dec',
+    'search.placeholder': 'Gökyüzünde ara: bir ad, bir konu ya da koordinat',
     'search.go': 'Git',
     'nav.tour': 'Rehberli tur',
     'nav.language': 'Dil',
@@ -320,7 +320,7 @@ const TEXT = {
     'note.zoomIn': 'Yakınlaşılıyor. Daha yakına gelince bir nesne seçin.',
     'note.lookingUp': 'Burada ne olduğuna bakılıyor…',
     'note.lookingUpName': '“{name}” aranıyor…',
-    'note.notFound': '“{name}” adlı bir nesne bulunamadı. Yazımı kontrol edin ya da koordinat kullanın, örneğin 269.446 4.771',
+    'note.notFound': '“{name}” adlı bir nesne bulunamadı. Yazımı kontrol edin, arama kutusunun altındaki konulardan birini seçin ya da koordinat kullanın, örneğin 269.446 4.771',
     'note.unreachable': 'Ad servislerine ulaşılamadı. Koordinatlar yine çalışır, örneğin 269.446 4.771',
     'note.needsConnection': '{name}, NASA arşivinden canlı okunur; bunun için internet gerekir. Bu cihazda daha önce açılmış nesneler internet olmadan da çalışır.',
     'note.colourNotSaved': 'Bu renk bu cihazda kayıtlı değil.',
@@ -345,7 +345,7 @@ const TEXT = {
 
   de: {
     'search.label': 'Objektname oder Koordinaten',
-    'search.placeholder': 'Himmel durchsuchen: ein Name oder RA und Dec',
+    'search.placeholder': 'Himmel durchsuchen: ein Name, ein Thema oder Koordinaten',
     'search.go': 'Los',
     'nav.tour': 'Geführte Tour',
     'nav.language': 'Sprache',
@@ -483,7 +483,7 @@ const TEXT = {
     'note.zoomIn': 'Es wird herangezoomt. Wählen Sie ein Objekt, wenn Sie näher sind.',
     'note.lookingUp': 'Es wird nachgesehen, was hier ist…',
     'note.lookingUpName': '„{name}“ wird gesucht…',
-    'note.notFound': 'Kein Objekt namens „{name}“ gefunden. Prüfen Sie die Schreibweise oder verwenden Sie Koordinaten, zum Beispiel 269.446 4.771',
+    'note.notFound': 'Kein Objekt namens „{name}“ gefunden. Prüfen Sie die Schreibweise, wählen Sie ein Thema unter dem Suchfeld oder verwenden Sie Koordinaten, zum Beispiel 269.446 4.771',
     'note.unreachable': 'Die Namensdienste waren nicht erreichbar. Koordinaten funktionieren weiterhin, zum Beispiel 269.446 4.771',
     'note.needsConnection': '{name} wird live aus dem NASA-Archiv gelesen; dafür ist eine Verbindung nötig. Auf diesem Gerät bereits geöffnete Objekte funktionieren ohne.',
     'note.colourNotSaved': 'Diese Farbe ist auf diesem Gerät nicht gespeichert.',
@@ -508,7 +508,7 @@ const TEXT = {
 
   fr: {
     'search.label': 'Nom d’objet ou coordonnées',
-    'search.placeholder': 'Chercher dans le ciel : un nom, ou RA et Dec',
+    'search.placeholder': 'Chercher dans le ciel : un nom, un thème ou des coordonnées',
     'search.go': 'OK',
     'nav.tour': 'Visite guidée',
     'nav.language': 'Langue',
@@ -646,7 +646,7 @@ const TEXT = {
     'note.zoomIn': 'Zoom en cours. Choisissez un objet quand vous serez plus près.',
     'note.lookingUp': 'Recherche de ce qui se trouve ici…',
     'note.lookingUpName': 'Recherche de « {name} »…',
-    'note.notFound': 'Aucun objet nommé « {name} » n’a été trouvé. Vérifiez l’orthographe ou utilisez des coordonnées, par exemple 269.446 4.771',
+    'note.notFound': 'Aucun objet nommé « {name} » n’a été trouvé. Vérifiez l’orthographe, choisissez un thème sous le champ de recherche ou utilisez des coordonnées, par exemple 269.446 4.771',
     'note.unreachable': 'Les services de noms sont injoignables. Les coordonnées fonctionnent toujours, par exemple 269.446 4.771',
     'note.needsConnection': '{name} est lu en direct dans les archives de la NASA, ce qui demande une connexion. Les objets déjà ouverts sur cet appareil fonctionnent sans.',
     'note.colourNotSaved': 'Cette couleur n’est pas enregistrée sur cet appareil.',
@@ -671,7 +671,7 @@ const TEXT = {
 
   pl: {
     'search.label': 'Nazwa obiektu lub współrzędne',
-    'search.placeholder': 'Szukaj na niebie: nazwa albo RA i Dec',
+    'search.placeholder': 'Szukaj na niebie: nazwa, temat albo współrzędne',
     'search.go': 'Szukaj',
     'nav.tour': 'Przewodnik',
     'nav.language': 'Język',
@@ -809,7 +809,7 @@ const TEXT = {
     'note.zoomIn': 'Przybliżanie. Wybierz obiekt, gdy będziesz bliżej.',
     'note.lookingUp': 'Sprawdzanie, co tu jest…',
     'note.lookingUpName': 'Wyszukiwanie „{name}”…',
-    'note.notFound': 'Nie znaleziono obiektu o nazwie „{name}”. Sprawdź pisownię albo użyj współrzędnych, na przykład 269.446 4.771',
+    'note.notFound': 'Nie znaleziono obiektu o nazwie „{name}”. Sprawdź pisownię, wybierz temat pod polem wyszukiwania albo użyj współrzędnych, na przykład 269.446 4.771',
     'note.unreachable': 'Serwisy nazw są nieosiągalne. Współrzędne nadal działają, na przykład 269.446 4.771',
     'note.needsConnection': '{name} jest odczytywany na żywo z archiwum NASA, co wymaga połączenia. Obiekty otwarte już na tym urządzeniu działają bez niego.',
     'note.colourNotSaved': 'Ta barwa nie jest zapisana na tym urządzeniu.',
@@ -833,7 +833,7 @@ const TEXT = {
   },
   es: {
     'search.label': 'Nombre del objeto o coordenadas',
-    'search.placeholder': 'Busca en el cielo: un nombre, o RA y Dec',
+    'search.placeholder': 'Busca en el cielo: un nombre, un tema o coordenadas',
     'search.go': 'Ir',
     'nav.tour': 'Visita guiada',
     'nav.language': 'Idioma',
@@ -971,7 +971,7 @@ const TEXT = {
     'note.zoomIn': 'Acercando. Elige un objeto cuando estés más cerca.',
     'note.lookingUp': 'Consultando qué hay aquí…',
     'note.lookingUpName': 'Buscando «{name}»…',
-    'note.notFound': 'No se encontró ningún objeto llamado «{name}». Revisa cómo está escrito o usa coordenadas, por ejemplo 269.446 4.771',
+    'note.notFound': 'No se encontró ningún objeto llamado «{name}». Revisa cómo está escrito, elige un tema bajo el buscador o usa coordenadas, por ejemplo 269.446 4.771',
     'note.unreachable': 'No se pudo contactar con los servicios de nombres. Las coordenadas siguen funcionando, por ejemplo 269.446 4.771',
     'note.needsConnection': '{name} se lee en directo del archivo de la NASA, y eso requiere conexión. Los objetos ya abiertos en este dispositivo funcionan sin ella.',
     'note.colourNotSaved': 'Ese color no está guardado en este dispositivo.',
