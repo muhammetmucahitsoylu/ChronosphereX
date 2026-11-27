@@ -216,7 +216,8 @@ function hideVeil() { if (!veil) return; stopAnims(); veil.hidden = true; veilUp
 // the live map dissolves in over it when it is complete. The picture is a copy of the map's own
 // canvas: a square centred on the opening position that reaches `reach` (in units of the radius of
 // the sky globe) to each side, which holds the opening view of a screen of any shape.
-const OPENING = { src: 'opening.jpg', ra: 266.4, dec: -29.0, fov: 100, reach: 0.8 };
+// phones get a 1000-pixel copy, half the weight (index.html preloads the one for the screen)
+const OPENING = { src: matchMedia('(max-width: 700px)').matches ? 'opening-s.jpg' : 'opening.jpg', ra: 266.4, dec: -29.0, fov: 100, reach: 0.8 };
 const openingPic = new Image();
 let openingOk = false;
 const openingLoaded = new Promise(r => { openingPic.onload = () => { openingOk = true; r(true); }; openingPic.onerror = () => r(false); });
