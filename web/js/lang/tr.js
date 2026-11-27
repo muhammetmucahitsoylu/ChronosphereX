@@ -18,7 +18,7 @@ export default {
   "A later visit minus an earlier one. Steady stars mostly cancel, leaving at most a faint smudge; a moving object leaves a strong dark-and-bright pair.": "Sonraki bir gözlemden önceki bir gözlem çıkarılır. Sabit yıldızlar büyük ölçüde birbirini götürür, geriye en fazla soluk bir leke kalır; hareket eden bir cisim ise belirgin bir koyu-parlak çift bırakır.",
   "All exposures of this detector added together: the deepest, cleanest image.": "Bu dedektörün bütün pozlarının toplamı: en derin, en temiz görüntü.",
   "The same patch of sky in each of the six detectors, from 0.75 to 5 microns, then all six as one colour picture (short wavelengths blue, long red). Cold objects only appear at the long end.": "Gökyüzünün aynı bölgesi, 0,75 ile 5 mikron arasındaki altı dedektörün her birinde; ardından altısı tek bir renkli görüntüde (kısa dalga boyları mavi, uzunlar kırmızı). Soğuk cisimler yalnızca uzun dalga boylarında görünür.",
-  "Finding the exposures that cover this spot…": "Bu noktayı kapsayan pozlar aranıyor…",
+  "Finding the exposures that cover this spot…": "Bu noktanın SPHEREx çekimleri aranıyor…",
   "{0} Objects you have already opened still work offline.<br><button type=\"button\">Try again</button>": "{0} Daha önce açtığınız nesneler internet olmadan da çalışır.<br><button type=\"button\">Yeniden dene</button>",
   "The connection dropped while the images were loading.": "Görüntüler yüklenirken bağlantı koptu.",
   "NASA’s open archive could not be reached just now.": "NASA’nın herkese açık arşivine şu an ulaşılamadı.",

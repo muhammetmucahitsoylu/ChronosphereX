@@ -178,7 +178,7 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
   $('fov').value = String(S.size);
   $('notice').hidden = true; S.failed = null; $('reportask').hidden = true;
   syncUrl(); renderChips(); renderAbout(); renderModes(); renderDets(); show(); refreshPlots(); renderHunt(); renderMovers();
-  setStatus(G`Finding the exposures that cover this spot…`);
+  setStatus(G`Finding the exposures that cover this spot…`, -1);
   if (!followed()) loadCatalog(gen);          // a followed body has different stars behind it in every exposure: none are marked
   try {
     if (S.showWise && !followed()) setTimeout(loadCatwise, 1500);
@@ -3083,7 +3083,8 @@ function renderMeta() {
   }
 }
 function setStatus(text, frac) {
-  $('status').innerHTML = text ? `${text}${frac ? `<div class="bar"><i style="width:${Math.round(frac * 100)}%"></i></div>` : ''}` : '';
+  // frac -1: under way, how far not yet known (a bar that runs, so the page is not taken for one that hangs)
+  $('status').innerHTML = text ? `${text}${frac === -1 ? '<div class="bar busy"><i></i></div>' : frac ? `<div class="bar"><i style="width:${Math.round(frac * 100)}%"></i></div>` : ''}` : '';
 }
 
 // ------------------------------------------------------------ search
