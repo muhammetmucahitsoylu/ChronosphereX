@@ -1714,7 +1714,7 @@ function resultBlock(to, r) {
   if (to === 'motion') {
     if (v.pair) body = dl([[T('res.place', { a: v.t0, b: v.t1 }), `${fx(v.d, 1)}″`]]);
     else if (v.rate != null && r.cls === 'found') body = dl([
-      [T('res.est'), esc(T('years.rate', { v: v.margin ? `${fx(v.rate, 2)}″ ± ${v.margin}″` : `${fx(v.rate, 2)}″` }))],
+      [T('res.est'), esc(T('years.rate', { v: v.margin ? `${fx(v.rate, 2)}″ ± ${v.margin}″` : `${fx(v.rate, 2)}″` }))],          // the figure and its margin never split
       [T('res.dir'), esc(compass(v.e, v.n))],
       v.cat ? [T('res.catv'), esc(T('years.rate', { v: `${fx(v.cat, 2)}″` }))] : null,
       v.dets?.length ? [T('res.dets'), v.dets.map(d => 'D' + d).join(', ')] : null,
