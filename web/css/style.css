@@ -466,6 +466,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .rg .rgpicks { display: grid; gap: 6px; margin-top: 9px; }
 .rg .rgpicks button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; white-space: normal; text-align: left; border-radius: 12px; padding: 8px 12px; }
 .rg .rgpicks small { font-size: 12.5px; color: var(--ink-2); }
+.rgoffer p { margin-top: 0; }
 .rgring { outline: 2.5px solid var(--ember) !important; outline-offset: 3px; animation: rgring 1.4s ease-in-out infinite; border-radius: 10px; }
 #map.rgring { outline-offset: -4px; border-radius: 0; }
 @keyframes rgring { 50% { outline-color: color-mix(in srgb, var(--ember) 25%, transparent); } }

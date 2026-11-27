@@ -4105,7 +4105,7 @@ $('tournext').onclick = () => {
 $('tourback').onclick = () => tourGo(tourIdx - 1);
 $('tourclose').onclick = tourEnd;
 // "Explore the sky": the welcome goes, and the map says what to do next (it used to say nothing at all)
-$('hidewelcome').onclick = () => { $('welcome').hidden = true; note(T('note.explore'), 14000); };
+$('hidewelcome').onclick = () => { $('welcome').hidden = true; if (!rguide.offer()) note(T('note.explore'), 14000); };          // the first time, the guide is offered instead of the hint
 
 // ------------------------------------------------------------ article sheets
 let sheetOpener = null, sheetTok = 0;
@@ -4117,7 +4117,7 @@ function openSheet(id, at = '') {
     sh.innerHTML = `<button type="button" class="close" aria-label="${NAV ? G('Close') : 'Close'}">×</button>${html}`;
     sh.querySelector('.close').onclick = closeSheet;
     // the page's invitation to the tour, or to a hunt, starts it here, over the same map
-    sh.querySelectorAll('.docgo a').forEach(a => { a.onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeSheet(); if (a.dataset.do === 'hunt') startHunt(); else tourGo(0); }; });
+    sh.querySelectorAll('.docgo a').forEach(a => { a.onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeSheet(); if (a.dataset.do === 'hunt') startHunt(); else rguide.start(); }; });
   };
   fill(SHEETS[id] ? SHEETS[id]() : '');
   wrap.hidden = false; wrap.scrollTop = 0; sh.focus();

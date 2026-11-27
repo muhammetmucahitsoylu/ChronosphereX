@@ -127,6 +127,17 @@ export function makeGuide(ctx) {
     if (layerWas !== undefined) { ctx.layer.set(layerWas); layerWas = undefined; }
     at = -1; S.tapHook = null;
   }
+  /** Once, the first time the visitor opens the sky: a small card that offers the guide. Returns whether it was shown. */
+  function offer() {
+    let seen = false; try { seen = !!localStorage.getItem('chrono-guide-offered'); localStorage.setItem('chrono-guide-offered', '1'); } catch { seen = true; }
+    if (seen || (box && !box.hidden)) return false;
+    const o = document.createElement('aside'); o.id = 'rgoffer'; o.className = 'rg rgoffer'; o.setAttribute('role', 'region'); o.setAttribute('aria-label', T('nav.guide'));
+    o.innerHTML = '<p></p><footer><button type="button" class="ghost"></button><span class="grow"></span><button type="button" class="cta"></button></footer>';
+    o.querySelector('p').textContent = T('rg.offer'); const [no, go] = o.querySelectorAll('button'); no.textContent = T('rg.offerNo'); go.textContent = T('rg.offerGo');
+    no.onclick = () => o.remove(); go.onclick = () => { o.remove(); start(); };
+    document.body.append(o); setTimeout(() => o.remove(), 30000);
+    return true;
+  }
   window.addEventListener('resize', size);
-  return { start, stop, words, get on() { return !!box && !box.hidden; }, get step() { return at >= 0 ? STEPS[at].id : ''; }, STEPS };
+  return { start, stop, words, offer, get on() { return !!box && !box.hidden; }, get step() { return at >= 0 ? STEPS[at].id : ''; }, STEPS };
 }
