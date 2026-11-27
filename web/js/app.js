@@ -4260,6 +4260,7 @@ const BACK = {
   coach: { on: () => document.body.classList.contains('coaching'), undo: () => coachEnd() },
   sheet: { on: () => !$('sheetwrap').hidden, undo: () => closeSheet() },
   menu: { on: () => $('nav').classList.contains('open'), undo: () => closeMenu() },
+  look: { on: () => !$('lookpanel').hidden, undo: () => closeSettings() },
   search: { on: () => $('top').classList.contains('searching'), undo: () => { searchBox(false); $('q').blur(); } },
 };
 // backKeys: the layers above the ground, innermost last. backSteps: how many of them each history step undoes.
@@ -4307,7 +4308,7 @@ function backStart() {
   if (backOn || S.embed) return;
   backOn = true; backGround = backLayers().length;
   const watch = new MutationObserver(backSync);
-  for (const el of [$('welcome'), $('app'), document.body, $('sheetwrap'), $('nav'), $('top')]) watch.observe(el, { attributes: true, attributeFilter: ['hidden', 'class', 'data-panel'] });
+  for (const el of [$('welcome'), $('app'), document.body, $('sheetwrap'), $('nav'), $('top'), $('lookpanel')]) watch.observe(el, { attributes: true, attributeFilter: ['hidden', 'class', 'data-panel'] });
 }
 // From the first touch on: what the page does by itself while it opens is the ground, not a step.
 if (matchMedia('(pointer: coarse)').matches || matchMedia('(display-mode: standalone)').matches) {
@@ -4548,6 +4549,40 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     .then(() => setTimeout(startOfflineSave, 3000)).catch(() => {});
 }
 
+// ------------------------------------------------------------ settings, top right: language, colours, the sky map's colour, night mode
+// Pictures to press, few words (27 Nov 2026). The languages as flag and the language's own name (a flag alone names a
+// country); the flags drawn, since Windows shows flag emoji as two letters. The site's colours live in js/look.js.
+const FLAGS = { tr: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#e30a17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#e30a17"/><polygon fill="#fff" points="14.9,10 17.31,10.78 17.31,13.31 18.8,11.27 21.21,12.05 19.72,10 21.21,7.95 18.8,8.73 17.31,6.69 17.31,9.22"/></svg>', en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#012169"/><path d="M0 0l30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0l30 20M30 0L0 20" stroke="#c8102e" stroke-width="1.5"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.4"/></svg>', es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/></svg>', de: '<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#dd0000"/><rect y="13.33" width="30" height="6.67" fill="#ffce00"/></svg>', fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" fill="#0055a4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ef4135"/></svg>', pl: '<svg viewBox="0 0 30 20"><rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#dc143c"/></svg>' };
+const LOOKS = [['night', 'look.night', 'linear-gradient(90deg, #0a0d13 0 42%, #1b2232 42% 76%, #ff7b39 76%)'], ['coffee', 'look.coffee', 'linear-gradient(90deg, #0a0908 0 42%, #1e1b18 42% 76%, #ff7b39 76%)'],
+  ['graphite', 'look.graphite', 'linear-gradient(90deg, #0e0e0f 0 42%, #212124 42% 76%, #ff7b39 76%)']];
+const MAPS = [['grayscale', 'map.gray', 'linear-gradient(90deg, #000, #fff)'], ['redtemperature', 'map.heat', 'linear-gradient(90deg, #000, #8b0000, #ff4500, #ffd700, #fff)'],
+  ['magma', 'map.magma', 'linear-gradient(90deg, #000004, #3b0f70, #8c2981, #de4968, #fe9f6d, #fcfdbf)']];
+const MAPKEY = 'chrono-map';
+let mapCm = 'grayscale';
+try { const m = localStorage.getItem(MAPKEY); if (MAPS.some(x => x[0] === m)) mapCm = m; } catch { /* private mode: grey */ }
+function renderSettings() {
+  const look = window.__chronoLook?.() || 'night';
+  $('langgrid').innerHTML = Object.entries(Lang.LANGS).map(([c, name]) => `<button type="button" data-lang="${c}" lang="${c}" aria-pressed="${c === Lang.lang}"><span class="flag">${FLAGS[c] || ''}</span>${esc(name)}</button>`).join('');
+  $('lookgrid').innerHTML = LOOKS.map(([id, key, g]) => `<button type="button" data-look="${id}" aria-pressed="${id === look}"><i class="sw" style="background:${g}"></i>${esc(T(key))}</button>`).join('');
+  $('mapgrid').innerHTML = MAPS.map(([id, key, g]) => `<button type="button" data-map="${id}" aria-pressed="${id === mapCm}"><i class="sw" style="background:${g}"></i>${esc(T(key))}</button>`).join('');
+  $('nightset').setAttribute('aria-pressed', String(nightOn()));
+}
+function openSettings() { renderSettings(); $('lookpanel').hidden = false; for (const b of ['setbtn', 'langbtn']) $(b).setAttribute('aria-expanded', 'true'); closeMenu?.(); requestAnimationFrame(() => $('langgrid').querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true })); }
+function closeSettings() { if ($('lookpanel').hidden) return; $('lookpanel').hidden = true; for (const b of ['setbtn', 'langbtn']) $(b).setAttribute('aria-expanded', 'false'); }
+$('langflag').innerHTML = FLAGS[Lang.lang] || ''; $('langcode').textContent = Lang.lang.toUpperCase();
+$('setbtn').onclick = () => ($('lookpanel').hidden ? openSettings() : closeSettings());
+$('langbtn').onclick = () => ($('lookpanel').hidden ? openSettings() : closeSettings());
+$('lookclose').onclick = closeSettings;
+$('lookpanel').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.lang) { Lang.choose(b.dataset.lang); return; }
+  if (b.dataset.look) { window.__chronoLook?.(b.dataset.look); renderSettings(); specPlot.draw(); lcPlot.draw(); return; }
+  if (b.dataset.map) { mapCm = b.dataset.map; try { if (mapCm === 'grayscale') localStorage.removeItem(MAPKEY); else localStorage.setItem(MAPKEY, mapCm); } catch { /* this visit only */ } Sky.setColormap(mapCm); renderSettings(); return; }
+  if (b.id === 'nightset') { nightFlip(); renderSettings(); }
+});
+document.addEventListener('pointerdown', e => { if (!$('lookpanel').hidden && !e.target.closest('#lookpanel, #setbtn, #langbtn')) closeSettings(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('lookpanel').hidden) { closeSettings(); $('setbtn').focus(); } });
+
 // ------------------------------------------------------------ start
 (async function init() {
   const q = new URLSearchParams(location.search);
@@ -4569,6 +4604,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     try {
       await Sky.init('#map', { still: !(q.has('target') || (q.has('ra') && q.has('dec'))), onClick: openAt, onFov: f => { $('fovlabel').textContent = f >= 10 ? `${Math.round(f)}°` : f >= 1 ? `${fx(f, 1)}°` : `${Math.round(f * 60)}′`; } });
       setWave(25);
+      Sky.setColormap(mapCm);          // the colour chosen in Settings, if not grey
       document.querySelector('#map .aladin-input-text')?.setAttribute('aria-label', T('search.label'));          // the map library's own position box has no name of its own
       // On a slow connection the first picture takes a few seconds: say so, instead of an empty map.
       const loading = T('note.loadingMap'), slow = setTimeout(() => { if ($('mapnote').hidden) note(loading); }, 1800);

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
 <script src="js/tabs.js"></script>
-<meta name="theme-color" content="#0a0908">
+<meta name="theme-color" content="#0a0d13">
+<script src="js/look.js"></script>
 <title>Picture studio · ChronosphereX</title>
 <meta name="description" content="Make your own infrared picture of any patch of sky from NASA’s SPHEREx data: choose a frame on the map, pick gas and dust, stars, or three wavelengths side by side, adjust it and save or share it. For beginners and for people who process astronomical images.">
 <link rel="canonical" href="https://chronospherex.com/studio.html">
@@ -31,7 +32,7 @@
   <div class="seg" id="mode" role="group" aria-label="How much to show"><button type="button" data-m="basic" aria-pressed="true">Simple</button><button type="button" data-m="pro" aria-pressed="false">Pro</button></div>
   <!-- the guide that makes a picture with the visitor, step by step; and the settings (the language is in there) -->
   <button type="button" class="topbtn" id="guidebtn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6v12.7c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6zM12 6.1v12.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span id="guideword">Guide</span></button>
-  <button type="button" class="topbtn icon" id="setbtn" aria-label="Settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.700 1.700M16.8 16.8l1.700 1.700M18.5 5.5l-1.700 1.700M7.2 16.8l-1.700 1.700" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  <button type="button" class="topbtn icon" id="setbtn" aria-label="Settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </header>
 
 <main id="app">

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
 <script src="js/tabs.js"></script>
-<meta name="theme-color" content="#0a0908">
+<meta name="theme-color" content="#0a0d13">
+<script src="js/look.js"></script>
 <title>ChronosphereX — the sky is not still · NASA SPHEREx sky explorer</title>
 <meta name="description" content="Fly over the whole sky as NASA's SPHEREx sees it, pick any point, and watch that spot change over time. See what moves, what flickers, and what it is made of.">
 <meta property="og:title" content="ChronosphereX — the sky is not still">
@@ -61,7 +62,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
 <script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
 </head>
 <body>
-<noscript><p style="margin:0;padding:14px 18px;background:#1b1512;color:#f3eee6;font:15px/1.5 system-ui,sans-serif">ChronosphereX reads NASA's SPHEREx images in your browser, so it needs JavaScript. Turn it on for this site and reload the page. To read about it meanwhile: <a href="planet-x.html" style="color:#ff7b39">Planet X, Pluto and SPHEREx</a> · <a href="find-asteroids.html" style="color:#ff7b39">Asteroid hunt</a> · <a href="what-is-spherex.html" style="color:#ff7b39">What is SPHEREx?</a> · <a href="how-it-works.html" style="color:#ff7b39">How it works</a> · <a href="about.html" style="color:#ff7b39">About</a></p></noscript>
+<noscript><p style="margin:0;padding:14px 18px;background:#1b1512;color:var(--ink, #eef2f7);font:15px/1.5 system-ui,sans-serif">ChronosphereX reads NASA's SPHEREx images in your browser, so it needs JavaScript. Turn it on for this site and reload the page. To read about it meanwhile: <a href="planet-x.html" style="color:#ff7b39">Planet X, Pluto and SPHEREx</a> · <a href="find-asteroids.html" style="color:#ff7b39">Asteroid hunt</a> · <a href="what-is-spherex.html" style="color:#ff7b39">What is SPHEREx?</a> · <a href="how-it-works.html" style="color:#ff7b39">How it works</a> · <a href="about.html" style="color:#ff7b39">About</a></p></noscript>
 <header class="top" id="top">
   <a class="brand" href="./" aria-label="ChronosphereX, home">
     <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle cx="13" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="14" r="8" fill="var(--ember)"/></svg>
@@ -97,12 +98,24 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <button type="button" class="navnight" id="nightlink" aria-pressed="false" data-t="night.menu">Night mode (red light)</button>
       <select id="lang" class="langpick" aria-label="Language" data-t-label="nav.language"></select>
     </div>
-    <button id="tourbtn" type="button" class="cta" data-t="nav.tour">Guided tour</button>
+    <!-- settings, top right: a desk sees the language as its flag and code; the gear opens the same panel on every screen -->
+    <button id="langbtn" type="button" class="topicon langbtn" aria-label="Language" data-t-label="nav.language" aria-controls="lookpanel" aria-expanded="false"><span class="flag" id="langflag"></span><b id="langcode"></b></button>
+    <!-- the guided tour: a help beside the map, not the main thing (exploring is): the studio's book and one word, no orange -->
+    <button id="tourbtn" type="button" class="topicon tourbtn" aria-label="Guided tour" data-t-label="nav.tour"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6v12.7c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6zM12 6.1v12.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span data-t="nav.guide">Guide</span></button>
     <!-- phones: the search box opens from this button, so that the map has the whole screen -->
     <button id="searchbtn" type="button" class="iconbtn" aria-label="Object name or coordinates" data-t-label="search.label" aria-expanded="false" aria-controls="search"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <button id="setbtn" type="button" class="topicon setbtn" aria-label="Settings" data-t-label="set.title" aria-controls="lookpanel" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <button id="menubtn" type="button" class="menubtn" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><span></span><span></span><span></span></button>
   </nav>
 </header>
+<!-- settings: pictures to press, few words (app.js renderLook; the colours themselves: js/look.js) -->
+<div class="lookpanel" id="lookpanel" role="dialog" aria-labelledby="looktitle" hidden>
+  <div class="lookhead"><h2 id="looktitle" data-t="set.title">Settings</h2><button type="button" class="lookx" id="lookclose" aria-label="Close" data-t-label="set.close">×</button></div>
+  <h3 data-t="set.lang">Language</h3><div class="langgrid" id="langgrid"></div>
+  <h3 data-t="set.look">Colours</h3><div class="lookgrid" id="lookgrid"></div>
+  <h3 data-t="set.map">Sky map</h3><div class="lookgrid" id="mapgrid"></div>
+  <button type="button" class="nightset" id="nightset" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span data-t="set.night">Night mode</span><i class="sw" aria-hidden="true"></i></button>
+</div>
 
 <main class="app" id="app" data-panel="closed">
   <section class="mapwrap" aria-label="Sky map">

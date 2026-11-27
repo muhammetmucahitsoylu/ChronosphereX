@@ -609,8 +609,15 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
  * frame, which is blank in the SPHEREx cube, and would ask for those tiles: so a cube is sent to
  * the wanted frame in the very call in which the library adds it, before it has asked for anything.
  */
+let cmap = 'grayscale';          // the SPHEREx layer's colour scale, chosen in Settings (grey, heat, magma)
+/** The colour scale of the SPHEREx layer: kept for the layers made later, and put on the one on show. */
+export function setColormap(name) {
+  cmap = name || 'grayscale';
+  try { if (al && layerId === 'spherex') al.getBaseImageLayer()?.setColormap(cmap); } catch { /* not there yet: it takes it when it is added */ }
+}
 function layerFor(L, added = null) {
   return A.HiPS(L.url, { name: L.label, successCallback: h => {
+    try { if (L.cube && cmap !== 'grayscale') h.setColormap(cmap); } catch { /* an older library: grey */ }
     try { if (L.cube && rawSlice(slice, h)) { shown = slice; h.onFrame = true; } } catch { /* firstFrame does it a moment later */ }
     try { added?.(); } catch { /* the caller's own business */ }
   } });

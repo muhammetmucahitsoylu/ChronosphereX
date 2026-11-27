@@ -18,7 +18,7 @@ const figure = w => `
   <svg viewBox="0 0 640 170" role="img" aria-label="${w.label}">
     <defs><linearGradient id="lvf" x1="0" x2="1"><stop offset="0" stop-color="#fff1d0"/><stop offset=".3" stop-color="#ffc56e"/><stop offset=".6" stop-color="#ff7b39"/><stop offset="1" stop-color="#8f1c16"/></linearGradient></defs>
     <rect x="20" y="34" width="600" height="70" rx="6" fill="url(#lvf)"/>
-    <g fill="#0a0908" stroke="#0a0908"><circle cx="110" cy="69" r="7"/><circle cx="250" cy="69" r="7"/><circle cx="390" cy="69" r="7"/><circle cx="530" cy="69" r="7"/></g>
+    <g style="fill:var(--bg,#0a0d13);stroke:var(--bg,#0a0d13)"><circle cx="110" cy="69" r="7"/><circle cx="250" cy="69" r="7"/><circle cx="390" cy="69" r="7"/><circle cx="530" cy="69" r="7"/></g>
     <g fill="none" stroke="#a89f92" stroke-width="1.5" stroke-dasharray="4 4"><path d="M124 69h112M264 69h112M404 69h112"/></g>
     <g fill="#a89f92" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">
       <text x="110" y="24">${w.exposure} 1</text><text x="250" y="24">${w.exposure} 2</text><text x="390" y="24">${w.exposure} 3</text><text x="530" y="24">${w.exposure} 4</text>
