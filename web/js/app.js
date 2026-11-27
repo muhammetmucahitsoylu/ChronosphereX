@@ -3222,6 +3222,9 @@ async function openBody(text, when = null, view = {}, known = null) {
     if (tok !== S.openTok) return true;
     if (!visits.length) {          // Mercury and Venus never: SPHEREx looks 70 to 110 degrees from the Sun, they stay within 28 and 47
       say(G`SPHEREx has not had ${name} in view in the exposures published so far.` + (/^(Mercury|Venus)$/.test(b.name) ? ' ' + G`This planet never gets far enough from the Sun: SPHEREx looks at the sky roughly 70 to 110 degrees away from the Sun.` : ''), 12000);
+      if (b.kind === 'planet' && tok === S.openTok) {          // where it is tonight, instead of a dead end
+        const a = document.createElement('a'); a.href = 'tonight.html'; a.textContent = T('note.tonightLink'); $('mapnote').append(' ', a);
+      }
       return true;
     }
     v = (when && visits.find(x => when >= x.t0 - 1 && when <= x.t1 + 1)) || [...visits].sort((p, q) => q.inField - p.inField || q.t1 - p.t1)[0];

@@ -566,7 +566,7 @@ export default {
   "Follow it": "İzle",
   "The service that knows the orbits of asteroids and comets (Miriade, Paris Observatory) could not be reached just now.": "Asteroit ve kuyruklu yıldız yörüngelerini bilen hizmete (Miriade, Paris Gözlemevi) şu an ulaşılamadı.",
   "Looking through SPHEREx's exposures for {0}…": "SPHEREx pozlarında aranıyor: {0}…",
-  "SPHEREx has not had {0} in view in the exposures published so far.": "{0}, şimdiye kadar yayımlanan SPHEREx pozlarının hiçbirinde görüş alanına girmedi.",
+  "SPHEREx has not had {0} in view in the exposures published so far.": "{0}, şimdiye kadar yayımlanan SPHEREx çekimlerinin hiçbirinde görüş alanına girmedi.",
   "This planet never gets far enough from the Sun: SPHEREx looks at the sky roughly 70 to 110 degrees away from the Sun.": "Bu gezegen Güneş’ten hiçbir zaman yeterince uzaklaşmaz: SPHEREx gökyüzüne Güneş’ten yaklaşık 70–110 derece uzaktan bakar.",
   "{0} is too bright for SPHEREx: its detectors saturate, so the planet's own light cannot be measured here.": "{0}, SPHEREx için fazla parlak: dedektörleri doyuyor, bu yüzden gezegenin kendi ışığı burada ölçülemiyor.",
   "not looked up: the catalogue service did not answer": "bakılamadı: katalog hizmeti yanıt vermedi",
