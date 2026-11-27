@@ -1645,11 +1645,15 @@ function answerViz(to, r) {
  * were made and nothing changed. Each answer offers an object that does change, so the visit goes on.
  */
 const STORY_NEXT = ['barnard', 'rwaur', 'wise0855', 'rdra', 'epsindib'];
+function storyNextOf() {
+  const i = STORY_NEXT.indexOf(S.target?.slug), slug = STORY_NEXT[(i + 1) % STORY_NEXT.length];
+  return (S.targets || []).find(t => t.slug === slug) || null;
+}
 function storyQuiet(rows) {
   const f = S.find || {}, checked = rows.filter(([to, r]) => ['motion', 'lccheck'].includes(to) && r.cls === 'none').length;
   const kind = f.why === 'bright' ? 'bright' : f.why === 'faint' && !f.motion ? 'faint' : checked ? 'calm' : '';
   if (!kind) return '';
-  const next = (S.targets || []).find(t => STORY_NEXT.includes(t.slug) && t.slug !== S.target?.slug && !t.follow);
+  const next = storyNextOf();
   return `<p class="kick">${esc(T('story.what'))}</p><div class="leadtxt"><h3>${esc(T(`story.${kind}.h`))}</h3><p>${esc(T(`story.${kind}.p`))}</p></div>`
     + (next ? `<button type="button" class="nextobj" data-next="${esc(next.slug)}">${esc(T('story.seeChange', { name: nameOf(next) }))}</button>` : '');
 }
@@ -1676,7 +1680,7 @@ function storyLeadHtml([to, r], say) {
     + (side ? '' : pic)
     + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button>`;
 }
-function storyRowsHtml(rows, say, lead) {
+function storyRowsHtml(rows, say, lead, offered) {
   const qs = rows.filter(([to, r]) => ANSWERS.some(q => q.to === to) && r.cls !== 'wait' && !(lead && lead[0] === to));
   const rest = rows.filter(x => !ANSWERS.some(q => q.to === x[0]) || x[1].cls === 'wait');
   const word = r => T(r.cls === 'found' ? 'ans.yes' : r.cls === 'none' ? 'ans.no' : 'ans.maybe');
@@ -1687,7 +1691,13 @@ function storyRowsHtml(rows, say, lead) {
       + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button></details>`;
   };
   return (qs.length ? `<p class="kick">${esc(T(lead ? 'story.else' : 'story.checked'))}</p><div class="chks">${qs.map(row).join('')}</div>` : '')
-    + (rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '');
+    + (rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '')
+    + storyNextCard(offered);
+}
+/** The story's last word: the next object worth a look, with what makes it so. */
+function storyNextCard(offered) {
+  const t = offered || S.embed ? null : storyNextOf(); if (!t) return '';
+  return `<button type="button" class="storynext" data-next="${esc(t.slug)}"><span class="kick">${esc(T('story.next'))}</span><b>${esc(nameOf(t))} →</b><small>${esc(T(`rg.hook.${t.slug}`))}</small></button>`;
 }
 
 /**
@@ -1768,7 +1778,7 @@ function renderFindings() {
   const lead = story ? storyLeadOf(rows) : null, lb = $('leadbox'), quiet = story && !lead && ready ? storyQuiet(rows) : '', leadHtml = lead ? storyLeadHtml(lead, say) : quiet;
   if (lb.dataset.was !== leadHtml) { lb.dataset.was = leadHtml; lb.innerHTML = leadHtml; lb.className = `leadbox ${lead ? lead[1].cls : quiet ? 'quiet' : ''}`; }
   lb.hidden = !leadHtml;
-  const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead) : cards ? resultsHtml(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
+  const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead, !!quiet) : cards ? resultsHtml(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
   if (el.dataset.was !== html) {
     const open = [...el.querySelectorAll('details[open]')].map(d => d.dataset.q);          // a line the visitor opened stays open when the words are written again
     el.dataset.was = html; el.innerHTML = html;
@@ -1805,6 +1815,7 @@ function leadState() { document.querySelector('.cols').classList.toggle('nolook'
 $('leadbox').addEventListener('click', e => { const nx = e.target.closest('[data-next]')?.dataset.next; if (nx) { const t = (S.targets || []).find(x => x.slug === nx); if (t) openTarget(t); return; } const to = e.target.closest('button')?.dataset.to; if (!to) return; setPanelFull(true); requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' })); });
 $('findings').addEventListener('click', e => {
   const b = e.target.closest('button');
+  if (b?.dataset.next) { const t = (S.targets || []).find(x => x.slug === b.dataset.next); if (t) openTarget(t); return; }
   const to = b?.dataset.to;
   if (to === 'here') { const t = lightHere()?.follow; if (t) followBody(t); return; }
   if (!to) return;

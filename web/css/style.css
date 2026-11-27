@@ -551,6 +551,11 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .chkbody p b { color: var(--ink); font-weight: 600; }
 .chk .qproof { margin: 4px 14px 12px; display: inline-flex; align-items: center; padding: 2px 0; color: var(--ember); background: none; }
 .findings.story .qextra { margin-top: 2px !important; }
+.findings .storynext { display: grid; gap: 2px; width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); text-align: left; color: var(--ink); }
+.findings .storynext .kick { color: var(--gold); }
+.findings .storynext b { font: 600 17px var(--sans); color: var(--ink); }
+.findings .storynext small { font-size: 13.5px; color: var(--ink-2); }
+.findings .storynext:hover { text-decoration: none; background: color-mix(in srgb, var(--gold) 13%, var(--surface)); }
 .leadbox[hidden], .findings[hidden] { display: none !important; }
 /* the answers as cards (app.js, answerCards): the question, the answer in large letters with its picture, the sentence in full */
 .findings.cards { padding: 12px; width: 100%; box-sizing: border-box; justify-self: stretch; }
