@@ -528,6 +528,9 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .cmonths small { font: 500 10.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
 .realchip { margin: 0; padding: 8px 11px; border-radius: 10px; background: color-mix(in srgb, var(--mint) 12%, var(--bg)); color: var(--mint); font: 600 13.5px/1.35 var(--sans); }
 .realchip::before { content: "✓ "; }
+.leadbox.quiet { border-color: var(--line-2); }
+.leadbox .nextobj { justify-self: start; display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, transparent); font: 600 14px var(--sans); white-space: normal; text-align: left; }
+.leadbox .nextobj:hover { background: color-mix(in srgb, var(--gold) 16%, transparent); }
 .leadbox .qproof { justify-self: start; display: inline-flex; align-items: center; padding: 2px 0; color: var(--ember); background: none; }
 .findings.story { border: 0; background: none; padding: 0; width: 100%; display: grid; gap: 8px; }
 .chks { border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; background: var(--surface); }

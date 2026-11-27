@@ -1638,6 +1638,19 @@ function answerViz(to, r) {
  * follow as a line each with a one-word answer, the proof a press away. What leads: the first thing found, in this
  * order: motion, a change of brightness, molecules, a body passing through.
  */
+/**
+ * When nothing leads the story, it still answers: the measurements could not be made (too bright, too faint), or they
+ * were made and nothing changed. Each answer offers an object that does change, so the visit goes on.
+ */
+const STORY_NEXT = ['barnard', 'rwaur', 'wise0855', 'rdra', 'epsindib'];
+function storyQuiet(rows) {
+  const f = S.find || {}, checked = rows.filter(([to, r]) => ['motion', 'lccheck'].includes(to) && r.cls === 'none').length;
+  const kind = f.why === 'bright' ? 'bright' : f.why === 'faint' && !f.motion ? 'faint' : checked ? 'calm' : '';
+  if (!kind) return '';
+  const next = (S.targets || []).find(t => STORY_NEXT.includes(t.slug) && t.slug !== S.target?.slug && !t.follow);
+  return `<p class="kick">${esc(T('story.what'))}</p><div class="leadtxt"><h3>${esc(T(`story.${kind}.h`))}</h3><p>${esc(T(`story.${kind}.p`))}</p></div>`
+    + (next ? `<button type="button" class="nextobj" data-next="${esc(next.slug)}">${esc(T('story.seeChange', { name: nameOf(next) }))}</button>` : '');
+}
 const STORY_ORDER = ['motion', 'lccheck', 'molecules', 'movers'];
 function storyLeadOf(rows) { for (const to of STORY_ORDER) { const r = rows.find(x => x[0] === to && x[1].cls === 'found'); if (r) return r; } return null; }
 /** The brightness of each visit as a circle (its area the brightness), beside the same for the ordinary stars around it. */
@@ -1746,9 +1759,9 @@ function renderFindings() {
   const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1] && say(r[1])) : [];
   const cards = !!rows.length && cardsOn(), story = cards && simple;
   // the story: the finding that leads in a box of its own (above the yearly motion), the other checks as lines under
-  const lead = story ? storyLeadOf(rows) : null, lb = $('leadbox'), leadHtml = lead ? storyLeadHtml(lead, say) : '';
-  if (lb.dataset.was !== leadHtml) { lb.dataset.was = leadHtml; lb.innerHTML = leadHtml; lb.className = `leadbox ${lead ? lead[1].cls : ''}`; }
-  lb.hidden = !lead;
+  const lead = story ? storyLeadOf(rows) : null, lb = $('leadbox'), quiet = story && !lead && ready ? storyQuiet(rows) : '', leadHtml = lead ? storyLeadHtml(lead, say) : quiet;
+  if (lb.dataset.was !== leadHtml) { lb.dataset.was = leadHtml; lb.innerHTML = leadHtml; lb.className = `leadbox ${lead ? lead[1].cls : quiet ? 'quiet' : ''}`; }
+  lb.hidden = !leadHtml;
   const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead) : cards ? resultsHtml(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
   if (el.dataset.was !== html) {
     const open = [...el.querySelectorAll('details[open]')].map(d => d.dataset.q);          // a line the visitor opened stays open when the words are written again
@@ -1783,7 +1796,7 @@ function lightHere() {
 }
 /** The lead of the panel (what to look for, what the measurements say) takes no room while it has nothing to say. */
 function leadState() { document.querySelector('.cols').classList.toggle('nolook', ($('lookbox').hidden || !$('lookbox').innerHTML) && $('findings').hidden && $('leadbox').hidden && $('bodybox').hidden && $('huntbox').hidden); }
-$('leadbox').addEventListener('click', e => { const to = e.target.closest('button')?.dataset.to; if (!to) return; setPanelFull(true); requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' })); });
+$('leadbox').addEventListener('click', e => { const nx = e.target.closest('[data-next]')?.dataset.next; if (nx) { const t = (S.targets || []).find(x => x.slug === nx); if (t) openTarget(t); return; } const to = e.target.closest('button')?.dataset.to; if (!to) return; setPanelFull(true); requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' })); });
 $('findings').addEventListener('click', e => {
   const b = e.target.closest('button');
   const to = b?.dataset.to;
@@ -1924,6 +1937,7 @@ function realityCheck(lc) {
   const pc = v => G`${Math.round(v * 100)}%`;
   const stars = Lang.N(comps.length, 'ordinary star');
   let verdict, word = 'none';
+  if (sn < 5 && S.find.why !== 'bright') S.find.why = 'faint';
   if (sn < 5) verdict = G`The spot is too faint in D${S.det} to check for changes: one exposure measures it only to about ${pc(Math.min(1, 1 / Math.max(sn, 1)))}. Try a detector where it is brighter.`;
   else if (steady == null) verdict = relative
     ? G`A change of ${pc(change)} between visits. It cannot be checked against other stars here: next to a star this bright, every faint neighbour sits in its glow.`
@@ -2050,7 +2064,7 @@ function renderScan() {
   const list = r.flags.length ? `<ul class="flags">${r.flags.map((f, i) => `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}${f.own ? G` · the catalogued object` : ''}</span></li>`).join('')}</ul>
     <p class="hint">${G`Press one to circle it. A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
   el.innerHTML = head + list;
-  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> The Data tab shows what.` }
+  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> The Data tab shows what.`, plain: r.flags.some(f => !f.own) ? T('story.flagged') : '' }
     : { cls: 'none', html: G`<b>None of the ${r.checked} clear stars around it moved or changed</b> between the visits.` });
   el.querySelectorAll('[data-flag]').forEach(b => { b.onclick = () => {
     const f = r.flags[+b.dataset.flag];
@@ -2506,6 +2520,7 @@ function renderMotion() {
   if (seen.length < 2) {
     const holes = rows.filter(r => C.coreMasked(r.st.img, n, g.scale, r.p[0], r.p[1], 6) > 0).length > rows.length / 2;
     const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${fx(every.rate, 1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${fx(catPm, 1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
+    S.find.why = holes ? 'bright' : tracked && catPm >= 0.1 ? 'faint' : S.find.why;
     el.innerHTML = holes ? G`<p class="hint">The star's core is saturated in D${S.det}, so its position cannot be measured here.${elsewhere}</p>`
       : tracked && catPm >= 0.1 ? G`<p class="hint">The target is too faint in this detector to be located, so its motion cannot be measured here.${elsewhere || G` Try another detector.`}</p>` : '';
     if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)), { e: every.e, n: every.n, rate: every.rate, cat: tracked && catPm >= 0.1 ? catPm : null, dets: every.dets });
