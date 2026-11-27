@@ -250,6 +250,7 @@ function restSay() {
   const mb = n * (S.perExposure || 77000 * S.size) / 1e6;          // without a count of its own (the pictures came from this device): 0.4 MB an exposure at 5 arcminutes
   el.hidden = mb < 1;
   if (mb >= 1) el.textContent = T('panel.fullCost', { n: mb >= 20 ? Math.round(mb / 10) * 10 : Math.round(mb) });
+  const tab = $('tabcost'); if (tab) { tab.hidden = mb < 1; tab.textContent = mb >= 1 ? `${mb >= 20 ? Math.round(mb / 10) * 10 : Math.round(mb)} MB` : ''; }
 }
 /** Reading failed: say what happened and offer to try again; a returning connection retries by itself. */
 function loadFailed(e, gen) {
@@ -1914,7 +1915,7 @@ function toSimple() {
 $('simplebtn2').onclick = toSimple;
 /** The bottom button shows once the one at the top is out of sight: above the panel's top, or under a map that stays at the top. */
 function simpleFloat() {
-  const f = $('simplefloat'), top = $('simplebtn'); if (!f) return;
+  const f = $('simplefloat'), top = $('viewtabs'); if (!f) return;
   let on = !!top && !simpleCard() && $('app').dataset.panel === 'open';
   if (on) {
     const r = top.getBoundingClientRect(), ms = document.querySelector('.mapstage'), stuck = ms && /sticky|fixed/.test(getComputedStyle(ms).position) ? ms.getBoundingClientRect().bottom : 0;
@@ -2065,12 +2066,12 @@ function renderAbout() {
   const say = plain ? [gloss && gloss.length > 40 ? gloss : '', T('panel.noname', { id: name })].filter(Boolean).join(' ') : gloss;
   el.innerHTML = `<div class="toprow">
       <div class="idblock"><p class="kind">${kindLine}</p><h1>${esc(head)}</h1>${say ? `<p class="gloss">${esc(say)}</p>` : ''}${mv ? G`<p class="gomoved"><button type="button" class="cta" id="gomoved">Go to where it is now</button></p>` : ''}</div>
-      ${thumb}<button type="button" class="close" id="closepanel" title="${G`Close and return to the map`}" aria-label="${G`Close`}">×</button>
+      ${thumb}<div class="headbtns"><button type="button" class="close" id="closepanel" title="${G`Close and return to the map`}" aria-label="${G`Close`}">×</button>
+        <button type="button" class="roundbtn ic ic-facts factsbtn" id="factsbtn" lang="${Lang.lang}" aria-expanded="${open}" aria-controls="factsbody" title="${esc(T('panel.facts'))}" aria-label="${esc(T('panel.facts'))}"></button>
+        ${S.embed ? '' : `<button type="button" class="roundbtn ic ic-howread howto" id="howto" lang="${Lang.lang}" title="${esc(T('coach.openTitle'))}" aria-label="${esc(T('coach.open'))}"></button>`}</div>
     </div>
+    ${S.embed || S.hunt || body ? '' : `<div class="viewtabs" id="viewtabs" role="tablist" lang="${Lang.lang}"><button type="button" role="tab" class="ic ic-summary" id="tabsum" aria-selected="${simple}">${esc(T('panel.tabSummary'))}</button><button type="button" role="tab" class="ic ic-chart" id="taball" aria-selected="${!simple}">${esc(T('panel.tabAll'))}<small class="tabcost" id="tabcost" hidden></small></button></div>`}
     <div class="factsrow">
-      <button type="button" class="factsbtn" id="factsbtn" lang="${Lang.lang}" aria-expanded="${open}" aria-controls="factsbody">${esc(T('panel.facts'))}</button>
-      ${S.embed ? '' : `<button type="button" class="howto" id="howto" lang="${Lang.lang}" title="${esc(T('coach.openTitle'))}">${esc(T('coach.open'))}</button>`}
-      ${S.embed || simple || S.hunt || body ? '' : `<button type="button" class="howto simplebtn" id="simplebtn" lang="${Lang.lang}">${esc(T('panel.simple'))}</button>`}
       <div class="factsbody" id="factsbody"${open ? '' : ' hidden'}>
         <dl class="facts">${facts.join('')}</dl>
         <div class="links"><span>${G`Check it in`}</span>${links}</div>
@@ -2079,8 +2080,8 @@ function renderAbout() {
   $('closepanel').onclick = closePanel;
   $('factsbtn').onclick = () => { S.factsOpen = !factsShown(); S.factsCoach = false; showFacts(); };
   if ($('howto')) $('howto').onclick = () => coachGo(0);
-  if ($('simplebtn')) $('simplebtn').onclick = toSimple;
-  simpleFloat();
+  if ($('tabsum')) { $('tabsum').onclick = () => { if (!simpleCard()) toSimple(); }; $('taball').onclick = () => { if (simpleCard()) $('fullbtn').onclick(); }; }
+  restSay(); simpleFloat();
   if (mv) $('gomoved').onclick = () => {
     const preset = S.targets.find(x => !x.follow && sepArcsec(mv.ra, mv.dec, x.ra, x.dec) < 20);
     if (preset && fovPick() === preset.size) openTarget(preset);

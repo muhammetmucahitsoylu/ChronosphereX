@@ -360,6 +360,38 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .factsbtn[aria-expanded=true]::before { transform: rotate(90deg); }
 .factsbtn:hover { color: var(--ink); }
 .factsbody { grid-column: 1 / -1; }
+/* the row under the name: three chips of one height and one look, an icon and a short word each (27 Nov 2026) */
+/* the head's buttons: close, the facts, the panel's guide, one under the other; the switch [Summary | Measurements] */
+.ohead .headbtns { flex: none; display: flex; flex-direction: column; gap: 8px; }
+.roundbtn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-2); display: inline-flex; align-items: center; justify-content: center; background: none; color: var(--ink-2); cursor: pointer; }
+.roundbtn.ic::before { margin: 0; width: 20px; height: 20px; }
+.roundbtn:hover { background: var(--surface-2); }
+.roundbtn[aria-expanded=true] { border-color: var(--ember); background: var(--surface-2); }
+.factsrow > .factsbtn, .factsrow > .howto { display: none; }
+.viewtabs { display: flex; gap: 4px; margin-top: 12px; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; background: color-mix(in srgb, var(--bg, #0a0d13) 60%, transparent); }
+.viewtabs button { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 10px; border-radius: 999px; border: 1px solid transparent; font: 600 14px var(--sans); color: var(--ink-2); white-space: nowrap; cursor: pointer; }
+.viewtabs button[aria-selected=true] { background: var(--surface-2); color: var(--ink); border-color: var(--ember); }
+.viewtabs button:not([aria-selected=true]):hover { color: var(--ink); background: var(--surface); }
+.viewtabs .tabcost { margin-left: 7px; padding: 1px 6px; border-radius: 6px; background: var(--surface); font: 500 11px var(--mono); color: var(--ink-3); }
+#fullbtn, .fullwrap > small[data-t="panel.fullHint"], .fullwrap > .fullcost { display: none !important; }          /* the switch above does it */
+.factsrow:has(> .pchip) { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.factsrow > .pchip { flex: 1 1 auto; min-width: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; margin: 0; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg, #0a0d13) 60%, transparent); color: var(--ink); font: 500 13.5px var(--sans); white-space: nowrap; text-align: center; }
+.factsrow > .pchip:hover, .factsrow > .pchip[aria-expanded=true] { background: var(--surface-2); color: var(--ink); }
+.factsrow > .pchip > span { overflow: hidden; text-overflow: ellipsis; }
+.factsrow > .factsbtn::before, .factsrow > .factsbtn[aria-expanded=true]::before { transform: none; color: inherit; transition: none; }          /* the icon, not the old triangle */
+.factsrow > .factsbtn::after { content: ""; flex: none; width: 6px; height: 6px; margin-left: 9px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .15s; opacity: .8; }
+.factsrow > .factsbtn[aria-expanded=true]::after { transform: translateY(2px) rotate(-135deg); }
+.factsrow:has(> .pchip) > .factsbody { flex-basis: 100%; }
+/* a narrow panel (a phone): the three as equal tiles, the icon above its word, like a phone's tab bar; the facts' state
+   shows as the lit tile, not as an arrow */
+@container (max-width: 520px) {
+  .factsrow > .pchip { flex: 1 1 0; flex-direction: column; justify-content: center; gap: 4px; min-height: 60px; padding: 7px 4px; border-radius: 14px; font-size: 12.5px; line-height: 1.2; white-space: normal; }
+  .factsrow > .pchip::before { margin: 0; width: 22px; height: 22px; }
+  .factsrow > .pchip > span { overflow: visible; }
+  .factsrow > .factsbtn::after { display: none; }
+  .factsrow > .factsbtn[aria-expanded=true] { border-color: var(--ember); }
+}
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 20px; margin: 10px 0 0; }
 .facts div { min-width: 0; }
 .facts dt { font: 500 10.5px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); }
@@ -716,7 +748,7 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   /* an object is open and the map is a strip: the name steps aside and the map chooser moves up beside the two buttons, clear of the object's label */
   .top:has(+ .app[data-panel=open]) .brand span { display: none; }
   .top:has(+ .app[data-panel=open]) .brand { padding: 0 8px; }
-  .app[data-panel=open] .layerpick { top: 8px; right: 102px; }
+  .app[data-panel=open] .layerpick { top: 8px; right: 148px; }          /* left of the bar's three buttons: search, settings, menu */
   .app[data-panel=open] .zoom { top: 56px; }
   @container stage (min-height: 225px) and (max-height: 280px) { .app[data-panel=open] .zoom { display: flex; } }
   body.canpoint:not(.touring) .app[data-panel=closed] .zoom { top: 152px; }          /* under the button that points the map where the phone looks */
@@ -952,11 +984,11 @@ body.pointing .ruler { display: none; }
   body.touring .top:has(+ .app[data-panel=open]) { display: none; }          /* a stop of the tour: the tour's card has that column */
   /* the map chooser sits in that row, left of the two buttons, and the zoom buttons under it; beside the panel on the
      narrowest phones the row has no room for it, and it stays under the row */
-  .layerpick { top: 8px; right: 102px; }
+  .layerpick { top: 8px; right: 148px; }
   .zoom { top: 56px; }
   /* the button that points the map where the phone looks is in that row too, and the chooser makes room for it; the opening has no second button for it */
-  .pointbtn { top: 8px; right: 102px; }
-  body.canpoint:not(.touring) .app[data-panel=closed] .layerpick { right: 148px; }
+  .pointbtn { top: 8px; right: 148px; }
+  body.canpoint:not(.touring) .app[data-panel=closed] .layerpick { right: 194px; }
   #pointbtn2 { display: none; }
   @container stage (min-height: 230px) and (max-height: 280px) { .zoom { display: flex; } }
   @container stage (max-width: 280px) { .layerpick { top: 56px; right: 10px; } .zoom { top: 104px; } }
@@ -1150,7 +1182,7 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
    below shows it whole) and the line that opens the facts and links make room for the pictures. Both are back with
    "All measurements". */
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1100px) {
-  body:not(.touring):not(.embed) #panel.simple .ohead :is(.thumb, .factsrow) { display: none; }
+  body:not(.touring):not(.embed) #panel.simple .ohead :is(.thumb, .factsrow, .roundbtn) { display: none; }
   body:not(.touring):not(.embed) #panel.simple .ohead { padding-bottom: 10px; margin-bottom: 12px; }
 }
 /* what "All measurements" will download, while the simple card holds the other detectors back (app.js, restSay) */

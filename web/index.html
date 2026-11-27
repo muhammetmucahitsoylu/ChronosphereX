@@ -114,14 +114,6 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
     <button id="menubtn" type="button" class="menubtn" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><span></span><span></span><span></span></button>
   </nav>
 </header>
-<!-- settings: pictures to press, few words (app.js renderLook; the colours themselves: js/look.js) -->
-<div class="lookpanel" id="lookpanel" role="dialog" aria-labelledby="looktitle" hidden>
-  <div class="lookhead"><h2 id="looktitle" data-t="set.title">Settings</h2><button type="button" class="lookx" id="lookclose" aria-label="Close" data-t-label="set.close">×</button></div>
-  <h3 data-t="set.lang">Language</h3><div class="langgrid" id="langgrid"></div>
-  <h3 data-t="set.look">Colours</h3><div class="lookgrid" id="lookgrid"></div>
-  <h3 data-t="set.map">Sky map</h3><div class="lookgrid" id="mapgrid"></div>
-  <button type="button" class="nightset" id="nightset" aria-pressed="false"><svg viewBox="0 0 256 256" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M227.89,147.89A96,96,0,1,1,108.11,28.11,96.09,96.09,0,0,0,227.89,147.89Z" fill="#ff7b39" opacity="0.45"/><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg><span data-t="set.night">Night mode</span><i class="sw" aria-hidden="true"></i></button>
-</div>
 
 <main class="app" id="app" data-panel="closed">
   <section class="mapwrap" aria-label="Sky map">
@@ -358,10 +350,18 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
     </div>
 
     <!-- the whole panel, scrolled down: the way back to the simple card stays at the bottom of the screen -->
-    <div class="simplefloat" id="simplefloat" hidden><button type="button" class="ghost" id="simplebtn2" data-t="panel.simple">Simple view</button></div>
+    <div class="simplefloat" id="simplefloat" hidden><button type="button" class="ghost" id="simplebtn2" data-t="panel.tabSummary">Summary</button></div>
     <p class="credits">Images: NASA SPHEREx, served by NASA/IPAC (IRSA). Catalogues: Gaia DR3, CatWISE2020, SIMBAD. Sky atlas: Aladin Lite. Encyclopedia cards: Wikipedia.</p>
   </aside>
 </main>
+<!-- settings: pictures to press, few words (app.js renderLook; the colours themselves: js/look.js) -->
+<div class="lookpanel" id="lookpanel" role="dialog" aria-labelledby="looktitle" hidden>
+  <div class="lookhead"><h2 id="looktitle" data-t="set.title">Settings</h2><button type="button" class="lookx" id="lookclose" aria-label="Close" data-t-label="set.close">×</button></div>
+  <h3 data-t="set.lang">Language</h3><div class="langgrid" id="langgrid"></div>
+  <h3 data-t="set.look">Colours</h3><div class="lookgrid" id="lookgrid"></div>
+  <h3 data-t="set.map">Sky map</h3><div class="lookgrid" id="mapgrid"></div>
+  <button type="button" class="nightset" id="nightset" aria-pressed="false"><svg viewBox="0 0 256 256" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M227.89,147.89A96,96,0,1,1,108.11,28.11,96.09,96.09,0,0,0,227.89,147.89Z" fill="#ff7b39" opacity="0.45"/><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg><span data-t="set.night">Night mode</span><i class="sw" aria-hidden="true"></i></button>
+</div>
 
 <div class="coach" id="coach" hidden role="region" aria-label="A walk through the panel" aria-live="polite">
   <div class="coachhead"><span id="coachcount"></span><button type="button" id="coachclose" aria-label="End the walk through the panel" data-t-label="coach.close">×</button></div>
