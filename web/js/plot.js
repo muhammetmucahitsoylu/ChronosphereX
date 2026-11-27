@@ -53,7 +53,7 @@ export class Plot {
     const ink = css.getPropertyValue('--ink-2').trim() || '#9aa', grid = css.getPropertyValue('--line').trim() || '#333';
     const L = 52, R = 10, T = 10, B = 34, pw = W - L - R, ph = H - T - B;
     c.font = '12px system-ui, sans-serif';
-    if (!pts.length) {
+    if (!pts.length && !(o.lines || []).length) {
       c.fillStyle = ink; c.textAlign = 'center';
       c.fillText(o.empty || G`No data`, W / 2, H / 2); return;
     }
@@ -86,14 +86,25 @@ export class Plot {
     }
 
     c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+    // lines: this object's spectrum and the ones laid over it for comparison ({ xy: [[x, y]…], color, dash }); drawn
+    // after faint points (over them), before full ones (under them)
+    const drawLines = () => { for (const ln of o.lines || []) {
+      c.strokeStyle = ln.color; c.lineWidth = ln.width || 2; c.globalAlpha = 0.95; c.setLineDash(ln.dash || []); c.lineJoin = 'round';
+      c.beginPath(); let on = false;
+      for (const [x, y] of ln.xy) { if (!(y > (log ? 0 : -Infinity))) { on = false; continue; } const px = X(x), py = Y(y); if (on) c.lineTo(px, py); else c.moveTo(px, py); on = true; }
+      c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+    } };
+    const faint = pts.some(p => p.faint);
+    if (!faint) drawLines();
     for (const p of pts) {
       p._x = X(p.x); p._y = Y(p.y);
-      c.globalAlpha = p.dim ? 0.35 : 0.9; c.strokeStyle = c.fillStyle = p.color || '#4cc9f0';
-      if (p.err && o.errors !== false && !p.hollow) { c.beginPath(); c.moveTo(p._x, Y(p.y - p.err)); c.lineTo(p._x, Y(p.y + p.err)); c.stroke(); }
-      c.beginPath(); c.arc(p._x, p._y, p.big ? 5 : 2.6, 0, 7);
+      c.globalAlpha = p.faint && !p.big ? 0.28 : p.dim ? 0.35 : 0.9; c.strokeStyle = c.fillStyle = p.color || '#4cc9f0';          // faint: behind a line that says it plainer
+      if (p.err && o.errors !== false && !p.hollow && !p.faint) { c.beginPath(); c.moveTo(p._x, Y(p.y - p.err)); c.lineTo(p._x, Y(p.y + p.err)); c.stroke(); }
+      c.beginPath(); c.arc(p._x, p._y, p.big ? 5 : p.faint ? 1.9 : 2.6, 0, 7);
       if (p.hollow && !p.big) { c.lineWidth = 1.2; c.stroke(); } else c.fill();      // hollow = approximate level
     }
     c.globalAlpha = 1;
+    if (faint) drawLines();
     for (const p of pts) if (p.big) { c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(p._x, p._y, 7, 0, 7); c.stroke(); }
     c.restore();
   }

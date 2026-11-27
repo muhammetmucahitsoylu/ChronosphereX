@@ -249,7 +249,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           </select>
         </div>
         <p class="loopline" id="loopline" data-t="panel.loop">One picture for each time SPHEREx looked here, in a loop. Anything that moved jumps from one to the next.</p>
-        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
+        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><button type="button" class="ghost cmpopen" id="cmpopen" hidden></button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
         <div class="seg" role="group" aria-label="How to compare" id="modes">
           <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
           <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>
@@ -320,9 +320,11 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <div class="stack">
         <section class="block">
           <h2 class="blocktitle">Spectrum <small>its light by colour</small>
-            <label class="inline" title="Mark the wavelengths where common molecules absorb light"><input id="bandsOn" type="checkbox" checked> molecule bands</label></h2>
+            <span class="opts"><label class="inline" title="Mark the wavelengths where common molecules absorb light"><input id="bandsOn" type="checkbox" checked> molecule bands</label>
+            <label class="inline" title="Each exposure's own measurement as a point; the line is the middle of the measurements at each wavelength"><input id="ptsOn" type="checkbox"> each measurement</label></span></h2>
           <div class="plotwrap"><canvas id="spec"></canvas><div class="tip" hidden></div></div>
           <div id="speclegend" class="legend"></div>
+          <div id="speccmp" class="cmp"></div>
           <div id="specnote"></div>
           <div id="molecules"></div>
         </section>
@@ -336,6 +338,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       </div>
     </div>
 
+    <!-- the whole panel, scrolled down: the way back to the simple card stays at the bottom of the screen -->
+    <div class="simplefloat" id="simplefloat" hidden><button type="button" class="ghost" id="simplebtn2" data-t="panel.simple">Simple view</button></div>
     <p class="credits">Images: NASA SPHEREx, served by NASA/IPAC (IRSA). Catalogues: Gaia DR3, CatWISE2020, SIMBAD. Sky atlas: Aladin Lite. Encyclopedia cards: Wikipedia.</p>
   </aside>
 </main>

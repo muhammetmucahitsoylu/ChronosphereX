@@ -1314,6 +1314,89 @@ function measureAll() {
   return pts;
 }
 function pct(v, f) { const s = [...v].sort((a, b) => a - b); return s[clamp(Math.round(f * (s.length - 1)), 0, s.length - 1)]; }
+
+// ------------------------------------------------------------ comparing spectra
+// "Add to the comparison" keeps the spectrum on show in a few dozen numbers; any other object opened after it draws the
+// kept ones as lines over its own points, each scaled to its middle brightness, so that shapes are compared (a brown
+// dwarf's water and methane dips beside a star's smooth fall, a young star's glowing dust). At most three, kept for the
+// visit in this tab. The showcase objects' spectra are ready in data/spectra.json, for the search's ready-made comparisons.
+const CMP_KEY = 'chrono-compare', CMP_MAX = 3, CMP_STYLE = [{ color: '#ff7b39', dash: [7, 4] }, { color: '#7fd1ff', dash: [2, 3] }, { color: '#9be564', dash: [10, 3, 2, 3] }], SELF_LINE = '#f2ede4';
+let cmp = [];
+try { cmp = JSON.parse(sessionStorage.getItem(CMP_KEY) || '[]').filter(x => x && x.key && Array.isArray(x.xy)).slice(0, CMP_MAX); } catch { cmp = []; }
+const cmpSave = () => { try { sessionStorage.setItem(CMP_KEY, JSON.stringify(cmp)); } catch { /* private mode: kept for this page only */ } };
+/** What the object on show is: a showcase object, the body followed, or a place to a few arcseconds. */
+const cmpKey = () => (S.target ? `t:${S.target.slug}` : S.track?.body ? `b:${S.track.body.query || S.track.name}` : `p:${(+S.ra).toFixed(3)},${(+S.dec).toFixed(3)}`);
+const cmpName = x => { const t = x.key.startsWith('t:') && S.targets.find(y => y.slug === x.key.slice(2)); return t ? nameOf(t) : x.name; };
+/** A spectrum in a few dozen numbers: the middle of the measurements in steps of 3 % in wavelength, over their own middle. */
+function specShape(pts) {
+  const bins = new Map(); let n = 0;
+  for (const p of pts) { if (p.spoiled || !(p.flux === p.flux)) continue; const k = Math.round(Math.log(p.lam) / 0.03); if (!bins.has(k)) bins.set(k, []); bins.get(k).push(p.flux); n++; }
+  const step = [...bins.keys()].sort((a, b) => a - b).filter(k => bins.get(k).length >= 3).map(k => { const v = bins.get(k).sort((a, b) => a - b); return [+Math.exp(k * 0.03).toFixed(4), v[v.length >> 1]]; });
+  // the middle of each three neighbouring steps: one stray step (a cosmic ray, a passing star) does not make a spike
+  const raw = step.map(([x], i) => { const v = [step[i - 1], step[i], step[i + 1]].filter(Boolean).map(p => p[1]).sort((a, b) => a - b); return [x, v[(v.length - 1) >> 1]]; });
+  const pos = raw.map(p => p[1]).filter(v => v > 0), mid = pos.length ? pct(pos, 0.5) : 0;
+  return { xy: mid > 0 ? raw.map(([x, y]) => [x, +(y / mid).toPrecision(4)]) : [], mid, n };
+}
+/** The kept spectra as lines for the plot of the object on show (not its own: that is the points). */
+function cmpLines(pts, u) {
+  const key = cmpKey(), here = specShape(pts), mine = cmp.find(x => x.key === key);
+  if (mine && here.xy.length >= 8 && here.n > (mine.n || 0)) { mine.xy = here.xy; mine.n = here.n; cmpSave(); }          // added while still loading: it follows the measurements in
+  if (!pts.length || !(here.mid > 0)) return { lines: [], lo: Infinity, hi: -Infinity, here };
+  const k = here.mid * u, lines = [];
+  cmp.forEach((x, i) => { if (x.key !== key) lines.push({ xy: x.xy.map(([a, b]) => [a, b * k]), color: CMP_STYLE[i].color, dash: CMP_STYLE[i].dash, width: 2.2 }); });
+  const ys = lines.flatMap(l => l.xy.map(p => p[1])).filter(v => v === v);
+  return { lines, lo: ys.length ? Math.min(...ys) : Infinity, hi: ys.length ? Math.max(...ys) : -Infinity, here };
+}
+function renderCmp() {
+  const el = $('speccmp'); if (!el) return;
+  const key = cmpKey(), mine = cmp.some(x => x.key === key), others = cmp.filter(x => x.key !== key).length, full = !mine && cmp.length >= CMP_MAX, out = G`Take it out of the comparison`;
+  const sw = i => `<svg width="24" height="8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="${CMP_STYLE[i].color}" stroke-width="2.4" stroke-dasharray="${CMP_STYLE[i].dash.join(' ')}"/></svg>`;
+  const self = others ? `<span class="cmpchip self"><svg width="24" height="8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="${SELF_LINE}" stroke-width="2.8"/></svg>${esc(G`this object`)}</span>` : '';
+  el.innerHTML = self + `<button type="button" class="ghost cmpadd" aria-pressed="${mine}"${full ? ' disabled' : ''} title="${esc(mine ? out : full ? G`At most three: take one out first.` : '')}">${esc(mine ? G`✓ In the comparison` : G`Add to the comparison`)}</button>`
+    + cmp.map((x, i) => (x.key === key ? '' : `<span class="cmpchip">${sw(i)}<button type="button" class="open" data-i="${i}">${esc(cmpName(x))}</button><button type="button" class="x" data-i="${i}" aria-label="${esc(out)}" title="${esc(out)}">×</button></span>`)).join('')
+    + (cmpTip?.key === key && others ? `<p class="cmptip">${esc(cmpTip.text)}</p>` : '')
+    + `<p class="hint">${esc(others ? G`Lines: the spectra added for comparison, each scaled to this object's middle brightness, so that their shapes can be compared. Press a name to open it.` : mine ? G`Now open another object: this spectrum will be drawn over its own.` : full ? G`At most three: take one out first.` : G`To compare spectra, add this one and open another object.`)}</p>`;
+  const b = $('cmpopen');
+  if (b) { b.hidden = !others; b.textContent = G`Compare spectra (${others})`; }
+}
+$('speccmp').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.classList.contains('cmpadd')) {
+    const key = cmpKey(), at = cmp.findIndex(x => x.key === key);
+    if (at >= 0) cmp.splice(at, 1);
+    else if (cmp.length < CMP_MAX) { const sh = specShape(S.pts || []); cmp.push({ key, name: S.target ? nameOf(S.target) : S.info?.name || S.track?.name || `${(+S.ra).toFixed(4)}° ${S.dec >= 0 ? '+' : ''}${(+S.dec).toFixed(4)}°`, link: location.search, xy: sh.xy, n: sh.n }); }
+    cmpSave(); drawPlots(); return;
+  }
+  const x = cmp[+b.dataset.i]; if (!x) return;
+  if (b.classList.contains('x')) { cmp.splice(+b.dataset.i, 1); cmpSave(); drawPlots(); return; }
+  if (b.classList.contains('open')) openLink(x.link);
+});
+$('cmpopen').onclick = () => { setPanelFull(true); requestAnimationFrame(() => $('spec').closest('section').scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'start' })); };
+/** Open what an address of this page shows (a showcase object, a body followed, a place), without loading the page again. */
+function openLink(search) {
+  const q = new URLSearchParams(search), det = +q.get('det') || undefined, mode = q.get('mode') || undefined;
+  fullFromLink = true;          // a kept spectrum is compared in the whole panel
+  const t = S.targets.find(x => x.slug === q.get('target'));
+  if (t) return go({ ra: t.ra, dec: t.dec, size: t.size, target: t, info: t.info || null, ...(t.view || {}), ...(det ? { det } : {}), ...(mode ? { mode } : {}) });
+  if (q.get('sso')) return openBody(q.get('sso'), +q.get('at') || null, { det, mode, size: +q.get('fov') || 0 });
+  if (q.has('ra') && q.has('dec')) {
+    const st = (q.get('star') || '').split(',').map(Number), track = st.length === 5 && st.every(v => v === v)
+      ? { ra2000: st[0], dec2000: st[1], pmra: st[2], pmdec: st[3], plx: st[4] || null, name: q.get('name') || '' } : null;
+    return go({ ra: +q.get('ra'), dec: +q.get('dec'), size: +(q.get('fov') || q.get('size') || 5), det, mode, ...(track ? { track } : {}) });
+  }
+}
+let cmpLib = null;
+/** A ready-made comparison from the search: the first showcase object's spectrum is kept (from data/spectra.json), the second opens. */
+let cmpTip = null;          // a ready-made comparison's sentence on what to look at, for as long as its second object is on show
+async function compareReady([a, b], tell = '') {
+  const ta = S.targets.find(t => t.slug === a), tb = S.targets.find(t => t.slug === b); if (!ta || !tb) return;
+  try { cmpLib ??= await (await fetch('data/spectra.json')).json(); } catch { cmpLib = null; }
+  const xy = cmpLib?.[a];
+  if (xy && !cmp.some(x => x.key === `t:${a}`)) { while (cmp.length >= CMP_MAX) cmp.shift(); cmp.push({ key: `t:${a}`, name: ta.label, link: `?target=${a}`, xy, n: 0 }); cmpSave(); }
+  cmpTip = tell ? { key: `t:${b}`, text: tell } : null;
+  fullFromLink = true; openTarget(tb);
+  setTimeout(() => $('spec').closest('section').scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'start' }), 900);
+}
 function drawPlots() {
   const pts = S.pts = measureAll(), cur = S.seq[S.idx]?.frame, own = followed();
   const fl = pts.map(p => p.flux);
@@ -1322,11 +1405,14 @@ function drawPlots() {
   const floor = 0.03, peak = own ? Math.max(1, ...pts.filter(p => !p.spoiled).map(p => p.flux)) : 0;
   const relative = S.haloDets?.length > 0 && !S.haloAnchored;
   const inJy = !relative && fl.length > 0 && pct(fl, 0.9) >= 2000, u = inJy ? 0.001 : 1, unit = inJy ? 'Jy' : 'mJy';
-  const sp = pts.map(p => ({ x: p.lam, y: p.flux * u, err: p.err * u, color: epochColor(p.mjd), src: p, big: p.frame === cur, hollow: p.halo || !!p.spoiled, dim: own && p.flux <= floor }));
+  const line = !own && !S.showPts;          // the spectrum as one line, its points faint behind it; a followed comet keeps its points
+  const sp = pts.map(p => ({ x: p.lam, y: p.flux * u, err: p.err * u, color: epochColor(p.mjd), src: p, big: p.frame === cur, hollow: p.halo || !!p.spoiled, dim: own && p.flux <= floor, faint: line }));
   const ymax = fl.length ? pct(fl, 0.98) * 1.25 * u : 1, ymin = fl.length ? Math.min(0, pct(fl, 0.02)) * u : 0;
+  const cl = cmpLines(pts, u), yH = Math.max(ymax, Math.min(cl.hi * 1.08, ymax * 3)), yL = Math.min(ymin, cl.lo);          // room for the lines laid over, not past three times this one's own range
   specPlot.set(sp, {
     xlabel: G`wavelength (µm)`, ylabel: relative ? G`relative brightness` : G`brightness (${unit})`,
-    ...(own ? { logY: true, ylim: [floor, 2 * peak] } : { ylim: [ymin - (ymax - ymin) * 0.04, ymax > ymin ? ymax : ymin + 1] }),
+    ...(own ? { logY: true, ylim: [floor, 2 * peak] } : { ylim: [yL - (yH - yL) * 0.04, yH > yL ? yH : yL + 1] }),
+    lines: [...cl.lines, ...(!own && cl.here.xy.length >= 4 ? [{ xy: cl.here.xy.map(([a, b]) => [a, b * cl.here.mid * u]), color: SELF_LINE, width: line ? 2.8 : 1.8 }] : [])],
     xlim: [0.7, 5.1], empty: S.failed ? G`No images to measure` : !S.grid ? G`Waiting for the images…` : S.sel ? G`Measuring…` : G`Click or tap a star in the image`,
     shade: [...(S.grid ? [{ x0: C.DET_BANDS[S.det][0], x1: C.DET_BANDS[S.det][1], color: '#ff7b3916' }] : []),
       ...(S.showBands ? (own ? C.GASES : bodyStops() ? C.ICES : C.MOLECULES).map((m, i) => ({ x0: m.band[0], x1: m.band[1], color: '#ffffff12', label: m.f, row: i % 2 })) : [])],
@@ -1365,6 +1451,7 @@ function drawPlots() {
   renderMolecules(own ? pts : steadied(pts));
   $('lctitle').textContent = G`Brightness over time · D${S.det} (${C.DET_BANDS[S.det].map(dn).join('–')} µm)`;
   $('speclegend').innerHTML = (S.head?.epochs || []).map((e, i) => `<span><i style="background:${C.EPOCH_COLORS[i % C.EPOCH_COLORS.length]}"></i>${C.fmtMonth((e[0] + e[1]) / 2)}</span>`).join('');
+  renderCmp();
   const loadingMore = !!S.head && [1, 2, 3, 4, 5, 6].some(d => +S.head.avail[d] > 0 && !S.dets[d]?.done);
   const haloNote = !S.haloDets?.length ? ''
     : relative ? G`<b>Too bright for the camera in ${loadingMore ? G`the detectors loaded so far` : G`every detector`}.</b> The star's core is saturated, so it is measured from its faint outer glow instead (hollow points). The scale is relative${loadingMore ? G` until the other detectors arrive` : ''}; the changes over time are real. `
@@ -1372,9 +1459,11 @@ function drawPlots() {
   const hollow = !S.haloDets?.length ? '' : relative ? G` The star is too bright for the camera, so the scale is relative (hollow points).` : G` Hollow points (${S.haloDets.map(d => 'D' + d).join(', ')}): the star is too bright for the camera there, so they are approximate.`;
   $('specnote').innerHTML = !pts.length ? '' : own ? G`<p class="hint">Each point is one exposure, coloured by visit: ${pts.length} so far. Click a point to see that exposure. Hollow points: a star behind the comet, or faulty pixels, add to that exposure.</p>
     <details><summary>How this is measured</summary><p class="hint">Every exposure is cut out around the comet and sees it at a different wavelength, so stepping through them builds a spectrum. Measured in a circle of 9″ radius around its centre, with the sky taken from a ring 100″ to 140″ away, clear of most of its glow. A comet's glow has no edge: this is the part of it nearest the nucleus. The scale runs in powers of ten, so that the faint visit and the bright one both show; a measurement at or below the floor of the plot sits on its bottom line. Hollow points are exposures in which catalogued stars behind the comet add a quarter or more of the light measured (Gaia, 2MASS and WISE say where they are and how bright), or in which the pipeline marks a quarter of the circle as faulty.</p></details>`
-    : G`<p class="hint">Each point is one exposure, coloured by visit: ${pts.length} so far. Click a point to see that exposure.${hollow}</p>
-    <details><summary>How this is measured</summary><p class="hint">${haloNote}Every exposure sees the spot at a different wavelength, so stepping through time builds a spectrum. Measured in a circle of 9″ radius, which reads roughly 10 to 15% low because some starlight falls outside it.</p></details>`;
+    : specUsual(pts.length, hollow, G`<p class="hint">Each point is one exposure, coloured by visit: ${pts.length} so far. Click a point to see that exposure.${hollow}</p>
+    <details><summary>How this is measured</summary><p class="hint">${haloNote}Every exposure sees the spot at a different wavelength, so stepping through time builds a spectrum. Measured in a circle of 9″ radius, which reads roughly 10 to 15% low because some starlight falls outside it.</p></details>`);
 }
+/** Under the spectrum drawn as a line: what the line is, then the usual words without their first part (about the points). */
+const specUsual = (n, hollow, usual) => (S.showPts ? usual : G`<p class="hint">The line is the middle of the measurements at each wavelength (${n} so far, one per exposure). Tick “each measurement” to see them as points, coloured by visit, and click one to see that exposure.${hollow}</p>` + usual.replace(/^\s*<p class="hint">[\s\S]*?<\/p>/, ''));
 /** Take out visit-to-visit brightness changes, detector by detector, so that a variable star's
  *  spectrum from different visits lines up before absorption bands are measured in it. */
 function steadied(pts) {
@@ -1814,6 +1903,26 @@ function setPanelFull(on) {
   renderAbout(); renderFindings();
   requestAnimationFrame(() => { specPlot.draw(); lcPlot.draw(); });          // the plots were drawn while hidden, at no size
 }
+/** Back to the simple card, from the top of the whole panel or from the button that stays at the bottom. */
+function toSimple() {
+  setPanelFull(false);
+  const how = calmMotion() ? 'auto' : 'smooth';
+  $('panel').scrollTo({ top: 0, behavior: how });
+  if ($('panel').getBoundingClientRect().top < 0) $('panel').scrollIntoView({ behavior: how, block: 'start' });          // a phone: the page itself scrolls
+  simpleFloat();
+}
+$('simplebtn2').onclick = toSimple;
+/** The bottom button shows once the one at the top is out of sight: above the panel's top, or under a map that stays at the top. */
+function simpleFloat() {
+  const f = $('simplefloat'), top = $('simplebtn'); if (!f) return;
+  let on = !!top && !simpleCard() && $('app').dataset.panel === 'open';
+  if (on) {
+    const r = top.getBoundingClientRect(), ms = document.querySelector('.mapstage'), stuck = ms && /sticky|fixed/.test(getComputedStyle(ms).position) ? ms.getBoundingClientRect().bottom : 0;
+    on = r.bottom < Math.max(0, $('panel').getBoundingClientRect().top, stuck) + 2;
+  }
+  if (f.hidden === on) f.hidden = !on;
+}
+document.addEventListener('scroll', simpleFloat, { capture: true, passive: true });
 $('fullbtn').onclick = () => {
   setPanelFull(true);
   requestAnimationFrame(() => $('modes').scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'start' }));
@@ -1970,7 +2079,8 @@ function renderAbout() {
   $('closepanel').onclick = closePanel;
   $('factsbtn').onclick = () => { S.factsOpen = !factsShown(); S.factsCoach = false; showFacts(); };
   if ($('howto')) $('howto').onclick = () => coachGo(0);
-  if ($('simplebtn')) $('simplebtn').onclick = () => { setPanelFull(false); $('panel').scrollTo({ top: 0, behavior: calmMotion() ? 'auto' : 'smooth' }); };
+  if ($('simplebtn')) $('simplebtn').onclick = toSimple;
+  simpleFloat();
   if (mv) $('gomoved').onclick = () => {
     const preset = S.targets.find(x => !x.follow && sepArcsec(mv.ra, mv.dec, x.ra, x.dec) < 20);
     if (preset && fovPick() === preset.size) openTarget(preset);
@@ -2940,7 +3050,7 @@ const Finder = (() => {
   const L = () => Lang.lang, W = k => Topics.say(Topics.WORDS[k], L());
   const targetOf = slug => S.targets.find(t => t.slug === slug);
   const sheetName = id => (id === 'planetx' ? T('tour.px.title') : (NAV && NAV[id]) || id);
-  const usable = id => { const d = Topics.ITEMS[id]?.do; return !!d && (!d.target || !!targetOf(d.target)); };
+  const usable = id => { const d = Topics.ITEMS[id]?.do; return !!d && (!d.target || !!targetOf(d.target)) && (!d.compare || d.compare.every(targetOf)); };
   const nameOfItem = id => {
     const d = Topics.ITEMS[id].do;
     if (d.target) { const t = targetOf(d.target); return t ? nameOf(t) : id; }
@@ -3017,6 +3127,7 @@ const Finder = (() => {
       else if (d.name) search(d.name, name);
       else if (d.target) openTarget(targetOf(d.target));
       else if (d.body) openBody(d.body);
+      else if (d.compare) compareReady(d.compare, Topics.say(Topics.ITEMS[id].tell, L()));
       else if (d.sheet) openSheet(d.sheet);
       else if (d.href) location.href = d.href + (L() !== 'en' ? `?lang=${L()}` : '');
     });
@@ -3083,6 +3194,7 @@ $('smooth').onchange = e => { S.smooth = e.target.checked; paint(); };
 $('gaia').onchange = e => { S.showGaia = e.target.checked; paint(); };
 $('marks').onchange = e => { S.marks = e.target.checked; paint(); };
 $('bandsOn').onchange = e => { S.showBands = e.target.checked; drawPlots(); };
+$('ptsOn').onchange = e => { S.showPts = e.target.checked; drawPlots(); };
 
 $('wise').onchange = e => { S.showWise = e.target.checked; if (S.showWise) loadCatwise(); paint(); };
 $('mask').onchange = e => { S.mask = e.target.checked; paint(); };
@@ -4440,7 +4552,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 (async function init() {
   const q = new URLSearchParams(location.search);
   S.embed = q.has('embed');
-  if (q.has('debug')) window.__app = { S, C, findComparisons, usable, gEpoch, scan: () => scanResult };      // for inspection from the console
+  if (q.has('debug')) window.__app = { S, C, findComparisons, usable, gEpoch, scan: () => scanResult, specShape, cmpList: () => cmp, specOpt: () => specPlot.opt, specPts: () => specPlot.pts };      // for inspection from the console
   if (S.embed) document.body.classList.add('embed');
   Lang.applyStatic();
   if (Lang.DEC !== '.') for (const el of document.querySelectorAll('.rulerticks span, .detticks span, #wavelabel')) el.textContent = el.textContent.replace(/(\d)\.(\d)/, `$1${Lang.DEC}$2`);          // the wavelength scales of the HTML: 0,75 µm in the languages that write a comma

@@ -43,6 +43,7 @@ const KIND = {
   variable: L6('Variable star', 'Değişen yıldız', 'Veränderlicher Stern', 'Étoile variable', 'Estrella variable', 'Gwiazda zmienna'),
   browndwarf: L6('Brown dwarf', 'Kahverengi cüce', 'Brauner Zwerg', 'Naine brune', 'Enana marrón', 'Brązowy karzeł'),
   planet: L6('Planet', 'Gezegen', 'Planet', 'Planète', 'Planeta', 'Planeta'),
+  comparison: L6('Comparison', 'Karşılaştırma', 'Vergleich', 'Comparaison', 'Comparación', 'Porównanie'),
 };
 
 /**
@@ -117,6 +118,28 @@ export const ITEMS = {
   jupiter: { do: { body: 'Jupiter' }, kind: 'planet', name: L6('Jupiter', 'Jüpiter', 'Jupiter', 'Jupiter', 'Júpiter', 'Jowisz'), words: [] },
   saturn: { do: { body: 'Saturn' }, kind: 'planet', name: L6('Saturn', 'Satürn', 'Saturn', 'Saturne', 'Saturno', 'Saturn'), words: [] },
   uranus: { do: { body: 'Uranus' }, kind: 'planet', name: L6('Uranus', 'Uranüs', 'Uranus', 'Uranus', 'Urano', 'Uran'), words: ['uranus', 'uranüs', 'urano', 'uran'] },
+  // ready-made comparisons of spectra: the first object's spectrum laid over the second's (app.js compareReady); `tell`
+  // says what to look at, from the page's own measurements of them (spike/harvest_spectra.py)
+  cmpdwarfs: { do: { compare: ['barnard', 'epsindib'] }, kind: 'comparison',
+    name: L6('Red dwarf and brown dwarf', 'Kırmızı cüce ve kahverengi cüce', 'Roter Zwerg und Brauner Zwerg', 'Naine rouge et naine brune', 'Enana roja y enana marrón', 'Czerwony karzeł i brązowy karzeł'),
+    words: ['red dwarf', 'kırmızı cüce', 'roter zwerg', 'naine rouge', 'enana roja', 'czerwony karzeł'],
+    note: L6('Barnard’s Star and Epsilon Indi B', 'Barnard Yıldızı ve Epsilon Indi B', 'Barnards Pfeilstern und Epsilon Indi B', 'Étoile de Barnard et Epsilon Indi B', 'Estrella de Barnard y Epsilon Indi B', 'Gwiazda Barnarda i Epsilon Indi B'),
+    tell: L6('Look at the dips: in the brown dwarf, water vapour carves deep hollows at 1.4 and 1.9 µm and methane holds its light down around 3.3 µm, then the light leaps up near 4 µm. The red dwarf’s spectrum falls away smoothly.',
+      'Çukurlara bakın: kahverengi cücede su buharı 1,4 ve 1,9 µm’de derin çukurlar açar, metan 3,3 µm civarında ışığı bastırır, sonra ışık 4 µm yakınında birden yükselir. Kırmızı cücenin spektrumu ise düzgünce iner.',
+      'Achten Sie auf die Senken: Beim Braunen Zwerg gräbt Wasserdampf bei 1,4 und 1,9 µm tiefe Mulden, und Methan drückt das Licht um 3,3 µm nieder; nahe 4 µm steigt es dann steil an. Das Spektrum des Roten Zwergs fällt gleichmäßig ab.',
+      'Regardez les creux : dans la naine brune, la vapeur d’eau creuse de profondes dépressions à 1,4 et 1,9 µm et le méthane écrase la lumière vers 3,3 µm, puis elle remonte d’un coup près de 4 µm. Le spectre de la naine rouge, lui, descend régulièrement.',
+      'Fíjate en los valles: en la enana marrón, el vapor de agua abre huecos profundos en 1,4 y 1,9 µm y el metano hunde la luz hacia 3,3 µm; luego sube de golpe cerca de 4 µm. El espectro de la enana roja baja de forma suave.',
+      'Spójrz na zagłębienia: u brązowego karła para wodna żłobi głębokie doliny przy 1,4 i 1,9 µm, a metan tłumi światło około 3,3 µm; potem blask gwałtownie rośnie blisko 4 µm. Widmo czerwonego karła opada łagodnie.') },
+  cmpyoung: { do: { compare: ['barnard', 'rwaur'] }, kind: 'comparison',
+    name: L6('Young star and mature star', 'Genç yıldız ve olgun yıldız', 'Junger Stern und reifer Stern', 'Étoile jeune et étoile mûre', 'Estrella joven y estrella madura', 'Młoda gwiazda i dojrzała gwiazda'),
+    words: ['young star', 'genç yıldız', 'junger stern', 'étoile jeune', 'estrella joven', 'młoda gwiazda'],
+    note: L6('Barnard’s Star and RW Aurigae', 'Barnard Yıldızı ve RW Aurigae', 'Barnards Pfeilstern und RW Aurigae', 'Étoile de Barnard et RW Aurigae', 'Estrella de Barnard y RW Aurigae', 'Gwiazda Barnarda i RW Aurigae'),
+    tell: L6('Warm dust around the young star adds light at long wavelengths: RW Aurigae’s spectrum keeps rising past 2 µm, while Barnard’s Star, with no dust around it, fades.',
+      'Genç yıldızı saran ılık toz uzun dalga boylarında fazladan ışık verir: RW Aurigae’nin spektrumu 2 µm’den sonra da yükselmeyi sürdürür, çevresinde böyle bir toz olmayan Barnard Yıldızı’nınki ise azalır.',
+      'Warmer Staub um den jungen Stern fügt bei langen Wellenlängen Licht hinzu: Das Spektrum von RW Aurigae steigt über 2 µm hinaus weiter an, das von Barnards Pfeilstern, um den kein solcher Staub liegt, fällt ab.',
+      'La poussière tiède autour de l’étoile jeune ajoute de la lumière aux grandes longueurs d’onde : le spectre de RW Aurigae continue de monter au-delà de 2 µm, tandis que celui de l’étoile de Barnard, sans poussière autour d’elle, décline.',
+      'El polvo templado que rodea a la estrella joven añade luz en las longitudes de onda largas: el espectro de RW Aurigae sigue subiendo más allá de 2 µm, mientras que el de la estrella de Barnard, sin polvo a su alrededor, decae.',
+      'Ciepły pył wokół młodej gwiazdy dokłada światła na długich falach: widmo RW Aurigae rośnie dalej za 2 µm, a widmo Gwiazdy Barnarda, bez takiego pyłu wokół, słabnie.') },
   neptune: { do: { body: 'Neptune' }, kind: 'planet', name: L6('Neptune', 'Neptün', 'Neptun', 'Neptune', 'Neptuno', 'Neptun'), words: ['neptune', 'neptün', 'neptun', 'neptuno'] },
   hunt: { do: { sheet: 'hunt' }, kind: 'page', words: ['asteroid', 'asteroit', 'asteroids', 'asteroitler', 'göktaşı', 'planetoida', 'astéroïde', 'asteroide', 'asteroiden'] },
   planetx: { do: { sheet: 'planetx' }, kind: 'page', words: ['planet x', 'x gezegeni', 'planet nine', 'dokuzuncu gezegen', 'planète x', 'planeta x', 'planeta dziewiąta'] },
@@ -180,6 +203,11 @@ export const TOPICS = [
       'Sterne, deren Licht steigt und fällt: SPHEREx sah sie immer wieder, die Änderung zeigt sich in den Bildern.', 'Des étoiles dont la lumière monte et descend : SPHEREx les a vues encore et encore, le changement se voit dans ses images.',
       'Estrellas cuya luz sube y baja: SPHEREx las vio una y otra vez, el cambio se ve en sus imágenes.', 'Gwiazdy, których blask rośnie i maleje: SPHEREx widział je raz po raz, zmiana widać na zdjęciach.'),
     items: ['rdra', 'rwaur', 'mira', 'algol', 'betelgeuse', 'etacar'] },
+  { id: 'compare', name: L6('Comparisons', 'Karşılaştırmalar', 'Vergleiche', 'Comparaisons', 'Comparaciones', 'Porównania'),
+    words: ['compare', 'comparison', 'comparisons', 'difference', 'karşılaştır', 'karşılaştırma', 'karşılaştırmalar', 'kıyasla', 'fark', 'vergleich', 'vergleiche', 'vergleichen', 'unterschied', 'comparer', 'comparaison', 'comparaisons', 'différence', 'comparar', 'comparación', 'comparaciones', 'diferencia', 'porównaj', 'porównanie', 'porównania', 'różnica'],
+    say: L6('Two spectra on one plot: what SPHEREx’s 102 colours tell apart.', 'İki spektrum tek grafikte: SPHEREx’in 102 renginin neleri birbirinden ayırdığı.', 'Zwei Spektren in einem Diagramm: was die 102 Farben von SPHEREx unterscheiden.',
+      'Deux spectres sur un même graphique : ce que les 102 couleurs de SPHEREx distinguent.', 'Dos espectros en un mismo gráfico: lo que distinguen los 102 colores de SPHEREx.', 'Dwa widma na jednym wykresie: co rozróżnia 102 barwy SPHEREx.'),
+    items: ['cmpdwarfs', 'cmpyoung'] },
 ];
 
 // ------------------------------------------------------------------------------------------------ finding them
