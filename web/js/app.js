@@ -3,6 +3,7 @@ import { Plot, dateTicks } from './plot.js';
 import * as Sky from './sky.js';
 import * as Info from './info.js';
 import { buildTour } from './tour.js';
+import { makeGuide } from './guide.js';
 import { SHEETS, NAV } from './pages.js';
 import * as Archive from './archive.js';
 import * as Movers from './movers.js';
@@ -3211,6 +3212,7 @@ async function openBody(text, when = null, view = {}, known = null) {
 
 /** A click on the map: work out what is there today and open it. */
 async function openAt(ra, dec, mapFov) {
+  if (S.tapHook?.(ra, dec)) return;          // the guide's step that asks for a press on a star takes it (guide.js)
   if (matchMedia('(pointer: coarse)').matches) { let seen = true; try { seen = !!localStorage.getItem('chrono-loupe-hint'); localStorage.setItem('chrono-loupe-hint', '1'); } catch { /* private mode */ }
     if (!seen) setTimeout(() => note(T('loupe.hint'), 5000), 2600); }
   S.busyUntil = performance.now() + 9000;
@@ -4061,8 +4063,16 @@ function tourEnd() {
   sweep(false); renderLook(); relayout();
   if (Sky.isReady()) Sky.reshape();
 }
-$('tourbtn').onclick = () => tourGo(0);
-$('tourlink').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); tourGo(0); };          // the same button as a line of the phone's menu
+// The guide (guide.js, since 27 Nov 2026): the visitor does each step; the older presenter's tour (tourGo) is no longer offered.
+const rguide = makeGuide({ $, T, S, Sky, nameOf, openTarget, simpleCard, isNarrow,
+  closePanel: () => { if ($('app').dataset.panel === 'open') closePanel(); },
+  panelOpen: () => $('app').dataset.panel === 'open',
+  layer: {
+    get: () => { try { return localStorage.getItem('chrono-layer'); } catch { return null; } },
+    set: v => { if (v) keepLayer(v); else try { localStorage.removeItem('chrono-layer'); } catch { /* private mode */ } if (v !== 'data' && !simpleCard() && $('app').dataset.panel === 'open' && !S.hunt) setPanelFull(false); },
+  } });
+$('tourbtn').onclick = () => (rguide.on ? rguide.stop() : rguide.start());
+$('tourlink').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); rguide.start(); };          // the same button as a line of the phone's menu
 $('huntbtn').onclick = () => startHunt();
 $('tournext').onclick = () => {
   // At the first object the audience meets the panel: Next walks through its parts once, then goes on.
@@ -4875,7 +4885,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('lookpa
 (async function init() {
   const q = new URLSearchParams(location.search);
   S.embed = q.has('embed');
-  if (q.has('debug')) window.__app = { S, C, findComparisons, usable, gEpoch, scan: () => scanResult, specShape, cmpList: () => cmp, specOpt: () => specPlot.opt, specPts: () => specPlot.pts };      // for inspection from the console
+  if (q.has('debug')) window.__app = { rguide, S, C, findComparisons, usable, gEpoch, scan: () => scanResult, specShape, cmpList: () => cmp, specOpt: () => specPlot.opt, specPts: () => specPlot.pts };      // for inspection from the console
   if (S.embed) document.body.classList.add('embed');
   Lang.applyStatic();
   if (Lang.DEC !== '.') for (const el of document.querySelectorAll('.rulerticks span, .detticks span, #wavelabel')) el.textContent = el.textContent.replace(/(\d)\.(\d)/, `$1${Lang.DEC}$2`);          // the wavelength scales of the HTML: 0,75 µm in the languages that write a comma
@@ -4916,7 +4926,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('lookpa
   }
   if (q.get('sso')) return openBody(q.get('sso'), +q.get('at') || null, { det, mode, size: +q.get('fov') || 0 }).then(known => { if (!known) note(T('note.notFound', { name: q.get('sso') }), 8000); });
   if (q.has('hunt')) return startHunt(+q.get('hunt') || 0);          // ?hunt=1292 repeats the hunt for that asteroid: for testing, and for showing one to somebody
-  if (q.has('tour')) tourGo(0);
+  if (q.has('tour')) rguide.start();
   if (q.has('point') && Point.able()) {          // from the app's bar of places, a shortcut or "Tonight": straight to the sky above, looking for something if asked (the words leave the address, so a reload does not start it again)
     const what = q.get('find');
     q.delete('point'); q.delete('find'); history.replaceState(history.state, '', `${location.pathname}${q.size ? `?${q}` : ''}${location.hash}`);
