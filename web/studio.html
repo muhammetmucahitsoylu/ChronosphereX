@@ -59,6 +59,21 @@
       <h1 id="placetitle">Choose a patch of sky</h1>
       <p class="lede" id="placehelp"></p>
       <p class="linkopens" id="linkopens" hidden></p>
+      <!-- Pro: the frame by numbers, the first thing under the title so that pressing "Pro" shows at once what it adds
+           here. Hidden in Simple (studio.css, by the mode written on <body>). -->
+      <section class="proonly" id="proplace">
+        <h2 id="h_proframe">The frame in numbers</h2>
+        <div class="nums">
+          <label><span id="l_ra">Right ascension (°)</span><input type="text" inputmode="decimal" id="n_ra" autocomplete="off" spellcheck="false"></label>
+          <label><span id="l_dec">Declination (°)</span><input type="text" id="n_dec" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+          <label><span id="l_w">Width (°)</span><input type="text" inputmode="decimal" id="n_w" autocomplete="off" spellcheck="false"></label>
+          <label><span id="l_h">Height (°)</span><input type="text" inputmode="decimal" id="n_h" autocomplete="off" spellcheck="false"></label>
+          <label><span id="l_pa">Position angle (°)</span><input type="text" id="n_pa" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+        </div>
+        <p class="fine hms" id="prohms"></p>
+        <p class="fine" id="prosays" role="status"></p>
+        <p class="fine" id="prohint"></p>
+      </section>
       <h2 id="h_places">Good places to start</h2>
       <div class="chips" id="places"></div>
       <h2 id="h_shape">Shape of the frame</h2>
@@ -73,6 +88,8 @@
       <p class="fine" id="qsay"></p>
       <h2 id="h_kind">What kind of picture</h2>
       <div class="cards" id="kind" role="radiogroup"></div>
+      <!-- Pro's fourth kind, "your own wavelengths": the 102 of them to press -->
+      <div id="ownbox" hidden></div>
       <!-- what it costs and the button that starts it stay in sight however far the choices above are scrolled -->
       <div class="act" id="act">
         <p class="says" id="cost" role="status"></p>

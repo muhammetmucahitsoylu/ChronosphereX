@@ -52,6 +52,10 @@ export function makeGuide(ctx) {
       { id: 'c6', ring: '#combine', enter: k => { k.v = `${S.doc?.blend}/${S.doc?.layout}`; }, done: k => `${S.doc?.blend}/${S.doc?.layout}` !== k.v },
       { id: 'c7', ring: '#whole' },
       { id: 'c8', ring: '#out [data-k="format"]' },
+      // Pro's first step: back to the map, a number typed into the frame, the card for wavelengths of one's own
+      { id: 'c10', ring: '#another', done: () => inPlace() },
+      { id: 'c11', ring: '#proplace', enter: k => { if (S.mode !== 'pro') ctx.setMode('pro'); k.v = S.typedN || 0; }, done: k => (S.typedN || 0) > k.v },
+      { id: 'c12', ring: '#kind [data-r="own"]', done: () => S.recipe === 'own' },
       { id: 'c9', end: true },
     ],
     deep: [
@@ -82,13 +86,13 @@ export function makeGuide(ctx) {
     $('g_back').onclick = () => show(at - 1); $('g_skip').onclick = () => show(at + 1);
     return box;
   }
-  function unring() { if (ringed) ringed.classList.remove('gring'); ringed = null; }
+  function unring() { if (ringed) ringed.classList.remove('gring'); ringed = null; document.body.classList.remove('ringact'); }
   function ring(step) {
     const e = typeof step.ring === 'function' ? step.ring() : step.ring ? q(step.ring) : null;
     if (e === ringed) return;
     unring();
     if (!e || !e.getClientRects().length) return;
-    ringed = e; e.classList.add('gring');
+    ringed = e; e.classList.add('gring'); document.body.classList.toggle('ringact', !!e.closest('.act'));          // see studio.css: the button's bar
     try { e.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } catch { /* an old engine */ }
   }
   function size() { document.documentElement.style.setProperty('--guideh', (box && !box.hidden ? box.offsetHeight : 0) + 'px'); }

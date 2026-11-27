@@ -4,7 +4,7 @@ import A from 'https://cdn.jsdelivr.net/npm/aladin-lite@3.8.2/dist/aladin.js';
 import { STR, LANGS } from './words.js';
 import { makeFrame, galacticUp, NATIVE, WAVES, BLANK } from './geom.js';
 import { cost } from './cube.js';
-import { RECIPES, LINES, lineSrc, around } from './recipes.js';
+import { RECIPES, LINES, lineSrc, around, ownRecipe, OWN_MAX, OWN_START } from './recipes.js';
 import { planesOf, DEFAULT_LOOK } from './process.js';
 import { png16, tiff16, fits, toQuery, fromQuery } from './files.js';
 import { drawMarks, layerName, CREDIT } from './marks.js';
@@ -26,6 +26,7 @@ document.documentElement.lang = lang; document.title = `${T.title} · Chronosphe
 const count = (path, title) => { try { window.goatcounter?.count?.({ path: `studio-${path}`, title: title || path, event: true }); } catch { /* blocked: fine */ } };
 
 // ------------------------------------------------------------------------------------------------------ the state
+const KINDS = ['gas', 'stars', 'dust', 'own'];          // the last one is Pro's: wavelengths of one's own choosing
 const SHAPES = [['1:1', 1], ['4:5', 4 / 5], ['3:4', 3 / 4], ['9:16', 9 / 16], ['3:2', 3 / 2], ['16:9', 16 / 9]];
 // places whose pictures were looked at before they were listed (spike/studio/batch.mjs): [key, ra, dec, width in degrees, shape, recipe, turn]
 const PLACES = [['p_orion', 83.9, -4.2, 4.5, '3:4', 'gas'], ['p_carina', 161.0, -59.7, 4, '1:1', 'gas'], ['p_cygnus', 308.0, 41.5, 6, '3:2', 'gas'], ['p_rosette', 98.0, 4.95, 3, '1:1', 'gas'],
@@ -33,7 +34,8 @@ const PLACES = [['p_orion', 83.9, -4.2, 4.5, '3:4', 'gas'], ['p_carina', 161.0, 
 const MAPS = [['wise', 'mapWise', 'https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1'], ['dss', 'mapDss', 'https://irsa.ipac.caltech.edu/data/hips/CDS/DSS2/color'], ['2mass', 'map2mass', 'https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/Color']];
 const SET = Prefs.load(phone), MIN_W = 300, maxPx = () => SET.maxMP * 1e6;
 const S = {
-  mode: 'basic', shape: '1:1', turn: 'north', recipe: 'gas', quality: 1, al: null,
+  mode: 'basic', shape: '1:1', ratio: 1, turn: 'north', recipe: 'gas', quality: 1, al: null,
+  own: [...OWN_START],          // Pro's fourth kind of picture: the wavelengths chosen by hand (plane numbers)
   frame: null, doc: null, base: null, opened: null, pic: null, full: false, busy: false, openLayer: null,
   name: '', size: 'native', format: 'jpg', jpgQ: 0.92, fromLink: null,
 };
@@ -57,26 +59,27 @@ const ask = (msg, progress) => new Promise((ok, no) => { const id = nextId++; wa
 // ------------------------------------------------------------------------------------------------------ words on the page
 function words() {
   const set = (id, key, attr) => { const e = $(id); if (!e) return; if (attr) e.setAttribute(attr, T[key]); else e.textContent = T[key]; };
-  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'],
+  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'], ['h_proframe', 'proFrame'], ['l_ra', 'l_ra'], ['l_dec', 'l_dec'], ['l_w', 'l_w'], ['l_h', 'l_h'], ['l_pa', 'l_pa'], ['prohint', 'proHint'],
     ['h_quality', 'quality'], ['get', 'get'], ['go', 'go'], ['stop', 'stop'], ['another', 'another'], ['openmap', 'openMap'], ['h_edit', 'edit'], ['reset', 'reset'], ['reset2', 'reset'], ['h_layers', 'layers'], ['addband', 'addBand'],
     ['h_combine', 'combine'], ['h_whole', 'whole'], ['h_out', 'out'], ['tobox', 'out'], ['share', 'share'], ['save', 'save'], ['copy', 'copy'], ['link', 'link'], ['neednow', 'readNow'], ['rawnote', 'rawNote']]) set(id, key);
   set('q', 'search', 'placeholder'); set('q', 'search', 'aria-label'); set('zin', 'zoomIn', 'aria-label'); set('zout', 'zoomOut', 'aria-label'); set('mode', 'modeLabel', 'aria-label');
   $('mode').querySelector('[data-m=basic]').textContent = T.basic; $('mode').querySelector('[data-m=pro]').textContent = T.pro;
   $('guideword').textContent = T.guide; $('guidebtn').setAttribute('aria-label', T.guide); $('guidebtn').title = T.guide; $('setbtn').setAttribute('aria-label', T.settings); $('setbtn').title = T.settings;
   $('logo').href = `./?lang=${lang}`;
-  $('turn').innerHTML = `<option value="north">${T.north}</option><option value="level">${T.level}</option>`;
+  $('turn').innerHTML = `<option value="north">${T.north}</option><option value="level">${T.level}</option><option value="free" hidden>${T.free}</option>`;
   $('maplayer').innerHTML = MAPS.map(m => `<option value="${m[0]}">${T[m[1]]}</option>`).join('');
-  $('shape').innerHTML = SHAPES.map(s => `<button type="button" data-s="${s[0]}">${s[0]}</button>`).join('');
+  $('shape').innerHTML = SHAPES.map(s => `<button type="button" data-s="${s[0]}">${s[0]}</button>`).join('') + `<button type="button" class="proonly" data-s="free">${T.free}</button>`;
   $('places').innerHTML = PLACES.map((p, i) => `<button type="button" class="chip" data-p="${i}">${T[p[0]]}</button>`).join('');
-  const kinds = ['gas', 'stars', 'dust'];
-  $('kind').innerHTML = kinds.map(r => `<button type="button" role="radio" data-r="${r}"><i class="sw ${r}"></i><b>${T['r_' + r]}</b><span>${T['r_' + r + '_d']}</span></button>`).join('');
-  $('kind2').innerHTML = kinds.map(r => `<button type="button" data-r="${r}">${T['r_' + r]}</button>`).join('');
+  $('kind').innerHTML = KINDS.map(r => `<button type="button" role="radio" data-r="${r}"${r === 'own' ? ' class="proonly"' : ''}><i class="sw ${r}"></i><b>${T['r_' + r]}</b><span>${T['r_' + r + '_d']}</span></button>`).join('');
+  $('kind2').innerHTML = KINDS.map(r => `<button type="button" data-r="${r}"${r === 'own' ? ' class="proonly"' : ''}>${T['r_' + r]}</button>`).join('');
   for (const id of ['quality', 'quality2']) $(id).innerHTML = [1, 2, 3].map(n => `<button type="button" data-q="${n}">${T['q' + n]}</button>`).join('');
   $('addline').innerHTML = `<option value="">${T.addLine}</option>` + LINES.map(l => `<option value="${l.id}">${T['f_' + l.id]}</option>`).join('');
 }
 
 // ------------------------------------------------------------------------------------------------------ step one: the map
-const shapeOf = () => SHAPES.find(s => s[0] === S.shape)?.[1] || 1;
+const shapeOf = () => (S.shape === 'free' ? S.ratio : SHAPES.find(s => s[0] === S.shape)?.[1]) || 1;
+/** A kind of picture as layers: one of the ready ones, or (Pro) the wavelengths chosen by hand. */
+const known = r => r === 'own' || r in RECIPES, recipeOf = (r, q) => (r === 'own' ? ownRecipe(S.own) : RECIPES[r](q));
 let boxW = 0, boxH = 0;
 function layFrame() {
   const st = $('stage').getBoundingClientRect(), a = shapeOf(), roomW = st.width * (narrow ? 0.86 : 0.74), roomH = st.height * (narrow ? 0.6 : st.height < 420 ? 0.66 : 0.72);
@@ -100,7 +103,7 @@ function showOnMap(ra, dec, wDeg, rot = null) {
 }
 function turnMap(rot) { try { S.al.view.setRotation(-rot); } catch { try { if (rot) S.al.setRotation(-rot); } catch { /* an older build */ } } }
 function applyTurn() {
-  if (!S.al) return; const [ra, dec] = S.al.getRaDec();
+  if (!S.al || S.turn === 'free') return; const [ra, dec] = S.al.getRaDec();          // 'free': an angle typed in Pro, or a twist of two fingers: left as it is
   turnMap(S.turn === 'level' ? galacticUp(ra, dec) : 0);
 }
 const uniquePlanes = doc => { const s = new Set(); for (const L of doc.layers) if (L.on) for (const z of planesOf(L.src)) s.add(z); return [...s].sort((a, b) => a - b); };
@@ -114,16 +117,58 @@ function tellNow() {
   if (big) says.textContent = fill(T.big, { W: Math.floor(Math.sqrt(maxPx() * shapeOf())) });
   else if (small) says.textContent = fill(T.small, { W: f.W });
   else says.textContent = fill(T.frameSays, { w: num(f.w, 1), h: num(f.h, 1), W: f.W, H: f.H });
-  const c = cost(f), n = uniquePlanes(S.fromLink?.rest ? { layers: S.fromLink.rest.layers } : RECIPES[S.recipe](S.quality)).length, mb = Math.max(1, Math.round(c.bytesPerPlane * n / 1e6));
+  const c = cost(f), n = uniquePlanes(S.fromLink?.rest ? { layers: S.fromLink.rest.layers } : recipeOf(S.recipe, S.quality)).length, mb = Math.max(1, Math.round(c.bytesPerPlane * n / 1e6));
   const cell = navigator.connection && (navigator.connection.type === 'cellular' || navigator.connection.saveData);
   $('cost').textContent = big ? '' : fill(T.cost, { mb, n }) + (cell ? ' ' + T.mobile : '');
   $('get').disabled = big || S.busy;
   if (S.fromLink) { $('linkopens').hidden = false; $('linkopens').textContent = fill(T.linkOpens, { W: f.W, H: f.H, mb }); }
+  // a twist with two fingers (or a link's own angle) is neither of the two ready turns: the chooser says so
+  if (S.turn === 'north' && Math.abs(f.rot || 0) > 0.6) { S.turn = 'free'; $('turn').value = 'free'; }
+  tellPro(f, c);
+}
+/** Pro: the frame as numbers. A field that is being typed in is left alone. */
+function sexa(ra, dec) {
+  const p = v => String(v).padStart(2, '0'), t = Math.round(ra / 15 * 36000) % 864000, a = Math.round(Math.abs(dec) * 3600);
+  return `${p(Math.floor(t / 36000))}h ${p(Math.floor(t % 36000 / 600))}m ${num(t % 600 / 10, 1).padStart(4, '0')}s · ${dec < 0 ? '−' : '+'}${p(Math.floor(a / 3600))}° ${p(Math.floor(a % 3600 / 60))}′ ${p(a % 60)}″`;
+}
+function tellPro(f, c) {
+  if (S.mode !== 'pro') return;
+  const put = (id, text) => { const e = $(id); if (document.activeElement !== e) e.value = text; }, rot = Math.abs(f.rot || 0) < 0.05 ? 0 : f.rot;
+  put('n_ra', num(f.ra, 4)); put('n_dec', num(f.dec, 4)); put('n_w', num(f.w, 2)); put('n_h', num(f.h, 2)); put('n_pa', num(rot, 1));
+  $('prohms').textContent = sexa(f.ra, f.dec);
+  $('prosays').textContent = fill(T.proSays, { s: num(f.scale, 1), W: f.W, H: f.H, mb: num(c.bytesPerPlane / 1e6, 1) });
+}
+/** Pro: a number typed into one of the frame's fields moves the map. */
+function typed(which) {
+  const f = frameFromMap(), v = parseFloat($('n_' + which).value.trim().replace(',', '.').replace('−', '-'));
+  if (!f || !isFinite(v)) { tellNow(); return; }          // not a number: the field shows the map's value again
+  let { ra, dec, w, h } = f;
+  S.typedN = (S.typedN || 0) + 1; if (S.typedN === 1) count('pro-frame', 'Pro: the frame typed in numbers');          // the guide waits for a typed number
+  if (which === 'pa') { S.turn = 'free'; $('turn').value = 'free'; turnMap(((v + 180) % 360 + 360) % 360 - 180); tellNow(); return; }
+  if (which === 'ra') ra = ((v % 360) + 360) % 360;
+  if (which === 'dec') dec = clamp(v, -90, 90);
+  if (which === 'w' || which === 'h') {
+    if (which === 'w') w = clamp(v, 0.2, 60); else h = clamp(v, 0.2, 60);
+    S.ratio = clamp(w / h, 0.2, 5); S.shape = 'free'; marks('shape', 's', 'free'); layFrame();
+    if (which === 'h') w = h * S.ratio;
+  }
+  showOnMap(ra, dec, w); if (S.turn === 'level') applyTurn(); tellNow();
+}
+/** Pro's fourth kind: the strip of SPHEREx's wavelengths to press, and what is chosen. Quality (how many neighbouring
+ *  wavelengths are averaged) has no say there: exactly the chosen ones are read. */
+function buildOwn() {
+  const box = $('ownbox'), on = S.recipe === 'own', was = box.querySelector('.strip')?.scrollLeft ?? null;
+  box.hidden = !on; for (const id of ['h_quality', 'quality', 'qsay']) $(id).hidden = on;
+  if (!on) return;
+  box.innerHTML = ''; const L = { src: { kind: 'band', planes: S.own } };
+  strip(box, L, { done: () => { S.own = L.src.planes; buildOwn(); tell(); }, max: OWN_MAX, scroll: was, plain: true });
+  const say = document.createElement('p'); say.className = 'fine'; say.id = 'ownsays';
+  say.textContent = fill(T.ownSays, { n: S.own.length, max: OWN_MAX, list: S.own.map(z => num(WAVES[z], 2)).join(' · ') }); box.append(say);
 }
 function marks(group, attr, value) { for (const b of $(group).children) { const on = b.dataset[attr] === String(value); b.setAttribute(group === 'kind' ? 'aria-checked' : 'aria-pressed', on); } }
-function pickRecipe(r) { S.recipe = r; marks('kind', 'r', r); marks('kind2', 'r', r); tell(); }
+function pickRecipe(r) { S.recipe = r; marks('kind', 'r', r); marks('kind2', 'r', r); buildOwn(); tell(); }
 function pickQuality(n) { S.quality = n; marks('quality', 'q', n); marks('quality2', 'q', n); $('qsay').textContent = T[`q${n}d`]; tell(); }
-function pickShape(s) { S.shape = s; marks('shape', 's', s); const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, Math.max(f.w, f.h) * Math.min(1, shapeOf())); tell(); }
+function pickShape(s) { if (s === 'free') S.ratio = boxH ? boxW / boxH : 1; S.shape = s; marks('shape', 's', s); const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, Math.max(f.w, f.h) * Math.min(1, shapeOf())); tell(); }
 
 async function initMap(start) {
   await A.init;
@@ -173,10 +218,10 @@ async function find(text) {
 
 // ------------------------------------------------------------------------------------------------------ the picture's description
 function newDoc(recipe, quality, frame, keep = {}) {
-  const r = RECIPES[recipe](quality);
+  const r = recipeOf(recipe, quality);
   return { v: 1, recipe, quality, frame, ...r, look: { ...r.look }, marks: { title: '', key: false, scale: false, compass: false, ...(keep.marks || {}) } };
 }
-const baseOf = doc => (RECIPES[doc.recipe] ? RECIPES[doc.recipe](doc.quality) : null);
+const baseOf = doc => (known(doc.recipe) ? recipeOf(doc.recipe, doc.quality) : null);
 
 // ------------------------------------------------------------------------------------------------------ reading
 function busy(on, say = '', sub = '', frac = 0) {
@@ -225,7 +270,7 @@ async function heal() {
 async function getPicture() {
   const f = frameFromMap(); if (!f || f.W * f.H > maxPx() || S.busy) return;
   if (!worker && !startWorker()) { $('framesays').textContent = T.noWorker; return; }
-  const want = S.fromLink?.rest ? { layers: S.fromLink.rest.layers } : RECIPES[S.recipe](S.quality), bytes = cost(f).bytesPerPlane * uniquePlanes(want).length;
+  const want = S.fromLink?.rest ? { layers: S.fromLink.rest.layers } : recipeOf(S.recipe, S.quality), bytes = cost(f).bytesPerPlane * uniquePlanes(want).length;
   if (Prefs.mustAsk(SET, bytes) && !await Prefs.askFirst(T, fill, bytes)) return;
   S.frame = f; S.pic = null; S.working = true; S.have = new Set();
   const link = S.fromLink; S.fromLink = null; $('linkopens').hidden = true;
@@ -351,7 +396,7 @@ const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
 const STOPS = [[0.75, [120, 170, 255]], [1.2, [110, 225, 255]], [1.7, [130, 255, 190]], [2.2, [240, 245, 140]], [2.9, [255, 190, 90]], [3.4, [255, 140, 60]], [4.1, [255, 85, 55]], [5.0, [225, 45, 85]]];
 const tintOf = um => { let i = 0; while (i < STOPS.length - 2 && um > STOPS[i + 1][0]) i++; const [a, ca] = STOPS[i], [b, cb] = STOPS[i + 1], t = clamp((um - a) / (b - a), 0, 1); return `rgb(${ca.map((v, k) => Math.round(v + (cb[k] - v) * t)).join(',')})`; };
 
-function strip(host, L) {
+function strip(host, L, o = {}) {
   const wrap = document.createElement('div'); wrap.className = 'strip';
   const cells = document.createElement('div'); cells.className = 'cells'; const ticks = document.createElement('div'); ticks.className = 'ticks';
   const isLine = L.src.kind === 'line', onSet = new Set(isLine ? L.src.on : L.src.planes), offSet = new Set(isLine ? L.src.off.map(o => o[0]) : []);
@@ -359,18 +404,18 @@ function strip(host, L) {
   WAVES.forEach((um, z) => {
     const b = document.createElement('button'); b.type = 'button'; b.style.background = BLANK.has(z) ? '#222' : tintOf(um); b.disabled = BLANK.has(z);
     b.title = `${num(um, 3)} µm`; b.setAttribute('aria-label', b.title);
-    b.className = (onSet.has(z) ? 'on' : offSet.has(z) ? 'off' : '') + (S.have?.has(z) ? ' have' : '');
+    b.className = (onSet.has(z) ? 'on' : offSet.has(z) ? 'off' : '') + (S.have?.has(z) && !o.plain ? ' have' : '');
     b.onclick = () => {
       if (isLine) { if (onSet.has(z)) { onSet.delete(z); offSet.add(z); } else if (offSet.has(z)) offSet.delete(z); else onSet.add(z); if (!onSet.size) onSet.add(z); L.src = offSet.size ? lineSrc([...onSet].sort((a, c) => a - c), [...offSet].sort((a, c) => a - c)) : { kind: 'line', on: [...onSet].sort((a, c) => a - c), off: [] }; }
-      else { if (onSet.has(z)) { if (onSet.size > 1) onSet.delete(z); } else onSet.add(z); L.src = { kind: 'band', planes: [...onSet].sort((a, c) => a - c) }; }
-      changed(true);
+      else { if (onSet.has(z)) { if (onSet.size > 1) onSet.delete(z); } else if (!o.max || onSet.size < o.max) onSet.add(z); L.src = { kind: 'band', planes: [...onSet].sort((a, c) => a - c) }; }
+      if (o.done) o.done(); else changed(true);
     };
     cells.append(b);
     const t = document.createElement('span'); if (um - lastTick >= 0.5 || z === 0) { t.textContent = num(um, 1); lastTick = um; } ticks.append(t);
   });
   wrap.append(cells, ticks); host.append(wrap);
   const hint = document.createElement('p'); hint.className = 'pickhint'; hint.textContent = isLine ? T.pickLine : T.pick; host.append(hint);
-  const first = [...onSet][0]; if (first !== undefined) requestAnimationFrame(() => { wrap.scrollLeft = Math.max(0, first * 16 - wrap.clientWidth / 2); });
+  const first = [...onSet][0]; if (o.scroll != null) wrap.scrollLeft = o.scroll; else if (first !== undefined) requestAnimationFrame(() => { wrap.scrollLeft = Math.max(0, first * 16 - wrap.clientWidth / 2); });
 }
 function buildLayers() {
   const host = $('layers'), d = S.doc; host.innerHTML = '';
@@ -472,15 +517,15 @@ function buildOut() {
 function build() {
   if (!S.doc) return;
   $('basicbox').hidden = S.mode !== 'basic'; $('probox').hidden = S.mode !== 'pro';
-  marks('kind2', 'r', S.doc.recipe); marks('quality2', 'q', S.doc.quality);
+  marks('kind2', 'r', S.doc.recipe); marks('quality2', 'q', S.doc.quality); $('quality2').hidden = S.doc.recipe === 'own';
   const f = S.doc.frame; $('openmap').href = `./?ra=${f.ra.toFixed(5)}&dec=${f.dec.toFixed(5)}&fov=${Math.max(f.w, f.h).toFixed(2)}&lang=${lang}`;
   if (S.mode === 'basic') buildBasic(); else buildPro();
   buildOut();
 }
 function setMode(m) {
-  S.mode = m; for (const b of $('mode').children) b.setAttribute('aria-pressed', b.dataset.m === m);
+  S.mode = m; document.body.dataset.mode = m; for (const b of $('mode').children) b.setAttribute('aria-pressed', b.dataset.m === m);
   try { localStorage.setItem('chrono-studio-mode', m); } catch { /* private mode */ }
-  build(); hist();
+  build(); hist(); tellNow();
 }
 /** Another recipe or quality for the frame already open: what it still needs is read only when the visitor says so. */
 function switchRecipe(recipe, quality) {
@@ -564,8 +609,9 @@ function wire() {
   $('kind').onclick = e => { const b = e.target.closest('button'); if (b) pickRecipe(b.dataset.r); };
   $('quality').onclick = e => { const b = e.target.closest('button'); if (b) pickQuality(+b.dataset.q); };
   $('kind2').onclick = e => { const b = e.target.closest('button'); if (b) switchRecipe(b.dataset.r, S.quality); };
-  $('quality2').onclick = e => { const b = e.target.closest('button'); if (b) switchRecipe(S.doc.recipe in RECIPES ? S.doc.recipe : S.recipe, +b.dataset.q); };
+  $('quality2').onclick = e => { const b = e.target.closest('button'); if (b) switchRecipe(known(S.doc.recipe) ? S.doc.recipe : S.recipe, +b.dataset.q); };
   $('turn').onchange = e => { S.turn = e.target.value; applyTurn(); tell(); };
+  for (const k of ['ra', 'dec', 'w', 'h', 'pa']) { const e = $('n_' + k); e.onchange = () => typed(k); e.onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); e.blur(); } }; e.onfocus = () => e.select(); }
   $('places').onclick = e => {
     const b = e.target.closest('button'); if (!b) return; const p = PLACES[+b.dataset.p];
     S.shape = p[4]; marks('shape', 's', S.shape); layFrame(); S.turn = p[6] || 'north'; $('turn').value = S.turn;
@@ -582,13 +628,20 @@ function wire() {
   $('tobox').onclick = () => { $('outbox').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
   $('setbtn').onclick = settings;
   $('guidebtn').onclick = () => (guide.on ? guide.stop() : guide.menu());
-  for (const id of ['reset', 'reset2']) $(id).onclick = () => switchRecipe(S.doc.recipe in RECIPES ? S.doc.recipe : S.recipe, S.doc.quality);
+  for (const id of ['reset', 'reset2']) $(id).onclick = () => switchRecipe(known(S.doc.recipe) ? S.doc.recipe : S.recipe, S.doc.quality);
   $('addband').onclick = () => { const id = 'x' + Date.now().toString(36); S.doc.layers.push({ id, src: { kind: 'band', planes: [35] }, color: [1, 1, 1], gain: 1, on: true, bg: 'level', bgPct: 20, lo: 50, loS: 0, hi: 99.8, hiS: 0, curve: 'asinh', k: 8, smooth: 0 }); S.doc.recipe = 'custom'; S.openLayer = id; changed(true); };
   $('addline').onchange = e => {
     const l = LINES.find(x => x.id === e.target.value); e.target.value = ''; if (!l) return; const id = l.id + Date.now().toString(36);
     S.doc.layers.push({ id, src: lineSrc(l.on, l.off), color: [0.3, 0.8, 1], gain: 1, on: true, bg: 'level', bgPct: 20, lo: 50, loS: 6, hi: 99.8, hiS: 120, curve: 'asinh', k: 8, smooth: 0.6, feature: l.id }); S.doc.recipe = 'custom'; S.openLayer = id; changed(true);
   };
   for (const how of ['share', 'save', 'copy', 'link']) $(how).onclick = () => take(how);
+  // A phone: the map stands fixed above the panel and the keyboard takes the lower half of the screen, so a field that
+  // is being typed in would have no room between them. While one is, the map is lower (studio.css, body.typing).
+  if (narrow) {
+    const field = e => !!e?.matches?.('#side input[type=text]'), typing = on => { if (document.body.classList.contains('typing') !== on) { document.body.classList.toggle('typing', on); window.dispatchEvent(new Event('resize')); } };
+    $('side').addEventListener('focusin', e => { if (field(e.target)) typing(true); });
+    $('side').addEventListener('focusout', e => { if (field(e.target)) setTimeout(() => { if (!field(document.activeElement)) typing(false); }, 120); });
+  }
   let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if ($('picker').hidden) layMarks(); else { const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, f.w); tell(); } }, 150); });
 }
 
@@ -596,6 +649,7 @@ const guide = makeGuide({ S, $, T, lang, fill, narrow, frameFromMap: () => frame
   changed: r => changed(r), open: id => { S.openLayer = id; build(); hist(); }, useRecipe: r => { if (S.doc && S.doc.recipe !== r) switchRecipe(r, S.doc.quality || 1); } });
 words(); wire(); setFull(false);
 for (const b of $('mode').children) b.setAttribute('aria-pressed', b.dataset.m === S.mode);
+document.body.dataset.mode = S.mode;
 let start = { ra: 98.0, dec: 4.95, w: 3, rot: 0 };          // the Rosette Nebula: bright, round, and 48 MB to read (Orion is 119)
 const asked = fromQuery(location.search);
 let last = null; try { last = !asked && sessionStorage.getItem('chrono-studio-last'); } catch { last = null; }
@@ -604,8 +658,10 @@ if (from) {
   const f = from.frame, w = f.w || (f.fov ? clamp(f.fov * 0.5, 1.5, 8) : 4), h = f.h || w;
   start = { ra: f.ra, dec: f.dec, w, rot: f.rot || 0 };
   if (RECIPES[from.recipe]) S.recipe = from.recipe; S.quality = from.quality || 1;
-  const a = w / h; S.shape = SHAPES.reduce((best, s) => (Math.abs(Math.log(s[1] / a)) < Math.abs(Math.log(best[1] / a)) ? s : best))[0];
-  if (Math.abs((f.rot || 0) - galacticUp(f.ra, f.dec)) < 0.6 && Math.abs(f.rot || 0) > 0.6) S.turn = 'level';
+  if (from.recipe === 'own' && from.rest) { const zs = [...new Set(from.rest.layers.flatMap(L => (L.src.kind === 'band' ? L.src.planes : [])))].slice(0, OWN_MAX); if (zs.length) { S.own = zs.sort((a, b) => a - b); S.recipe = 'own'; } }
+  const a = w / h, near = SHAPES.reduce((best, s) => (Math.abs(Math.log(s[1] / a)) < Math.abs(Math.log(best[1] / a)) ? s : best));
+  if (Math.abs(Math.log(near[1] / a)) < 0.012) S.shape = near[0]; else { S.shape = 'free'; S.ratio = clamp(a, 0.2, 5); }          // a frame typed in Pro keeps its own proportions
+  if (Math.abs((f.rot || 0) - galacticUp(f.ra, f.dec)) < 0.6 && Math.abs(f.rot || 0) > 0.6) S.turn = 'level'; else if (Math.abs(f.rot || 0) > 0.6) S.turn = 'free';
   if (asked && asked.frame.w && (asked.rest || q0.get('r'))) S.fromLink = asked;
 }
 marks('shape', 's', S.shape); $('turn').value = S.turn; pickRecipe(S.recipe); pickQuality(S.quality);

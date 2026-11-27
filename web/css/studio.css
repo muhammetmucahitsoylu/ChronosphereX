@@ -73,6 +73,17 @@ select { background: var(--surface); border: 1px solid var(--line); border-radiu
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 .row2 label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-3); min-width: 0; }
 .row2 select { width: 100%; }
+/* Pro's own things at the first step (the frame by numbers, the free shape, wavelengths of one's own): out of sight in
+   Simple, unless one of them is the choice in force (a frame typed in Pro stays what it is when the mode is changed) */
+body:not([data-mode="pro"]) .proonly:not([aria-pressed="true"]):not([aria-checked="true"]) { display: none !important; }
+#proplace { border: 1px solid var(--line-2, var(--line)); border-radius: 12px; padding: 0 12px 12px; margin: 12px 0 2px; }
+#proplace h2 { margin-top: 13px; color: var(--ember); }
+.nums { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px 10px; align-items: end; }
+.nums label { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; line-height: 1.25; color: var(--ink-3); min-width: 0; grid-column: span 2; }
+.nums label:nth-child(-n+2) { grid-column: span 3; }
+.nums input { width: 100%; min-width: 0; font: 400 14.5px var(--mono); padding: 8px 9px; color: var(--ink); }
+.fine.hms { font-family: var(--mono); color: var(--ink-2); margin-top: 10px; }
+#ownbox { margin-top: 2px; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; min-height: 36px; font: 500 13.5px var(--sans); color: var(--ink); }
 .chip[aria-pressed="true"] { border-color: var(--ember); color: var(--ember); }
@@ -87,6 +98,7 @@ select { background: var(--surface); border: 1px solid var(--line); border-radiu
 .sw.gas { background: radial-gradient(circle at 42% 46%, #f4ffd0 0 8%, #49e07a 22%, #c8401a 52%, #170604 78%), #000; }
 .sw.stars { background: radial-gradient(circle at 30% 28%, #fff 0 5%, transparent 7%), radial-gradient(circle at 72% 64%, #ffe9c8 0 4%, transparent 6%), radial-gradient(circle at 56% 30%, #cfe0ff 0 3%, transparent 5%), radial-gradient(ellipse at 50% 58%, #a3261c 0 18%, #050404 62%); }
 .sw.dust { background: linear-gradient(#5fb7c9 0 31%, #000 31% 35%, #c9853c 35% 65%, #000 65% 69%, #a02e3f 69%); }
+.sw.own { background: linear-gradient(90deg, #4a7dff 0 16%, #37d6ff 16% 33%, #5cf2a0 33% 50%, #f4f08a 50% 67%, #ff9a4a 67% 84%, #e0362c 84%); }          /* Pro: wavelengths of one's own, short to long */
 
 /* ------------------------------------------------------------------ step one: the map and its frame */
 #picker, #easel { position: absolute; inset: 0; }
@@ -209,8 +221,20 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--ember); }
   .guide p { font-size: 14px; }
   body.guiding #stage, body.guiding.studio #stage { height: min(32vh, 280px); height: min(32svh, 280px); }
   body.guiding #pic { max-height: calc(min(32svh, 280px) - 62px); }
+  /* a field of the panel is being typed in: the keyboard has the lower half of the screen, so the map takes less of the upper */
+  body.typing #stage, body.typing.studio #stage { height: min(30vh, 250px); height: min(30svh, 250px); }
+  body.typing #pic { max-height: calc(min(30svh, 250px) - 62px); }
   body.guiding #side { padding-bottom: calc(var(--guideh, 0px) + 70px + var(--tabs, 0px)); }
   body.guiding .act { bottom: calc(var(--guideh, 0px) + 12px + var(--tabs, 0px)); }
+  /* with the guide's card at the bottom, the button's bar stays fixed only while the guide points at that button: else
+     the map above, the bar and the card left a strip of 50 px of the panel on a short phone (27 Nov 2026) */
+  body.guiding:not(.ringact) .act { position: static; }
+  /* what the page scrolls to (the guide's ring, "Take it with you", a field getting the keyboard) lands between the map
+     that stands fixed at the top and the bars at the bottom, never under the map */
+  :root { scroll-padding-top: calc(var(--top) + var(--sat, 0px) + min(56svh, 520px) + 8px); scroll-padding-bottom: calc(120px + var(--tabs, 0px)); }
+  :root:has(body.studio) { scroll-padding-top: calc(var(--top) + var(--sat, 0px) + min(46svh, 460px) + 8px); }
+  :root:has(body.typing) { scroll-padding-top: calc(var(--top) + var(--sat, 0px) + min(30svh, 250px) + 8px); }
+  :root:has(body.guiding) { scroll-padding-top: calc(var(--top) + var(--sat, 0px) + min(32svh, 280px) + 8px); scroll-padding-bottom: calc(var(--guideh, 0px) + 16px + var(--tabs, 0px)); }
   #pic { max-height: calc(min(46svh, 460px) - 62px); }
   #scroll { padding: 8px 10px 4px; }
   #side h1 { font-size: 27px; }

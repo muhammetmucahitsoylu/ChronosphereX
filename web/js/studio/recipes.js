@@ -66,6 +66,22 @@ export const RECIPES = {
   }),
 };
 
+/** Pro, step one: a picture from wavelengths of one's own choosing. One layer for each, coloured along the spectrum the
+ *  way infrared pictures are by habit (the shortest blue, the longest red, the ones between through green); the blend
+ *  is the one of the 'stars' picture, which shares the colours out so that plain stars come out near white. */
+export const OWN_MAX = 8, OWN_START = [around(1.25)[0], around(2.2)[0], around(3.6)[0]];
+export function ownRecipe(planes) {
+  const zs = [...new Set(planes)].filter(z => z >= 0 && z < WAVES.length && !BLANK.has(z)).sort((a, b) => a - b).slice(0, OWN_MAX), n = zs.length;
+  // t: 0 for the shortest wavelength chosen, 1 for the longest: blue, cyan, green, yellow, red
+  const hue = t => { const h = (1 - t) * 4, x = +(1 - Math.abs(h % 2 - 1)).toFixed(3); return h < 1 ? [1, x, 0] : h < 2 ? [x, 1, 0] : h < 3 ? [0, 1, x] : [0, x, 1]; };
+  const colour = i => (n === 1 ? [1, 1, 1] : n === 2 ? [[0, 0.6, 1], [1, 0.4, 0]][i] : hue(i / (n - 1)));
+  return {
+    layout: 'one', blend: 'ratio', balance: 'own', stretch: { k: 10, depth: 0.7, blur: 2.5 },
+    layers: zs.map((z, i) => layer('w' + z, { kind: 'band', planes: [z] }, colour(i), { lo: 50 })).reverse(),          // the longest first, as in the 'stars' picture
+    look: {},
+  };
+}
+
 /** Features of gas, dust and ice that SPHEREx's colours can pick out; `on`/`off` as plane numbers. For the Pro panel. */
 export const LINES = [
   { id: 'pah', um: 3.29, on: [62, 63], off: [60, 65] },             // dust molecules (PAH)
