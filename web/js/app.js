@@ -4,6 +4,7 @@ import * as Sky from './sky.js';
 import * as Info from './info.js';
 import { buildTour } from './tour.js';
 import { makeGuide } from './guide.js';
+import { makeGlossary } from './glossary.js';
 import { SHEETS, NAV } from './pages.js';
 import * as Archive from './archive.js';
 import * as Movers from './movers.js';
@@ -4109,6 +4110,10 @@ const rguide = makeGuide({ $, T, S, Sky, nameOf, openTarget, simpleCard, isNarro
     get: () => { try { return localStorage.getItem('chrono-layer'); } catch { return null; } },
     set: v => { if (v) keepLayer(v); else try { localStorage.removeItem('chrono-layer'); } catch { /* private mode */ } if (v !== 'data' && !simpleCard() && $('app').dataset.panel === 'open' && !S.hunt) setPanelFull(false); },
   } });
+// The glossary (glossary.js): every word in a sheet from the menu; the harder ones underlined where they first appear.
+const gloss = makeGlossary({ lang: Lang.lang, title: T('nav.glossary'), more: T('gl.more'), close: G`Close`, intro: T('gl.intro'), onAll: () => openSheet('glossary') });
+SHEETS.glossary = () => gloss.sheetHtml();
+$('navgloss').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); openSheet('glossary'); };
 $('tourbtn').onclick = () => (rguide.on ? rguide.stop() : rguide.start());
 $('tourlink').onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); closeMenu(); rguide.start(); };          // the same button as a line of the phone's menu
 $('huntbtn').onclick = () => startHunt();

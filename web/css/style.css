@@ -449,6 +449,21 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .qtxt span.bullets .bli { margin-top: 2px; }
 .verdict.bullets .bhead b { font-size: 15.5px; color: var(--ink); }
 :is(#motion, #scan, #movers, #lccheck) > p.verdict.bullets { border-left: 0; padding-left: 0; }
+/* the glossary (js/glossary.js): a harder word underlined with dots where it first appears; a press says what it means */
+#panel .term, #rg .term, #sheet .term, .term { display: inline !important; width: auto !important; min-height: 0; padding: 0 !important; margin: 0; border: 0; border-radius: 0; background: none; font: inherit; color: inherit; line-height: inherit; text-align: inherit; white-space: normal; text-decoration: underline dotted var(--ember) 1.5px; text-underline-offset: 3px; cursor: help; }
+.term:hover, .term:focus-visible { color: var(--ink); text-decoration-style: solid; }
+.gpop { position: fixed; z-index: 130; width: min(340px, calc(100vw - 16px)); box-sizing: border-box; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 12px 14px 10px; box-shadow: 0 18px 50px #000c; color: var(--ink); }
+.gpop[hidden] { display: none; }
+.gpop.sheetlike { left: 8px; right: 8px; width: auto; top: auto; bottom: calc(8px + var(--tabs, 0px) + var(--edge-b, 0px)); }
+.gpop header { display: flex; align-items: center; gap: 10px; }
+.gpop header b { flex: 1; font: 600 16px var(--sans); }
+.gpop .x { width: 34px; height: 34px; margin: -6px -8px -6px 0; border: 0; border-radius: 9px; background: none; color: var(--ink-2); font-size: 22px; line-height: 1; }
+.gpop p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
+.gpop .all { margin-top: 6px; padding: 6px 0; border: 0; background: none; color: var(--ember); font: 500 13.5px var(--sans); }
+.glosslist { margin: 22px 0 0; display: grid; }
+.glosslist > div { padding: 12px 0; border-top: 1px solid var(--line); scroll-margin-top: 20px; }
+.glosslist dt { font: 600 18px var(--sans); color: var(--ink); }
+.glosslist dd { margin: 4px 0 0; font-size: 15.5px; line-height: 1.5; color: #d4ccbf; }
 /* the guide (guide.js): a card with a sentence or two and the thing it is about ringed; the visitor does the step */
 .rg { position: fixed; z-index: 70; left: 16px; bottom: 16px; width: min(380px, calc(100vw - 32px)); box-sizing: border-box; background: color-mix(in srgb, var(--surface) 96%, transparent); border: 1px solid var(--ember); border-radius: 14px; padding: 11px 14px 12px; box-shadow: 0 18px 50px #000c; color: var(--ink); }
 .rg.attop { top: 108px; bottom: auto; }          /* while the map is the thing to touch, the card keeps clear of the colour bar at the bottom */
