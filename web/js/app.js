@@ -1644,6 +1644,45 @@ function answerCards(rows, say) {
 }
 
 /**
+ * The Story layer (the simple card): the finding that matters for this object leads, said and drawn; the other checks
+ * follow as a line each with a one-word answer, the proof a press away. What leads: the first thing found, in this
+ * order: motion, a change of brightness, molecules, a body passing through.
+ */
+const STORY_ORDER = ['motion', 'lccheck', 'molecules', 'movers'];
+function storyLeadOf(rows) { for (const to of STORY_ORDER) { const r = rows.find(x => x[0] === to && x[1].cls === 'found'); if (r) return r; } return null; }
+/** The brightness of each visit as a circle (its area the brightness), beside the same for the ordinary stars around it. */
+function storyCircles(v) {
+  const top = Math.max(1, ...v.bars.map(b => b.v)), n = v.bars.length, W = 236, x = i => (n < 2 ? W / 2 : 26 + i * (W - 52) / (n - 1));
+  const row = (fill, rad) => v.bars.map((b, i) => `<circle cx="${x(i).toFixed(1)}" cy="26" r="${rad(b).toFixed(1)}" fill="${fill(b)}"></circle>`).join('');
+  const mine = `<svg width="${W}" height="52" viewBox="0 0 ${W} 52" aria-hidden="true"><line x1="26" y1="26" x2="${W - 26}" y2="26" stroke="var(--line-2)" stroke-width="1.5"></line>${row(b => b.c, b => 23 * Math.sqrt(Math.max(0.02, b.v / top)))}</svg>`;
+  const theirs = v.comps >= 2 ? `<svg width="${W}" height="40" viewBox="0 6 ${W} 40" aria-hidden="true"><line x1="26" y1="26" x2="${W - 26}" y2="26" stroke="var(--line-2)" stroke-width="1.5"></line>${row(() => 'var(--ink-3)', () => 23 * Math.sqrt(1 / top) * 0.75)}</svg>` : '';
+  return `<div class="circles"><div class="crow"><span>${esc(T('story.ring'))}</span>${mine}</div>${theirs ? `<div class="crow"><span>${esc(Lang.N(v.comps, 'ordinary star'))}</span>${theirs}</div>` : ''}<div class="cmonths">${v.bars.map(b => `<small>${esc(b.m)}</small>`).join('')}</div></div>`
+    + (v.real ? `<p class="realchip">${esc(T('story.real'))}</p>` : '');
+}
+function storyLeadHtml([to, r], say) {
+  const [big, sub] = answerSplit(say(r)), v = r.viz;
+  const pic = to === 'lccheck' && v?.bars?.length > 1 ? storyCircles(v) : answerViz(to, r);
+  const side = to !== 'lccheck';
+  return `<p class="kick">${esc(T('story.what'))}</p>`
+    + `<div class="leadrow${side ? ' side' : ''}">${side ? pic : ''}<div class="leadtxt">${big ? `<h3>${big}</h3>` : ''}${sub ? `<p>${sub}</p>` : ''}</div></div>`
+    + (side ? '' : pic)
+    + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button>`;
+}
+function storyRowsHtml(rows, say, lead) {
+  const qs = rows.filter(([to, r]) => ANSWERS.some(q => q.to === to) && r.cls !== 'wait' && !(lead && lead[0] === to));
+  const rest = rows.filter(x => !ANSWERS.some(q => q.to === x[0]) || x[1].cls === 'wait');
+  const word = r => T(r.cls === 'found' ? 'ans.yes' : r.cls === 'none' ? 'ans.no' : 'ans.maybe');
+  const row = ([to, r]) => {
+    const q = ANSWERS.find(x => x.to === to), [big, sub] = answerSplit(say(r) || r.html);
+    return `<details class="chk ${r.cls}" data-q="${to}"><summary><span class="ic ic-${q.ic}" aria-hidden="true"></span><span class="q">${esc(T(q.key))}</span><b class="pill">${esc(word(r))}</b></summary>`
+      + `<div class="chkbody">${answerViz(to, r)}<p>${big ? `<b>${big}.</b> ` : ''}${sub}</p></div>`
+      + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button></details>`;
+  };
+  return (qs.length ? `<p class="kick">${esc(T(lead ? 'story.else' : 'story.checked'))}</p><div class="chks">${qs.map(row).join('')}</div>` : '')
+    + (rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '');
+}
+
+/**
  * The answer first: what the sections below have measured, in a few words each. Every line is
  * written by the function that makes the detailed section, from the same numbers, so the two
  * cannot disagree. Shown once the detector on show has arrived in full.
@@ -1654,11 +1693,19 @@ function renderFindings() {
   const f = S.find || {}, ready = !!S.dets[S.det]?.done, here = lightHere();
   const simple = simpleCard(), say = r => (simple && r.plain != null ? r.plain : r.html);          // the simple card: the everyday version
   const rows = ready ? [['here', here], ['motion', f.motion], ['scan', f.motion ? null : f.scan], ['lccheck', f.change], ['molecules', f.bands], ['movers', S.sel?.trail ? null : f.movers || stillLooking()]].filter(r => r[1] && say(r[1])) : [];
-  const cards = !!rows.length && cardsOn();
-  const html = !rows.length ? '' : cards ? answerCards(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
-  if (el.dataset.was !== html) { el.dataset.was = html; el.innerHTML = html; }
-  el.classList.toggle('cards', cards);
-  el.hidden = !rows.length;
+  const cards = !!rows.length && cardsOn(), story = cards && simple;
+  // the story: the finding that leads in a box of its own (above the yearly motion), the other checks as lines under
+  const lead = story ? storyLeadOf(rows) : null, lb = $('leadbox'), leadHtml = lead ? storyLeadHtml(lead, say) : '';
+  if (lb.dataset.was !== leadHtml) { lb.dataset.was = leadHtml; lb.innerHTML = leadHtml; lb.className = `leadbox ${lead ? lead[1].cls : ''}`; }
+  lb.hidden = !lead;
+  const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead) : cards ? answerCards(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
+  if (el.dataset.was !== html) {
+    const open = [...el.querySelectorAll('details[open]')].map(d => d.dataset.q);          // a line the visitor opened stays open when the words are written again
+    el.dataset.was = html; el.innerHTML = html;
+    for (const q of open) el.querySelector(`details[data-q="${q}"]`)?.setAttribute('open', '');
+  }
+  el.classList.toggle('cards', cards && !story); el.classList.toggle('story', story);
+  el.hidden = !rows.length || (story && !html);
   leadState();
 }
 /**
@@ -1684,7 +1731,8 @@ function lightHere() {
   return null;
 }
 /** The lead of the panel (what to look for, what the measurements say) takes no room while it has nothing to say. */
-function leadState() { document.querySelector('.cols').classList.toggle('nolook', ($('lookbox').hidden || !$('lookbox').innerHTML) && $('findings').hidden && $('bodybox').hidden && $('huntbox').hidden); }
+function leadState() { document.querySelector('.cols').classList.toggle('nolook', ($('lookbox').hidden || !$('lookbox').innerHTML) && $('findings').hidden && $('leadbox').hidden && $('bodybox').hidden && $('huntbox').hidden); }
+$('leadbox').addEventListener('click', e => { const to = e.target.closest('button')?.dataset.to; if (!to) return; setPanelFull(true); requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' })); });
 $('findings').addEventListener('click', e => {
   const b = e.target.closest('button');
   const to = b?.dataset.to;
@@ -1845,7 +1893,7 @@ function realityCheck(lc) {
     : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.`, plain: G`<b>It may be changing a little.</b> The difference is too small to be sure.` }
     : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
     : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
-  if (S.find.change) S.find.change.viz = { bars };
+  if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real' };
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }

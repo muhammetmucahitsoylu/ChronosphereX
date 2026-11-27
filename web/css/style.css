@@ -447,6 +447,47 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .qtxt span.bullets .bli { margin-top: 2px; }
 .verdict.bullets .bhead b { font-size: 15.5px; color: var(--ink); }
 :is(#motion, #scan, #movers, #lccheck) > p.verdict.bullets { border-left: 0; padding-left: 0; }
+/* the story (the simple card): what happened, said and drawn; the other checks a line each (app.js, storyLead) */
+.leadbox { border: 1px solid var(--line-2); border-radius: 14px; background: var(--surface); padding: 13px 14px; display: grid; gap: 10px; min-width: 0; }
+.leadbox.found { border-color: color-mix(in srgb, var(--mint) 45%, var(--line-2)); }
+.leadbox .kick, .findings.story .kick { margin: 0; font: 500 11px var(--mono); letter-spacing: 1.2px; text-transform: uppercase; color: var(--ember); }
+.findings.story .kick { color: var(--ink-3); }
+.leadrow { display: grid; gap: 4px; }
+.leadrow.side { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; }
+.leadrow.side .qviz { width: 72px; height: 72px; }
+.leadtxt h3 { margin: 0; font: 700 21px/1.25 var(--sans); color: var(--ink); }
+.leadtxt p { margin: 4px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
+.leadtxt p b { font-weight: 600; color: inherit; }
+.leadbox .qchips { max-width: 120px; }
+.circles { display: grid; gap: 4px; padding: 10px 10px 6px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.crow { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: center; gap: 6px; }
+.crow > span { font: 600 12.5px/1.25 var(--sans); color: var(--ink-2); }
+.crow:first-child > span { color: var(--ink); }
+.crow svg { width: 100%; height: auto; max-width: 236px; }
+.cmonths { display: flex; justify-content: space-between; margin-left: 88px; max-width: 236px; padding: 0 4px; }
+.cmonths small { font: 500 10.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
+.realchip { margin: 0; padding: 8px 11px; border-radius: 10px; background: color-mix(in srgb, var(--mint) 12%, var(--bg)); color: var(--mint); font: 600 13.5px/1.35 var(--sans); }
+.realchip::before { content: "✓ "; }
+.leadbox .qproof { justify-self: start; display: inline-flex; align-items: center; padding: 2px 0; color: var(--ember); background: none; }
+.findings.story { border: 0; background: none; padding: 0; width: 100%; display: grid; gap: 8px; }
+.chks { border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.chk + .chk { border-top: 1px solid var(--line); }
+.chk > summary { list-style: none; display: flex; align-items: center; gap: 11px; min-height: 50px; padding: 0 14px; cursor: pointer; }
+.chk > summary::-webkit-details-marker { display: none; }
+.chk > summary::after { content: ""; flex: none; width: 7px; height: 7px; margin-left: 2px; border-right: 1.8px solid var(--ink-3); border-bottom: 1.8px solid var(--ink-3); transform: rotate(-45deg); transition: transform .15s; }
+.chk[open] > summary::after { transform: rotate(45deg); }
+.chk[open] > summary { background: var(--surface-2); }
+.chk > summary > .ic::before { width: 21px; height: 21px; margin: 0; vertical-align: middle; }
+.chk .q { flex: 1; min-width: 0; font: 500 15px/1.3 var(--sans); color: var(--ink); }
+.chk .pill { flex: none; padding: 3px 11px; border-radius: 999px; background: var(--surface-2); font: 600 13px var(--sans); color: var(--ink-2); }
+.chk.found .pill { background: color-mix(in srgb, var(--mint) 16%, transparent); color: var(--mint); }
+.chk.unsure .pill { background: color-mix(in srgb, var(--gold) 16%, transparent); color: var(--gold); }
+.chkbody { display: flex; align-items: center; gap: 12px; padding: 12px 14px 4px; }
+.chkbody p { margin: 0; flex: 1; min-width: 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
+.chkbody p b { color: var(--ink); font-weight: 600; }
+.chk .qproof { margin: 4px 14px 12px; display: inline-flex; align-items: center; padding: 2px 0; color: var(--ember); background: none; }
+.findings.story .qextra { margin-top: 2px !important; }
+.leadbox[hidden], .findings[hidden] { display: none !important; }
 /* the answers as cards (app.js, answerCards): the question, the answer in large letters with its picture, the sentence in full */
 .findings.cards { padding: 12px; width: 100%; box-sizing: border-box; justify-self: stretch; }
 .findings.cards h2.ic::before { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; }
@@ -1251,11 +1292,12 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
   body:not(.touring):not(.embed) #panel.simple .viewer .blocktitle { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }          /* the date on the pictures says it; still read out */
   body:not(.touring):not(.embed) #panel.simple .stage { order: 1; }
   body:not(.touring):not(.embed) #panel.simple .transport { order: 2; }
-  body:not(.touring):not(.embed) #panel.simple :is(#years, #motion) { order: 3; align-self: stretch; }          /* as wide as the pictures: its two short lines would make it, and the rule above it, narrower */
-  body:not(.touring):not(.embed) #panel.simple #lookbox { order: 4; margin-top: 16px; }
-  body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { order: 5; margin-top: 14px; }
+  body:not(.touring):not(.embed) #panel.simple :is(#years, #motion) { order: 6; align-self: stretch; }          /* as wide as the pictures: its two short lines would make it, and the rule above it, narrower */
+  body:not(.touring):not(.embed) #panel.simple #lookbox { order: 3; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel.simple #leadbox { order: 5; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel.simple .loopline:not([hidden]) { order: 4; margin-top: 14px; }
   body:not(.touring):not(.embed) #panel.simple.haslook .loopline:not([hidden]) { display: none; }          /* this object has words of its own on what to look for */
-  body:not(.touring):not(.embed) #panel.simple #findings { order: 6; margin-top: 16px; }
+  body:not(.touring):not(.embed) #panel.simple #findings { order: 7; margin-top: 16px; }
   body:not(.touring):not(.embed) #panel.simple .fullwrap { order: 7; margin-top: 18px; }
   body:not(.touring):not(.embed) #panel.simple .more { order: 8; margin-top: 22px; }
 }
