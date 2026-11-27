@@ -39,17 +39,22 @@
     <!-- step one: the sky, and a frame that stays put while the sky is dragged under it -->
     <div id="picker">
       <div id="map"></div>
-      <div id="frame" aria-hidden="true"><span id="framesize"></span></div>
+      <div id="frame"><span id="framesize"></span><b class="fgrip" data-c="nw"></b><b class="fgrip" data-c="ne"></b><b class="fgrip" data-c="se"></b><b class="fgrip" data-c="sw"></b></div>
       <form id="find" role="search"><input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="submit" id="go">Go</button></form>
       <p id="findmsg" role="status"></p>
       <div class="zoom"><button type="button" id="zin" aria-label="Zoom in">+</button><button type="button" id="zout" aria-label="Zoom out">−</button></div>
     </div>
     <!-- step two: the picture -->
     <div id="easel" hidden>
-      <div id="scroll"><div id="sheet"><canvas id="pic"></canvas><canvas id="marks" aria-hidden="true"></canvas></div></div>
+      <div id="scroll"><div id="sheet"><canvas id="pic"></canvas><canvas id="marks" aria-hidden="true"></canvas>
+        <!-- crop: a frame with handles over the picture, turned and mirrored as it will be saved (js/studio/view.js) -->
+        <div id="cropper" hidden><div id="cbox"><i class="gv1"></i><i class="gv2"></i><i class="gh1"></i><i class="gh2"></i><b data-h="nw"></b><b data-h="n"></b><b data-h="ne"></b><b data-h="e"></b><b data-h="se"></b><b data-h="s"></b><b data-h="sw"></b><b data-h="w"></b></div></div>
+      </div></div>
       <div id="busy" hidden role="status"><b id="busysay"></b><span id="busysub"></span><div class="bar"><i id="busybar"></i></div><button type="button" id="stop">Stop</button></div>
       <!-- under the picture, never on it: what is written on a picture (title, key, compass) must stay in sight -->
-      <div class="easelbar"><button type="button" id="tobox" class="chip">Take it with you</button><button type="button" id="fullbtn" class="chip" aria-pressed="false">Full size</button></div>
+      <div class="easelbar"><button type="button" id="tobox" class="chip">Take it with you</button>
+        <span class="tools"><button type="button" id="undo" class="chip icon" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 7H4v5M4.6 11.5A8 8 0 1 1 7 17.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" id="redo" class="chip icon" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 7h5v5M19.4 11.5A8 8 0 1 0 17 17.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" id="cropbtn" class="chip"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="cropword">Crop</span></button><button type="button" id="cmpbtn" class="chip icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button></span>
+        <button type="button" id="fullbtn" class="chip" aria-pressed="false">Full size</button></div>
     </div>
   </section>
 
@@ -84,6 +89,7 @@
       </div>
       <p class="fine" id="mapnote" hidden></p>
       <p class="says" id="framesays" role="status"></p>
+      <p class="fine" id="framehint"></p>
       <h2 id="h_quality">Quality</h2>
       <div class="seg" id="quality" role="group"></div>
       <p class="fine" id="qsay"></p>
@@ -101,6 +107,15 @@
 
     <!-- step two's controls -->
     <div id="sidestudio" hidden>
+      <!-- crop, turn, mirror: shown instead of the other controls while the frame is on the picture -->
+      <section id="cropbox" hidden>
+        <h2 id="h_crop">Crop</h2>
+        <div class="seg wrap" id="aspects" role="group"></div>
+        <div class="rowbtns croptools"><button type="button" class="ghost" id="turnbtn"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 11a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="turnword">Rotate</span></button><button type="button" class="ghost" id="flipbtn"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v18M9 7 4 17h5zM15 7l5 10h-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span id="flipword">Flip</span></button><button type="button" class="ghost" id="cropreset">Reset</button></div>
+        <p class="says" id="cropsays" role="status"></p>
+        <p class="fine" id="crophint"></p>
+        <div class="rowbtns big"><button type="button" class="ghost" id="cropcancel">Cancel</button><button type="button" class="cta" id="cropapply">Apply</button></div>
+      </section>
       <div class="rowbtns"><button type="button" class="ghost" id="another">Another place</button><a class="ghost" id="openmap" href="./">Open this place on the sky map</a></div>
       <div id="notes"></div>
       <h2 id="h_kind2">What kind of picture</h2>

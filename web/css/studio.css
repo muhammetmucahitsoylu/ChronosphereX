@@ -114,6 +114,12 @@ body:not([data-mode="pro"]) .proonly:not([aria-pressed="true"]):not([aria-checke
 #map { position: absolute; inset: 0; background: #05070c; }
 #map .aladin-logo-container, #map .aladin-location, #map .aladin-fov, #map .aladin-status-bar { display: none !important; }
 #frame { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 1.5px solid var(--ember); border-radius: 2px; box-shadow: 0 0 0 4000px #0009; pointer-events: none; }
+/* the frame's corners: dragged, the frame grows or shrinks around its middle */
+.fgrip { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; pointer-events: auto; touch-action: none; }
+.fgrip::after { content: ""; position: absolute; left: 9px; top: 9px; width: 12px; height: 12px; border-radius: 3px; background: var(--ember); box-shadow: 0 0 0 2px #0009; }
+.fgrip[data-c=nw] { left: 0; top: 0; cursor: nwse-resize; } .fgrip[data-c=ne] { left: 100%; top: 0; cursor: nesw-resize; }
+.fgrip[data-c=se] { left: 100%; top: 100%; cursor: nwse-resize; } .fgrip[data-c=sw] { left: 0; top: 100%; cursor: nesw-resize; }
+@media (pointer: coarse) { .fgrip { width: 44px; height: 44px; margin: -22px 0 0 -22px; } .fgrip::after { left: 15px; top: 15px; width: 14px; height: 14px; } }
 #framesize { position: absolute; left: 6px; bottom: 6px; font: 500 12.5px var(--mono); color: var(--ink); background: #0b0a09d9; padding: 3px 7px; border-radius: 6px; white-space: nowrap; }
 #find { position: absolute; z-index: 5; left: 12px; top: 12px; display: flex; gap: 6px; width: min(360px, calc(100% - 76px)); }
 #q { flex: 1; min-width: 0; background: #0d0b0aee; border: 1px solid var(--line); border-radius: 999px; padding: 10px 15px; font-size: 15px; }
@@ -135,6 +141,31 @@ body:not([data-mode="pro"]) .proonly:not([aria-pressed="true"]):not([aria-checke
 body.fullsize #scroll { display: block; overflow: auto; padding: 0; }
 body.fullsize #sheet, body.fullsize #pic { max-width: none; max-height: none; }
 #fullbtn { background: #0d0b0aee; margin-left: auto; }
+/* the picture's tools under it: undo, redo, crop, compare (held) */
+.easelbar .tools { display: flex; gap: 6px; margin-left: auto; }
+.easelbar .chip { display: inline-flex; align-items: center; gap: 6px; }
+.easelbar .chip.icon { width: 38px; justify-content: center; padding: 0; background: #0d0b0aee; }
+.easelbar .chip:disabled { opacity: .35; cursor: default; }
+#cropbtn { background: #0d0b0aee; }
+#cmpbtn:active, #cmpbtn.on { border-color: var(--ember); color: var(--ember); }
+body.cropping .easelbar { visibility: hidden; }
+body.cropping #sidestudio > :not(#cropbox) { display: none !important; }
+/* the crop frame over the picture: the rest darkened, thirds drawn, handles at its corners and sides */
+#cropper { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
+#cbox { position: absolute; box-shadow: 0 0 0 9999px #000a; outline: 1.5px solid #fff; cursor: move; }
+#cbox i { position: absolute; background: #ffffff59; pointer-events: none; }
+#cbox .gv1, #cbox .gv2 { top: 0; bottom: 0; width: 1px; } #cbox .gv1 { left: 33.33%; } #cbox .gv2 { left: 66.67%; }
+#cbox .gh1, #cbox .gh2 { left: 0; right: 0; height: 1px; } #cbox .gh1 { top: 33.33%; } #cbox .gh2 { top: 66.67%; }
+#cbox b { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+#cbox b::after { content: ""; position: absolute; left: 7px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #0009; }
+#cbox b[data-h=nw] { left: 0; top: 0; cursor: nwse-resize; } #cbox b[data-h=n] { left: 50%; top: 0; cursor: ns-resize; } #cbox b[data-h=ne] { left: 100%; top: 0; cursor: nesw-resize; }
+#cbox b[data-h=e] { left: 100%; top: 50%; cursor: ew-resize; } #cbox b[data-h=se] { left: 100%; top: 100%; cursor: nwse-resize; } #cbox b[data-h=s] { left: 50%; top: 100%; cursor: ns-resize; }
+#cbox b[data-h=sw] { left: 0; top: 100%; cursor: nesw-resize; } #cbox b[data-h=w] { left: 0; top: 50%; cursor: ew-resize; }
+@media (pointer: coarse) { #cbox b { width: 40px; height: 40px; margin: -20px 0 0 -20px; } #cbox b::after { left: 13px; top: 13px; width: 14px; height: 14px; } }
+#cropbox h2 { margin-top: 4px; }
+.croptools { margin-top: 10px; }
+.croptools .ghost { display: inline-flex; align-items: center; gap: 7px; }
+@media (max-width: 420px) { #cropword { display: none; } #cropbtn { width: 38px; justify-content: center; padding: 0; } }
 #tobox { background: #0d0b0aee; border-color: var(--ember); color: var(--ember); }
 #tobox::after { content: " \2193"; }
 #easel:has(#busy:not([hidden])) #tobox { visibility: hidden; }

@@ -65,14 +65,15 @@ const note = (key, text) => `${key.padEnd(8)} ${text}`.slice(0, 80).padEnd(80);
  * as a cube when there are several. The header says where the frame is on the sky (tangent plane, ICRS), so any
  * astronomy program can lay catalogues over it. `cards`: extra [key, value, comment] lines; `notes`: HISTORY lines.
  */
-export function fits(images, W, H, frame, { cards = [], notes = [], unit = 'MJy/sr' } = {}) {
+export function fits(images, W, H, frame, { cards = [], notes = [], unit = 'MJy/sr', wcs = null } = {}) {
   const n = images.length, s = frame.scale / 3600, r = (frame.rot || 0) * Math.PI / 180;
   const lines = [card('SIMPLE', true, 'FITS standard'), card('BITPIX', -32, '32-bit floating point'), card('NAXIS', n > 1 ? 3 : 2), card('NAXIS1', W), card('NAXIS2', H)];
   if (n > 1) lines.push(card('NAXIS3', n, 'pictures in this file, see LAYERn'));
   lines.push(card('BUNIT', unit), card('CTYPE1', 'RA---TAN'), card('CTYPE2', 'DEC--TAN'), card('CUNIT1', 'deg'), card('CUNIT2', 'deg'),
     card('CRVAL1', frame.ra, 'RA of the frame centre (deg)'), card('CRVAL2', frame.dec, 'Dec of the frame centre (deg)'),
-    card('CRPIX1', (W + 1) / 2), card('CRPIX2', (H + 1) / 2),
-    card('CD1_1', -s * Math.cos(r)), card('CD1_2', s * Math.sin(r)), card('CD2_1', s * Math.sin(r)), card('CD2_2', s * Math.cos(r)),
+    // a picture cropped, turned or mirrored after it was made brings its own (view.js wcsOf)
+    ...(wcs ? [card('CRPIX1', wcs.crpix[0]), card('CRPIX2', wcs.crpix[1]), card('CD1_1', wcs.cd[0][0]), card('CD1_2', wcs.cd[0][1]), card('CD2_1', wcs.cd[1][0]), card('CD2_2', wcs.cd[1][1])]
+      : [card('CRPIX1', (W + 1) / 2), card('CRPIX2', (H + 1) / 2), card('CD1_1', -s * Math.cos(r)), card('CD1_2', s * Math.sin(r)), card('CD2_1', s * Math.sin(r)), card('CD2_2', s * Math.cos(r))]),
     card('RADESYS', 'ICRS'), card('TELESCOP', 'SPHEREx'), card('ORIGIN', 'chronospherex.com', 'cut from the SPHEREx DR1 all-sky cube'));
   for (const c of cards) lines.push(card(...c));
   for (const t of ['Data: NASA SPHEREx all-sky cube, DR1 (NASA/JPL-Caltech, IPAC).', 'Frame cut and resampled in the browser at chronospherex.com.', ...notes]) lines.push(note('HISTORY', t));
@@ -96,7 +97,7 @@ export function toQuery(doc) {
   const f = doc.frame, q = new URLSearchParams();
   q.set('ra', r5(f.ra)); q.set('dec', r5(f.dec)); q.set('w', r5(f.w)); q.set('h', r5(f.h)); if (f.rot) q.set('rot', Math.round(f.rot * 100) / 100);
   q.set('r', doc.recipe || 'custom'); q.set('q', doc.quality || 1);
-  q.set('p', b64.to(JSON.stringify({ layout: doc.layout, blend: doc.blend, balance: doc.balance, layers: doc.layers, look: doc.look, marks: { ...doc.marks, name: undefined } })));
+  q.set('p', b64.to(JSON.stringify({ layout: doc.layout, blend: doc.blend, balance: doc.balance, layers: doc.layers, look: doc.look, marks: { ...doc.marks, name: undefined }, view: doc.view })));
   return q.toString();
 }
 /** What an address says about a picture: { frame, recipe, quality, rest } (rest: the packed part, or null); null if it names no place. */

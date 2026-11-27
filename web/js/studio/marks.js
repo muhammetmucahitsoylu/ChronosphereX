@@ -1,6 +1,7 @@
 // What the picture studio writes on a picture: the credit line (always), and where asked for a title, a colour key,
 // a scale bar and the directions of north and east. Drawn with the page's own faces on a canvas of any size, so the
 // same code serves the picture on screen and the file that is saved.
+import { direction } from './view.js';
 import { WAVES } from './geom.js';
 
 export const CREDIT = 'NASA SPHEREx · chronospherex.com';
@@ -38,14 +39,22 @@ export function drawMarks(x, W, H, o) {
   if (panels) rects.forEach(r => { const L = on.find(q => q.id === r.id); if (L) text(`${layerName(L, T, lang, true)} µm`, r.x * k + pad, r.y * k + pad + unit * 1.5, unit * 1.7, { weight: 600, fill: '#fff' }); });
 
   // the credit line, bottom right of the whole picture
-  const credit = (name ? `${T.processing.replace('{name}', name)} · ` : '') + CREDIT;
-  text(credit, W - pad, H - pad, fit(credit, unit * 1.05, W - 2 * pad), { align: 'right', fill: 'rgba(205,202,196,.9)' });
+  const credit = (name ? `${T.processing.replace('{name}', name)} · ` : '') + CREDIT, creditSize = fit(credit, unit * 1.05, W - 2 * pad);
+  text(credit, W - pad, H - pad, creditSize, { align: 'right', fill: 'rgba(205,202,196,.9)' });
+  x.font = `400 ${Math.round(creditSize)}px ${SANS}`; const creditLeft = W - pad - x.measureText(credit).width;
 
   // a title, top left (top right where the panels' wavelengths stand on the left)
   if (m.title) { const size = fit(m.title, unit * 3.1, paneW - 2 * pad, { face: SERIF }); text(m.title, panels ? W - pad : pad, pad + size * 0.86, size, { face: SERIF, align: panels ? 'right' : 'left', fill: '#fff' }); }
 
-  // bottom left, upwards: the colour key, then the scale bar
-  let y = H - pad;
+  // bottom left, upwards: the colour key, then the scale bar; above the credit line where they would run into it
+  // (27 Nov 2026, the user: "ölçek çubuğu çakışıyor": a long name in the credit met the scale bar on a narrow picture)
+  const pxPerDeg = 3600 / doc.frame.scale * k, want = paneW * 0.2;
+  const steps = [1 / 60, 2 / 60, 5 / 60, 10 / 60, 15 / 60, 0.5, 1, 2, 5, 10], deg = steps.reduce((b, s) => (Math.abs(s * pxPerDeg - want) < Math.abs(b * pxPerDeg - want) ? s : b));
+  const barLen = deg * pxPerDeg, barLabel = deg >= 1 ? `${deg}°` : `${Math.round(deg * 60)}′`;
+  x.font = `400 ${Math.round(unit * 1.05)}px ${SANS}`;
+  let leftW = m.scale ? barLen + unit * 0.5 + x.measureText(barLabel).width : 0;
+  if (m.key && !panels) for (const L of on) leftW = Math.max(leftW, unit * 1.05 * 1.25 + x.measureText(layerName(L, T, lang)).width);
+  let y = H - pad - (leftW && pad + leftW > creditLeft - unit ? creditSize * 1.6 : 0);
   if (m.key && !panels) {
     const size = unit * 1.05;
     for (const L of [...on].reverse()) {
@@ -57,9 +66,7 @@ export function drawMarks(x, W, H, o) {
     y -= unit * 0.3;
   }
   if (m.scale) {
-    const pxPerDeg = 3600 / doc.frame.scale * k, want = paneW * 0.2;
-    const steps = [1 / 60, 2 / 60, 5 / 60, 10 / 60, 15 / 60, 0.5, 1, 2, 5, 10], deg = steps.reduce((b, s) => (Math.abs(s * pxPerDeg - want) < Math.abs(b * pxPerDeg - want) ? s : b));
-    const len = deg * pxPerDeg, label = deg >= 1 ? `${deg}°` : `${Math.round(deg * 60)}′`, t = Math.max(2, unit / 7);
+    const len = barLen, label = barLabel, t = Math.max(2, unit / 7);
     x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(pad - 1, y - t - 1, len + 2, t + 2); x.fillStyle = 'rgba(235,232,226,.95)'; x.fillRect(pad, y - t, len, t);
     text(label, pad + len + unit * 0.5, y + unit * 0.1, unit * 1.05);
   }
@@ -74,6 +81,8 @@ export function drawMarks(x, W, H, o) {
       }
       text(letter, cx + dx * len * 1.3, cy + dy * len * 1.3, unit, { align: 'center', base: 'middle', weight: 600 });
     };
-    arrow(Math.sin(r), -Math.cos(r), T.compassN || 'N'); arrow(-Math.cos(r), -Math.sin(r), T.compassE || 'E');
+    // a picture turned or mirrored after it was made: the arrows turn and mirror with it (view.js)
+    const dir = (dx, dy) => (o.view ? direction(o.view, dx, dy) : [dx, dy]);
+    arrow(...dir(Math.sin(r), -Math.cos(r)), T.compassN || 'N'); arrow(...dir(-Math.cos(r), -Math.sin(r)), T.compassE || 'E');
   }
 }

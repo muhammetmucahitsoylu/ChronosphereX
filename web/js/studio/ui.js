@@ -10,6 +10,7 @@ import { png16, tiff16, fits, toQuery, fromQuery } from './files.js';
 import { drawMarks, layerName, CREDIT } from './marks.js';
 import * as Prefs from './settings.js';
 import { makeGuide } from './guide.js';
+import * as View from './view.js';
 
 const $ = id => document.getElementById(id), q0 = new URLSearchParams(location.search);
 const D2R = Math.PI / 180, clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -34,7 +35,7 @@ const PLACES = [['p_orion', 83.9, -4.2, 4.5, '3:4', 'gas'], ['p_carina', 161.0, 
 const MAPS = [['spherex', 'mapSpherex', 'https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube'], ['wise', 'mapWise', 'https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1'], ['dss', 'mapDss', 'https://irsa.ipac.caltech.edu/data/hips/CDS/DSS2/color'], ['2mass', 'map2mass', 'https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/Color']];
 const SET = Prefs.load(phone), MIN_W = 300, maxPx = () => SET.maxMP * 1e6;
 const S = {
-  mode: 'basic', shape: '1:1', ratio: 1, turn: 'north', recipe: 'gas', quality: 1, al: null,
+  mode: 'basic', shape: '1:1', ratio: 1, frameK: 1, turn: 'north', recipe: 'gas', quality: 1, al: null,   // frameK: the frame's size as a share of the largest it can be (dragged by its corners)
   own: [...OWN_START],          // Pro's fourth kind of picture: the wavelengths chosen by hand (plane numbers)
   frame: null, doc: null, base: null, opened: null, pic: null, full: false, busy: false, openLayer: null,
   name: '', size: 'native', format: 'jpg', jpgQ: 0.92, fromLink: null,
@@ -59,11 +60,12 @@ const ask = (msg, progress) => new Promise((ok, no) => { const id = nextId++; wa
 // ------------------------------------------------------------------------------------------------------ words on the page
 function words() {
   const set = (id, key, attr) => { const e = $(id); if (!e) return; if (attr) e.setAttribute(attr, T[key]); else e.textContent = T[key]; };
-  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'], ['h_proframe', 'proFrame'], ['l_ra', 'l_ra'], ['l_dec', 'l_dec'], ['l_w', 'l_w'], ['l_h', 'l_h'], ['l_pa', 'l_pa'], ['prohint', 'proHint'], ['qall', 'qAll'], ['mapnote', 'mapNote'],
+  for (const [id, key] of [['ttl', 'title'], ['placetitle', 'placeTitle'], ['placehelp', 'placeHelp'], ['h_places', 'places'], ['h_shape', 'shape'], ['l_turn', 'turnLabel'], ['l_map', 'map'], ['h_kind', 'kind'], ['h_kind2', 'kind'], ['h_proframe', 'proFrame'], ['l_ra', 'l_ra'], ['l_dec', 'l_dec'], ['l_w', 'l_w'], ['l_h', 'l_h'], ['l_pa', 'l_pa'], ['prohint', 'proHint'], ['framehint', 'frameHint'], ['h_crop', 'crop'], ['cropword', 'crop'], ['turnword', 'turnShort'], ['flipword', 'flipH'], ['cropreset', 'reset'], ['cropcancel', 'cancel'], ['cropapply', 'apply'], ['crophint', 'cropHint'], ['qall', 'qAll'], ['mapnote', 'mapNote'],
     ['h_quality', 'quality'], ['get', 'get'], ['go', 'go'], ['stop', 'stop'], ['another', 'another'], ['openmap', 'openMap'], ['h_edit', 'edit'], ['reset', 'reset'], ['reset2', 'reset'], ['h_layers', 'layers'], ['addband', 'addBand'],
     ['h_combine', 'combine'], ['h_whole', 'whole'], ['h_out', 'out'], ['tobox', 'out'], ['share', 'share'], ['save', 'save'], ['copy', 'copy'], ['link', 'link'], ['neednow', 'readNow'], ['rawnote', 'rawNote']]) set(id, key);
   set('q', 'search', 'placeholder'); set('q', 'search', 'aria-label'); set('zin', 'zoomIn', 'aria-label'); set('zout', 'zoomOut', 'aria-label'); set('mode', 'modeLabel', 'aria-label');
   $('mode').querySelector('[data-m=basic]').textContent = T.basic; $('mode').querySelector('[data-m=pro]').textContent = T.pro;
+  for (const [id, k] of [['undo', 'undo'], ['redo', 'redo'], ['cmpbtn', 'compareHint'], ['turnbtn', 'turn'], ['flipbtn', 'flipH'], ['cropbtn', 'crop']]) { $(id).title = T[k]; $(id).setAttribute('aria-label', T[k]); }
   $('guideword').textContent = T.guide; $('guidebtn').setAttribute('aria-label', T.guide); $('guidebtn').title = T.guide; $('setbtn').setAttribute('aria-label', T.settings); $('setbtn').title = T.settings;
   $('logo').href = `./?lang=${lang}`;
   $('turn').innerHTML = `<option value="north">${T.north}</option><option value="level">${T.level}</option><option value="free" hidden>${T.free}</option>`;
@@ -83,7 +85,7 @@ const known = r => r === 'own' || r in RECIPES, recipeOf = (r, q) => (r === 'own
 let boxW = 0, boxH = 0;
 function layFrame() {
   const st = $('stage').getBoundingClientRect(), a = shapeOf(), roomW = st.width * (narrow ? 0.86 : 0.74), roomH = st.height * (narrow ? 0.6 : st.height < 420 ? 0.66 : 0.72);
-  boxW = Math.round(Math.min(roomW, roomH * a)); boxH = Math.round(boxW / a);
+  boxW = Math.max(60, Math.round(Math.min(roomW, roomH * a) * (S.frameK || 1))); boxH = Math.round(boxW / a);
   $('frame').style.width = boxW + 'px'; $('frame').style.height = boxH + 'px';
 }
 /** The frame as the map shows it now: its centre, its size on the sky, which way is up. */
@@ -230,7 +232,7 @@ async function find(text) {
 // ------------------------------------------------------------------------------------------------------ the picture's description
 function newDoc(recipe, quality, frame, keep = {}) {
   const r = recipeOf(recipe, quality);
-  return { v: 1, recipe, quality, frame, ...r, look: { ...r.look }, marks: { title: '', key: false, scale: false, compass: false, ...(keep.marks || {}) } };
+  return { v: 1, recipe, quality, frame, ...r, look: { ...r.look }, marks: { title: '', key: false, scale: false, compass: false, ...(keep.marks || {}) }, ...(keep.view ? { view: keep.view } : {}) };
 }
 const baseOf = doc => (known(doc.recipe) ? recipeOf(doc.recipe, doc.quality) : null);
 
@@ -286,7 +288,7 @@ async function getPicture() {
   S.frame = f; S.pic = null; S.working = true; S.have = new Set();
   const link = S.fromLink; S.fromLink = null; $('linkopens').hidden = true;
   S.doc = newDoc(S.recipe, S.quality, { ra: f.ra, dec: f.dec, w: f.w, h: f.h, rot: f.rot, scale: f.scale });
-  if (link?.rest) Object.assign(S.doc, { layout: link.rest.layout || S.doc.layout, blend: link.rest.blend || S.doc.blend, balance: link.rest.balance || S.doc.balance, layers: link.rest.layers, stretch: link.rest.stretch || S.doc.stretch, look: { ...link.rest.look }, marks: { ...S.doc.marks, ...link.rest.marks } });
+  if (link?.rest) Object.assign(S.doc, { layout: link.rest.layout || S.doc.layout, blend: link.rest.blend || S.doc.blend, balance: link.rest.balance || S.doc.balance, layers: link.rest.layers, stretch: link.rest.stretch || S.doc.stretch, look: { ...link.rest.look }, marks: { ...S.doc.marks, ...link.rest.marks }, ...(link.rest.view ? { view: link.rest.view } : {}) });
   document.body.className = 'studio'; $('picker').hidden = true; $('easel').hidden = false; $('sideplace').hidden = true; $('sidestudio').hidden = false;
   window.scrollTo({ top: 0 }); $('side').scrollTop = 0;
   const cv = $('pic'); cv.width = f.W; cv.height = f.H; cv.getContext('2d').fillRect(0, 0, f.W, f.H); layMarks();
@@ -299,9 +301,10 @@ async function getPicture() {
     if (await readFor(S.doc)) await heal();
     await render();          // also after a reading that was stopped or failed: the page then says what is still to be read
   } finally { S.working = false; }
-  build();
+  build(); remember(true);
 }
 function backToPlace() {
+  cropEnd(false); comparing(false);
   worker?.postMessage({ t: 'stop' }); busy(false);
   document.body.className = 'place'; $('picker').hidden = false; $('easel').hidden = true; $('sideplace').hidden = false; $('sidestudio').hidden = true;
   setFull(false); window.scrollTo({ top: 0 }); layFrame(); tell();
@@ -316,12 +319,11 @@ async function render() {
   try {
     do {
       again = false;
-      const p = await ask({ t: 'render', doc: S.doc, target: S.full ? 'full' : 'small' });
-      if (p.missing) { needRead(p.missing); break; }
+      const p = await ask({ t: 'render', doc: S.comparing ? compareDoc() : S.doc, target: S.full ? 'full' : 'small' });
+      if (p.missing) { if (S.comparing) { S.comparing = false; $('cmpbtn').classList.remove('on'); again = true; continue; } needRead(p.missing); break; }
       needRead([]);
       S.pic = p;
-      const cv = $('pic'); if (cv.width !== p.W || cv.height !== p.H) { cv.width = p.W; cv.height = p.H; }
-      cv.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.W, p.H), 0, 0);
+      showPic(p);
       layMarks(); notesFor(p); hist();
     } while (again);
   } catch (e) { note([{ text: String(e.message || e), warn: true }]); } finally { rendering = false; }
@@ -333,7 +335,7 @@ function layMarks() {
   const W = S.full ? cv.width : Math.max(1, Math.round(box.width * dpr)), H = S.full ? cv.height : Math.max(1, Math.round(box.height * dpr));
   if (mk.width !== W || mk.height !== H) { mk.width = W; mk.height = H; }
   const x = mk.getContext('2d'); x.clearRect(0, 0, W, H);
-  if (p) drawMarks(x, W, H, { doc: S.doc, rects: p.rects, picW: p.W, picH: p.H, name: S.name, T, lang });
+  if (p && !S.crop) marksOn(x, W, H, S.doc, p);
 }
 function setFull(on) {
   S.full = on; document.body.classList.toggle('fullsize', on); $('fullbtn').setAttribute('aria-pressed', on); $('fullbtn').textContent = on ? T.fit : T.full; $('fullbtn').title = T.fullHint;
@@ -361,6 +363,176 @@ function notesFor(p) {
   if (lines.length && lines.every(i => i.floor)) list.push({ text: T.emptyNote });
   else if (lines.length) list.push({ text: T.stripeNote });
   note(list);
+}
+
+// ------------------------------------------------------------------------------------------------ the picture's view
+// Crop, quarter turns and the mirror (js/studio/view.js) apply to what is shown, the marks and every file. While the
+// crop frame is on the picture (S.crop), the whole turned picture shows under it, without marks.
+const scratch = document.createElement('canvas');
+const viewNow = () => View.viewOf(S.crop ? { view: S.crop.view } : S.doc);
+function showPic(p) {
+  const cv = $('pic'), v = viewNow(), all = !!S.crop;
+  if (View.plain(v) && !all) {
+    if (cv.width !== p.W || cv.height !== p.H) { cv.width = p.W; cv.height = p.H; }
+    cv.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.W, p.H), 0, 0); return;
+  }
+  scratch.width = p.W; scratch.height = p.H; scratch.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.W, p.H), 0, 0);
+  const b = View.cropBox(v, p.W, p.H), [w, h] = all ? [b.OW, b.OH] : [b.w, b.h];
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const x = cv.getContext('2d'); x.clearRect(0, 0, w, h); x.imageSmoothingEnabled = true; View.draw(x, scratch, p.W, p.H, v, w, h, all);
+}
+/** The marks on a canvas of W × H that shows the picture p as its description's view shows it. */
+function marksOn(x, W, H, doc, p) {
+  const v = View.viewOf(doc), [cw, ch] = View.outSize(v, p.W, p.H);
+  const rects = p.rects.map(r => View.rectOn(v, p.W, p.H, r)).filter(Boolean);
+  drawMarks(x, W, H, { doc, rects: rects.length ? rects : [{ id: 'all', x: 0, y: 0, w: cw, h: ch }], picW: cw, picH: ch, name: S.name, T, lang, view: v });
+}
+
+// ------------------------------------------------------------------------------------------------ undo and redo
+// Every change of the picture's description is kept (the moves of one slider as one step), eighty steps back.
+const Past = { back: [], ahead: [], now: '' };
+let pastTimer = 0;
+function remember(reset = false) {
+  clearTimeout(pastTimer); if (!S.doc) return;
+  const s = JSON.stringify(S.doc);
+  if (reset) { Past.back = []; Past.ahead = []; Past.now = s; }
+  else if (s !== Past.now) { if (Past.now) { Past.back.push(Past.now); if (Past.back.length > 80) Past.back.shift(); } Past.ahead = []; Past.now = s; }
+  tellPast();
+}
+function tellPast() { $('undo').disabled = !Past.back.length; $('redo').disabled = !Past.ahead.length; }
+function travel(dir) {
+  if (S.crop || !S.doc) return;
+  if (pastTimer) remember();          // a change still being made is a step of its own
+  const from = dir < 0 ? Past.back : Past.ahead, to = dir < 0 ? Past.ahead : Past.back;
+  if (!from.length) return;
+  to.push(Past.now); Past.now = from.pop(); S.doc = JSON.parse(Past.now);
+  if (known(S.doc.recipe)) S.recipe = S.doc.recipe;
+  if (S.openLayer && !S.doc.layers.some(L => L.id === S.openLayer)) S.openLayer = null;
+  changed(true); hist(); tellPast();
+}
+
+// ------------------------------------------------------------------------------------------------ compare
+// Held down: the picture as it first came (its kind's own settings), with the same crop; let go: as it is now.
+const compareDoc = () => { const d = S.doc; return known(d.recipe) ? newDoc(d.recipe, d.quality, d.frame, { marks: d.marks, view: d.view }) : d; };
+function comparing(on) {
+  if (!S.doc || S.crop || !!S.comparing === on) return;
+  S.comparing = on; $('cmpbtn').classList.toggle('on', on); render();
+}
+
+// ------------------------------------------------------------------------------------------------ crop, turn, mirror
+const ASPECTS = [['free', 0], ['orig', -1], ['1:1', 1], ['4:5', 4 / 5], ['3:4', 3 / 4], ['9:16', 9 / 16], ['16:9', 16 / 9], ['3:2', 3 / 2]];
+const turnedNow = () => View.turned(S.crop.view, S.pic.W, S.pic.H);
+const aspectNow = () => { const a = ASPECTS.find(x => x[0] === S.crop.aspect)?.[1] || 0; if (a >= 0) return a; const [OW, OH] = turnedNow(); return OW / OH; };
+function cropStart() {
+  if (!S.doc || !S.pic || S.crop || S.busy) return;
+  if (S.full) setFull(false);
+  S.crop = { saved: JSON.stringify(S.doc.view ?? null), view: View.viewOf(S.doc), aspect: 'free' };
+  document.body.classList.add('cropping'); $('cropbox').hidden = false; $('cropper').hidden = false;
+  cropTools(); showPic(S.pic); layMarks(); placeBox(); count('crop');
+  if (narrow) window.scrollTo({ top: 0, behavior: 'auto' });
+}
+function cropEnd(keep) {
+  if (!S.crop) return;
+  const v = S.crop.view; S.crop = null;
+  document.body.classList.remove('cropping'); $('cropbox').hidden = true; $('cropper').hidden = true;
+  if (keep) { if (View.plain(v)) delete S.doc.view; else S.doc.view = v; changed(true); }
+  else { showPic(S.pic); layMarks(); }
+}
+function cropTools() {
+  $('aspects').innerHTML = ASPECTS.map(([k]) => `<button type="button" data-a="${k}" aria-pressed="${k === S.crop.aspect}">${k === 'free' ? T.free : k === 'orig' ? T.aspectOrig : k}</button>`).join('');
+  tellCrop();
+}
+function tellCrop() {
+  const [W, H] = rawSize(), v = S.crop.view, [w, h] = W ? View.outSize(v, W, H) : [0, 0];
+  $('cropsays').textContent = fill(T.cropSays, { W: w, H: h });
+}
+function placeBox() {
+  const c = S.crop.view.crop, b = $('cbox');
+  b.style.left = `${c.x * 100}%`; b.style.top = `${c.y * 100}%`; b.style.width = `${c.w * 100}%`; b.style.height = `${c.h * 100}%`;
+}
+/** The crop after a handle (or the whole frame: 'move') was dragged by dx, dy (shares of the picture), its shape kept. */
+function dragCrop(c0, h, dx, dy, ratio, OW, OH) {
+  const min = Math.max(24 / OW, 24 / OH, 0.03);
+  if (h === 'move') return { ...c0, x: clamp(c0.x + dx, 0, 1 - c0.w), y: clamp(c0.y + dy, 0, 1 - c0.h) };
+  let x0 = c0.x, y0 = c0.y, x1 = c0.x + c0.w, y1 = c0.y + c0.h;
+  if (h.includes('w')) x0 = clamp(x0 + dx, 0, x1 - min);
+  if (h.includes('e')) x1 = clamp(x1 + dx, x0 + min, 1);
+  if (h.includes('n')) y0 = clamp(y0 + dy, 0, y1 - min);
+  if (h.includes('s')) y1 = clamp(y1 + dy, y0 + min, 1);
+  if (!(ratio > 0)) return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  // a fixed shape: the dragged side decides (a corner: the way it moved more), anchored where nothing moves
+  let w = (x1 - x0) * OW, hh = (y1 - y0) * OH;
+  if (h === 'e' || h === 'w' || (h.length === 2 && Math.abs(dx * OW) >= Math.abs(dy * OH))) hh = w / ratio; else w = hh * ratio;
+  const ax = h.includes('w') ? x1 : h.includes('e') ? x0 : (c0.x + c0.w / 2), ay = h.includes('n') ? y1 : h.includes('s') ? y0 : (c0.y + c0.h / 2);
+  const roomW = (h.includes('w') ? ax : h.includes('e') ? 1 - ax : 2 * Math.min(ax, 1 - ax)) * OW, roomH = (h.includes('n') ? ay : h.includes('s') ? 1 - ay : 2 * Math.min(ay, 1 - ay)) * OH;
+  const k = Math.min(1, roomW / w, roomH / hh); w *= k; hh *= k;
+  const fw = w / OW, fh = hh / OH;
+  return { x: h.includes('w') ? ax - fw : h.includes('e') ? ax : ax - fw / 2, y: h.includes('n') ? ay - fh : h.includes('s') ? ay : ay - fh / 2, w: fw, h: fh };
+}
+/** Step one: a corner of the frame dragged makes the frame larger or smaller around its middle; a ready shape is kept,
+ *  "free" takes the shape dragged. The map stays where it is: the frame takes in more sky or less. */
+function wireFrameGrips() {
+  for (const g of document.querySelectorAll('.fgrip')) {
+    g.title = T.frameHint;
+    g.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      try { g.setPointerCapture(e.pointerId); } catch { /* an old engine */ }
+      const st = $('stage').getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
+      const roomW = st.width * (narrow ? 0.86 : 0.74), roomH = st.height * (narrow ? 0.6 : st.height < 420 ? 0.66 : 0.72);
+      const move = ev => {
+        const w = Math.max(60, 2 * Math.abs(ev.clientX - cx)), h = Math.max(60, 2 * Math.abs(ev.clientY - cy));
+        if (S.shape === 'free') { S.ratio = clamp(w / h, 0.2, 5); }
+        const a = shapeOf(), big = Math.min(roomW, roomH * a), want = S.shape === 'free' ? w : Math.max(w, h * a);
+        S.frameK = clamp(want / big, 0.15, 1); layFrame(); tell();
+      };
+      const up = () => { g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); };
+      g.addEventListener('pointermove', move); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
+    });
+  }
+}
+function wireCrop() {
+  $('cropbtn').onclick = cropStart;
+  $('cropapply').onclick = () => cropEnd(true);
+  $('cropcancel').onclick = () => cropEnd(false);
+  $('cropreset').onclick = () => { S.crop.view = View.whole(); S.crop.aspect = 'free'; cropTools(); showPic(S.pic); placeBox(); };
+  $('turnbtn').onclick = () => {          // the picture as shown turns a quarter clockwise, the frame with it
+    const v = S.crop.view; v.turn = (v.turn + (v.flip ? 3 : 1)) % 4; v.crop = View.turnCrop(v.crop);
+    showPic(S.pic); placeBox(); tellCrop();
+  };
+  $('flipbtn').onclick = () => { const v = S.crop.view; v.flip = !v.flip; v.crop = View.flipCrop(v.crop); showPic(S.pic); placeBox(); };
+  $('aspects').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    S.crop.aspect = b.dataset.a; const r = aspectNow(), [OW, OH] = turnedNow();
+    if (r) S.crop.view.crop = View.fitShape(S.crop.view.crop, OW, OH, r);
+    cropTools(); placeBox();
+  };
+  $('cropper').addEventListener('pointerdown', e => {
+    if (!S.crop) return;
+    const h = e.target.dataset?.h || (e.target.closest('#cbox') ? 'move' : null); if (!h) return;
+    e.preventDefault();
+    const box = $('cropper').getBoundingClientRect(), c0 = { ...S.crop.view.crop }, x0 = e.clientX, y0 = e.clientY, [OW, OH] = turnedNow(), ratio = aspectNow();
+    try { $('cropper').setPointerCapture(e.pointerId); } catch { /* an old engine */ }
+    const move = ev => { S.crop.view.crop = dragCrop(c0, h, (ev.clientX - x0) / box.width, (ev.clientY - y0) / box.height, ratio, OW, OH); placeBox(); tellCrop(); };
+    const up = () => { $('cropper').removeEventListener('pointermove', move); $('cropper').removeEventListener('pointerup', up); $('cropper').removeEventListener('pointercancel', up); };
+    $('cropper').addEventListener('pointermove', move); $('cropper').addEventListener('pointerup', up); $('cropper').addEventListener('pointercancel', up);
+  });
+  $('undo').onclick = () => travel(-1); $('redo').onclick = () => travel(1);
+  const cmp = $('cmpbtn');
+  cmp.addEventListener('pointerdown', e => { e.preventDefault(); comparing(true); });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) cmp.addEventListener(ev, () => comparing(false));
+  cmp.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); comparing(true); } });
+  cmp.addEventListener('keyup', () => comparing(false));
+  document.addEventListener('keydown', e => {
+    if ($('easel').hidden) return;
+    const typing = e.target.closest?.('input, textarea, select, [contenteditable]');
+    if (S.crop) { if (e.key === 'Enter' && !typing) { e.preventDefault(); cropEnd(true); } else if (e.key === 'Escape') { e.preventDefault(); cropEnd(false); } return; }
+    if (typing) return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); travel(e.shiftKey ? 1 : -1); }
+    else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); travel(1); }
+    else if (e.key === '\\' && !e.repeat) comparing(true);
+  });
+  document.addEventListener('keyup', e => { if (e.key === '\\') comparing(false); });
 }
 
 // ------------------------------------------------------------------------------------------------------ controls
@@ -411,6 +583,7 @@ function changed(rebuild = false) {
   render();
   if (rebuild) build();
   clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { sessionStorage.setItem('chrono-studio-last', toQuery(S.doc)); } catch { /* private mode */ } }, 600);
+  clearTimeout(pastTimer); pastTimer = setTimeout(() => remember(), 350);
 }
 const log = (lo, hi) => ({ to: v => Math.log(v / lo) / Math.log(hi / lo), from: t => lo * Math.pow(hi / lo, t) });
 
@@ -599,7 +772,9 @@ async function hist() {
 }
 
 /** The picture's own size at the data's full resolution, as the worker lays it out (panels one beside or under the other). */
-function fullSize() {
+const fullSize = () => { const [w, h] = rawSize(); return w ? View.outSize(View.viewOf(S.doc), w, h) : [0, 0]; };
+/** The picture's size as the worker renders it in full, before its view. */
+function rawSize() {
   const f = S.opened?.frame, d = S.doc; if (!f || !d) return [0, 0];
   const n = d.layers.filter(l => l.on).length;
   if (d.layout !== 'panels' || n < 2) return [f.W, f.H];
@@ -692,8 +867,8 @@ function setMode(m) {
 function switchRecipe(recipe, quality) {
   if (!S.doc) return;
   S.recipe = recipe; S.quality = quality;
-  S.doc = newDoc(recipe, quality, S.doc.frame, { marks: S.doc.marks }); S.openLayer = null;
-  build(); render();
+  S.doc = newDoc(recipe, quality, S.doc.frame, { marks: S.doc.marks, view: recipeOf(recipe, quality).layout === S.doc.layout ? S.doc.view : null }); S.openLayer = null;
+  build(); render(); remember();
 }
 async function readNeeded() {
   const bytes = (S.need?.length || 0) * (S.opened?.bytesPerPlane || 0);
@@ -716,29 +891,33 @@ async function makeFile() {
   const d = S.doc, base = `chronospherex-${slug()}`;
   if (S.format === 'json') return { blob: new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' }), name: `${base}.json` };
   if (S.format === 'png16' || S.format === 'tiff16') {
-    const p = await ask({ t: 'words', doc: d }), words = new Uint16Array(p.words);
-    return S.format === 'png16' ? { blob: await png16(words, p.W, p.H, fileText()), name: `${base}-16bit.png` } : { blob: tiff16(words, p.W, p.H, fileText()), name: `${base}-16bit.tif` };
+    const p = await ask({ t: 'words', doc: d }), o = View.orientArray(new Uint16Array(p.words), p.W, p.H, View.viewOf(d), 3);
+    return S.format === 'png16' ? { blob: await png16(o.data, o.W, o.H, fileText()), name: `${base}-16bit.png` } : { blob: tiff16(o.data, o.W, o.H, fileText()), name: `${base}-16bit.tif` };
   }
   if (S.format === 'fits' || S.format === 'fitsall') {
-    const fr = S.opened.frame;
+    const fr = S.opened.frame, panels = d.layout === 'panels' && d.layers.filter(l => l.on).length > 1;
+    // the crop, turn and mirror of a picture of one frame (panels' crop is of the panels, not of the frame)
+    const v = panels ? View.whole() : View.viewOf(d), wcs = View.plain(v) ? null : View.wcsOf(fr, fr.W, fr.H, v), cut = a => View.orientArray(a, fr.W, fr.H, v);
     if (S.format === 'fits') {
       const p = await ask({ t: 'lights', doc: d });
       const plain = t => t.replace(/\s*·\s*/g, ' ').replace(/–/g, '-').replace(/µm/g, 'um').replace(/α/g, 'alpha').replace(/[^\x20-\x7e]/g, '').slice(0, 60);
       const cards = p.layers.map((l, i) => [`LAYER${i + 1}`, plain(layerName(d.layers.find(x => x.id === l.id), STR.en, 'en'))]);
-      return { blob: fits(p.layers.map(l => new Float32Array(l.data)), p.W, p.H, fr, { cards, notes: ['Layers as the studio combines them, background taken off, not stretched.', 'Saturated star cores and survey gaps are filled.'] }), name: `${base}-layers.fits` };
+      const arr = p.layers.map(l => cut(new Float32Array(l.data)));
+      return { blob: fits(arr.map(a => a.data), arr[0].W, arr[0].H, fr, { wcs, cards, notes: ['Layers as the studio combines them, background taken off, not stretched.', 'Saturated star cores and survey gaps are filled.'] }), name: `${base}-layers.fits` };
     }
     const p = await ask({ t: 'planes' });
     const cards = p.planes.flatMap((pl, i) => [[`WAVE${i + 1}`, WAVES[pl.z], 'micron, plane ' + pl.z]]);
-    return { blob: fits(p.planes.map(pl => new Float32Array(pl.data)), p.W, p.H, fr, { cards, notes: ['Planes of the SPHEREx cube as read, resampled to this frame.', 'Saturated star cores are filled with the largest value around them;', 'pixels the survey has not covered are NaN.'] }), name: `${base}-wavelengths.fits` };
+    const arr = p.planes.map(pl => cut(new Float32Array(pl.data)));
+    return { blob: fits(arr.map(a => a.data), arr[0].W, arr[0].H, fr, { wcs, cards, notes: ['Planes of the SPHEREx cube as read, resampled to this frame.', 'Saturated star cores are filled with the largest value around them;', 'pixels the survey has not covered are NaN.'] }), name: `${base}-wavelengths.fits` };
   }
   // an 8-bit picture: the full frame, brought to the size asked for, with the words drawn on it
   const p = await ask({ t: 'render', doc: d, target: 'full' }); if (p.missing) throw new Error('missing');
   const src = document.createElement('canvas'); src.width = p.W; src.height = p.H; src.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.W, p.H), 0, 0);
-  const [W, H] = sizeOf(S.size, p.W, p.H), how = S.mode === 'pro' ? S.interp || 'cubic' : 'cubic';
+  const v = View.viewOf(d), [cw, ch] = View.outSize(v, p.W, p.H), [W, H] = sizeOf(S.size, cw, ch), how = S.mode === 'pro' ? S.interp || 'cubic' : 'cubic';
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
-  x.imageSmoothingEnabled = how !== 'none' || W < p.W; x.imageSmoothingQuality = how === 'linear' ? 'low' : 'high'; x.drawImage(src, 0, 0, W, H);
+  x.imageSmoothingEnabled = how !== 'none' || W < cw; x.imageSmoothingQuality = how === 'linear' ? 'low' : 'high'; View.draw(x, src, p.W, p.H, v, W, H);
   try { await document.fonts.ready; } catch { /* the fallback faces will do */ }
-  drawMarks(x, W, H, { doc: d, rects: p.rects, picW: p.W, picH: p.H, name: S.name, T, lang });
+  marksOn(x, W, H, d, p);
   const type = S.format === 'png' ? 'image/png' : 'image/jpeg', blob = await new Promise(done => cv.toBlob(done, type, S.jpgQ));
   return { blob, name: `${base}.${S.format === 'png' ? 'png' : 'jpg'}`, W, H };
 }
@@ -808,7 +987,7 @@ function wire() {
 
 const guide = makeGuide({ S, $, T, lang, fill, narrow, frameFromMap: () => frameFromMap(), backToPlace: () => backToPlace(), setMode: m => setMode(m),
   changed: r => changed(r), open: id => { S.openLayer = id; build(); hist(); }, useRecipe: r => { if (S.doc && S.doc.recipe !== r) switchRecipe(r, S.doc.quality || 1); } });
-words(); wire(); setFull(false);
+words(); wire(); wireCrop(); wireFrameGrips(); setFull(false);
 for (const b of $('mode').children) b.setAttribute('aria-pressed', b.dataset.m === S.mode);
 document.body.dataset.mode = S.mode;
 let start = { ra: 98.0, dec: 4.95, w: 3, rot: 0 };          // the Rosette Nebula: bright, round, and 48 MB to read (Orion is 119)
