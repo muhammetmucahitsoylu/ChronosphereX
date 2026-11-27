@@ -774,7 +774,7 @@ export default {
   "<b>The light in the ring: {0}</b>, which passed through this very spot on {1} and moved on. Press this line to follow it.": "<b>Das Licht im Ring: {0}</b>. Am {1} zog dieser Körper genau über diese Stelle und weiter. Auf diese Zeile drücken, um ihm zu folgen.",
   "<b>Still looking</b> for asteroids and other bodies passing through this field…": "<b>Die Suche läuft noch:</b> Asteroiden und andere Körper, die durch dieses Feld ziehen…",
   "<b>None of the {0} clear stars around it moved or changed</b> between the visits.": "<b>Keiner der {0} deutlichen Sterne ringsum</b> hat sich zwischen den Beobachtungen bewegt oder verändert.",
-  "<b>Something around it stands out.</b> All measurements shows what.": "<b>In der Umgebung fällt etwas auf.</b> „Alle Messungen“ zeigt, was.",
+  "<b>Something around it stands out.</b> The Data tab shows what.": "<b>In der Umgebung fällt etwas auf.</b> Der Reiter „Daten“ zeigt, was.",
   "<b>It is moving.</b> Each year it shifts a little towards the {0}. At this pace it would cover a stretch of sky as wide as the Moon in about {1} years.": "<b>In Bewegung.</b> Jedes Jahr ein Stück weiter nach {0}. In diesem Tempo dauert es etwa {1} Jahre, bis eine Strecke so breit wie der Mond am Himmel zurückgelegt ist.",
   "<b>Not real movement.</b> Two stars very close together can look like this.": "<b>Keine echte Bewegung.</b> Zwei Sterne sehr nah beieinander können so aussehen.",
   "<b>The light here moved.</b> Between the visits it shifted a little towards the {0}.": "<b>Das Licht hier hat sich verschoben.</b> Zwischen den Beobachtungen rückte es ein Stück nach {0}.",

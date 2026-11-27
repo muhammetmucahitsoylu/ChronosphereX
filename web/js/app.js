@@ -143,7 +143,7 @@ async function go({ ra, dec, size, target = null, track = null, det, mode, info 
   coachEnd();
   // Another object opens as the simple card; the same one (widened, re-centred, another detector) keeps what was chosen.
   const away = Math.abs(dec - S.dec) > 1 / 60 || Math.abs(((ra - S.ra + 540) % 360) - 180) * Math.cos(dec * Math.PI / 180) > 1 / 60;
-  if (away || target !== S.target) { panelFull = fullFromLink; fullFromLink = false; }
+  if (away || target !== S.target) { panelFull = fullFromLink || wantsData(); fullFromLink = false; }
   S.abort?.abort(); S.abort = new AbortController();
   const gen = ++S.gen;
   stop();
@@ -1107,7 +1107,7 @@ function paint() {
   octx.putImageData(im, 0, 0);
   const s = W / n * S.view.z;
   ctx.save();
-  ctx.imageSmoothingEnabled = S.smooth;
+  ctx.imageSmoothingEnabled = S.smooth || simpleCard(); ctx.imageSmoothingQuality = 'high';
   ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (W / 2 - (S.view.cx + 0.5) * s), dpr * (H / 2 - (n - 0.5 - S.view.cy) * s));
   ctx.drawImage(off, 0, 0);
   const marked = flagLayer(it, n);
@@ -1695,6 +1695,53 @@ $('findings').addEventListener('click', e => {
 });
 
 
+// ------------------------------------------------------------ no paragraphs: each sentence a bullet
+// Visitors do not read paragraphs (the user, 27 Nov 2026: "hâlâ her yerde paragraf var"), and nothing may be left out
+// ("detay kaybetmeden"). So every paragraph of the panel is shown as its answer in bold on a line of its own, then each
+// of its sentences as a bullet: the same words, in every language and every branch, without rewriting any text. Done
+// on the page (a watcher on the panel) because many places write these paragraphs; a paragraph written again is
+// split again, one already split is left alone.
+const BULLETED = ['#lookbox p.look:not(.yearsgo):not(.visits)', '#explain', '#motion > p.hint', '#scan > p.hint', '#movers > p.hint', '#speccmp > p.hint',
+  '#specnote p.hint', '#molecules > p.hint', '#lcnote', '#lccheck > p.hint', '#years p.yearssay', '#years p.yearsnote', '#years .yearsnote2', '.wiki p', '#findings .qtxt > span', 'details.fold > p.hint'].join(', ');
+/** A paragraph's words cut into sentences, never inside a tag or a link: a sentence ends at . ! ? … followed by a space and a
+ *  capital, a digit or an opening mark; a long clause ends at a semicolon too. */
+function sentencesOf(html) {
+  const out = []; let cur = '', depth = 0, i = 0;
+  while (i < html.length) {
+    const c = html[i];
+    if (c === '<') {
+      const j = html.indexOf('>', i), tag = html.slice(i, j < 0 ? html.length : j + 1);
+      cur += tag; i += tag.length;
+      if (tag[1] === '/') depth = Math.max(0, depth - 1); else if (!/\/>$|^<(br|img|wbr|input|hr)\b/i.test(tag)) depth++;
+      continue;
+    }
+    cur += c; i++;
+    if (depth) continue;
+    const rest = html.slice(i);
+    const end = /[.!?…]/.test(c) ? /^(\s+)(?=[\p{Lu}\d%“"«¿¡(])/u.exec(rest) : c === ';' && cur.length > 30 ? /^(\s+)(?=\S[^<]{30})/u.exec(rest) : null;
+    if (end) { out.push(c === ';' ? cur.slice(0, -1).trim() : cur.trim()); cur = ''; i += end[1].length; }
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+function bulletize(p) {
+  if (p.querySelector(':scope > .bli')) return;
+  let html = p.innerHTML.trim(), head = '';
+  const m = /^<b>[\s\S]*?<\/b>/.exec(html);          // the answer in bold (or the label "What to look for") heads the bullets
+  if (m) { head = m[0]; html = html.slice(m[0].length).replace(/^\s*[:;,.]?\s*/, ''); }
+  const parts = sentencesOf(html);
+  if (!head && parts.length < 2) return;            // one sentence is not a paragraph
+  if (!parts.length) return;
+  const up = s => s.replace(/^\p{Ll}/u, ch => ch.toLocaleUpperCase(Lang.locale));          // a clause cut at a semicolon starts its bullet with a capital
+  // spaces between the pieces: the paragraph's text (read back by some of the code) keeps its words apart
+  p.innerHTML = (head ? `<span class="bhead">${head}</span> ` : '') + parts.map(s => `<span class="bli">${up(s)}</span>`).join(' ');
+  p.classList.add('bullets');
+}
+let bulletRaf = 0;
+const bulletSoon = () => { if (!bulletRaf) bulletRaf = requestAnimationFrame(() => { bulletRaf = 0; for (const p of $('panel').querySelectorAll(BULLETED)) bulletize(p); }); };
+new MutationObserver(bulletSoon).observe($('panel'), { childList: true, subtree: true });
+bulletSoon();
+
 // ------------------------------------------------------------ is the change real?
 /**
  * Bright, isolated, unsaturated stars in the stacked image of the selected detector: the yardstick.
@@ -1904,7 +1951,7 @@ function renderScan() {
   const list = r.flags.length ? `<ul class="flags">${r.flags.map((f, i) => `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}${f.own ? G` · the catalogued object` : ''}</span></li>`).join('')}</ul>
     <p class="hint">${G`Press one to circle it. A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
   el.innerHTML = head + list;
-  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> All measurements shows what.` }
+  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> The Data tab shows what.` }
     : { cls: 'none', html: G`<b>None of the ${r.checked} clear stars around it moved or changed</b> between the visits.` });
   el.querySelectorAll('[data-flag]').forEach(b => { b.onclick = () => {
     const f = r.flags[+b.dataset.flag];
@@ -1951,6 +1998,10 @@ $('heroshot').onclick = () => {          // the front page's picture: Barnard's 
 // kept a visitor there for ever). The tour, the walk through the panel, embedded pages, passing bodies and the asteroid
 // hunt (whose steps use the controls) and a link that asks for a particular way of comparing show the full panel.
 let panelFull = false, fullFromLink = false;
+// The layer the visitor last chose, Story or Data, opens the next object too: a researcher is not sent back to the story
+// at every star (27 Nov 2026). In this browser only.
+function wantsData() { try { return localStorage.getItem('chrono-layer') === 'data'; } catch { return false; } }
+function keepLayer(v) { try { localStorage.setItem('chrono-layer', v); } catch { /* private mode: the story each time */ } }
 try { localStorage.removeItem('chrono-panel-full'); } catch { /* private mode */ }          // what the first version kept on the device
 const simpleCard = () => !panelFull && !S.hunt && !(S.target?.body || S.track?.body);
 // The simple card leaves the map more room (style.css, .app.simplecard): on a phone the map is a low strip, so that the
@@ -1973,6 +2024,7 @@ function setPanelFull(on) {
 }
 /** Back to the simple card, from the top of the whole panel or from the button that stays at the bottom. */
 function toSimple() {
+  keepLayer('story');
   setPanelFull(false);
   const how = calmMotion() ? 'auto' : 'smooth';
   $('panel').scrollTo({ top: 0, behavior: how });
@@ -2147,7 +2199,7 @@ function renderAbout() {
   $('closepanel').onclick = closePanel;
   $('factsbtn').onclick = () => { S.factsOpen = !factsShown(); S.factsCoach = false; showFacts(); };
   if ($('howto')) $('howto').onclick = () => coachGo(0);
-  if ($('tabsum')) { $('tabsum').onclick = () => { if (!simpleCard()) toSimple(); }; $('taball').onclick = () => { if (simpleCard()) $('fullbtn').onclick(); }; }
+  if ($('tabsum')) { $('tabsum').onclick = () => { if (!simpleCard()) toSimple(); }; $('taball').onclick = () => { keepLayer('data'); if (simpleCard()) $('fullbtn').onclick(); }; }
   restSay(); simpleFloat();
   if (mv) $('gomoved').onclick = () => {
     const preset = S.targets.find(x => !x.follow && sepArcsec(mv.ra, mv.dec, x.ra, x.dec) < 20);

@@ -774,7 +774,7 @@ export default {
   "<b>The light in the ring: {0}</b>, which passed through this very spot on {1} and moved on. Press this line to follow it.": "<b>Halkadaki ışık: {0}</b>. {1} tarihinde tam bu noktadan geçti ve yoluna devam etti. İzlemek için bu satıra basın.",
   "<b>Still looking</b> for asteroids and other bodies passing through this field…": "<b>Arama sürüyor:</b> bu alandan geçen asteroitlere ve başka cisimlere bakılıyor…",
   "<b>None of the {0} clear stars around it moved or changed</b> between the visits.": "<b>Çevresindeki {0} net yıldızın hiçbiri</b> gözlemler arasında yerinden oynamadı, hiçbirinin parlaklığı da değişmedi.",
-  "<b>Something around it stands out.</b> All measurements shows what.": "<b>Çevresinde dikkat çeken yıldızlar var.</b> Hangileri olduğunu Tüm ölçümler gösteriyor.",
+  "<b>Something around it stands out.</b> The Data tab shows what.": "<b>Çevresinde dikkat çeken yıldızlar var.</b> Hangileri olduğunu Veri sekmesi gösteriyor.",
   "<b>It is moving.</b> Each year it shifts a little towards the {0}. At this pace it would cover a stretch of sky as wide as the Moon in about {1} years.": "<b>Yerinden oynuyor.</b> Her yıl biraz {0} doğru kayar. Bu hızla, gökte Ay’ın genişliği kadar yolu yaklaşık {1} yılda alır.",
   "<b>Not real movement.</b> Two stars very close together can look like this.": "<b>Gerçek bir hareket yok.</b> Birbirine çok yakın iki yıldız böyle görünebilir.",
   "<b>The light here moved.</b> Between the visits it shifted a little towards the {0}.": "<b>Buradaki ışık yer değiştirdi.</b> Gözlemler arasında biraz {0} doğru kaydı.",
