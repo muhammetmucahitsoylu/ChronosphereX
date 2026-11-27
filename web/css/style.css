@@ -269,7 +269,16 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .coachnav button:disabled { opacity: .4; }
 .coach .coachnote { margin-top: 8px; font-size: 13px; color: var(--ink-2); }
 /* ------------------------------------------------------------ settings, top right (app.js renderLook) */
-#lang { display: none !important; }          /* the drop-down gave way to the panel; kept for the code that fills it */
+#lang { display: none !important; }
+#nightlink { display: none !important; }          /* night mode is in Settings */
+/* the menu's group of things to do: a heading that opens and closes */
+.navmore { display: contents; }
+.navgroup > summary { list-style: none; cursor: pointer; font-weight: 600; }
+.navgroup > summary::-webkit-details-marker { display: none; }
+.navgroup > summary::after { content: ""; margin-left: auto; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .15s; opacity: .8; }
+.navgroup[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+.navgroup > a.navgame { display: flex !important; align-items: center; padding-left: 26px !important; }          /* under their heading, a step in */
+@media (prefers-reduced-motion: reduce) { .navgroup > summary::after { transition: none; } }          /* the drop-down gave way to the panel; kept for the code that fills it */
 .topicon { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 40px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line-2); background: color-mix(in srgb, var(--bg, #0a0d13) 80%, transparent); color: var(--ink); cursor: pointer; }
 .topicon:hover, .topicon[aria-expanded="true"] { background: var(--surface-2); }
 .setbtn { padding: 0; width: 40px; border-radius: 50%; }
@@ -657,11 +666,14 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
    the user's calls (the studio matters more; the hunt rarely finds anything that is not already known). */
 @media (min-width: 1241px) {
   .menubtn { display: flex; }
-  .navlinks a[data-sheet=planetx], .navlinks a[data-sheet=how], .navlinks a[data-sheet=about], .navlinks a[data-sheet=hunt] { display: none; position: absolute; right: 10px; z-index: 50; min-width: 200px; min-height: 44px; padding: 11px 12px; font-size: 15px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 16px 40px #000c; }
-  .nav.open .navlinks a[data-sheet=planetx] { display: flex; top: 52px; border-radius: 12px 12px 0 0; border-bottom-color: transparent; }
-  .nav.open .navlinks a[data-sheet=hunt] { display: flex; top: 95px; border-radius: 0; border-top-color: transparent; border-bottom-color: transparent; }
-  .nav.open .navlinks a[data-sheet=how] { display: flex; top: 138px; border-radius: 0; border-top-color: transparent; border-bottom-color: transparent; }
-  .nav.open .navlinks a[data-sheet=about] { display: flex; top: 181px; border-radius: 0 0 12px 12px; border-top-color: transparent; }
+  /* the menu button opens one panel of the pages that are not in the bar (it was four lines placed at fixed heights) */
+  .navmore { display: none; position: absolute; right: 10px; top: 52px; z-index: 50; width: 260px; max-height: calc(100vh - 70px); overflow-y: auto; flex-direction: column; gap: 2px; padding: 6px;
+    background: var(--surface); border: 1px solid var(--line-2); border-radius: 14px; box-shadow: 0 16px 44px #0009; }
+  .nav.open .navmore { display: flex; }
+  #navmore a, #navmore summary { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 8px; font-size: 15px; color: var(--ink); text-decoration: none; white-space: nowrap; }
+  #navmore a.navgame { color: var(--gold); }
+  #navmore a.navsocial { color: var(--ink-2); }
+  #navmore a:hover, #navmore summary:hover { background: var(--surface-2); }
 }
 /* narrow laptops, tablets and phones: the pages move into a menu, so that the search box keeps its width */
 @media (max-width: 1240px) {
@@ -672,6 +684,8 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .navlinks a.navgame { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--gold); min-height: 44px; text-decoration: none; border-radius: 8px; }
   .navlinks a.navsocial { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--ink-2); min-height: 44px; text-decoration: none; border-radius: 8px; }
   .navlinks a.navpage { display: none; }          /* the menu has the studio among its gold lines */
+  .navgroup > summary { display: flex; align-items: center; min-height: 44px; padding: 11px 12px; font-size: 15px; color: var(--ink); border-radius: 8px; }
+  .navgroup > summary:hover { background: var(--surface-2); }
 }
 
 /* Three layouts. A desk: the map and, beside it, the panel. A phone held upright (and a small tablet): one scrolling

@@ -58,6 +58,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
 <link rel="preload" as="font" type="font/woff2" href="fonts/IBMPlexSans-500-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="fonts/IBMPlexSans-600-latin.woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/icons.css">
 <!-- visit counts: no cookies, no IP addresses kept (see About) -->
 <script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
 </head>
@@ -80,31 +81,36 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
     <div class="navlinks" id="navlinks" lang="en">
       <!-- links to the pages as plain pages (a search engine, a new tab); a plain click opens the same words over the map -->
       <!-- phones have no bar for the tour's button: there it is the first line of the menu -->
-      <a class="navtour" id="tourlink" href="./" data-t="nav.tour">Guided tour</a>
-      <a class="navgame" href="play.html" data-t="hero.play">Play a game</a>
-      <a class="navgame navstar" href="star.html" data-t="hero.star">The star of your year</a>
-      <a class="navgame navtonight" href="tonight.html" data-t="nav.tonight">Tonight’s sky</a>
-      <a class="navgame navstudio" href="studio.html" data-t="hero.studio">Make a picture</a>
-      <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title">Planet X</a>
-      <!-- desks: the studio in the bar where the asteroid hunt was (27 Nov 2026); phones have it among the gold lines above -->
-      <a class="navpage" href="studio.html" data-t="nav.studio">Picture studio</a>
-      <a href="what-is-spherex.html" data-sheet="spherex">What is SPHEREx?</a>
-      <a href="how-it-works.html" data-sheet="how">How it works</a>
-      <a href="about.html" data-sheet="about">About</a>
-      <a href="find-asteroids.html" data-sheet="hunt">Asteroid hunt</a>
-      <a class="navsocial" href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram</a>
-      <a class="navsocial" href="privacy.html" data-t="nav.privacy">Privacy</a>
-      <!-- phones: night mode, the page in red light, for the dark outdoors -->
+      <a class="ic ic-book-ember navtour" id="tourlink" href="./" data-t="nav.tour">Guided tour</a>
+      <a class="ic ic-image-gold navgame navstudio" href="studio.html" data-t="hero.studio">Make a picture</a>
+      <!-- desks: the studio and What is SPHEREx? in the bar; the rest open from the menu button, in one panel (.navmore) -->
+      <a class="ic ic-image navpage" href="studio.html" data-t="nav.studio">Picture studio</a>
+      <a href="what-is-spherex.html" data-sheet="spherex" class="ic ic-spherex">What is SPHEREx?</a>
+      <div class="navmore" id="navmore">
+        <!-- the things to do, under one heading that opens and closes (27 Nov 2026: "çok fazla şey var") -->
+        <details class="navgroup" id="navgroup"><summary class="ic ic-activities"><span data-t="nav.activities">Activities</span></summary>
+          <a class="ic ic-daily-gold navgame" href="play.html" data-t="hero.play">Play a game</a>
+          <a class="ic ic-star-gold navgame navstar" href="star.html" data-t="hero.star">The star of your year</a>
+          <a class="ic ic-tonight-gold navgame navtonight" href="tonight.html" data-t="nav.tonight">Tonight’s sky</a>
+          <a href="find-asteroids.html" data-sheet="hunt" class="ic ic-crosshair-gold navgame navhunt">Asteroid hunt</a>
+        </details>
+        <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title" class="ic ic-planet">Planet X</a>
+        <a href="how-it-works.html" data-sheet="how" class="ic ic-layers">How it works</a>
+        <a href="about.html" data-sheet="about" class="ic ic-info">About</a>
+        <a class="ic ic-instagram navsocial" href="https://www.instagram.com/chronospherex_official/" target="_blank" rel="noopener">Instagram</a>
+        <a class="ic ic-shield navsocial" href="privacy.html" data-t="nav.privacy">Privacy</a>
+      </div>
+      <!-- night mode is in Settings now; this line is kept for the code that marks it (hidden in style.css) -->
       <button type="button" class="navnight" id="nightlink" aria-pressed="false" data-t="night.menu">Night mode (red light)</button>
       <select id="lang" class="langpick" aria-label="Language" data-t-label="nav.language"></select>
     </div>
     <!-- settings, top right: a desk sees the language as its flag and code; the gear opens the same panel on every screen -->
     <button id="langbtn" type="button" class="topicon langbtn" aria-label="Language" data-t-label="nav.language" aria-controls="lookpanel" aria-expanded="false"><span class="flag" id="langflag"></span><b id="langcode"></b></button>
     <!-- the guided tour: a help beside the map, not the main thing (exploring is): the studio's book and one word, no orange -->
-    <button id="tourbtn" type="button" class="topicon tourbtn" aria-label="Guided tour" data-t-label="nav.tour"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6v12.7c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6zM12 6.1v12.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span data-t="nav.guide">Guide</span></button>
+    <button id="tourbtn" type="button" class="topicon tourbtn" aria-label="Guided tour" data-t-label="nav.tour"><svg viewBox="0 0 256 256" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M232,56V200H160a32,32,0,0,0-32,32,32,32,0,0,0-32-32H24V56H96a32,32,0,0,1,32,32,32,32,0,0,1,32-32Z" fill="#ff7b39" opacity="0.45"/><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z"/></svg><span data-t="nav.guide">Guide</span></button>
     <!-- phones: the search box opens from this button, so that the map has the whole screen -->
     <button id="searchbtn" type="button" class="iconbtn" aria-label="Object name or coordinates" data-t-label="search.label" aria-expanded="false" aria-controls="search"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-    <button id="setbtn" type="button" class="topicon setbtn" aria-label="Settings" data-t-label="set.title" aria-controls="lookpanel" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button id="setbtn" type="button" class="topicon setbtn" aria-label="Settings" data-t-label="set.title" aria-controls="lookpanel" aria-expanded="false"><svg viewBox="0 0 256 256" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M230.1,108.76,198.25,90.62c-.64-1.16-1.31-2.29-2-3.41l-.12-36A104.61,104.61,0,0,0,162,32L130,49.89c-1.34,0-2.69,0-4,0L94,32A104.58,104.58,0,0,0,59.89,51.25l-.16,36c-.7,1.12-1.37,2.26-2,3.41l-31.84,18.1a99.15,99.15,0,0,0,0,38.46l31.85,18.14c.64,1.16,1.31,2.29,2,3.41l.12,36A104.61,104.61,0,0,0,94,224l32-17.87c1.34,0,2.69,0,4,0L162,224a104.58,104.58,0,0,0,34.08-19.25l.16-36c.7-1.12,1.37-2.26,2-3.41l31.84-18.1A99.15,99.15,0,0,0,230.1,108.76ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z" fill="#ff7b39" opacity="0.45"/><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.1,8.1,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8,8,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"/></svg></button>
     <button id="menubtn" type="button" class="menubtn" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><span></span><span></span><span></span></button>
   </nav>
 </header>
@@ -114,7 +120,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
   <h3 data-t="set.lang">Language</h3><div class="langgrid" id="langgrid"></div>
   <h3 data-t="set.look">Colours</h3><div class="lookgrid" id="lookgrid"></div>
   <h3 data-t="set.map">Sky map</h3><div class="lookgrid" id="mapgrid"></div>
-  <button type="button" class="nightset" id="nightset" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span data-t="set.night">Night mode</span><i class="sw" aria-hidden="true"></i></button>
+  <button type="button" class="nightset" id="nightset" aria-pressed="false"><svg viewBox="0 0 256 256" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M227.89,147.89A96,96,0,1,1,108.11,28.11,96.09,96.09,0,0,0,227.89,147.89Z" fill="#ff7b39" opacity="0.45"/><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg><span data-t="set.night">Night mode</span><i class="sw" aria-hidden="true"></i></button>
 </div>
 
 <main class="app" id="app" data-panel="closed">
@@ -147,15 +153,15 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
         <h1 data-t="hero.title">The sky is not still.</h1>
         <p class="lede"><span class="poem" data-t="hero.lede">Stars drift. Some flicker. Cold worlds hide in colours our eyes cannot see.</span> <span data-t="hero.do">Pick any point of this map to watch that spot change over time, and find out what it is.</span></p>
         <div class="herobtns">
-          <button type="button" class="cta" id="hidewelcome" data-t="hero.explore">Explore the sky</button>
-          <button type="button" class="ghost" id="pointbtn2" hidden data-t="point.btn">Point at the sky</button>
-          <button type="button" class="ghost" id="tourbtn2" data-t="hero.tour">Two-minute tour</button>
-          <button type="button" class="ghost" id="huntbtn" data-t="hero.hunt">Find an asteroid</button>
-          <a class="ghost" id="playlink" href="play.html" data-t="hero.play">Play a game</a>
+          <button type="button" class="ic ic-sky-dark cta" id="hidewelcome" data-t="hero.explore">Explore the sky</button>
+          <button type="button" class="ic ic-point ghost" id="pointbtn2" hidden data-t="point.btn">Point at the sky</button>
+          <button type="button" class="ic ic-play ghost" id="tourbtn2" data-t="hero.tour">Two-minute tour</button>
+          <button type="button" class="ic ic-crosshair ghost" id="huntbtn" data-t="hero.hunt">Find an asteroid</button>
+          <a class="ic ic-daily ghost" id="playlink" href="play.html" data-t="hero.play">Play a game</a>
           <!-- phones: pick a year, meet the star whose light of tonight set out then (star.html) -->
-          <a class="ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
+          <a class="ic ic-star ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
           <!-- the picture studio has a card of its own (below); this button stands in only where no card can show: a narrow desk, a phone on its side (style.css) -->
-          <a class="ghost" id="studiolink" href="studio.html" data-t="hero.studio">Make a picture</a>
+          <a class="ic ic-image ghost" id="studiolink" href="studio.html" data-t="hero.studio">Make a picture</a>
         </div>
         <!-- a phone on mobile data: what exploring costs, said before the first touch -->
         <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. The pictures of one star you pick on the map take 20 to 60 MB.</p>
@@ -262,7 +268,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           </select>
         </div>
         <p class="loopline" id="loopline" data-t="panel.loop">One picture for each time SPHEREx looked here, in a loop. Anything that moved jumps from one to the next.</p>
-        <div class="fullwrap"><button type="button" class="fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><button type="button" class="ghost cmpopen" id="cmpopen" hidden></button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
+        <div class="fullwrap"><button type="button" class="ic ic-chart fullbtn" id="fullbtn" data-t="panel.full">All measurements</button><button type="button" class="ghost cmpopen" id="cmpopen" hidden></button><small class="fullcost" id="fullcost" hidden></small><small data-t="panel.fullHint">Spectrum, brightness over time, every exposure and wavelength, the checks behind each answer</small></div>
         <div class="seg" role="group" aria-label="How to compare" id="modes">
           <button data-mode="years" title="The same spot over a quarter of a century: 2MASS, WISE, then SPHEREx.">Years: 2MASS, WISE, SPHEREx</button>
           <button data-mode="epochs" title="One stacked image per SPHEREx visit to this spot. Best for spotting motion.">Visits</button>

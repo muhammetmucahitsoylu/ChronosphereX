@@ -168,6 +168,18 @@ body.cropping #sidestudio > :not(#cropbox) { display: none !important; }
 @media (max-width: 420px) { #cropword { display: none; } #cropbtn { width: 38px; justify-content: center; padding: 0; } }
 #tobox { background: color-mix(in srgb, var(--bg, #0a0d13) 93%, transparent); border-color: var(--ember); color: var(--ember); }
 #tobox::after { content: " \2193"; }
+#tobox.ic::after { content: none; }          /* the download icon says it */
+#tobox { white-space: nowrap; }
+/* a narrow phone: the bar under the picture holds "Export", undo, redo, crop, compare and full size in one row (it ran
+   past the screen's edge, 27 Nov 2026): smaller round buttons, full size as its icon alone (its name stays for readers) */
+@media (max-width: 420px) {
+  .easelbar { gap: 6px; padding: 0 8px; }
+  .easelbar .tools { gap: 4px; }
+  .easelbar .chip.icon, #cropbtn { width: 36px; }
+  #fullbtn { width: 36px; padding: 0; justify-content: center; font-size: 0; }
+  #fullbtn.ic::before { margin: 0; width: 18px; height: 18px; }
+  #tobox { padding: 0 12px; }
+}
 #easel:has(#busy:not([hidden])) #tobox { visibility: hidden; }
 #busy { position: absolute; z-index: 6; left: 50%; bottom: 62px; transform: translateX(-50%); width: min(430px, calc(100% - 28px)); background: color-mix(in srgb, var(--bg, #0a0d13) 95%, transparent); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
 #busy b { font: 600 14.5px var(--sans); }
