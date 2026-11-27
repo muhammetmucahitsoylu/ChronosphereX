@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
+<script src="js/tabs.js"></script>
+<meta name="theme-color" content="#0a0908">
+<title>Picture studio · ChronosphereX</title>
+<meta name="description" content="Make your own infrared picture of any patch of sky from NASA’s SPHEREx data: choose a frame on the map, pick gas and dust, stars, or three wavelengths side by side, adjust it and save or share it. For beginners and for people who process astronomical images.">
+<link rel="canonical" href="https://chronospherex.com/studio.html">
+<meta property="og:title" content="Picture studio · ChronosphereX">
+<meta property="og:description" content="Make your own infrared picture of any patch of sky from NASA’s SPHEREx data.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/studio.html">
+<meta property="og:image" content="https://chronospherex.com/img/studio-share.jpg">
+<meta property="og:site_name" content="ChronosphereX">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://nasa-irsa-spherex.s3.amazonaws.com" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/studio.css">
+<script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
+</head>
+<body class="place">
+<header class="top">
+  <a class="logo" id="logo" href="./"><i></i>ChronosphereX</a>
+  <span class="ttl" id="ttl">Picture studio</span>
+  <span class="grow"></span>
+  <div class="seg" id="mode" role="group" aria-label="How much to show"><button type="button" data-m="basic" aria-pressed="true">Simple</button><button type="button" data-m="pro" aria-pressed="false">Pro</button></div>
+  <!-- the guide that makes a picture with the visitor, step by step; and the settings (the language is in there) -->
+  <button type="button" class="topbtn" id="guidebtn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6v12.7c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6zM12 6.1v12.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span id="guideword">Guide</span></button>
+  <button type="button" class="topbtn icon" id="setbtn" aria-label="Settings"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.700 1.700M16.8 16.8l1.700 1.700M18.5 5.5l-1.700 1.700M7.2 16.8l-1.700 1.700" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+</header>
+
+<main id="app">
+  <section id="stage" aria-label="Picture">
+    <!-- step one: the sky, and a frame that stays put while the sky is dragged under it -->
+    <div id="picker">
+      <div id="map"></div>
+      <div id="frame" aria-hidden="true"><span id="framesize"></span></div>
+      <form id="find" role="search"><input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="submit" id="go">Go</button></form>
+      <p id="findmsg" role="status"></p>
+      <div class="zoom"><button type="button" id="zin" aria-label="Zoom in">+</button><button type="button" id="zout" aria-label="Zoom out">−</button></div>
+    </div>
+    <!-- step two: the picture -->
+    <div id="easel" hidden>
+      <div id="scroll"><div id="sheet"><canvas id="pic"></canvas><canvas id="marks" aria-hidden="true"></canvas></div></div>
+      <div id="busy" hidden role="status"><b id="busysay"></b><span id="busysub"></span><div class="bar"><i id="busybar"></i></div><button type="button" id="stop">Stop</button></div>
+      <!-- under the picture, never on it: what is written on a picture (title, key, compass) must stay in sight -->
+      <div class="easelbar"><button type="button" id="tobox" class="chip">Take it with you</button><button type="button" id="fullbtn" class="chip" aria-pressed="false">Full size</button></div>
+    </div>
+  </section>
+
+  <aside id="side">
+    <!-- step one's words -->
+    <div id="sideplace">
+      <h1 id="placetitle">Choose a patch of sky</h1>
+      <p class="lede" id="placehelp"></p>
+      <p class="linkopens" id="linkopens" hidden></p>
+      <h2 id="h_places">Good places to start</h2>
+      <div class="chips" id="places"></div>
+      <h2 id="h_shape">Shape of the frame</h2>
+      <div class="seg wrap" id="shape" role="group"></div>
+      <div class="row2">
+        <label><span id="l_turn">Which way is up</span><select id="turn"></select></label>
+        <label><span id="l_map">Map shown</span><select id="maplayer"></select></label>
+      </div>
+      <p class="says" id="framesays" role="status"></p>
+      <h2 id="h_quality">Quality</h2>
+      <div class="seg" id="quality" role="group"></div>
+      <p class="fine" id="qsay"></p>
+      <h2 id="h_kind">What kind of picture</h2>
+      <div class="cards" id="kind" role="radiogroup"></div>
+      <!-- what it costs and the button that starts it stay in sight however far the choices above are scrolled -->
+      <div class="act" id="act">
+        <p class="says" id="cost" role="status"></p>
+        <button type="button" class="cta" id="get">Get the picture</button>
+      </div>
+    </div>
+
+    <!-- step two's controls -->
+    <div id="sidestudio" hidden>
+      <div class="rowbtns"><button type="button" class="ghost" id="another">Another place</button><a class="ghost" id="openmap" href="./">Open this place on the sky map</a></div>
+      <div id="notes"></div>
+      <h2 id="h_kind2">What kind of picture</h2>
+      <div class="seg wrap" id="kind2" role="group"></div>
+      <div class="seg" id="quality2" role="group"></div>
+      <div class="need" id="need" hidden><span id="needsay"></span><button type="button" id="neednow">Read them</button></div>
+
+      <section id="basicbox">
+        <h2 id="h_edit">Adjust</h2>
+        <div id="basic"></div>
+        <button type="button" class="ghost small" id="reset">Back to the recipe</button>
+      </section>
+
+      <section id="probox" hidden>
+        <h2 id="h_layers">Layers</h2>
+        <div id="layers"></div>
+        <div class="rowbtns"><button type="button" class="ghost small" id="addband">Add wavelengths</button><select id="addline" class="ghost small"></select></div>
+        <h2 id="h_combine">Combine</h2>
+        <div id="combine"></div>
+        <h2 id="h_whole">Whole picture</h2>
+        <div id="whole"></div>
+        <button type="button" class="ghost small" id="reset2">Back to the recipe</button>
+      </section>
+
+      <section id="outbox">
+        <h2 id="h_out">Take it with you</h2>
+        <div id="out"></div>
+        <div class="rowbtns big"><button type="button" class="cta" id="share">Share</button><button type="button" class="cta" id="save">Save</button><button type="button" class="ghost" id="copy">Copy</button><button type="button" class="ghost" id="link">Copy link</button></div>
+        <p class="says" id="outsay" role="status"></p>
+        <p class="fine" id="rawnote" hidden></p>
+      </section>
+    </div>
+  </aside>
+</main>
+<noscript><p style="padding:20px">The picture studio needs JavaScript.</p></noscript>
+<script type="module" src="js/studio/ui.js"></script>
+</body>
+</html>

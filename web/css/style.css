@@ -66,7 +66,9 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .layerpick select { background-color: #0a0908cc; border-color: var(--line-2); font-size: 13px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); max-width: 62vw; }
 .zoom { top: 58px; right: 12px; display: flex; flex-direction: column; background: #0a0908cc; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .zoom button { width: 36px; height: 36px; font-size: 19px; line-height: 1; color: var(--ink); }
-.zoom button + button { border-top: 1px solid var(--line-2); }
+.zoom button + button, .zoom a { border-top: 1px solid var(--line-2); }
+.zoom a { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--ink); }
+.zoom a:hover { background: var(--surface-2); color: var(--ember); }
 .zoom button:hover { background: var(--surface-2); }
 .zoom output { display: block; border-top: 1px solid var(--line-2); font: 10.5px var(--mono); color: var(--ink-2); text-align: center; padding: 4px 0 3px; width: 36px; overflow: hidden; }
 .mapnote { position: absolute; z-index: 8; left: 50%; top: 14px; transform: translateX(-50%); background: #0a0908e6; border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 16px; font-size: 13.5px; white-space: nowrap; max-width: 88%; overflow: hidden; text-overflow: ellipsis; }
@@ -91,6 +93,8 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 /* what the title says, shown: Pluto moving through 17 real pictures; pressing it opens Pluto */
 .heroshot { position: absolute; right: 36px; bottom: 124px; width: 236px; padding: 8px 8px 11px; text-align: left; background: #141210f2; border: 1px solid var(--line-2); border-radius: 14px; box-shadow: 0 18px 50px #000a; color: var(--ink-2); font-size: 13px; line-height: 1.4; }
 .heroshot:hover { border-color: var(--ember); }
+.shots { display: contents; }          /* the two cards' wrapper: a box of its own only on phones, where they share a row */
+.shotshort { display: none; }
 .heroshot picture { display: block; }
 .heroshot img { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 7px; background: #000; }
 .shotcap { display: block; margin-top: 9px; padding: 0 2px; }
@@ -108,6 +112,27 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 @supports (width: 1cqw) {
   .heroshot { right: auto; left: calc(100cqw - 302px); bottom: 132px; }
   @media (min-width: 1600px) and (min-height: 880px) { .heroshot { left: calc(100cqw - 362px); } }
+}
+/* The picture studio's card plays the animation NASA's APOD showed. On a desk it stands left of the star's card where
+   there is room for both (1240 px and wider); on a phone or a tablet held upright it is a second row under the star's.
+   Only where no card can show (a narrower desk, a phone on its side) the opening has a plain button for it instead. */
+.hero a.studioshot { text-decoration: none; }
+#studiolink { display: none; }
+@media (min-width: 901px) {
+  .hero a.studioshot { display: none; }
+  #studiolink { display: inline-flex; }
+  @supports (width: 1cqw) {
+    @media (min-width: 1240px) and (min-height: 641px) {
+      .hero a.studioshot { display: block; left: calc(100cqw - 302px - 250px); }
+      #studiolink { display: none; }
+    }
+    @media (min-width: 1600px) and (min-height: 880px) { .hero a.studioshot { left: calc(100cqw - 362px - 312px); } }
+  }
+}
+/* a phone on its side: the low opening has room for one card (the star's); the studio keeps its button there */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1100px) {
+  .hero a.studioshot { display: none; }
+  #studiolink { display: inline-flex; }
 }
 /* a short window on a desk: no room for the picture, and a smaller title, so that nothing is cut off at the top */
 @media (min-width: 901px) and (max-height: 640px) { .heroshot { display: none; } .hero { padding-top: 24px; } .hero h1 { font-size: 52px; } }
@@ -666,16 +691,30 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .startwith a.intour { display: none; }
   .startkind { display: inline-block; color: var(--ink-2); white-space: pre; }
   /* the moving picture's card: what it shows and where it leads; the line about the three telescopes is said again where it leads */
-  .shotcap [data-t="hero.shot.text"] { display: none; }
-  .heroshot img { width: 72px; }
+  .shotcap [data-t="hero.shot.text"], .shotcap [data-t="hero.studio.text"] { display: none; }
+  /* Two cards (the star's, the studio's) in ONE row, as high as the one card was: each a moving thumbnail and a few
+     words. One under the other they pushed the title under the map chooser on short screens (27 Nov 2026). */
+  .shots { display: flex; gap: 8px; order: 1; align-self: stretch; margin-top: 12px; }
+  .shots .heroshot { flex: 1 1 0; min-width: 0; max-width: none; margin: 0; padding: 6px 8px 6px 6px; gap: 9px; }
+  .heroshot img { width: 56px; }
+  .shotcap b, .shotcap .shotgo { display: none; }
+  .shotshort { display: block; font: 500 14px/1.3 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+  .shotshort::after { content: " \2192"; color: var(--ember); }
+}
+/* a tall phone: room for the two cards one under the other, with their full words */
+@container stage (max-width: 600px) and (min-height: 740px) {
+  .shots { flex-direction: column; }
+  .shots .heroshot { flex: none; padding: 6px 12px 6px 6px; gap: 12px; }
+  .shotcap b { display: block; } .shotcap .shotgo { display: block; }
+  .shotshort { display: none; }
 }
 /* a short map (a phone with the browser's bars on show): what is needed least steps aside, by the height the map really has */
 @container stage (max-width: 600px) and (max-height: 620px) { .hero > .lede { display: none; } }
 @container stage (max-width: 600px) and (max-height: 540px) { .hero h1 { font-size: 32px; } }          /* the smallest phones: the title on one line also where it is long (French), so that it stays clear of the map chooser */
-@container stage (max-width: 600px) and (max-height: 470px) { .hero .heroshot { display: none; } }
+@container stage (max-width: 600px) and (max-height: 470px) { .hero .heroshot, .hero .shots { display: none; } }
 @container stage (max-width: 340px) { .startkind { display: none; } }          /* the narrowest phones: the name alone, on the label's line, so that a long title (German) stays clear of the map chooser */
 @media (max-width: 380px) {
-  .heroshot img { width: 64px; }
+  .heroshot img { width: 52px; }
   .herobtns .cta, .herobtns .ghost { font-size: 14px; padding-left: 12px; padding-right: 12px; }
   .brand span { font-size: 21px; }
   .nav .cta { padding: 7px 11px; font-size: 13.5px; }
@@ -820,7 +859,7 @@ body.pointing .ruler { display: none; }
   .startwith a { margin-left: 0; }          /* on a line of its own it starts where the words above it start */
   .startwith a.intour { display: none; }
   .startkind { display: inline-block; color: var(--ink-2); white-space: pre; }
-  @container stage (min-height: 334px) { .hero > .heroshot { display: flex; } }
+  @container stage (min-height: 334px) { .hero .heroshot:not(.studioshot) { display: flex; } }
   @container stage (min-height: 392px) { .hero > .lede { display: block; } }
 
   /* the panel: the images and their buttons fit the screen's height */

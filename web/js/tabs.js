@@ -31,7 +31,7 @@
   try { if (A.insets) window.__chronoInsets.apply(null, String(A.insets()).split(',').map(Number)); } catch (e) { /* an older app: it keeps the page clear of the edges itself */ }
 
   var q = new URLSearchParams(location.search), path = location.pathname;
-  var page = /\/star\.html$/.test(path) ? 'star' : /\/play\.html$/.test(path) ? 'daily' : /\/tonight\.html$/.test(path) ? 'tonight' : 'sky';
+  var page = /\/star\.html$/.test(path) ? 'star' : /\/play\.html$/.test(path) ? 'daily' : /\/tonight\.html$/.test(path) ? 'tonight' : /\/studio\.html$/.test(path) ? 'studio' : 'sky';          // the picture studio is none of the bar's places: from it every place is a link
   var lang = q.get('lang');
   try { lang = lang || localStorage.getItem('chrono-lang'); } catch (e) { /* private mode */ }
   var WORDS = {          // the sky, tonight, the phone held up, the star of a year, today's puzzle (the game's objects are brown dwarfs: never "star")

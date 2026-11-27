@@ -1778,6 +1778,8 @@ function renderChips() {
     .map(n => `<option value="${n.replace(/"/g, '&quot;')}">`).join('');
 }
 const openTarget = t => go({ ra: t.ra, dec: t.dec, size: t.size, target: t, info: t.info || null, ...(t.view || { mode: 'epochs' }) });
+// the map's button to the picture studio takes along what the map shows now
+$('studiobtn').onclick = e => { try { const [ra, dec] = Sky.center(); e.currentTarget.href = `studio.html?ra=${ra.toFixed(5)}&dec=${dec.toFixed(5)}&fov=${Math.min(60, Sky.fov()).toFixed(2)}`; } catch { /* the plain link will do */ } };
 $('heroshot').onclick = () => {          // the front page's picture: Barnard's Star over 26 years, opened in the Years view
   const t = S.targets.find(x => x.slug === 'barnard');
   if (t) go({ ra: t.ra, dec: t.dec, size: t.size, target: t, info: t.info || null, det: t.view?.det || 5, mode: 'years' });

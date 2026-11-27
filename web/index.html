@@ -81,6 +81,7 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <a class="navgame" href="play.html" data-t="hero.play">Play a game</a>
       <a class="navgame navstar" href="star.html" data-t="hero.star">The star of your year</a>
       <a class="navgame navtonight" href="tonight.html" data-t="nav.tonight">Tonight’s sky</a>
+      <a class="navgame navstudio" href="studio.html" data-t="hero.studio">Make a picture</a>
       <a href="planet-x.html" data-sheet="planetx" data-t="tour.px.title">Planet X</a>
       <a href="find-asteroids.html" data-sheet="hunt">Asteroid hunt</a>
       <a href="what-is-spherex.html" data-sheet="spherex">What is SPHEREx?</a>
@@ -113,6 +114,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
       <div class="mapui zoom" id="zoom">
         <button type="button" id="zoomin" aria-label="Zoom in" title="Zoom in">+</button>
         <button type="button" id="zoomout" aria-label="Zoom out" title="Zoom out">−</button>
+        <!-- to the picture studio, with what the map shows now -->
+        <a id="studiobtn" href="studio.html" aria-label="Make a picture of this view" title="Make a picture of this view" data-t-label="hero.studio.here"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 16.2l4.6-4.4 3.6 3.4 2.6-2.4 5 4.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15.6" cy="9.4" r="1.3" fill="currentColor"/></svg></a>
         <output id="fovlabel" title="Width of the view" aria-label="Width of the view"></output>
       </div>
       <!-- phones with a compass: the map follows where the phone is pointed (the page's code shows this button where that can work) -->
@@ -134,15 +137,27 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           <a class="ghost" id="playlink" href="play.html" data-t="hero.play">Play a game</a>
           <!-- phones: pick a year, meet the star whose light of tonight set out then (star.html) -->
           <a class="ghost" id="starlink" href="star.html" data-t="hero.star">The star of your year</a>
+          <!-- the picture studio has a card of its own (below); this button stands in only where no card can show: a narrow desk, a phone on its side (style.css) -->
+          <a class="ghost" id="studiolink" href="studio.html" data-t="hero.studio">Make a picture</a>
         </div>
         <!-- a phone on mobile data: what exploring costs, said before the first touch -->
         <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. The pictures of one star you pick on the map take 20 to 60 MB.</p>
         <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. On a phone only what the tour does not visit is named, with what it is (class intour and startkind, style.css). --><span id="examples"><a href="3i-atlas.html">3I/ATLAS<span class="startkind"> · Interstellar comet</span></a><a class="intour" href="barnards-star.html">Barnard's Star</a><a class="intour" href="epsilon-indi-b.html">Epsilon Indi B</a><a class="intour" href="wise-0855.html">WISE 0855</a><a class="intour" href="rw-aurigae.html">RW Aurigae</a><a class="intour" href="r-draconis.html">R Draconis</a><a class="intour" href="pluto.html">Pluto</a></span></p>
         <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->
+        <!-- the two cards; on a phone they share one row, each with a few words (style.css) -->
+        <div class="shots">
         <button type="button" class="heroshot" id="heroshot">
           <picture><source media="(prefers-reduced-motion: reduce)" srcset="hero-barnard.jpg"><img src="hero-barnard.webp" width="320" height="320" alt="" decoding="async"></picture>
-          <span class="shotcap"><b data-t="hero.shot.title">The star in the ring is Barnard’s Star.</b> <span data-t="hero.shot.text">Real images from three telescopes, 2000 to 2026: 2MASS, then NASA’s WISE and SPHEREx.</span> <span class="shotgo" data-t="hero.shot.go">Watch it over 26 years</span></span>
+          <span class="shotcap"><b data-t="hero.shot.title">The star in the ring is Barnard’s Star.</b> <span data-t="hero.shot.text">Real images from three telescopes, 2000 to 2026: 2MASS, then NASA’s WISE and SPHEREx.</span> <span class="shotgo" data-t="hero.shot.go">Watch it over 26 years</span><span class="shotshort" data-t="hero.shot.short">Barnard’s Star: 26 years</span></span>
         </button>
+        <!-- the picture studio (studio.html): any patch of sky as an infrared picture of one's own. Its card plays the
+             animation NASA's Astronomy Picture of the Day showed on 25 November 2026: the Galactic Centre swept through
+             SPHEREx's colours (cut from the film that was sent in; a still where motion is not wanted, a small copy for phones) -->
+        <a class="heroshot studioshot" id="studioshot" href="studio.html">
+          <picture><source media="(prefers-reduced-motion: reduce)" srcset="hero-apod.jpg"><source media="(max-width: 600px)" srcset="hero-apod-s.webp"><img src="hero-apod.webp" width="320" height="320" alt="" decoding="async" loading="lazy"></picture>
+          <span class="shotcap"><b data-t="hero.studio.title">Make your own picture.</b> <span data-t="hero.studio.text">This animation was NASA’s Astronomy Picture of the Day on 25 November 2026. Make your own picture of any patch of sky.</span> <span class="shotgo" data-t="hero.studio.go">Open the studio</span><span class="shotshort" data-t="hero.studio">Make a picture</span></span>
+        </a>
+        </div>
         <p class="offline" id="offline"></p>
       </div>
 
