@@ -426,15 +426,17 @@ const aspectNow = () => { const a = ASPECTS.find(x => x[0] === S.crop.aspect)?.[
 function cropStart() {
   if (!S.doc || !S.pic || S.crop || S.busy) return;
   if (S.full) setFull(false);
-  S.crop = { saved: JSON.stringify(S.doc.view ?? null), view: View.viewOf(S.doc), aspect: 'free' };
+  S.crop = { saved: JSON.stringify(S.doc.view ?? null), view: View.viewOf(S.doc), aspect: 'free', y: scrollY };
   document.body.classList.add('cropping'); $('cropbox').hidden = false; $('cropper').hidden = false;
-  cropTools(); showPic(S.pic); layMarks(); placeBox(); count('crop');
-  if (narrow) window.scrollTo({ top: 0, behavior: 'auto' });
+  cropTools(); cropRoom(); showPic(S.pic); layMarks(); placeBox(); count('crop');
 }
+/** A phone held upright: the crop's tools stand fixed along the bottom and the picture takes the room above them (css: body.cropping). */
+function cropRoom() { if (narrow && S.crop) document.documentElement.style.setProperty('--croph', `${Math.ceil($('cropbox').getBoundingClientRect().height)}px`); }
 function cropEnd(keep) {
   if (!S.crop) return;
-  const v = S.crop.view; S.crop = null;
+  const v = S.crop.view, y = S.crop.y; S.crop = null;
   document.body.classList.remove('cropping'); $('cropbox').hidden = true; $('cropper').hidden = true;
+  if (narrow) requestAnimationFrame(() => window.scrollTo(0, y));          // the page as it was before the crop opened
   if (keep) { if (View.plain(v)) delete S.doc.view; else S.doc.view = v; changed(true); }
   else { showPic(S.pic); layMarks(); }
 }
@@ -982,7 +984,7 @@ function wire() {
     $('side').addEventListener('focusin', e => { if (field(e.target)) typing(true); });
     $('side').addEventListener('focusout', e => { if (field(e.target)) setTimeout(() => { if (!field(document.activeElement)) typing(false); }, 120); });
   }
-  let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if ($('picker').hidden) layMarks(); else { const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, f.w); tell(); } }, 150); });
+  let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if ($('picker').hidden) { cropRoom(); layMarks(); } else { const f = frameFromMap(); layFrame(); if (f) showOnMap(f.ra, f.dec, f.w); tell(); } }, 150); });
 }
 
 const guide = makeGuide({ S, $, T, lang, fill, narrow, frameFromMap: () => frameFromMap(), backToPlace: () => backToPlace(), setMode: m => setMode(m),

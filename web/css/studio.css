@@ -348,3 +348,25 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--ember); }
 html.in-app #side { padding-bottom: calc(40px + var(--tabs, 0px)); }
 @media (max-height: 500px) { :root { --top: 46px; } #side h1 { font-size: 24px; } #side h2 { margin-top: 14px; } #placehelp { display: none; } }
 @media (prefers-reduced-motion: reduce) { #busy .bar i { transition: none; } }
+
+/* ------------------------------------------------------------------ a phone held upright, cropping
+   The whole screen, as phone photo editors have it: the picture above, the shapes in one row that slides sideways,
+   turn / mirror / reset, Cancel and Apply fixed along the bottom; the page does not move under it. Before, the picture
+   kept its 46 % of the screen and the tools scrolled in the strip left below it (27 Nov 2026: "çok küçük"). */
+@media (max-width: 599px), (max-width: 899px) and (min-height: 501px) {
+  body.cropping { overflow: hidden; }
+  body.cropping #stage, body.cropping.studio #stage, body.cropping.guiding #stage { position: fixed; left: 0; right: 0; top: calc(var(--top) + var(--sat, 0px)); bottom: calc(var(--croph, 210px) + var(--tabs, 0px)); height: auto; z-index: 30; }
+  body.cropping #easel { --bar: 0px; }
+  body.cropping .easelbar { display: none; }
+  body.cropping #scroll { padding: 24px; }          /* room for the handles at the picture's edges, whole under a finger */
+  body.cropping #pic, body.cropping.guiding #pic { max-height: calc(100vh - var(--top) - var(--sat, 0px) - var(--croph, 210px) - var(--tabs, 0px) - 48px); max-height: calc(100svh - var(--top) - var(--sat, 0px) - var(--croph, 210px) - var(--tabs, 0px) - 48px); }
+  body.cropping #cropbox { position: fixed; left: 0; right: 0; bottom: var(--tabs, 0px); z-index: 31; background: var(--bg); border-top: 1px solid var(--line); padding: 10px 12px calc(12px + var(--sab, 0px)); }
+  body.cropping #cropbox h2, body.cropping #crophint { display: none; }
+  body.cropping #aspects { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border-radius: 999px; max-width: 100%; touch-action: pan-x; }
+  body.cropping #aspects::-webkit-scrollbar { display: none; }
+  body.cropping #aspects button { flex: none; }
+  body.cropping .croptools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  body.cropping .croptools .ghost { flex: 1 1 auto; justify-content: center; min-height: 42px; padding: 0 12px; white-space: nowrap; }          /* one line each: a word broken in two made the row twice as high */
+  body.cropping #cropsays { margin: 8px 0 0; font-size: 13px; }
+  body.cropping #cropbox .rowbtns.big { margin-top: 10px; }
+}
