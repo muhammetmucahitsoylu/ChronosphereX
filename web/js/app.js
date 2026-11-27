@@ -1831,7 +1831,7 @@ $('findings').addEventListener('click', e => {
 // on the page (a watcher on the panel) because many places write these paragraphs; a paragraph written again is
 // split again, one already split is left alone.
 const BULLETED = ['#lookbox p.look:not(.yearsgo):not(.visits)', '#explain', '#motion > p.hint', '#scan > p.hint', '#movers > p.hint', '#speccmp > p.hint',
-  '#specnote p.hint', '#molecules > p.hint', '#lcnote', '#lccheck > p.hint', '#years p.yearssay', '#years p.yearsnote', '#years .yearsnote2', '.wiki p', '#findings .qtxt > span', 'details.fold > p.hint'].join(', ');
+  '#specnote p.hint', '#molecules > p.hint', '#lcnote', '#lccheck > p.hint', '#years p.yearssay', '#years p.yearsnote', '#years .yearsnote2', '.wiki p', '#findings .qtxt > span', 'details.fold > p.hint', '#huntbox > p:not(.kind)', '#bodybox > p:not(.kind)'].join(', ');          // the hunt's and a body's own words too
 /** A paragraph's words cut into sentences, never inside a tag or a link: a sentence ends at . ! ? … followed by a space and a
  *  capital, a digit or an opening mark; a long clause ends at a semicolon too. */
 function sentencesOf(html) {
