@@ -6,7 +6,7 @@
 // the browser's cache, with no limit in bytes on the tiles; now a phone that asked for nothing keeps about 5 MB.
 
 // VERSION is replaced with the commit id when the site is published, so every release is its own set.
-const VERSION = 'dev-250';
+const VERSION = 'dev-251';
 const SHELL = `chrono-shell-${VERSION}`, DATA = 'chrono-data-v2', TILES = 'chrono-tiles-v1', LOOKUP = 'chrono-lookup-v1';
 const KEPT = 'chrono-keep-v1';          // this cache holds nothing: that it exists says the visitor asked for things to be kept
 const KEEP = new Set([SHELL, DATA, TILES, LOOKUP, KEPT, 'chrono-live-v1']);

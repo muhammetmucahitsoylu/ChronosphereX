@@ -482,6 +482,8 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
   .rg p { font-size: 14.5px; }
   body.rguiding #panel { padding-bottom: calc(var(--rgh, 0px) + 24px); }
 }
+/* a tablet held upright: the card keeps a phone's width at the left, clear of the map's buttons on the right */
+@media (min-width: 600px) and (max-width: 900px) and (orientation: portrait) { .rg { right: auto; width: min(420px, calc(100vw - 32px)); left: 12px; } }
 /* the Data layer's table of results: the answer and its figures, a row per question (app.js, resultsHtml) */
 .findings.results-on { width: 100%; box-sizing: border-box; justify-self: stretch; }
 .findings.results-on h2.ic::before { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; }
