@@ -482,6 +482,8 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
   .rg p { font-size: 14.5px; }
   body.rguiding #panel { padding-bottom: calc(var(--rgh, 0px) + 24px); }
 }
+/* a phone on its side: a smaller card, high up, so the map and the colour bar stay in sight */
+@media (orientation: landscape) and (max-height: 500px) { .rg { left: calc(12px + var(--sal, 0px)); width: min(330px, 44vw); padding: 8px 11px 9px; } .rg p { font-size: 13.5px; margin-top: 4px; } .rg .rgtask { font-size: 13px; padding: 5px 8px; } .rg footer { margin-top: 6px; } .rg footer .cta, .rg footer .ghost { min-height: 34px; padding: 4px 12px; } .rg.attop { top: 58px; } }
 /* a tablet held upright: the card keeps a phone's width at the left, clear of the map's buttons on the right */
 @media (min-width: 600px) and (max-width: 900px) and (orientation: portrait) { .rg { right: auto; width: min(420px, calc(100vw - 32px)); left: 12px; } }
 /* the Data layer's table of results: the answer and its figures, a row per question (app.js, resultsHtml) */
@@ -1287,6 +1289,10 @@ html.in-app { --edge-b: var(--sab, 0px); }
 }
 @media (min-width: 901px), (min-width: 600px) and (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   html.in-app body { box-sizing: border-box; padding: var(--sat, 0px) var(--sar, 0px) var(--sab, 0px) var(--sal, 0px); --edge-b: 0px; }
+  /* the buttons over the map keep to the map, which the edges' padding has moved in (28 Nov 2026: a phone on its side in the app put the menu over the panel's name) */
+  html.in-app .top { left: var(--sal, 0px); right: var(--sar, 0px); }
+  html.in-app .top:has(+ .app[data-panel=open]) { right: calc(var(--panelw) + var(--sar, 0px)); }
+  html.in-app body.touring .top { right: calc(var(--side) + var(--sar, 0px)); }
 }
 
 /* ---------- night mode: its button while the phone is held up to the sky, and a line of a phone's menu ----------
