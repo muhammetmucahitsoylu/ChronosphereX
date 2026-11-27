@@ -297,6 +297,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
         </details>
         <div class="export" role="group" aria-label="Share and export">
           <button type="button" id="copylink" title="Copy a link that reopens exactly this view">Copy link</button>
+          <!-- for research: a reference to this page and the data it shows, copied (app.js) -->
+          <button type="button" id="citebtn" data-t="cite.btn">Cite</button>
           <button type="button" id="savepng" title="Save the image as shown, with its markings">Save image</button>
           <button type="button" id="savevideo" title="Save one loop of the sequence as a video file">Save video</button>
           <button type="button" id="savecsv" title="Every measurement of the circled spot: date, wavelength, brightness, exposure">Measurements (CSV)</button>

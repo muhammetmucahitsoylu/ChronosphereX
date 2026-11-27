@@ -413,7 +413,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .links a::after { content: " ↗"; color: var(--ink-3); }
 .links a:hover { color: var(--ember); border-color: var(--ember); }
 
-.cols { display: grid; gap: 18px 26px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "look" "viewer" "stack" "more"; align-items: start; }
+.cols { display: grid; gap: 18px 26px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "viewer" "look" "stack" "more"; align-items: start; }          /* the pictures first (the user, 27 Nov 2026) */
 .cols.nolook { grid-template-areas: "viewer" "stack" "more"; }
 .lead { grid-area: look; min-width: 0; display: grid; gap: 14px; }          /* what to look for, and what the measurements say */
 .cols.nolook .lead { display: none; }
@@ -447,6 +447,35 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .qtxt span.bullets .bli { margin-top: 2px; }
 .verdict.bullets .bhead b { font-size: 15.5px; color: var(--ink); }
 :is(#motion, #scan, #movers, #lccheck) > p.verdict.bullets { border-left: 0; padding-left: 0; }
+/* the Data layer's table of results: the answer and its figures, a row per question (app.js, resultsHtml) */
+.findings.results-on { width: 100%; box-sizing: border-box; justify-self: stretch; }
+.findings.results-on h2.ic::before { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; }
+.results { margin-top: 8px; display: grid; border-top: 1px solid var(--line); }
+.resrow { display: grid; gap: 6px; padding: 11px 0 12px; border-bottom: 1px solid var(--line); }
+.resrow .rtop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rfacts { margin: 2px 0 0; display: grid; }
+.rfacts > div { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 10px; padding: 5px 0; border-top: 1px dashed var(--line); }
+.rfacts dt { font-size: 13px; line-height: 1.35; color: var(--ink-2); }
+.rfacts dd { margin: 0; font: 500 13px/1.35 var(--mono); color: var(--ink); text-align: right; user-select: text; }
+.rfacts dd .pm { color: var(--ink-3); white-space: nowrap; }
+.rfacts dd .nw { white-space: nowrap; }
+.rlabel { margin: 2px 0 0; font: 500 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); }
+.rwhy { margin: 4px 0 0; padding: 7px 10px; border-radius: 9px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; line-height: 1.45; color: var(--ink-soft, #dde3eb); }
+.rway { margin: 2px 0 0; font-size: 13px; }
+.rbars { display: grid; gap: 5px; margin: 2px 0 4px; }
+.rb { display: grid; grid-template-columns: 62px minmax(0, 1fr) 52px; align-items: center; gap: 10px; }
+.rb .m { font: 500 12px var(--mono); color: var(--ink-2); white-space: nowrap; }
+.rb .bar { position: relative; height: 12px; border-radius: 4px; background: var(--surface-2); }
+.rb .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
+.rb .bar::after { content: ""; position: absolute; top: -3px; bottom: -3px; left: var(--ref); border-left: 1.5px dashed var(--ink-2); }          /* the first visit's level */
+.rb b { font: 600 13px var(--mono); color: var(--ink); text-align: right; }
+.runits { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+.resrow .rl { font: 500 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); }
+.resrow .rl.ic::before { width: 13px; height: 13px; margin-right: 5px; vertical-align: -2px; }
+.resrow .rw { font: 600 16.5px/1.3 var(--sans); color: var(--ink); }
+.resrow.found .rw { color: var(--mint); } .resrow.unsure .rw { color: var(--gold); }
+.findings .resrow .rgo { width: auto; flex: none; padding: 4px 0; text-align: right; color: var(--ember); font: 500 13px var(--sans); }
+.findings .resrow .rgo:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* the story (the simple card): what happened, said and drawn; the other checks a line each (app.js, storyLead) */
 .leadbox { border: 1px solid var(--line-2); border-radius: 14px; background: var(--surface); padding: 13px 14px; display: grid; gap: 10px; min-width: 0; }
 .leadbox.found { border-color: color-mix(in srgb, var(--mint) 45%, var(--line-2)); }
@@ -1306,10 +1335,10 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
    takes at the top (out of sight), so that its middle, where the object is, is the middle of what can be seen. The
    colour bar would lie across the object here, as in the tour: it is back with "All measurements" and on the open map. */
 @media (max-width: 599px), (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
-  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .mapstage { height: calc(184px + var(--sat, 0px)); min-height: 0; }
-  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] #map { bottom: calc(-48px - var(--sat, 0px)); }
-  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .ruler { display: none; }
-  body:not(.touring):not(.embed) .app.simplecard[data-panel=open] .aladin-logo-container { bottom: calc(58px + var(--sat, 0px)) !important; }
+  body:not(.touring):not(.embed) .app:is(.simplecard, .datacard)[data-panel=open] .mapstage { height: calc(184px + var(--sat, 0px)); min-height: 0; }
+  body:not(.touring):not(.embed) .app:is(.simplecard, .datacard)[data-panel=open] #map { bottom: calc(-48px - var(--sat, 0px)); }
+  body:not(.touring):not(.embed) .app:is(.simplecard, .datacard)[data-panel=open] .ruler { display: none; }
+  body:not(.touring):not(.embed) .app:is(.simplecard, .datacard)[data-panel=open] .aladin-logo-container { bottom: calc(58px + var(--sat, 0px)) !important; }
 }
 /* On a phone the simple card's head is the kind, the name and what it is: the small picture (the encyclopedia's card
    below shows it whole) and the line that opens the facts and links make room for the pictures. Both are back with

@@ -1559,6 +1559,7 @@ function renderMolecules(pts) {
         plain: [dips.length > 1 ? G`<b>Its light shows traces of ${dips[0]} and other molecules.</b>` : dips.length ? G`<b>Its light shows traces of ${dips[0]}.</b>` : '', glows.length ? G`<b>Glowing gas around it</b> (${and(glows)}).` : ''].filter(Boolean).join(' ') }          // the first name only: a list of 'or's reads as a riddle
       : maybe.length ? { cls: 'unsure', html: G`<b>A possible dip</b> in its spectrum where ${maybe.join('; ')} absorb${maybe.length > 1 ? '' : 's'}.`, plain: '' }
         : measured >= 4 && !rowsData.some(seen) ? { cls: 'none', html: G`<b>Smooth spectrum:</b> no dips at the molecule bands checked.`, plain: '' } : null;
+    if (S.find.bands) S.find.bands.num = { n: measured, dips: rowsData.filter(m => seen(m)).map(m => ({ name: m.depth < 0 ? G(m.glow || 'Something') : G(m.name), f: m.depth < 0 ? G`emission` : m.f, d: m.depth, e: m.err, b: m.band })) };
     if (S.find.bands && S.find.bands.cls === 'found') S.find.bands.viz = { chips: [...new Set(rowsData.filter(sure).map(m => (m.depth < 0 ? G(m.glow || 'Something') : m.f)))] };
     renderFindings();
   }
@@ -1631,18 +1632,6 @@ function answerViz(to, r) {
   if (v?.chips?.length) return `<span class="qchips">${v.chips.map(x => `<i>${esc(x)}</i>`).join('')}</span>`;
   return '';
 }
-function answerCards(rows, say) {
-  const qs = rows.filter(([to, r]) => ANSWERS.some(q => q.to === to) && r.cls !== 'wait'), rest = rows.filter(x => !qs.includes(x));
-  const card = ([to, r]) => {
-    const q = ANSWERS.find(x => x.to === to), [big, sub] = answerSplit(say(r));
-    return `<li class="qcard ${r.cls}"><p class="qq ic ic-${q.ic}">${esc(T(q.key))}</p>`
-      + `<div class="qans">${answerViz(to, r)}<div class="qtxt">${big ? `<b>${big}</b>` : ''}${sub ? `<span>${sub}</span>` : ''}</div></div>`
-      + `<button type="button" class="qproof ic ic-proof" data-to="${to}">${esc(T('quiz.proof'))}</button></li>`;
-  };
-  const extra = rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>` : '';
-  return `<h2 class="ic ic-quiz">${esc(T('tour.p2.label'))}</h2>` + (qs.length ? `<ol class="qlist">${qs.map(card).join('')}</ol>` : '') + extra;
-}
-
 /**
  * The Story layer (the simple card): the finding that matters for this object leads, said and drawn; the other checks
  * follow as a line each with a one-word answer, the proof a press away. What leads: the first thing found, in this
@@ -1683,6 +1672,67 @@ function storyRowsHtml(rows, say, lead) {
 }
 
 /**
+ * The Data layer's table of results, for people who research: per question its answer in large letters, then every
+ * figure on a line of its own with its name beside it, so that nothing has to be guessed; the units are said under the
+ * table. Built from the same numbers as the sections below; each block leads to its section.
+ */
+function resultBlock(to, r) {
+  const v = r.viz || {}, n = r.num || {}, pc = x => G`${Math.round(x * 100)}%`;
+  const dl = pairs => `<dl class="rfacts">${pairs.filter(p => p && p[1] != null && p[1] !== '').map(([k, val]) => `<div><dt>${esc(k)}</dt><dd>${val}</dd></div>`).join('')}</dl>`;
+  const det = d => `D${d} · ${fx(C.DET_BANDS[d][0], 2)}–${fx(C.DET_BANDS[d][1], 2)} µm`;
+  let head = answerSplit(r.html)[0], body = '';
+  if (to === 'motion') {
+    if (v.pair) body = dl([[T('res.place', { a: v.t0, b: v.t1 }), `${fx(v.d, 1)}″`]]);
+    else if (v.rate != null && r.cls === 'found') body = dl([
+      [T('res.est'), esc(T('years.rate', { v: v.margin ? `${fx(v.rate, 2)}″ ± ${v.margin}″` : `${fx(v.rate, 2)}″` }))],
+      [T('res.dir'), esc(compass(v.e, v.n))],
+      v.cat ? [T('res.catv'), esc(T('years.rate', { v: `${fx(v.cat, 2)}″` }))] : null,
+      v.dets?.length ? [T('res.dets'), v.dets.map(d => 'D' + d).join(', ')] : null,
+    ]) + `<p class="rway">${methodLink()}</p>`;
+    else if (v.d != null) body = dl([
+      [T('res.place', { a: v.t0, b: v.t1 }), esc(T('res.within', { v: `${fx(v.d, 1)}″` }))],
+      v.align != null ? [T('res.compStars'), esc(T('res.within', { v: `${fx(v.align, 1)}″` }))] : null,
+      v.limit ? [T('res.minMove'), esc(T('years.rate', { v: `${fx(v.limit, 1)}″` }))] : null,
+      [T('res.det'), det(S.det)],
+    ]);
+  } else if (to === 'lccheck' && v.bars) {
+    const top = Math.max(1, ...v.bars.map(b => b.v)), ref = (100 / top).toFixed(1);
+    body = `<p class="rlabel">${esc(T('res.vs1'))}</p><div class="rbars" style="--ref:${ref}%">${v.bars.map(b => `<div class="rb"><span class="m">${esc(b.m)}</span>`
+      + `<span class="bar"><i style="width:${(b.v / top * 100).toFixed(1)}%;background:${b.c}"></i></span><b>${pc(b.v)}</b></div>`).join('')}</div>` + dl([
+      v.comps >= 2 && v.steady != null ? [Lang.N(v.comps, 'ordinary star'), esc(T('res.varied', { v: pc(v.steady) }))] : null,
+      [T('res.det'), det(v.det)],
+    ]);
+  } else if (to === 'molecules') {
+    const dips = (n.dips || []).filter(m => m.d > 0), glows = (n.dips || []).filter(m => m.d < 0);
+    if (dips.length || glows.length) {
+      head = [...new Set([...dips, ...glows].map(m => m.name))].join(' · ');
+      body = `<p class="rlabel">${esc(T('res.substances'))}</p>` + dl([...dips, ...glows].map(m => [`${m.name} (${m.f}) · ${fx(m.b[0], 2)}–${fx(m.b[1], 2)} µm`,
+        esc(m.d > 0 ? T('res.dimmed', { v: pc(m.d) }) : T('res.brighter', { v: pc(-m.d) })) + ` <span class="pm">± ${pc(Math.max(0.01, m.e))}</span>`]))
+        + `<p class="rwhy">${esc(T('res.why'))}</p>` + dl([[T('res.bandsChecked'), String(n.n ?? '–')]]);
+    } else {
+      head = r.cls === 'none' ? T('res.noSub') : head;
+      body = dl([[T('res.bandsChecked'), String(n.n ?? '–')]]);
+    }
+  } else if (to === 'movers') {
+    body = dl([n.names?.length ? [T('res.movers'), esc(n.names.join(', '))] : null, n.frames ? [T('res.frames'), String(n.frames)] : null]);
+  }
+  return { head, body };
+}
+function resultsHtml(rows, say) {
+  const ORDER = [['motion', 'res.motion', 'path'], ['lccheck', 'res.change', 'sun'], ['molecules', 'res.bands', 'flask'], ['movers', 'res.movers', 'meteor']];
+  const items = ORDER.map(([to, key, ic]) => {
+    const row = rows.find(x => x[0] === to && x[1].cls !== 'wait'); if (!row) return '';
+    const r = row[1], { head, body } = resultBlock(to, r);
+    return `<div class="resrow ${r.cls}"><div class="rtop"><span class="rl ic ic-${ic}">${esc(T(key))}</span>`
+      + `<button type="button" class="rgo" data-to="${to}">${esc(T('quiz.proof'))} ↓</button></div>`
+      + `<b class="rw">${head || ''}</b>${body}</div>`;
+  }).join('');
+  const rest = rows.filter(x => !ORDER.some(o => o[0] === x[0]) || x[1].cls === 'wait');
+  const extra = rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${r.html}</button></li>`).join('')}</ul>` : '';
+  return `<h2 class="ic ic-chart">${esc(T('res.title'))}</h2>${items ? `<div class="results">${items}</div><p class="runits">${esc(T('res.units'))}</p>` : ''}${extra}`;
+}
+
+/**
  * The answer first: what the sections below have measured, in a few words each. Every line is
  * written by the function that makes the detailed section, from the same numbers, so the two
  * cannot disagree. Shown once the detector on show has arrived in full.
@@ -1698,13 +1748,13 @@ function renderFindings() {
   const lead = story ? storyLeadOf(rows) : null, lb = $('leadbox'), leadHtml = lead ? storyLeadHtml(lead, say) : '';
   if (lb.dataset.was !== leadHtml) { lb.dataset.was = leadHtml; lb.innerHTML = leadHtml; lb.className = `leadbox ${lead ? lead[1].cls : ''}`; }
   lb.hidden = !lead;
-  const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead) : cards ? answerCards(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
+  const html = !rows.length ? '' : story ? storyRowsHtml(rows, say, lead) : cards ? resultsHtml(rows, say) : G`<h2>What the measurements say</h2><ul>${rows.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${say(r)}</button></li>`).join('')}</ul>`;
   if (el.dataset.was !== html) {
     const open = [...el.querySelectorAll('details[open]')].map(d => d.dataset.q);          // a line the visitor opened stays open when the words are written again
     el.dataset.was = html; el.innerHTML = html;
     for (const q of open) el.querySelector(`details[data-q="${q}"]`)?.setAttribute('open', '');
   }
-  el.classList.toggle('cards', cards && !story); el.classList.toggle('story', story);
+  el.classList.toggle('results-on', cards && !story); el.classList.toggle('story', story);
   el.hidden = !rows.length || (story && !html);
   leadState();
 }
@@ -1893,7 +1943,7 @@ function realityCheck(lc) {
     : word === 'maybe' ? { cls: 'unsure', html: G`<b>Possibly changing:</b> ${pc(change)} between visits in D${S.det}, against ${pc(steady)} for the stars nearby.`, plain: G`<b>It may be changing a little.</b> The difference is too small to be sure.` }
     : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
     : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
-  if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real' };
+  if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real', change, up: biggest.rel > 1, det: S.det };
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }
@@ -2057,7 +2107,7 @@ const simpleCard = () => !panelFull && !S.hunt && !(S.target?.body || S.track?.b
 // widens it. The map is told when the card beside it changes, like any other change of its size. (A phone held
 // sideways keeps its two columns as they are.)
 const cardFlips = () => $('app').classList.contains('simplecard') !== simpleCard();
-const syncCard = () => { $('app').classList.toggle('simplecard', simpleCard()); };
+const syncCard = () => { $('app').classList.toggle('simplecard', simpleCard()); $('app').classList.toggle('datacard', !simpleCard() && !S.hunt && !(S.target?.body || S.track?.body)); };
 function applyPanelMode() {
   $('panel').classList.toggle('simple', simpleCard());
   if (cardFlips()) { if ($('app').dataset.panel === 'open' && !isSide() && tourIdx < 0 && Sky.isReady()) Sky.reshape(syncCard); else syncCard(); }
@@ -2457,7 +2507,7 @@ function renderMotion() {
     const elsewhere = every ? G` In ${list(every.dets)} it can be measured: ${fx(every.rate, 1)}″ per year towards the ${compass(every.e, every.n)}${tracked && catPm >= 0.1 ? G` (catalogue: ${fx(catPm, 1)}″ towards the ${compass(S.track.pmra, S.track.pmdec)})` : ''}.` : '';
     el.innerHTML = holes ? G`<p class="hint">The star's core is saturated in D${S.det}, so its position cannot be measured here.${elsewhere}</p>`
       : tracked && catPm >= 0.1 ? G`<p class="hint">The target is too faint in this detector to be located, so its motion cannot be measured here.${elsewhere || G` Try another detector.`}</p>` : '';
-    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)), { e: every.e, n: every.n });
+    if (every) sum('found', G`<b>Moving ${fx(every.rate, 1)}″ a year</b> towards the ${compass(every.e, every.n)}, measured in ${list(every.dets)}.${tracked && catPm >= 0.1 ? G` The catalogue says ${fx(catPm, 1)}″.` : ''}`, plainMoving(every.rate, compass(every.e, every.n)), { e: every.e, n: every.n, rate: every.rate, cat: tracked && catPm >= 0.1 ? catPm : null, dets: every.dets });
     else sum(null);
     return;
   }
@@ -2514,23 +2564,23 @@ function renderMotion() {
     el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far the catalogue says it should have moved since the first visit: proper motion and parallax">Predicted path</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Measured place: off by</th></tr></thead><tbody>${body}</tbody></table>
       <p class="hint verdict"><b>This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″ per year towards the ${dir}</b>${agree}. The astronomers’ value (catalogue): ${fx(catPm, 2)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}, and it is the one to rely on. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${methodLink()}</p>`;
     const catDir = compass(S.track.pmra, S.track.pmdec);
-    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir), every ? { e: every.e, n: every.n } : { e: oE, n: oN });
+    sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir), { ...(every ? { e: every.e, n: every.n } : { e: oE, n: oN }), rate, margin, cat: catPm, dets: every?.dets });
     return;
   }
   if (d > Math.max(3 * sigma, 1.5) && !lightMoved(first.st, end.st, first.m, end.m)) {
     el.innerHTML = G`<p class="hint verdict"><b>Probably two stars, not motion.</b> The measured position differs by ${fx(d, 1)}″ between ${span} in D${S.det}, but the light did not leave the old spot or build up at the new one. That is what a close pair of stars looks like. ${yard}</p>`;
-    sum('none', G`<b>Not motion:</b> the position shifts, but in the way a close pair of stars does.`, G`<b>Not real movement.</b> Two stars very close together can look like this.`);
+    sum('none', G`<b>Not motion:</b> the position shifts, but in the way a close pair of stars does.`, G`<b>Not real movement.</b> Two stars very close together can look like this.`, { pair: true, d, t0: C.fmtMonth(first.st.mjd), t1: C.fmtMonth(end.st.mjd) });
     return;
   }
   if (d > Math.max(3 * sigma, 1.5)) {
     const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>` + `<p class="hint">${methodLink()}</p>`;
-    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`, { e: dE, n: dN });
+    sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`, { e: dE, n: dN, d, rate, t0: C.fmtMonth(first.st.mjd), t1: C.fmtMonth(end.st.mjd) });
     return;
   }
   el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
-  sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`, G`<b>It has not moved.</b> It stays in the same place from one visit to the next.`);
+  sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`, G`<b>It has not moved.</b> It stays in the same place from one visit to the next.`, { d: Math.max(d, 0.1), align: comp.length >= 3 ? align : null, limit: Math.max(3 * sigma, 1.5) / years, t0: C.fmtMonth(first.st.mjd), t1: C.fmtMonth(end.st.mjd) });
 }
 /**
  * Beside a figure the page measured itself: the way to the method page's part on what the tool cannot tell (a plain
@@ -2652,7 +2702,7 @@ function renderMovers() {
   if (!tracks.length) {
     el.innerHTML = G`<p class="hint verdict"><b>Nothing passed through.</b> In ${nExp(m.frames)} no dot is at one place for a few minutes and gone from there on other days.${sub}</p>`;
     // a field read live had "still looking" in the lead of the panel: the answer takes its place
-    S.find.movers = S.target || S.hunt ? null : { cls: 'none', html: G`<b>Nothing passed through</b> this field while SPHEREx was looking.` };
+    S.find.movers = S.target || S.hunt ? null : { cls: 'none', html: G`<b>Nothing passed through</b> this field while SPHEREx was looking.`, num: { n: 0, frames: m.frames } };
     renderFindings(); renderBodyBox(); return;
   }
   const row = (t, i) => {
@@ -2668,7 +2718,7 @@ function renderMovers() {
     + G`<p class="hint">Press one to follow it from stop to stop. Names come from <a href="https://ssp.imcce.fr/webservices/skybot/" target="_blank" rel="noopener">SkyBoT</a> (Paris Observatory), which knows where every catalogued body was at that moment.</p>`;
   el.querySelectorAll('[data-body]').forEach(b => { b.onclick = () => followBody(tracks[+b.dataset.body]); });
   const others = tracks.filter(t => !t.body?.own), names = others.map(bodyLabel), strange = others.filter(t => t.body?.none).length;
-  S.find.movers = others.length ? { cls: strange ? 'unsure' : 'found', html: G`<b>Passed through this field:</b> ${esc(names.slice(0, 3).join(', '))}${names.length > 3 ? '…' : ''}.` } : null;
+  S.find.movers = others.length ? { cls: strange ? 'unsure' : 'found', html: G`<b>Passed through this field:</b> ${esc(names.slice(0, 3).join(', '))}${names.length > 3 ? '…' : ''}.`, num: { n: others.length, frames: m.frames, names: names.slice(0, 3) } } : null;
   renderFindings(); renderBodyBox();
 }
 /** Follow a body found in these images: the ring goes with it, the images show it stop by stop, the plots measure it. */
@@ -3468,6 +3518,12 @@ function download(blob, name) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
+$('citebtn').onclick = async () => {
+  const name = S.target ? nameOf(S.target) : S.info?.name || `${S.ra.toFixed(4)}°, ${S.dec >= 0 ? '+' : ''}${S.dec.toFixed(4)}°`;
+  const day = new Date().toISOString().slice(0, 10);
+  const ref = `${name}. ChronosphereX, ${location.href} (${T('cite.accessed')} ${day}). ${T('cite.data')}: NASA SPHEREx (NASA/IPAC IRSA), Gaia DR3, CatWISE2020, SIMBAD.`;
+  try { await navigator.clipboard.writeText(ref); exportNote(T('cite.copied')); } catch { exportNote(ref); }
+};
 $('copylink').onclick = async () => {
   try { await navigator.clipboard.writeText(location.href); exportNote(G`Link copied. It reopens exactly this view.`); }
   catch { exportNote(location.href); }
