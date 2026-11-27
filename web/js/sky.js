@@ -539,7 +539,7 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
   al.on('click', e => {
     if (!e || e.isDragging || !onClick) return;
     const now = performance.now();
-    if (now < quietUntil) return;
+    if (now < quietUntil || now < hushUntil) return;
     if (now - clickedAt < 350) return;
     clickedAt = now;
     onClick(e.ra, e.dec, al.getFov()[0]);
@@ -686,6 +686,11 @@ export function setLayer(id) {
 }
 
 export const fov = () => (al ? al.getFov()[0] : 60);
+let hushUntil = 0;
+/** The library's next click is not a press (the magnifier opened the point itself). */
+export const hush = (ms = 700) => { hushUntil = performance.now() + ms; };
+/** The sky at a point of the map, in the map's own pixels from its top left: [ra, dec], or null off the sky. */
+export const worldAt = (x, y) => { try { const w = al?.pix2world(x, y); return w && w.length === 2 && w.every(v => v === v) ? w : null; } catch { return null; } };
 /**
  * How wide the map is, in degrees, when it shows a selected object, on a map `widthPx` wide: so
  * wide that the square marking the field of the images beside it is about 72 pixels across. The

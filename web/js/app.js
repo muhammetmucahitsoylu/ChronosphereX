@@ -2992,6 +2992,8 @@ async function openBody(text, when = null, view = {}, known = null) {
 
 /** A click on the map: work out what is there today and open it. */
 async function openAt(ra, dec, mapFov) {
+  if (matchMedia('(pointer: coarse)').matches) { let seen = true; try { seen = !!localStorage.getItem('chrono-loupe-hint'); localStorage.setItem('chrono-loupe-hint', '1'); } catch { /* private mode */ }
+    if (!seen) setTimeout(() => note(T('loupe.hint'), 5000), 2600); }
   S.busyUntil = performance.now() + 9000;
   if (pointOn()) pointEnd();          // a press on the map while it follows the phone: stay here, and go on as a press does
   if (mapFov > 12) {                       // too far out to mean one object: dive in first
@@ -4227,6 +4229,66 @@ if (Point.able()) { document.body.classList.add('canpoint'); $('pointbtn').hidde
     const p = down.get(e.pointerId);
     if (pointOn() && p && down.size === 1 && Math.hypot(e.clientX - p[0], e.clientY - p[1]) > 16) pointEnd();
   }, { capture: true, passive: true }); }
+
+// ------------------------------------------------------------ the magnifier: a finger held on the map
+// A finger covers the point it presses. Held still for a moment on a touch screen, a round magnifier shows what lies
+// under it, beside the finger, with a cross at the point; the finger moves it; lifted, that point opens as a tap would
+// (and the library's own click after it is let go). A quick tap, a drag and two fingers work as before. The map's
+// canvases can be read back with drawImage (measured in Edge and WebKit, 27 Nov 2026).
+if (matchMedia('(pointer: coarse)').matches) {
+  const L = { t: 0, on: false, id: null, x: 0, y: 0, x0: 0, y0: 0, el: null, cv: null, raf: 0 }, D = 132, MAG = 2.6;
+  const map = $('map');
+  function make() {
+    L.el = document.createElement('div'); L.el.className = 'loupe'; L.el.hidden = true; L.el.setAttribute('aria-hidden', 'true');
+    L.cv = document.createElement('canvas'); L.cv.width = L.cv.height = Math.round(D * (window.devicePixelRatio || 1));
+    L.el.append(L.cv, document.createElement('i')); document.body.append(L.el);
+  }
+  function draw() {
+    if (!L.on) return;
+    const g = L.cv.getContext('2d'), W = L.cv.width;
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, W);
+    for (const cv of map.querySelectorAll('canvas.aladin-imageCanvas, canvas.aladin-catalogCanvas')) {
+      const r = cv.getBoundingClientRect(); if (!r.width) continue;
+      const k = cv.width / r.width, src = D / MAG * k;
+      try { g.drawImage(cv, (L.x - r.left) * k - src / 2, (L.y - r.top) * k - src / 2, src, src, 0, 0, W, W); } catch { /* a canvas that cannot be read: the rest still shows */ }
+    }
+    // beside the finger, never under it: above, or at the side near the top edge; inside the screen
+    const gap = 92; let cx = L.x, cy = L.y - gap - D / 2;
+    if (cy - D / 2 < 8) { cx = L.x + (L.x < innerWidth / 2 ? 1 : -1) * (gap + D / 2); cy = L.y; }
+    cx = clamp(cx, D / 2 + 6, innerWidth - D / 2 - 6); cy = clamp(cy, D / 2 + 6, innerHeight - D / 2 - 6);
+    L.el.style.left = `${cx}px`; L.el.style.top = `${cy}px`;
+    L.raf = requestAnimationFrame(draw);
+  }
+  function begin() {
+    if (pointOn()) return;
+    if (!L.el) make();
+    L.on = true; L.el.hidden = false; try { navigator.vibrate?.(12); } catch { /* not every phone */ }
+    draw();
+  }
+  function end(open) {
+    clearTimeout(L.t); if (!L.on) return;
+    L.on = false; cancelAnimationFrame(L.raf); L.el.hidden = true;
+    if (!open) return;
+    const r = map.getBoundingClientRect(), w = Sky.worldAt(L.x - r.left, L.y - r.top);
+    Sky.hush(800);
+    if (w) openAt(w[0], w[1], Sky.fov());
+  }
+  map.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch') return;
+    if (!e.isPrimary) { end(false); return; }          // a second finger: a zoom, no magnifier
+    clearTimeout(L.t); L.id = e.pointerId; L.x = L.x0 = e.clientX; L.y = L.y0 = e.clientY;
+    L.t = setTimeout(begin, 330);
+  }, { capture: true, passive: true });
+  // while it is open, the map does not move under the finger: its moves stop here, before the library's canvas
+  for (const ev of ['pointermove', 'touchmove', 'mousemove']) map.addEventListener(ev, e => {
+    if (ev === 'pointermove' && e.pointerId === L.id) {
+      if (!L.on && Math.hypot(e.clientX - L.x0, e.clientY - L.y0) > 9) clearTimeout(L.t);          // a drag: the map's
+      if (L.on) { L.x = e.clientX; L.y = e.clientY; }
+    }
+    if (L.on) { e.stopPropagation(); if (e.cancelable) e.preventDefault(); }
+  }, { capture: true, passive: false });
+  for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, e => { if (e.pointerId === L.id) end(ev === 'pointerup'); }, { capture: true, passive: true });
+}
 
 // ------------------------------------------------------------ the phone's Back button
 // A phone's Back button, and the swipe that stands for it, leaves a page that keeps no history of its own: one press
