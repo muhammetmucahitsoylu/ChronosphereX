@@ -30,6 +30,13 @@ export function makeGuide(ctx) {
         S.tapHook = (ra, dec) => { if (!near(ra, dec, b, b.size * 60 * 0.65)) return false; ctx.openTarget(b); return true; };
       },
       leave: () => { S.tapHook = null; },
+      // the window of light: Barnard's Star in its square on the map, with its name above it
+      spot: () => {
+        const b = barnard(), m = $('map')?.getBoundingClientRect(); if (!b || !m || ctx.panelOpen() || !Sky.isReady()) return null;
+        const s = Sky.screenOf(b.ra, b.dec); if (!s || !(s[0] >= 0 && s[0] <= m.width && s[1] >= 0 && s[1] <= m.height)) return null;
+        const half = Math.max(34, (b.size / 60) * m.width / Math.max(Sky.fov(), 1e-3) / 2 + 12);
+        return { left: m.left + s[0] - half, top: m.top + s[1] - half - 24, width: 2 * half, height: 2 * half + 24 };
+      },
       done: onBarnard, skip: openBarnard },
     { id: 'r4', ring: '.viewer .transport', enter: k => { openBarnard(); k.n = taps; }, done: k => taps - k.n >= 2 },
     { id: 'r5', ring: '#leadbox', enter: () => openBarnard() },
@@ -39,7 +46,24 @@ export function makeGuide(ctx) {
     { id: 'r9', ring: '#findings' },
     { id: 'r10', end: true, picks: ['rwaur', 'wise0855', 'rdra'] },
   ];
-  let at = -1, keep = {}, timer = 0, ringed = null, box = null, doneOnce = false, layerWas;
+  let at = -1, keep = {}, timer = 0, ringed = null, box = null, doneOnce = false, layerWas, dim = null, dimRaf = 0;
+
+  /** A light shade over the page with a clear window where the step's place is; it follows scrolling and the map. */
+  function shade() {
+    dimRaf = 0;
+    if (at < 0 || !box || box.hidden) { if (dim) dim.hidden = true; return; }
+    if (!dim) { dim = document.createElement('div'); dim.id = 'rgdim'; dim.className = 'rgdim'; dim.setAttribute('aria-hidden', 'true'); document.body.append(dim); }
+    const step = STEPS[at];
+    let r = null;
+    try { r = step.spot ? step.spot() : ringed && ringed.getClientRects().length ? ringed.getBoundingClientRect() : null; } catch { r = null; }
+    if (!r || r.width < 2 || r.height < 2) dim.hidden = true;
+    else {
+      const pad = step.ring === '#map' ? 0 : 7;
+      Object.assign(dim.style, { left: `${r.left - pad}px`, top: `${r.top - pad}px`, width: `${r.width + 2 * pad}px`, height: `${r.height + 2 * pad}px` });
+      dim.hidden = false;
+    }
+    dimRaf = requestAnimationFrame(shade);
+  }
 
   function card() {
     if (box) return box;
@@ -102,6 +126,7 @@ export function makeGuide(ctx) {
       picks.append(b);
     }
     unring(); setTimeout(() => { if (STEPS[at] === step) { size(); ring(step); } }, step.top ? 0 : 900);
+    if (!dimRaf) dimRaf = requestAnimationFrame(shade);
     size(); clearInterval(timer);
     timer = setInterval(() => {
       const s = STEPS[at]; if (!s || box.hidden) return;
@@ -124,6 +149,7 @@ export function makeGuide(ctx) {
   function stop() {
     try { STEPS[at]?.leave?.(); } catch { /* nothing to undo */ }
     clearInterval(timer); unring(); if (box) box.hidden = true; document.body.classList.remove('rguiding'); size();
+    if (dimRaf) cancelAnimationFrame(dimRaf); dimRaf = 0; if (dim) dim.hidden = true;
     if (layerWas !== undefined) { ctx.layer.set(layerWas); layerWas = undefined; }
     at = -1; S.tapHook = null;
   }
