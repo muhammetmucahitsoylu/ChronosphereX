@@ -60,7 +60,7 @@
   #say { min-height: 3.2em; margin: 12px 0 4px; font-size: 16px; }
   #say b { color: var(--gold); font-weight: 600; }
   #say .name { font: 400 30px/1.15 var(--serif); display: block; color: var(--ink); }
-  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; scroll-margin-bottom: calc(var(--tabs, 0px) + 14px); }          /* scrolled into sight above the app's bar, not behind it */
   button, .btn { font: 600 15px var(--sans); border-radius: 999px; padding: 11px 20px; min-height: 46px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
   button.go, .btn.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; }
   button.quiet { color: var(--ink-2); }
@@ -75,6 +75,7 @@
   .fine { color: var(--ink-3); font-size: 13.5px; margin-top: 26px; }
   /* today's board: the line that leads to it (or back to the levels), and what is said when it is done */
   .dailygo { margin: -8px 0 14px; font-size: 15px; }
+  body.daily.played .dailygo { display: none; }          /* done: the way on is the button above the picture, not this line again */
   .dailygo a, #todaybtn { color: var(--gold); text-decoration: none; font-weight: 600; }
   .remind { margin: -6px 0 14px; }
   .remind button { font: 600 14px var(--sans); min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); }
@@ -324,7 +325,14 @@ function dailyEnd(found, ms) {
   const A = window.ChronoApp;
   if (A && typeof A.dailyDone === 'function') { try { A.dailyDone(TODAY.key, !!found); } catch { try { A.dailyDone(TODAY.key); } catch { /* an older app */ } } }
   $('say').insertAdjacentHTML('beforeend', dailyLine());
-  $('other').hidden = false;
+  dailyOn();
+}
+/** Today's board is done in seconds: what comes next is more of it, in sight at once (above the picture, and the main button); sharing second. */
+function dailyOn() {
+  $('other').hidden = false; $('other').classList.add('go'); $('other').classList.remove('quiet'); $('other').style.order = '-1';
+  $('next').classList.remove('go');
+  $('next2').textContent = `${T.levelsGo} →`; $('next2').hidden = false; $('next2').onclick = () => $('other').click();
+  $('lives').hidden = true; $('stage').previousElementSibling.classList.add('done');
 }
 /** Today's board, already played: its last picture with the star's walk, the result, and when the next one comes. */
 function dailyShown() {
@@ -332,7 +340,7 @@ function dailyShown() {
   phase = 'done'; tries = r.tries; lives(); frame = L.n - 1; shade = 0; draw(); document.body.classList.add('played');
   $('show').hidden = true; $('clock').textContent = r.found ? `${secs(r.ms)} s` : '';
   $('say').innerHTML = `<span class="name">${T.names[L.slug] || L.name}</span>${T.dailyDone} ${r.found ? fill(T.found, { s: secs(r.ms) }) : T.shown}.${dailyLine()}`;
-  $('next').textContent = T.share; $('next').hidden = false; $('other').hidden = false;
+  $('next').textContent = T.share; $('next').hidden = false; dailyOn();
 }
 async function shareDaily() {
   const d = kept(), r = d.days?.[TODAY.key];
@@ -519,7 +527,7 @@ function reveal(found, out = false) {
     else { $('next2').textContent = `${last ? T.result : T.next} →`; $('next2').hidden = false; }
     requestAnimationFrame(() => $('next').parentNode.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));          // a small screen: the answer and what comes next move into view
     $('open').hidden = !L.open; if (L.open) { $('open').textContent = T.open; $('open').href = `./${L.open}&lang=${lang}`; }          // the faint ones of the last levels have no page in the tool
-    (daily ? $('next') : $('next2')).focus({ preventScroll: true });
+    $('next2').focus({ preventScroll: true });
   }, 110);
 }
 // A press counts when the finger (or the mouse) comes up near where it went down. Not when it went down: on a phone

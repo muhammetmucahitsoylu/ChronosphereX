@@ -134,6 +134,7 @@
       <div class="btns">
         <button type="button" class="go" id="share"></button>
         <a class="btn" id="map"></a>
+        <a class="btn" id="sky" hidden></a>
         <button type="button" id="again"></button>
       </div>
       <p class="fine" id="fine"></p>
@@ -156,7 +157,7 @@ const STR = {
     far: '{n} light-years away', left: 'The light reaching Earth tonight left {name} in <b>{y}</b>.', near: 'No star we can name is at exactly that distance. The nearest one:',
     young: 'Light that set out in {y} is still on its way: even the nearest star, Proxima Centauri, is 4.2 light-years off, and its light of tonight left in {py}.',
     eye1: 'You can see it without a telescope.', eye2: 'Under a dark sky you can see it without a telescope.', eye3: 'It takes binoculars or a telescope to see it.',
-    share: 'Share', saved: 'Picture saved', map: 'See it on the map', again: 'Another year', ready: 'Or pick one of these:', tool: 'Open the full tool', card1: 'The light arriving tonight', card2: 'set out in {y}.',
+    share: 'Share', saved: 'Picture saved', map: 'See it on the map', again: 'Another year', find: 'Find it in the sky', ready: 'Or pick one of these:', tool: 'Open the full tool', card1: 'The light arriving tonight', card2: 'set out in {y}.',
     about: 'The light reaching Earth tonight left {name} around <b>{y}</b>. A distance this great is measured only so well: it could be {yrs} earlier or later.', card2a: 'set out around {y}.', shareTextA: '{name}: the light I see tonight left it around {y}.', yrs: n => (n === 1 ? 'a year' : `${n} years`),
     shareText: '{name}: the light I see tonight left it in {y}.', fine: 'Distances from the parallaxes held by SIMBAD (CDS, Strasbourg); this star: {d} ± {e} light-years. Picture: Digitized Sky Survey, visible light.', dec: '.' },
   tr: { title: 'Senin yılının yıldızı', intro: 'Yıldız ışığı bize yıllar sonra ulaşır. Bir yıl seç: doğduğun yıl ya da senin için önemli herhangi bir yıl. Bu gece Dünya’ya varan ışığı o yıl yola çıkmış yıldızla tanış.',
@@ -164,7 +165,7 @@ const STR = {
     far: '{n} ışık yılı uzakta', left: 'Bu gece Dünya’ya varan ışık, {name} yıldızından <b>{y}</b> yılında yola çıktı.', near: 'Tam o uzaklıkta adını verebileceğimiz bir yıldız yok. En yakını:',
     young: '{y} yılında yola çıkan ışık hâlâ yolda: en yakın yıldız Proxima Centauri bile 4,2 ışık yılı uzakta; onun bu gece gelen ışığı {py} yılında yola çıktı.',
     eye1: 'Teleskopsuz, çıplak gözle görülür.', eye2: 'Karanlık bir gökte çıplak gözle görülür.', eye3: 'Görmek için dürbün ya da teleskop gerekir.',
-    share: 'Paylaş', saved: 'Resim kaydedildi', map: 'Haritada gör', again: 'Başka bir yıl', ready: 'Ya da bunlardan birini seç:', tool: 'Aracın tamamını aç', card1: 'Bu gece Dünya’ya varan ışığı', card2: '{y} yılında yola çıktı.',
+    share: 'Paylaş', saved: 'Resim kaydedildi', map: 'Haritada gör', again: 'Başka bir yıl', find: 'Gökte bul', ready: 'Ya da bunlardan birini seç:', tool: 'Aracın tamamını aç', card1: 'Bu gece Dünya’ya varan ışığı', card2: '{y} yılında yola çıktı.',
     about: 'Bu gece Dünya’ya varan ışık, {name} yıldızından <b>{y}</b> dolaylarında yola çıktı. Bu kadar büyük bir uzaklık ancak bu kesinlikte ölçülebiliyor: {yrs} önce ya da sonra da olabilir.', card2a: '{y} dolaylarında yola çıktı.', shareTextA: '{name}: bu gece gördüğüm ışığı {y} dolaylarında yola çıktı.', yrs: n => `${n} yıl`,
     shareText: '{name}: bu gece gördüğüm ışığı {y} yılında yola çıktı.', fine: 'Uzaklıklar SIMBAD’daki (CDS, Strazburg) paralaks ölçümlerinden; bu yıldız: {d} ± {e} ışık yılı. Görüntü: Digitized Sky Survey, görünür ışık.', dec: ',' },
   es: { title: 'La estrella de tu año', intro: 'La luz de las estrellas tarda años en llegar. Elige un año, el de tu nacimiento o cualquiera que te importe, y conoce la estrella cuya luz, la que llega esta noche, salió ese año.',
@@ -172,7 +173,7 @@ const STR = {
     far: 'a {n} años luz', left: 'La luz que llega esta noche a la Tierra salió de {name} en <b>{y}</b>.', near: 'No hay una estrella con nombre justo a esa distancia. La más cercana:',
     young: 'La luz que salió en {y} sigue de camino: hasta la estrella más cercana, Próxima Centauri, está a 4,2 años luz, y su luz de esta noche salió en {py}.',
     eye1: 'Se ve sin telescopio.', eye2: 'Bajo un cielo oscuro se ve sin telescopio.', eye3: 'Hacen falta prismáticos o un telescopio para verla.',
-    share: 'Compartir', saved: 'Imagen guardada', map: 'Verla en el mapa', again: 'Otro año', ready: 'O elige una de estas:', tool: 'Abrir la herramienta completa', card1: 'La luz que llega esta noche', card2: 'salió en {y}.',
+    share: 'Compartir', saved: 'Imagen guardada', map: 'Verla en el mapa', again: 'Otro año', find: 'Encuéntrala en el cielo', ready: 'O elige una de estas:', tool: 'Abrir la herramienta completa', card1: 'La luz que llega esta noche', card2: 'salió en {y}.',
     about: 'La luz que llega esta noche a la Tierra salió de {name} hacia <b>{y}</b>. Una distancia tan grande solo se mide con esta precisión: pudo ser {yrs} antes o después.', card2a: 'salió hacia {y}.', shareTextA: '{name}: la luz que veo esta noche salió de ella hacia {y}.', yrs: n => (n === 1 ? 'un año' : `${n} años`),
     shareText: '{name}: la luz que veo esta noche salió de ella en {y}.', fine: 'Distancias a partir de las paralajes que guarda SIMBAD (CDS, Estrasburgo); esta estrella: {d} ± {e} años luz. Imagen: Digitized Sky Survey, luz visible.', dec: ',' },
   de: { title: 'Der Stern deines Jahres', intro: 'Sternenlicht braucht Jahre bis zu uns. Wähle ein Jahr, dein Geburtsjahr oder irgendeines, das dir wichtig ist, und lerne den Stern kennen, dessen Licht von heute Nacht in jenem Jahr aufgebrochen ist.',
@@ -180,7 +181,7 @@ const STR = {
     far: '{n} Lichtjahre entfernt', left: 'Das Licht, das heute Nacht die Erde erreicht, hat {name} im Jahr <b>{y}</b> verlassen.', near: 'Genau in dieser Entfernung gibt es keinen Stern mit Namen. Der nächste:',
     young: 'Licht, das {y} aufgebrochen ist, ist noch unterwegs: Selbst der nächste Stern, Proxima Centauri, ist 4,2 Lichtjahre entfernt, und sein Licht von heute Nacht brach {py} auf.',
     eye1: 'Man sieht ihn ohne Teleskop.', eye2: 'Unter dunklem Himmel sieht man ihn ohne Teleskop.', eye3: 'Man braucht ein Fernglas oder ein Teleskop, um ihn zu sehen.',
-    share: 'Teilen', saved: 'Bild gespeichert', map: 'Auf der Karte ansehen', again: 'Ein anderes Jahr', ready: 'Oder wähle einen dieser Sterne:', tool: 'Das ganze Werkzeug öffnen', card1: 'Das Licht von heute Nacht', card2: 'brach {y} auf.',
+    share: 'Teilen', saved: 'Bild gespeichert', map: 'Auf der Karte ansehen', again: 'Ein anderes Jahr', find: 'Am Himmel finden', ready: 'Oder wähle einen dieser Sterne:', tool: 'Das ganze Werkzeug öffnen', card1: 'Das Licht von heute Nacht', card2: 'brach {y} auf.',
     about: 'Das Licht, das heute Nacht die Erde erreicht, hat {name} um das Jahr <b>{y}</b> verlassen. Eine so große Entfernung lässt sich nur so genau messen: Es kann {yrs} früher oder später gewesen sein.', card2a: 'brach um {y} auf.', shareTextA: '{name}: Das Licht, das ich heute Nacht sehe, hat ihn um {y} verlassen.', yrs: n => (n === 1 ? 'ein Jahr' : `${n} Jahre`),
     shareText: '{name}: Das Licht, das ich heute Nacht sehe, hat ihn {y} verlassen.', fine: 'Entfernungen aus den Parallaxen in SIMBAD (CDS, Straßburg); dieser Stern: {d} ± {e} Lichtjahre. Bild: Digitized Sky Survey, sichtbares Licht.', dec: ',' },
   fr: { title: 'L’étoile de votre année', intro: 'La lumière des étoiles met des années à nous parvenir. Choisissez une année, celle de votre naissance ou une autre qui compte pour vous, et découvrez l’étoile dont la lumière, celle qui arrive ce soir, est partie cette année-là.',
@@ -188,7 +189,7 @@ const STR = {
     far: 'à {n} années-lumière', left: 'La lumière qui atteint la Terre ce soir a quitté {name} en <b>{y}</b>.', near: 'Aucune étoile portant un nom ne se trouve exactement à cette distance. La plus proche :',
     young: 'La lumière partie en {y} est encore en route : même l’étoile la plus proche, Proxima du Centaure, est à 4,2 années-lumière, et sa lumière de ce soir est partie en {py}.',
     eye1: 'On la voit sans télescope.', eye2: 'Sous un ciel noir, on la voit sans télescope.', eye3: 'Il faut des jumelles ou un télescope pour la voir.',
-    share: 'Partager', saved: 'Image enregistrée', map: 'La voir sur la carte', again: 'Une autre année', ready: 'Ou choisissez l’une de celles-ci :', tool: 'Ouvrir l’outil complet', card1: 'La lumière qui arrive ce soir', card2: 'est partie en {y}.',
+    share: 'Partager', saved: 'Image enregistrée', map: 'La voir sur la carte', again: 'Une autre année', find: 'Le trouver dans le ciel', ready: 'Ou choisissez l’une de celles-ci :', tool: 'Ouvrir l’outil complet', card1: 'La lumière qui arrive ce soir', card2: 'est partie en {y}.',
     about: 'La lumière qui atteint la Terre ce soir a quitté {name} vers <b>{y}</b>. Une distance aussi grande ne se mesure qu’avec cette précision : ce peut être {yrs} plus tôt ou plus tard.', card2a: 'est partie vers {y}.', shareTextA: '{name} : la lumière que je vois ce soir l’a quittée vers {y}.', yrs: n => (n === 1 ? 'un an' : `${n} ans`),
     shareText: '{name} : la lumière que je vois ce soir l’a quittée en {y}.', fine: 'Distances d’après les parallaxes conservées par SIMBAD (CDS, Strasbourg) ; cette étoile : {d} ± {e} années-lumière. Image : Digitized Sky Survey, lumière visible.', dec: ',' },
   pl: { title: 'Gwiazda twojego roku', intro: 'Światło gwiazd leci do nas latami. Wybierz rok, rok swoich urodzin albo inny ważny dla ciebie, i poznaj gwiazdę, której światło docierające dziś w nocy wyruszyło właśnie wtedy.',
@@ -196,7 +197,7 @@ const STR = {
     far: '{n} lat świetlnych stąd', left: 'Światło, które dziś w nocy dociera do Ziemi, opuściło gwiazdę {name} w roku <b>{y}</b>.', near: 'Dokładnie w tej odległości nie ma gwiazdy z nazwą. Najbliższa:',
     young: 'Światło wysłane w roku {y} wciąż jest w drodze: nawet najbliższa gwiazda, Proxima Centauri, leży 4,2 roku świetlnego stąd, a jej dzisiejsze światło wyruszyło w roku {py}.',
     eye1: 'Widać ją bez teleskopu.', eye2: 'Pod ciemnym niebem widać ją bez teleskopu.', eye3: 'Żeby ją zobaczyć, trzeba lornetki albo teleskopu.',
-    share: 'Udostępnij', saved: 'Obraz zapisany', map: 'Zobacz na mapie', again: 'Inny rok', ready: 'Albo wybierz jedną z tych:', tool: 'Otwórz całe narzędzie', card1: 'Światło docierające dziś w nocy', card2: 'wyruszyło w roku {y}.',
+    share: 'Udostępnij', saved: 'Obraz zapisany', map: 'Zobacz na mapie', again: 'Inny rok', find: 'Znajdź na niebie', ready: 'Albo wybierz jedną z tych:', tool: 'Otwórz całe narzędzie', card1: 'Światło docierające dziś w nocy', card2: 'wyruszyło w roku {y}.',
     about: 'Światło, które dziś w nocy dociera do Ziemi, opuściło gwiazdę {name} około roku <b>{y}</b>. Tak dużą odległość da się zmierzyć tylko z taką dokładnością: mogło to być {yrs} wcześniej lub później.', card2a: 'wyruszyło około roku {y}.', shareTextA: '{name}: światło, które widzę dziś w nocy, opuściło ją około roku {y}.', yrs: n => (n === 1 ? 'rok' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? `${n} lata` : `${n} lat`)),
     shareText: '{name}: światło, które widzę dziś w nocy, opuściło ją w roku {y}.', fine: 'Odległości z paralaks zebranych w bazie SIMBAD (CDS, Strasburg); ta gwiazda: {d} ± {e} lat świetlnych. Obraz: Digitized Sky Survey, światło widzialne.', dec: ',' },
 };
@@ -264,6 +265,9 @@ function show(year) {
   $('says').innerHTML = sure ? fill(T.left, { name: star.n, y }) : fill(T.about, { name: star.n, y, yrs: T.yrs(give) });
   $('eye').textContent = star.v <= 4.5 ? T.eye1 : star.v <= 6 ? T.eye2 : T.eye3;
   $('map').href = `./?ra=${star.ra}&dec=${star.dec}&fov=5&lang=${lang}`;
+  // seen with the naked eye, on a phone that can be held up to the sky: find it up there (as Tonight's lines do)
+  const canPoint = matchMedia('(pointer: coarse)').matches && ('ondeviceorientationabsolute' in window || typeof window.DeviceOrientationEvent?.requestPermission === 'function');
+  $('sky').hidden = !(canPoint && star.v <= 6); $('sky').textContent = T.find; $('sky').href = `./?point=1&find=${encodeURIComponent(star.n)}&lang=${lang}`;
   $('fine').textContent = fill(T.fine, { d: num(star.d, 2), e: num(star.e, 2) });
   $('answer').hidden = false; document.body.classList.add('shown');
   $('year').blur();
