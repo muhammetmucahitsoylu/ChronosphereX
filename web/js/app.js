@@ -1538,7 +1538,10 @@ function renderMolecules(pts) {
   const body = !!bodyStops();
   // Ice in the dust between a star and us is listed only where its narrow carbon dioxide dip at 4.27 microns is beyond
   // doubt: elsewhere a brown dwarf's own water and methane, which also darken 3 microns, would be called water ice.
-  const ices = body ? [] : C.bandDepths(pts, C.LINE_ICES), co2Ice = ices.find(m => m.name === 'Carbon dioxide ice');
+  // Not for a brown dwarf: its own air holds carbon dioxide gas, which darkens 4.3 microns just as the ice does (2MASS
+  // 0415-0935, 19 light-years away, was said to shine through icy dust, its water and methane rows hidden; 28 Nov 2026).
+  const sp = (S.target?.sp || S.info?.sptype || '').trim(), dwarf = /^BD/.test(S.info?.otype || '') || /^[LTY]\d/.test(sp) || /brown dwarf/i.test(S.target?.type || S.info?.type || '');
+  const ices = body || dwarf ? [] : C.bandDepths(pts, C.LINE_ICES), co2Ice = ices.find(m => m.name === 'Carbon dioxide ice');
   const iced = !!co2Ice && co2Ice.depth !== null && co2Ice.depth > 0.15 && co2Ice.depth > 6 * co2Ice.err;
   // Behind icy dust the star is reddened too, which tilts its spectrum: the wide gas bands would then read the tilt
   // as dips or glows (Tamura 8 showed two false "glows"). There only the ice bands are measured.
