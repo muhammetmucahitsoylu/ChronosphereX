@@ -1546,6 +1546,7 @@ function renderMolecules(pts) {
   // Behind icy dust the star is reddened too, which tilts its spectrum: the wide gas bands would then read the tilt
   // as dips or glows (Tamura 8 showed two false "glows"). There only the ice bands are measured.
   const rowsData = body ? C.bandDepths(pts, C.ICES, true) : iced ? ices : C.bandDepths(pts);
+  S.molRows = { rows: rowsData.map(m => ({ name: m.name, f: m.f, band: m.band, depth: m.depth, err: m.err, why: m.why || '' })), iced, dwarf, body };          // every band as measured, flat ones too (the game's pool is built from these: spike/fp_harvest.py)
   if (body && !rowsData.some(m => m.depth !== null && m.depth > 0.12 && m.depth > 4 * m.err)) { el.innerHTML = ''; S.find.bands = null; renderFindings(); return; }
   {
     // The table below, said in one line. Only what is beyond doubt makes the headline: a band has to
