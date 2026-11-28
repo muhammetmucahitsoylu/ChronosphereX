@@ -24,7 +24,10 @@ const WORDS = /^(asteroid|minor planet|dwarf planet|planet|comet|asteroit|cüce 
 // The planets and the two best-known dwarf planets, as the site's six languages call them (accents folded): Miriade knows the English names.
 const LOCAL = { pluto: 'a:Pluto', pluton: 'a:Pluto', ceres: 'a:Ceres', mercury: 'p:Mercury', merkur: 'p:Mercury', mercurio: 'p:Mercury', mercure: 'p:Mercury', merkury: 'p:Mercury',
   venus: 'p:Venus', wenus: 'p:Venus', mars: 'p:Mars', marte: 'p:Mars', jupiter: 'p:Jupiter', jowisz: 'p:Jupiter', saturn: 'p:Saturn', saturno: 'p:Saturn', saturne: 'p:Saturn',
-  uranus: 'p:Uranus', urano: 'p:Uranus', uran: 'p:Uranus', neptune: 'p:Neptune', neptun: 'p:Neptune', neptuno: 'p:Neptune' };
+  uranus: 'p:Uranus', urano: 'p:Uranus', uran: 'p:Uranus', neptune: 'p:Neptune', neptun: 'p:Neptune', neptuno: 'p:Neptune',
+  // the best-known comets by their bare names (an asteroid also called Halley, 2688, is not what is meant)
+  halley: 'c:1P', encke: 'c:2P', 'hale-bopp': 'c:C/1995 O1', 'hale bopp': 'c:C/1995 O1', halebopp: 'c:C/1995 O1', 'swift-tuttle': 'c:109P', 'tempel-tuttle': 'c:55P',
+  'churyumov-gerasimenko': 'c:67P', 'tsuchinshan-atlas': 'c:C/2023 A3' };
 const fold = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 /**
  * The ways a typed name can be put to Miriade, likeliest first: [{ q, name }]. "(433) Eros" is asteroid 433;

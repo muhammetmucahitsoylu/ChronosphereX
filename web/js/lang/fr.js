@@ -162,6 +162,8 @@ export default {
   "A small galaxy, a companion of our Milky Way.": "Une petite galaxie, compagne de notre Voie lactée.",
   "Measured in the middle of the field: {0}.": "Mesuré au centre du champ : {0}.",
   "A galaxy with an active centre: the gas around the giant black hole in its middle glows.": "Une galaxie à noyau actif : le gaz autour du trou noir géant en son centre brille.",
+  "How bright a comet is cannot be told from its orbit alone: if no dot travels along the line, it was too faint for SPHEREx then.": "L’éclat d’une comète ne se déduit pas de sa seule orbite : si aucun point ne suit la ligne, elle était alors trop faible pour SPHEREx.",
+  "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Son éclat attendu, magnitude {0}, est bien plus faible que ce qu’atteint une pose de SPHEREx (environ 19) : l’anneau montre où il se trouve, mais aucun point n’est à attendre.",
   "visible light": "lumière visible",
   "infrared {0}": "infrarouge {0}",
   "Catalogued brightness (SIMBAD)": "Luminosité cataloguée (SIMBAD)",

@@ -2422,7 +2422,9 @@ function lookFits() {
 function renderLook() {
   const t = S.target, b = S.track?.body, on = tourIdx < 0 && !S.embed;
   const plain = !!(t && simpleCard() && PLAIN_LOOK[t.slug]);
-  const look = plain ? G(PLAIN_LOOK[t.slug]) : t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.` : '';
+  const look = plain ? G(PLAIN_LOOK[t.slug]) : t?.look ? G(t.look) : b ? G`Each image is one stop of the telescope, in time order. The stars stay where they are; the dot in the ring moves along the dotted line, the path its orbit gives. Under the images, the tool's own search for moving dots reports what it found without being told where to look.`
+    + (b.mag > 21 ? ` ${G`Its expected brightness, magnitude ${fx(b.mag, 1)}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.`}`
+      : b.kind === 'comet' && !(b.mag === b.mag) ? ` ${G`How bright a comet is cannot be told from its orbit alone: if no dot travels along the line, it was too faint for SPHEREx then.`}` : '') : '';
   // a body opened by name: the other times SPHEREx had it in view are one press away
   const times = b?.visits?.length > 1 ? `<p class="look visits"><b>${G`SPHEREx had it in view at these times`}</b>${b.visits.map(v =>
     `<button type="button" data-at="${v.mjd.toFixed(2)}" aria-pressed="${v.mjd >= b.from - 0.01 && v.mjd <= b.to + 0.01}" title="${esc(G`Stops of the telescope with it in one field: ${v.stops}`)}">${span(v.t0, v.t1).replace(/, .*/, '')}</button>`).join('')}</p>` : '';

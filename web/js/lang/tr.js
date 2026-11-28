@@ -162,6 +162,8 @@ export default {
   "A small galaxy, a companion of our Milky Way.": "Samanyolu’na eşlik eden küçük bir galaksi.",
   "Measured in the middle of the field: {0}.": "Alanın ortasında ölçülen: {0}.",
   "A galaxy with an active centre: the gas around the giant black hole in its middle glows.": "Aktif çekirdekli bir galaksi: ortasındaki dev kara deliğin çevresindeki gaz ışık saçar.",
+  "How bright a comet is cannot be told from its orbit alone: if no dot travels along the line, it was too faint for SPHEREx then.": "Bir kuyruklu yıldızın ne kadar parlak olacağı yalnızca yörüngesinden anlaşılamaz: çizgi boyunca ilerleyen bir nokta yoksa, o sırada SPHEREx için fazla sönüktü.",
+  "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Beklenen parlaklığı {0} kadir; bu, tek bir SPHEREx pozunun görebildiğinden (yaklaşık 19) çok daha sönük: halka yerini gösterir, ama bir nokta görmeyi beklemeyin.",
   "visible light": "görünür ışık",
   "infrared {0}": "kızılötesi {0}",
   "Catalogued brightness (SIMBAD)": "Katalogdaki parlaklık (SIMBAD)",
