@@ -958,10 +958,12 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .menubtn { display: flex; }
   .navlinks { display: none; position: absolute; right: 10px; top: 52px; z-index: 50; flex-direction: column; align-items: stretch; gap: 0; background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px; padding: 6px; box-shadow: 0 16px 40px #000c; min-width: 200px; }
   .nav.open .navlinks { display: flex; }
-  .navlinks a[data-sheet], .navlinks a[data-sheet=how] { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--ink); min-height: 44px; }
+  .navlinks a[data-sheet], .navlinks a[data-sheet=how], .navlinks #navgloss { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--ink); min-height: 44px; }          /* the glossary opens no page (no data-sheet), but it is one of these lines (28 Nov 2026: it stood further left) */
   .navlinks a.navgame { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--gold); min-height: 44px; text-decoration: none; border-radius: 8px; }
   .navlinks a.navsocial { display: block; text-align: left; padding: 11px 12px; font-size: 15px; color: var(--ink-2); min-height: 44px; text-decoration: none; border-radius: 8px; }
   .navlinks a.navpage { display: none; }          /* the menu has the studio among its gold lines */
+  .navlinks #navgloss { text-decoration: none; border-radius: 8px; }
+  .navlinks #navgloss:hover { color: var(--ink); background: var(--surface); }
   .navgroup > summary { display: flex; align-items: center; min-height: 44px; padding: 11px 12px; font-size: 15px; color: var(--ink); border-radius: 8px; }
   .navgroup > summary:hover { background: var(--surface-2); }
 }
