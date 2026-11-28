@@ -81,6 +81,7 @@
   .remind button[aria-pressed=true] { color: var(--gold); border-color: #f2c14e66; }
   .remind span { display: block; margin-top: 6px; color: var(--gold); font-size: 14px; }
   #say .daily { display: block; margin-top: 6px; color: var(--ink-2); font-size: 14.5px; }
+  #say .aha { display: block; margin-top: 8px; color: var(--gold); font-size: 15px; }          /* the first find: Pluto was found this way */
   .shake { animation: shake .3s; }
   @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
   @media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
@@ -235,6 +236,15 @@ try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private m
 try { if (q.get('lang') && STR[q.get('lang')]) localStorage.setItem('chrono-lang', q.get('lang')); } catch { /* private mode */ }          // a language in the address is a choice, as on the main page (the app's first start from a shortcut brings one)
 if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
 const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+// What a wrong tap says: the first what to look for, the second (one try left) that the ring holds the dot.
+const TIPS = {
+  en: ['Look for the one dot that does not stay put: it jumps back and forth between the two pictures.', 'Last try: the dot that moved is inside the yellow ring.'],
+  tr: ['Yerinde durmayan tek noktayı ara: iki görüntü arasında gidip gelir.', 'Son hakkın: hareket eden nokta sarı halkanın içinde.'],
+  es: ['Busca el único punto que no se queda quieto: salta de una imagen a otra.', 'Último intento: el punto que se movió está dentro del anillo amarillo.'],
+  de: ['Such den einen Punkt, der nicht an seinem Platz bleibt: Er springt zwischen den beiden Bildern hin und her.', 'Letzter Versuch: Der Punkt, der sich bewegt hat, liegt im gelben Ring.'],
+  fr: ['Cherchez le seul point qui ne reste pas en place : il saute d’une image à l’autre.', 'Dernier essai : le point qui a bougé est dans l’anneau jaune.'],
+  pl: ['Szukaj jedynego punktu, który nie stoi w miejscu: skacze tam i z powrotem między dwoma obrazami.', 'Ostatnia próba: punkt, który się przesunął, jest w żółtym pierścieniu.'],
+}[lang] || null;
 const secs = ms => (ms / 1000).toFixed(1).replace('.', T.dec);
 document.documentElement.lang = lang; document.title = `${T.title} · ChronosphereX`;
 $('lang').value = lang; $('lang').onchange = e => { location.search = `?lang=${e.target.value}`; };
@@ -413,7 +423,7 @@ function pic(l) {
 }
 
 const cv = $('cv'), ctx = cv.getContext('2d'), C = cv.width;
-let DATA = null, L = null, strip = null, phase = 'load', frame = 0, shade = 0, loop = 0, since = 0, tick = 0, t0 = 0, level = 0, tries = 0, results = [], miss = null;
+let DATA = null, L = null, strip = null, phase = 'load', frame = 0, shade = 0, loop = 0, since = 0, tick = 0, t0 = 0, level = 0, tries = 0, results = [], miss = null, hint = null;
 const MINT = '#5fe0b0', RED = '#ff5c50';
 // Each picture stays half a second. On the levels marked dark the picture then closes to black and opens again on the
 // other one, like a blink (CLOSE, SHUT, OPEN): the two are never on the screen together, so the jump no longer catches
@@ -433,6 +443,10 @@ function draw() {
     ctx.fillStyle = 'rgba(95, 224, 176, .75)';
     for (let i = 0; i <= frame; i++) { ctx.beginPath(); ctx.arc(L.pos[i][0] * k, L.pos[i][1] * k, 3.5, 0, 2 * Math.PI); ctx.fill(); }
     ctx.strokeStyle = MINT; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(L.pos[frame][0] * k, L.pos[frame][1] * k, 26, 0, 2 * Math.PI); ctx.stroke();
+  }
+  if (hint && phase === 'play') {                         // the last try: a ring round the part of the picture the dot is in, not round the dot
+    ctx.save(); ctx.strokeStyle = 'rgba(242, 193, 78, .9)'; ctx.lineWidth = 3; ctx.setLineDash([10, 8]);
+    ctx.beginPath(); ctx.arc(hint.x * k, hint.y * k, hint.r * k, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
   }
   if (miss && performance.now() - miss.at < 500) {         // a press on the wrong place, seen even while the picture is dark
     ctx.strokeStyle = RED; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(miss.x * k, miss.y * k, 20, 0, 2 * Math.PI); ctx.stroke();
@@ -469,7 +483,7 @@ function flip(now) {
 }
 function play() { phase = 'play'; t0 = since = performance.now(); frame = L.a; shade = 0; draw(); loop = requestAnimationFrame(flip); }
 async function start(i) {
-  level = i; L = DATA.levels[i]; phase = 'load'; tries = 0; miss = null; cancelAnimationFrame(loop); shade = 0; lives();
+  level = i; L = DATA.levels[i]; phase = 'load'; tries = 0; miss = null; hint = null; cancelAnimationFrame(loop); shade = 0; lives();
   $('level').innerHTML = daily ? `${T.daily} <b>#${TODAY.no}</b>` : fill(T.level, { k: `<b>${i + 1}</b>`, n: DATA.levels.length }); $('clock').textContent = '';
   $('say').textContent = ''; $('next').hidden = true; $('next2').hidden = true; $('lives').hidden = false; $('stage').previousElementSibling.classList.remove('done'); $('open').hidden = true; $('other').hidden = true; $('show').hidden = false; $('card').hidden = true;
   const img = await pic(L);
@@ -498,6 +512,7 @@ function reveal(found, out = false) {
     clearInterval(step); phase = 'done';
     const last = level === DATA.levels.length - 1;
     $('say').innerHTML = `<span class="name">${T.names[L.slug] || L.name}</span>${found ? fill(T.found, { s: secs(took) }) : `${out ? `${T.out} ` : ''}${T.shown}`}. ${T.facts[L.id] || T.facts[L.slug] || L.fact} ${fill(T.walk, { n: L.n, a: Math.floor(L.years[0]), b: Math.floor(L.years[L.n - 1]) })}`;
+    if (found && level === 0 && !daily && T.how) $('say').insertAdjacentHTML('beforeend', `<span class="aha">${T.how}</span>`);          // the first find: this is how Pluto was found
     $('next').textContent = daily ? T.share : last ? T.result : T.next; $('next').hidden = false;
     $('lives').hidden = true; $('stage').previousElementSibling.classList.add('done');
     if (daily) dailyEnd(found, took);          // one board a day: what comes next is passing it on, below the picture
@@ -533,7 +548,15 @@ function tap(cx, cy) {
   tries++; lives(); miss = { x, y, at: performance.now() }; draw(); setTimeout(draw, 520);
   $('stage').classList.remove('shake'); void $('stage').offsetWidth; $('stage').classList.add('shake');
   if (tries >= TRIES) return reveal(false, true);
-  $('say').textContent = T.wrong;
+  if (tries === TRIES - 1 && TIPS) {
+    // a ring a fifth of the picture wide round a point near the dot's path, so that it narrows the search without giving the answer
+    const S = L.size, p = L.pos[L.a], q = L.pos[L.b], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, half = Math.hypot(p[0] - q[0], p[1] - q[1]) / 2;
+    const r = Math.max(S * 0.2, half + 10), a = Math.random() * 2 * Math.PI, d = Math.random() * Math.max(0, r - half - 6);
+    let cx = Math.min(S - r * 0.6, Math.max(r * 0.6, mx + d * Math.cos(a))), cy = Math.min(S - r * 0.6, Math.max(r * 0.6, my + d * Math.sin(a)));
+    if ([p, q].some(o => Math.hypot(o[0] - cx, o[1] - cy) > r - 4)) { cx = mx; cy = my; }          // pushed off by the edge: round the path itself
+    hint = { x: cx, y: cy, r }; draw();
+  }
+  $('say').textContent = TIPS ? `${T.wrong} ${TIPS[Math.min(tries, TRIES - 1) - 1]}` : T.wrong;
 }
 $('show').onclick = () => reveal(false);
 $('next').onclick = () => { if (daily) shareDaily(); else if (level < DATA.levels.length - 1) start(level + 1); else summary(); };
