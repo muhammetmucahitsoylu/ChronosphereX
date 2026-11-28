@@ -1651,11 +1651,12 @@ function storyNextOf() {
   return (S.targets || []).find(t => t.slug === slug) || null;
 }
 function storyQuiet(rows) {
-  const f = S.find || {}, checked = rows.filter(([to, r]) => ['motion', 'lccheck'].includes(to) && r.cls === 'none').length;
-  const kind = f.why === 'bright' ? 'bright' : f.why === 'faint' && !f.motion ? 'faint' : checked ? 'calm' : '';
+  const f = S.find || {}, calm = to => rows.some(([t, r]) => t === to && r.cls === 'none');
+  const still = calm('motion'), steady = calm('lccheck');
+  const kind = f.why === 'bright' ? 'bright' : f.why === 'faint' && !f.motion ? 'faint' : still && steady ? 'calm' : still ? 'calmMove' : steady ? 'calmLight' : '';          // only what was measured is said
   if (!kind) return '';
   const next = storyNextOf();
-  return `<p class="kick">${esc(T('story.what'))}</p><div class="leadtxt"><h3>${esc(T(`story.${kind}.h`))}</h3><p>${esc(T(`story.${kind}.p`))}</p></div>`
+  return `<p class="kick">${esc(T('story.what'))}</p><div class="leadtxt"><h3>${esc(T(`story.${kind.startsWith('calm') ? 'calm' : kind}.h`))}</h3><p>${esc(T(`story.${kind}.p`))}</p></div>`
     + (next ? `<button type="button" class="nextobj" data-next="${esc(next.slug)}">${esc(T('story.seeChange', { name: nameOf(next) }))}</button>` : '');
 }
 const STORY_ORDER = ['motion', 'lccheck', 'molecules', 'movers'];
@@ -2240,10 +2241,21 @@ function fmtDistance(plx, err) {
   return G`${rel < 0.003 ? '' : G`about `}${NUM2.format(v)} light-years`;
 }
 
+/** A famous object opened by its place (not through the search) gets the name the search gives it in the page's language
+ *  (topics.js): "Andromeda Galaksisi", not the catalogue's "Andromeda Galaxy" (28 Nov 2026). Within 20″ only. */
+function topicName(ra, dec, called) {
+  if (!(ra === ra && dec === dec) || !called) return null;
+  for (const it of Object.values(Topics.ITEMS)) {
+    const sk = it.do?.sky;
+    // the same place and the same object: a star in the middle of a nebula keeps its own name
+    if (sk && it.name && sepArcsec(ra, dec, sk[0], sk[1]) < 20 && Topics.fold(Topics.say(it.name, 'en')) === Topics.fold(called)) return Topics.say(it.name, Lang.lang) || null;
+  }
+  return null;
+}
 function renderAbout() {
   const t = S.target, k = S.track, i = S.info, el = $('about');
   applyPanelMode();
-  const name = t ? nameOf(t) : i ? i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
+  const name = t ? nameOf(t) : i ? topicName(i.ra, i.dec, i.name) || i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
   document.title = `${name} · ChronosphereX`;          // the tab, the history and a bookmark say which object this is
   const sp = t?.sp || i?.sptype;
   const spHtml = sp ? G` · spectral type <span class="asis">${esc(sp)}</span>` : '';
