@@ -521,6 +521,7 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
     backgroundColor: 'rgb(5, 7, 12)',
     log: false,          // the library would otherwise report this page's address to its makers on every visit
   });
+  for (const [k, v] of Object.entries(OWN_CMAPS)) { try { al.addColormap(k, v); } catch { /* an older library: the built-in scales only */ } }
   // A finger's tap reaches the library twice: as the touch, and a few milliseconds later as the mouse click the
   // browser makes of it. The first has done its work by then (a dive into a wide view has already changed the
   // view's width), so the second would open whatever lies under the finger. One press, one click.
@@ -610,7 +611,17 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
  * frame, which is blank in the SPHEREx cube, and would ask for those tiles: so a cube is sent to
  * the wanted frame in the very call in which the library adds it, before it has asked for anything.
  */
-let cmap = 'grayscale';          // the SPHEREx layer's colour scale, chosen in Settings (grey, heat, magma)
+let cmap = 'grayscale';          // the SPHEREx layer's colour scale, chosen in Settings
+/**
+ * Colour scales of the site's own (28 Nov 2026, the user: heat and magma are red and harsh). Each starts black, so the
+ * empty sky stays dark, and ends white, so the brightest stars stay white; in between one calm hue (Green's cubehelix
+ * was tried too: on the sky it came out green and pink, as loud as heat).
+ */
+export const OWN_CMAPS = {
+  nightblue: ['#000000', '#050d1f', '#0f2a52', '#2a5c94', '#6f9fd0', '#c5ddf4', '#ffffff'],
+  starlight: ['#000000', '#140d04', '#3d2a0f', '#7a5a2a', '#c09a5c', '#ecd9ad', '#ffffff'],
+  ice: ['#000000', '#03141a', '#0a3a44', '#1f6f74', '#55aa9f', '#a9dccb', '#ffffff'],
+};
 /** The colour scale of the SPHEREx layer: kept for the layers made later, and put on the one on show. */
 export function setColormap(name) {
   cmap = name || 'grayscale';
