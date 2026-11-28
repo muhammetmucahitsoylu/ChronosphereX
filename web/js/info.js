@@ -247,6 +247,10 @@ const GLOSS = [
   [/^Psr/, G`A pulsar: the dense, spinning remnant of an exploded star.`],
   [/^(Pl|Pl\?)$/, G`A planet orbiting another star.`],
   [/^(IR|NIR|MIR|FIR)$/, G`A source first noticed in infrared light; what it is has not been settled.`],
+  [/^(s\*r|s\*y|s\*b|s\?r|s\?y|s\?b|sg\*|s\*)$/, G`A supergiant: a huge, very bright star near the end of a short life.`],          // 28 Nov 2026: Betelgeuse had no sentence
+  [/^WR\*/, G`A Wolf-Rayet star: a very hot, massive star blowing off its outer layers in a fierce wind.`],
+  [/^MS\*$/, G`A star in the prime of its life, shining by turning hydrogen into helium in its core, as the Sun does.`],
+  [/^Ev\*/, G`A giant star late in its life: cool, swollen and very bright in infrared, often changing in brightness.`],
   [/^\*$/, G`A star.`],
 ];
 /** One plain sentence for a SIMBAD object type code. */
