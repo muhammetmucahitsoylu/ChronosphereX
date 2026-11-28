@@ -27,7 +27,11 @@ const LOCAL = { pluto: 'a:Pluto', pluton: 'a:Pluto', ceres: 'a:Ceres', mercury: 
   uranus: 'p:Uranus', urano: 'p:Uranus', uran: 'p:Uranus', neptune: 'p:Neptune', neptun: 'p:Neptune', neptuno: 'p:Neptune',
   // the best-known comets by their bare names (an asteroid also called Halley, 2688, is not what is meant)
   halley: 'c:1P', encke: 'c:2P', 'hale-bopp': 'c:C/1995 O1', 'hale bopp': 'c:C/1995 O1', halebopp: 'c:C/1995 O1', 'swift-tuttle': 'c:109P', 'tempel-tuttle': 'c:55P',
-  'churyumov-gerasimenko': 'c:67P', 'tsuchinshan-atlas': 'c:C/2023 A3' };
+  'churyumov-gerasimenko': 'c:67P', 'tsuchinshan-atlas': 'c:C/2023 A3',
+  // Venus by the names people give the brightest 'star' of dusk and dawn (TDK: çoban yıldızı, akşam yıldızı, sabah yıldızı, Zühre)
+  'coban yıldızı': 'p:Venus', 'coban yildizi': 'p:Venus', 'aksam yıldızı': 'p:Venus', 'aksam yildizi': 'p:Venus', 'sabah yıldızı': 'p:Venus', 'sabah yildizi': 'p:Venus', zuhre: 'p:Venus',
+  'evening star': 'p:Venus', 'morning star': 'p:Venus', abendstern: 'p:Venus', morgenstern: 'p:Venus', 'etoile du berger': 'p:Venus', 'gwiazda wieczorna': 'p:Venus', 'gwiazda poranna': 'p:Venus',
+  'lucero del alba': 'p:Venus', 'lucero de la tarde': 'p:Venus' };
 const fold = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 /**
  * The ways a typed name can be put to Miriade, likeliest first: [{ q, name }]. "(433) Eros" is asteroid 433;
