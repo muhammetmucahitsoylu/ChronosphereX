@@ -1767,7 +1767,9 @@ function resultsHtml(rows, say) {
   }).join('');
   const rest = rows.filter(x => !ORDER.some(o => o[0] === x[0]) || x[1].cls === 'wait');
   const extra = rest.length ? `<ul class="qextra">${rest.map(([to, r]) => G`<li class="${r.cls}"><button type="button" data-to="${to}" title="Show how this was measured">${r.html}</button></li>`).join('')}</ul>` : '';
-  return `<h2 class="ic ic-chart">${esc(T('res.title'))}</h2>${items ? `<div class="results">${items}</div><p class="runits">${esc(T('res.units'))}</p>` : ''}${extra}`;
+  const tools = `<span class="rtools"><button type="button" class="ic ic-quote" data-rt="citebtn" title="${esc(T('cite.btn'))}" aria-label="${esc(T('cite.btn'))}"></button>`
+    + `<button type="button" class="ic ic-csv" data-rt="savecsv" title="${esc(G`Every measurement of the circled spot: date, wavelength, brightness, exposure`)}" aria-label="${esc(G`Measurements (CSV)`)}"></button></span>`;
+  return `<div class="reshead"><h2 class="ic ic-chart">${esc(T('res.title'))}</h2>${tools}</div>${items ? `<div class="results">${items}</div><p class="runits">${esc(T('res.units'))}</p>` : ''}${extra}`;
 }
 
 /**
@@ -1794,7 +1796,13 @@ function renderFindings() {
   }
   el.classList.toggle('results-on', cards && !story); el.classList.toggle('story', story);
   el.hidden = !rows.length || (story && !html);
-  leadState();
+  leadState(); exportRow();
+}
+/** Cite and CSV stand beside the results' title; without a results card, in the row under the display options. */
+function exportRow() {
+  const f = $('findings'), inCard = !!f && !f.hidden && f.classList.contains('results-on');
+  $('citebtn').hidden = $('savecsv').hidden = inCard;
+  $('exportrow').hidden = inCard && $('saveades').hidden;
 }
 /**
  * The ringed spot itself: was the light there one of the bodies that passed through the field? A visitor who rings a
@@ -1823,6 +1831,7 @@ function leadState() { document.querySelector('.cols').classList.toggle('nolook'
 $('leadbox').addEventListener('click', e => { const nx = e.target.closest('[data-next]')?.dataset.next; if (nx) { const t = (S.targets || []).find(x => x.slug === nx); if (t) openTarget(t); return; } const to = e.target.closest('button')?.dataset.to; if (!to) return; setPanelFull(true); requestAnimationFrame(() => $(to)?.scrollIntoView({ behavior: calmMotion() ? 'auto' : 'smooth', block: 'center' })); });
 $('findings').addEventListener('click', e => {
   const b = e.target.closest('button');
+  if (b?.dataset.rt) { $(b.dataset.rt).click(); return; }          // the results' own cite and CSV buttons
   if (b?.dataset.next) { const t = (S.targets || []).find(x => x.slug === b.dataset.next); if (t) openTarget(t); return; }
   const to = b?.dataset.to;
   if (to === 'here') { const t = lightHere()?.follow; if (t) followBody(t); return; }
@@ -2689,6 +2698,7 @@ const methodLink = () => `<a class="methodlink" href="${(NAV ? `${Lang.lang}/` :
 function renderModes() {
   const body = !!(S.grid && bodyStops()), own = followed();
   $('saveades').hidden = !body || own;          // the places of a body can be saved while one is followed through a field; the place of a body the images are centred on was not measured
+  exportRow();
   for (const b of $('modes').children) {
     const m = b.dataset.mode;
     b.setAttribute('aria-pressed', m === S.mode);
@@ -3657,6 +3667,7 @@ function exportNote(text) {
   const el = $('exportnote'); el.textContent = text;
   clearTimeout(exportTimer); if (text) exportTimer = setTimeout(() => { el.textContent = ''; }, 5000);
 }
+$('citebtn').title = T('cite.btn');
 function download(blob, name) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = name;
@@ -3670,6 +3681,12 @@ $('citebtn').onclick = async () => {
   try { await navigator.clipboard.writeText(ref); exportNote(T('cite.copied')); } catch { exportNote(ref); }
 };
 $('copylink').onclick = async () => {
+  // a phone or tablet: its own share sheet (the app has one too); a computer: the link is copied
+  if (matchMedia('(pointer: coarse)').matches && navigator.share) {
+    const name = S.target ? nameOf(S.target) : S.info?.name || S.track?.name || '';
+    try { await navigator.share({ title: name ? `${name} · ChronosphereX` : 'ChronosphereX', url: location.href }); return; }
+    catch (e) { if (e?.name === 'AbortError') return; }          // closed without sharing: nothing to say
+  }
   try { await navigator.clipboard.writeText(location.href); exportNote(G`Link copied. It reopens exactly this view.`); }
   catch { exportNote(location.href); }
 };
@@ -3807,9 +3824,10 @@ $('savevideo').onclick = async () => {
   // file in the downloads folder is what is wanted).
   if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files: [file] })) {
     clearTimeout(exportTimer);
-    const el = $('exportnote'); el.innerHTML = `${G`Video ready.`} <button type="button" data-share>${G`Share`}</button> <button type="button" data-keep>${G`Save`}</button>`;
-    el.querySelector('[data-share]').onclick = () => navigator.share({ files: [file], title: name, text: `${name} · chronospherex.com` }).catch(() => {});
+    const el = $('exportnote'); el.innerHTML = `${G`Video ready.`} <button type="button" data-share>${G`Share`}</button> <button type="button" data-keep>${G`Save`}</button> <button type="button" class="x" data-x aria-label="${G`Close`}">×</button>`;
+    el.querySelector('[data-share]').onclick = () => navigator.share({ files: [file], title: name, text: `${name} · chronospherex.com` }).then(() => exportNote('')).catch(() => {});
     el.querySelector('[data-keep]').onclick = () => { download(file, file.name); exportNote(G`Video saved.`); };
+    el.querySelector('[data-x]').onclick = () => exportNote('');
   } else { download(file, file.name); exportNote(G`Video saved.`); }
 };
 
@@ -4105,12 +4123,12 @@ const COACH = [          // the part (a CSS selector) and the key of its words i
   { at: '#about', key: 'about' },
   { at: '#findings', key: 'findings' },
   { at: '.viewer .stage', key: 'images' },
+  { at: '.imgtools', key: 'export' },
   { at: '#modes', key: 'modes' },
   { at: '.detwrap', key: 'dets' },
   { at: '.stack > section:nth-child(1)', key: 'spectrum' },
   { at: '.stack > section:nth-child(2)', key: 'lc' },
   { at: '#motion', key: 'motion' },
-  { at: '.export', key: 'export' },
 ];
 let coachAt = -1, coachTimer = 0, coachThen = null;          // coachThen: what follows when the walk has reached its end
 const onScreen = sel => { const el = document.querySelector(sel); return !!el && el.offsetParent !== null && el.getBoundingClientRect().height > 12; };

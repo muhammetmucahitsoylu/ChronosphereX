@@ -249,6 +249,14 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           <div id="caption" aria-live="polite"></div>
           <div id="status" role="status"></div>
           <div id="notice" hidden></div>
+          <!-- the picture's own buttons: share this view, save the image, save a video of the loop, and back to the whole
+               picture while zoomed in (28 Nov 2026: they were a row of worded buttons far below the picture) -->
+          <div class="imgtools" role="group" aria-label="Share and export">
+            <button type="button" id="copylink" class="ic ic-share" aria-label="Share" title="Copy a link that reopens exactly this view"></button>
+            <button type="button" id="savepng" class="ic ic-saveimg" aria-label="Save image" title="Save the image as shown, with its markings"></button>
+            <button type="button" id="savevideo" class="ic ic-savevid" aria-label="Save video" title="Save one loop of the sequence as a video file"></button>
+            <button type="button" id="resetview" class="ic ic-zoomout" aria-label="Reset zoom" title="Reset zoom"></button>
+          </div>
         </div>
         <div class="transport">
           <button id="prev" title="Previous (←)" aria-label="Previous image">‹</button>
@@ -294,19 +302,15 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
             <label title="Gaia DR3 stars at their position on the date shown (circles). Fast movers get an arrow."><input id="gaia" type="checkbox" checked> Gaia stars</label>
             <label title="Infrared sources catalogued by the WISE telescope (squares)"><input id="wise" type="checkbox"> WISE sources</label>
             <label title="Pixels the pipeline masked: saturated, bad or missing"><input id="mask" type="checkbox"> Masked pixels</label>
-            <button id="resetview" type="button">Reset zoom</button>
           </div>
           <p id="readout" class="hint">Tap or click a star to measure it.</p>
         </details>
-        <div class="export" role="group" aria-label="Share and export">
-          <button type="button" id="copylink" title="Copy a link that reopens exactly this view">Copy link</button>
-          <!-- for research: a reference to this page and the data it shows, copied (app.js) -->
-          <button type="button" id="citebtn" data-t="cite.btn">Cite</button>
-          <button type="button" id="savepng" title="Save the image as shown, with its markings">Save image</button>
-          <button type="button" id="savevideo" title="Save one loop of the sequence as a video file">Save video</button>
-          <button type="button" id="savecsv" title="Every measurement of the circled spot: date, wavelength, brightness, exposure">Measurements (CSV)</button>
+        <!-- for research: a reference to this page and its data (cite), every measurement of the ringed spot (CSV). They stand
+             beside the results' title; this row holds them where there is no results card (app.js, exportRow) -->
+        <div class="export" id="exportrow" role="group" aria-label="Share and export">
+          <button type="button" id="citebtn" class="roundbtn ic ic-quote" data-t-label="cite.btn"></button>
+          <button type="button" id="savecsv" class="roundbtn ic ic-csv" aria-label="Measurements (CSV)" title="Every measurement of the circled spot: date, wavelength, brightness, exposure"></button>
           <button type="button" id="saveades" hidden title="The places measured for the body being followed, in the format the Minor Planet Center takes (ADES)">Positions (ADES)</button>
-          <span id="exportnote" class="hint" role="status"></span>
         </div>
         <div id="reportask" class="reportask" hidden>
           <label for="reporter">Your name for the report, as the Minor Planet Center writes names: initials and surname, for example J. Smith. It is written into the file and kept on this device only.</label>
@@ -360,6 +364,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
     <p class="credits">Images: NASA SPHEREx, served by NASA/IPAC (IRSA). Catalogues: Gaia DR3, CatWISE2020, SIMBAD. Sky atlas: Aladin Lite. Encyclopedia cards: Wikipedia.</p>
   </aside>
 </main>
+<!-- what a share or save button did, at the foot of the screen wherever the button was (app.js, exportNote) -->
+<p id="exportnote" class="toast" role="status" aria-live="polite"></p>
 <!-- settings: pictures to press, few words (app.js renderLook; the colours themselves: js/look.js) -->
 <div class="lookpanel" id="lookpanel" role="dialog" aria-labelledby="looktitle" hidden>
   <div class="lookhead"><h2 id="looktitle" data-t="set.title">Settings</h2><button type="button" class="lookx" id="lookclose" aria-label="Close" data-t-label="set.close">×</button></div>

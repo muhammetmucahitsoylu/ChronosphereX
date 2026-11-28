@@ -648,9 +648,9 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 @container (max-width: 440px) { .t td.lvl span { width: 28px; margin-right: 5px; } .t td.lvl { white-space: normal; } }          /* a narrow panel: the table stays inside it in every language */
 /* the molecules as chips: the formula and what was measured, its name, its band */
 .molchips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 5px; }
-.molchips li { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "f s" "n n" "w w"; align-items: baseline; column-gap: 6px; row-gap: 1px; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
-.molchips b { grid-area: f; font: 600 14px var(--sans); color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
-.molchips em { grid-area: s; font: 500 11.5px var(--mono); font-style: normal; color: var(--ink-3); }
+.molchips li { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "f s" "n n" "w w"; align-items: baseline; column-gap: 6px; row-gap: 1px; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.molchips b { grid-area: f; font: 600 14px var(--sans); color: var(--ink-2); white-space: nowrap; }
+.molchips em { grid-area: s; min-width: 0; text-align: right; font: 500 11.5px var(--mono); font-style: normal; color: var(--ink-3); }
 .molchips small { grid-area: n; font-size: 11px; line-height: 1.25; color: var(--ink-2); }
 .molchips .band { grid-area: w; font: 500 10px var(--mono); color: var(--ink-3); }
 .molchips li.dip { border-color: color-mix(in srgb, var(--mint) 50%, transparent); } .molchips li.dip b, .molchips li.dip em { color: var(--mint); }
@@ -719,7 +719,7 @@ details[open] > summary { margin-bottom: 10px; }
 .stage { position: relative; width: 100%; aspect-ratio: 1; background: #000; border-radius: 4px; overflow: hidden; outline: 1px solid var(--line); }
 #sky { width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: crosshair; }
 #sky.zoomed { touch-action: none; }
-#caption { position: absolute; left: 12px; top: 10px; right: 12px; pointer-events: none; text-shadow: 0 1px 3px #000, 0 0 10px #000; }
+#caption { position: absolute; left: 12px; top: 10px; right: 58px; pointer-events: none; text-shadow: 0 1px 3px #000, 0 0 10px #000; }
 #caption b { font: 400 22px/1.1 var(--serif); display: block; }
 #caption span { font: 11.5px var(--mono); color: var(--ink-soft, #dde3eb); }
 #caption i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 2px; }
@@ -766,11 +766,37 @@ details.display { margin-top: 10px; }
 .tools button { border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 12px; font-size: 13px; min-height: 28px; }
 .tools select { min-height: 28px; padding: 1px 22px 1px 6px; font-size: 13px; background-position: right 7px center; }
 
+/* the picture's own buttons, round over its top right corner (index.html .imgtools); "back to the whole picture" only while zoomed in */
+.imgtools { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; flex-direction: column; gap: 6px; }
+.imgtools button { width: 36px; height: 36px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  border: 1px solid #ffffff30; background: #0b0e14b8; color: #eef2f7; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.imgtools button:hover { background: #1c2333e6; border-color: #ffffff70; }
+.imgtools button:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.imgtools .ic::before { margin: 0; width: 20px; height: 20px; }
+#resetview { display: none; }
+.stage:has(#sky.zoomed) #resetview { display: inline-flex; }
+@media (pointer: coarse) { .imgtools button { width: 40px; height: 40px; } .imgtools .ic::before { width: 22px; height: 22px; } }
+/* where there is no results card: cite and CSV as the same round pictures, the ADES file of a followed body in words */
 .export { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin-top: 12px; }
-.export button { border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; color: var(--ink-2); min-height: 30px; }
+.export button:not(.roundbtn) { border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; color: var(--ink-2); min-height: 30px; }
 .export button:hover { color: var(--ink); border-color: var(--ink-2); }
-.export .hint { margin: 0; font-size: 12.5px; }
-.export .hint button[data-share] { border-color: var(--gold); color: var(--gold); }
+/* the results' title and its two buttons: cite, every measurement as CSV (app.js, resultsHtml) */
+.reshead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rtools { display: flex; gap: 6px; flex: none; }
+.findings .rtools button { width: 32px; height: 32px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-2); background: none; color: var(--ink-2); }
+.findings .rtools button:hover { background: var(--surface-2); border-color: var(--ink-2); }
+.rtools .ic::before { margin: 0; width: 17px; height: 17px; }
+@media (pointer: coarse) { .findings .rtools button { width: 38px; height: 38px; } .rtools .ic::before { width: 19px; height: 19px; } }
+/* what a share or save button did: a note at the foot of the screen, over everything, gone after a few seconds */
+.toast { position: fixed; left: 50%; bottom: calc(16px + var(--tabs, 0px) + var(--edge-b, 0px)); translate: -50% 0; z-index: 80; margin: 0;
+  width: max-content; max-width: min(440px, calc(100vw - 32px)); box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: color-mix(in srgb, var(--surface, #121722) 96%, transparent);
+  box-shadow: 0 10px 30px #000b; font-size: 14px; line-height: 1.4; color: var(--ink); overflow-wrap: anywhere; }
+.toast:empty { display: none; }
+body:is(.coaching, .rguiding) .toast { top: calc(14px + var(--sat, 0px)); bottom: auto; }          /* a guide's card holds the foot of the screen: the note goes to the top, off its buttons */
+.toast button { border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 14px; min-height: 36px; font-size: 14px; color: var(--ink); }
+.toast button[data-share] { border-color: var(--gold); color: var(--gold); }
+.toast button.x { border: 0; padding: 0; width: 36px; font-size: 20px; color: var(--ink-2); margin-left: auto; }
 table.t { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
 table.t th, table.t td { text-align: right; padding: 6px 6px; border-bottom: 1px solid var(--line); }
 table.t th:first-child, table.t td:first-child { text-align: left; padding-left: 0; }
@@ -1081,7 +1107,8 @@ dl#meta dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); font-
   .seg button { min-height: 40px; font-size: 13.5px; }
   .detstrip { height: 40px; }
   .tools label, .tools button, .tools select { min-height: 36px; }
-  .export button { min-height: 38px; padding: 6px 14px; font-size: 13.5px; }
+  .export button:not(.roundbtn) { min-height: 38px; padding: 6px 14px; font-size: 13.5px; }
+  .export .roundbtn { width: 40px; height: 40px; }
   details.fold summary, details.display summary { padding: 8px 0; font-size: 14px; }
   #specnote summary { padding: 7px 0; }          /* a strip a thumb can hit */
   .wiki small a { display: inline-block; padding: 6px 0; }
@@ -1441,7 +1468,7 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
   body:not(.touring):not(.embed) #panel:not(.simple) #lookbox { order: 5; margin-top: 16px; }
   body:not(.touring):not(.embed) #panel:not(.simple) .viewer > #modes { margin-top: 18px; }
   body:not(.touring):not(.embed) #panel:not(.simple) .stack { order: 7; margin-top: 22px; }
-  body:not(.touring):not(.embed) #panel:not(.simple) :is(#years, #motion, details.display) { align-self: stretch; }          /* as wide as the panel: short lines, or a closed fold, would make them narrower */
+  body:not(.touring):not(.embed) #panel:not(.simple) :is(#years, #motion, details.display, .detwrap) { align-self: stretch; }          /* as wide as the panel: short lines, or a closed fold, would make them narrower */
   body:not(.touring):not(.embed) #panel:not(.simple) .more { order: 8; margin-top: 22px; align-self: stretch; }
   body:not(.touring):not(.embed) #panel.simple .cols { display: flex; flex-direction: column; gap: 0; }
   body:not(.touring):not(.embed) #panel.simple :is(.lead, .viewer) { display: contents; }
@@ -1477,7 +1504,7 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
 /* what "All measurements" will download, while the simple card holds the other detectors back (app.js, restSay) */
 .fullwrap .fullcost { color: var(--ink); }
 /* one column: the words on what is arriving lie at the top of the pictures, under the date (at their foot they were below the first screen of a small phone) */
-@container (max-width: 639.98px) { body:not(.touring):not(.embed) #panel.simple #status { top: 42px; bottom: auto; } }
+@container (max-width: 639.98px) { body:not(.touring):not(.embed) #panel.simple #status { top: 42px; bottom: auto; right: 58px; } }          /* clear of the picture's buttons */
 
 /* ---------- a desk: the simple card is a narrow panel ----------
    The panel is as wide as everything it can hold (62 per cent of the window): with the simple card in it, the pictures

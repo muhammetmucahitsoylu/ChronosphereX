@@ -107,7 +107,7 @@ const TEXT = {
     'coach.motion.title': 'Did it move?',
     'coach.motion.text': 'How far the light has shifted since the first visit, measured in these images. For an object with a catalogued motion the table sets that beside what the catalogue predicts; for any other spot the tool says whether it stayed in place.',
     'coach.export.title': 'Take it with you',
-    'coach.export.text': 'Copy link reopens exactly this view on any device. Save the image or a video of the loop, or download every measurement of the ringed spot as a CSV file and check the numbers yourself.',
+    'coach.export.text': 'The buttons on the picture share this view (the link reopens exactly it), save the image and save a video of the loop. The quotation marks copy a reference for citing; CSV downloads every measurement of the ringed spot.',
 
     'note.loadingMap': 'Loading the sky map…',
     'note.explore': 'Pick any star or bright spot on the map. Or type a name in the search box.',
@@ -243,7 +243,7 @@ const TEXT = {
     'coach.motion.title': 'Hareket etti mi?',
     'coach.motion.text': 'Işığın ilk gözlemden bu yana ne kadar yer değiştirdiği, bu görüntülerden ölçülür. Katalogda hareketi bulunan bir nesne için tablo bunu kataloğun öngördüğüyle yan yana koyar; başka her nokta için araç, yerinde kalıp kalmadığını söyler.',
     'coach.export.title': 'Kaydedin ve paylaşın',
-    'coach.export.text': '“Bağlantıyı kopyala” tam olarak bu görünümü herhangi bir cihazda yeniden açar. Görüntüyü ya da döngünün videosunu kaydedin ya da halkadaki noktanın bütün ölçümlerini CSV dosyası olarak indirip sayıları kendiniz kontrol edin.',
+    'coach.export.text': 'Görüntünün üstündeki düğmeler bu görünümü paylaşır (bağlantı tam olarak bunu açar), görüntüyü ve döngünün videosunu kaydeder. Tırnak işareti kaynak bilgisini kopyalar; CSV, halkadaki noktanın bütün ölçümlerini indirir.',
 
     'note.loadingMap': 'Gökyüzü haritası yükleniyor…',
     'note.explore': 'Haritadan bir yıldız ya da parlak bir nokta seçin. İsterseniz arama kutusuna bir ad yazın.',
@@ -379,7 +379,7 @@ const TEXT = {
     'coach.motion.title': 'Hat es sich bewegt?',
     'coach.motion.text': 'Wie weit sich das Licht seit der ersten Beobachtung verschoben hat, gemessen in diesen Bildern. Für ein Objekt mit katalogisierter Bewegung stellt die Tabelle das neben die Vorhersage des Katalogs; für jede andere Stelle sagt das Werkzeug, ob sie an ihrem Platz geblieben ist.',
     'coach.export.title': 'Speichern und teilen',
-    'coach.export.text': '„Link kopieren“ öffnet genau diese Ansicht auf jedem Gerät wieder. Speichern Sie das Bild oder ein Video der Schleife, oder laden Sie alle Messungen der eingekreisten Stelle als CSV-Datei herunter und prüfen Sie die Zahlen selbst.',
+    'coach.export.text': 'Die Knöpfe auf dem Bild teilen diese Ansicht (der Link öffnet genau sie wieder), speichern das Bild und ein Video der Schleife. Die Anführungszeichen kopieren eine Quellenangabe; CSV lädt alle Messungen der eingekreisten Stelle herunter.',
 
     'note.loadingMap': 'Die Himmelskarte wird geladen…',
     'note.explore': 'Einen Stern oder hellen Punkt auf der Karte wählen. Oder oben einen Namen eingeben.',
@@ -515,7 +515,7 @@ const TEXT = {
     'coach.motion.title': 'A-t-il bougé ?',
     'coach.motion.text': 'De combien la lumière s’est déplacée depuis la première observation, mesuré sur ces images. Pour un objet au mouvement catalogué, le tableau place cette mesure à côté de la prédiction du catalogue ; pour tout autre endroit, l’outil dit s’il est resté en place.',
     'coach.export.title': 'Enregistrer et partager',
-    'coach.export.text': '« Copier le lien » rouvre exactement cette vue sur n’importe quel appareil. Enregistrez l’image ou une vidéo de la boucle, ou téléchargez toutes les mesures de l’endroit entouré au format CSV et vérifiez les chiffres vous-même.',
+    'coach.export.text': 'Les boutons sur l’image partagent cette vue (le lien la rouvre telle quelle), enregistrent l’image et une vidéo de la boucle. Les guillemets copient une référence à citer ; CSV télécharge toutes les mesures de l’endroit entouré.',
 
     'note.loadingMap': 'Chargement de la carte du ciel…',
     'note.explore': 'Choisissez une étoile ou un point brillant sur la carte. Ou tapez un nom dans la recherche.',
@@ -651,7 +651,7 @@ const TEXT = {
     'coach.motion.title': 'Czy się poruszył?',
     'coach.motion.text': 'O ile przesunęło się światło od pierwszej obserwacji, zmierzone na tych obrazach. Dla obiektu o skatalogowanym ruchu tabela zestawia to z przewidywaniem katalogu; dla każdego innego miejsca narzędzie mówi, czy pozostało ono na swoim miejscu.',
     'coach.export.title': 'Zapisz i udostępnij',
-    'coach.export.text': '„Kopiuj odnośnik” otwiera dokładnie ten widok na dowolnym urządzeniu. Zapisz obraz lub film z pętli albo pobierz wszystkie pomiary zaznaczonego miejsca jako plik CSV i sprawdź liczby samodzielnie.',
+    'coach.export.text': 'Przyciski na obrazie udostępniają ten widok (odnośnik otwiera dokładnie go), zapisują obraz i film z pętli. Cudzysłów kopiuje odnośnik do cytowania; CSV pobiera wszystkie pomiary zaznaczonego miejsca.',
 
     'note.loadingMap': 'Wczytywanie mapy nieba…',
     'note.explore': 'Wybierz gwiazdę lub jasny punkt na mapie. Albo wpisz nazwę w wyszukiwarce.',
@@ -786,7 +786,7 @@ const TEXT = {
     'coach.motion.title': '¿Se movió?',
     'coach.motion.text': 'Cuánto se ha desplazado la luz desde la primera observación, medido en estas imágenes. Para un objeto con movimiento catalogado, la tabla lo pone junto a lo que predice el catálogo; para cualquier otro punto, la herramienta dice si se quedó en su sitio.',
     'coach.export.title': 'Guardar y compartir',
-    'coach.export.text': '«Copiar enlace» vuelve a abrir exactamente esta vista en cualquier dispositivo. Guarda la imagen o un vídeo del bucle, o descarga todas las medidas del punto marcado en un archivo CSV y comprueba los números por tu cuenta.',
+    'coach.export.text': 'Los botones sobre la imagen comparten esta vista (el enlace la vuelve a abrir tal cual), guardan la imagen y un vídeo del bucle. Las comillas copian una referencia para citar; CSV descarga todas las medidas del punto marcado.',
 
     'note.loadingMap': 'Cargando el mapa del cielo…',
     'note.explore': 'Elige una estrella o un punto brillante del mapa. O escribe un nombre en el buscador.',
