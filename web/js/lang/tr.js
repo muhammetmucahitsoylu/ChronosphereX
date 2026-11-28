@@ -164,6 +164,8 @@ export default {
   "A galaxy with an active centre: the gas around the giant black hole in its middle glows.": "Aktif çekirdekli bir galaksi: ortasındaki dev kara deliğin çevresindeki gaz ışık saçar.",
   "How bright a comet is cannot be told from its orbit alone: if no dot travels along the line, it was too faint for SPHEREx then.": "Bir kuyruklu yıldızın ne kadar parlak olacağı yalnızca yörüngesinden anlaşılamaz: çizgi boyunca ilerleyen bir nokta yoksa, o sırada SPHEREx için fazla sönüktü.",
   "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Beklenen parlaklığı {0} kadir; bu, tek bir SPHEREx pozunun görebildiğinden (yaklaşık 19) çok daha sönük: halka yerini gösterir, ama bir nokta görmeyi beklemeyin.",
+  "{0}: a constellation, one of the 88 regions the sky is divided into. Lines join its brightest stars; press any spot of the map to see how it changes over time.": "{0}: bir takımyıldız, gökyüzünün bölündüğü 88 bölgeden biri. Çizgiler en parlak yıldızlarını birleştiriyor; zaman içinde nasıl değiştiğini görmek için haritada herhangi bir noktaya dokunun.",
+  "Constellation": "Takımyıldız",
   "visible light": "görünür ışık",
   "infrared {0}": "kızılötesi {0}",
   "Catalogued brightness (SIMBAD)": "Katalogdaki parlaklık (SIMBAD)",

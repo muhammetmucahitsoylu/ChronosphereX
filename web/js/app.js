@@ -3180,6 +3180,7 @@ const sepArcsec = (ra1, dec1, ra2, dec2) => Math.hypot((ra1 - ra2) * Math.cos(de
 async function search(text, called = '', mapFov = 0) {
   text = text.trim();
   if (!text) return;
+  hideFigures();
   const size = fovPick();
   const co = C.parseCoords(text);
   if (co) {
@@ -3214,6 +3215,9 @@ async function search(text, called = '', mapFov = 0) {
     const a = document.createElement('a'); a.href = 'tonight.html'; a.textContent = T('note.tonightLink'); $('mapnote').append(' ', a);
     return;
   }
+  // a constellation: the map goes to it, wide enough to hold it, with its stick figure drawn
+  const con = Names.findConstellation(text, Lang.lang);
+  if (con) { showConstellation(con); return; }
   if (['gunes', 'sun', 'thesun', 'sonne', 'diesonne', 'soleil', 'lesoleil', 'slonce', 'sonce', 'sol', 'elsol'].includes(q)) {
     note(G`The Sun is never in SPHEREx’s view: it looks at the sky roughly 70 to 110 degrees away from the Sun.`, 12000);
     return;
@@ -3389,6 +3393,7 @@ const Finder = (() => {
         : `<button type="button" role="option" id="${id}" class="frow topic" data-i="${i}"><b>${name}</b><span>${esc(W('count').replace('{n}', t.items.filter(usable).length))}</span></button>`;
     }
     if (r.kind === 'search') return `<button type="button" role="option" id="${id}" class="frow plain" data-i="${i}"><b>${esc(W('searchFor').replace('{q}', r.text))}</b></button>`;
+    if (r.kind === 'con') return `<button type="button" role="option" id="${id}" class="frow" data-i="${i}"><b>${esc(r.con.name)}</b><span>${esc(G`Constellation`)}</span></button>`;
     return `<button type="button" role="option" id="${id}" class="frow" data-i="${i}"><b>${esc(nameOfItem(r.id))}</b><span>${esc(lineOf(r.id))}</span></button>`;
   }
   function render() {
@@ -3403,7 +3408,11 @@ const Finder = (() => {
       rows = Topics.TOPICS.map(t => ({ kind: 'topic', id: t.id }));
       head = `<p class="ftitle">${esc(W('ask'))}</p>`;
     } else {
-      rows = Topics.find(text, L(), extra()).filter(r => r.kind === 'topic' || usable(r.id));
+      const found = Topics.find(text, L(), extra());
+      rows = found.filter(r => r.kind === 'topic' || usable(r.id));
+      // a constellation by its name: first, unless something is called exactly that (Orion: the nebula, then the constellation)
+      const con = Names.findConstellation(text, L());
+      if (con) rows.splice(found[0]?.score >= 100 && rows.length ? 1 : 0, 0, { kind: 'con', con });
       rows.push({ kind: 'search', text });
     }
     box.innerHTML = head + `<div class="${home ? 'fchips' : 'flist'}">${rows.map((r, i) => row(r, i, home)).join('')}</div>` + (home ? `<p class="fhint">${esc(W('hint'))}</p>` : '');
@@ -3424,6 +3433,7 @@ const Finder = (() => {
     const r = rows[i]; if (!r) return;
     if (r.kind === 'topic') { inTopic = r.id; render(); refocus(); count('topic-' + r.id); return; }
     if (r.kind === 'search') { hide(); submitSearch(); return; }
+    if (r.kind === 'con') { hide(); inTopic = null; q.value = r.con.name; count('con-' + r.con.latin); afterSearchCloses(() => { hideFigures(); showConstellation(r.con); }); return; }
     open(r.id);
   }
   function open(id) {
@@ -3450,7 +3460,7 @@ const Finder = (() => {
     else if (e.key === 'ArrowUp') { e.preventDefault(); mark(Math.max(-1, at - 1)); }
     else if (e.key === 'Enter') {
       // a picked line; or, typed, a topic or a thing that fits the words well (not coordinates: those go to the archives' search)
-      const strong = !inTopic && q.value.trim() && !C.parseCoords(q.value) && rows[0] && rows[0].kind !== 'search' && Topics.find(q.value, L(), extra())[0]?.score >= 60;          // 60: a slip of a letter too ("glaksi")
+      const strong = !inTopic && q.value.trim() && !C.parseCoords(q.value) && rows[0] && rows[0].kind !== 'search' && (rows[0].kind === 'con' || Topics.find(q.value, L(), extra())[0]?.score >= 60);          // 60: a slip of a letter too ("glaksi")
       if (at >= 0 || strong) { e.preventDefault(); e.stopImmediatePropagation(); act(at >= 0 ? at : 0); }
       else hide();
     } else if (e.key === 'Escape') {
@@ -4274,6 +4284,63 @@ const loadFigures = () => (figuresAsked ??= fetch('data/conlines.json').then(r =
   for (let i = 0; i < l.length; i += 2) { const a = l[i] * Math.PI / 180, b = l[i + 1] * Math.PI / 180; pts.push([l[i], l[i + 1], Math.cos(b) * Math.cos(a), Math.cos(b) * Math.sin(a), Math.sin(b)]); }
   return pts;
 })).catch(() => { figuresAsked = null; return []; }));
+/**
+ * A constellation searched for by its name (28 Nov 2026): the map goes to it, wide enough to hold it, and the stick
+ * figures are drawn over SPHEREx's sky, its own in the site's orange with its name at its middle. They stay while the
+ * map is looked around; a press on the map (which opens that spot), the opening's words, the phone held up to the sky
+ * or another search takes them away.
+ */
+let conSketch = null, conRaf = 0;
+function hideFigures() { if (conSketch) conSketch.hidden = true; if (conRaf) cancelAnimationFrame(conRaf); conRaf = 0; }
+async function showConstellation(con) {
+  if ($('app').dataset.panel === 'open') closePanel();
+  $('welcome').hidden = true;
+  S.busyUntil = performance.now() + 9000; Sky.flyTo(con.ra, con.dec, con.fov);
+  note(G`${con.name}: a constellation, one of the 88 regions the sky is divided into. Lines join its brightest stars; press any spot of the map to see how it changes over time.`, 16000);
+  const figures = await loadFigures(); if (!figures.length) return;
+  const mine = figures.map(pts => Names.constellation(pts[0][0], pts[0][1], 'en') === con.latin);
+  const layer = $('skynames'), host = $('map');          // the names' sheet is hidden unless the phone is held up: the map gives the size
+  if (!conSketch) { conSketch = document.createElement('canvas'); conSketch.className = 'figures config'; conSketch.setAttribute('aria-hidden', 'true'); layer.parentNode.insertBefore(conSketch, layer); }
+  hideFigures(); conSketch.hidden = false;
+  let last = '';
+  const r = Math.PI / 180, label = con.name.toLocaleUpperCase(Lang.locale);
+  const paint = () => {
+    const Wd = host.clientWidth, Hd = host.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (conSketch.width !== Math.round(Wd * dpr) || conSketch.height !== Math.round(Hd * dpr)) { conSketch.width = Math.round(Wd * dpr); conSketch.height = Math.round(Hd * dpr); }
+    const g = conSketch.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, Wd, Hd);
+    const [cra, cdec] = Sky.center(), c = [Math.cos(cdec * r) * Math.cos(cra * r), Math.cos(cdec * r) * Math.sin(cra * r), Math.sin(cdec * r)];
+    const reach = Math.cos(Math.min(85, Sky.fov() * Math.hypot(Wd, Hd) / Math.max(Wd, 1) / 2 + 20) * r);
+    for (const own of [false, true]) {
+      g.lineWidth = own ? 2.2 : 1.1; g.strokeStyle = own ? 'rgba(255, 138, 76, 0.95)' : 'rgba(150, 185, 255, 0.38)'; g.lineCap = 'round'; g.beginPath();
+      figures.forEach((pts, i) => {
+        if (mine[i] !== own) return;
+        let prev = null;
+        for (const p of pts) {
+          const s = p[2] * c[0] + p[3] * c[1] + p[4] * c[2] > reach ? Sky.screenOf(p[0], p[1]) : null;
+          if (s && prev) { g.moveTo(prev[0], prev[1]); g.lineTo(s[0], s[1]); }
+          prev = s;
+        }
+      });
+      g.stroke();
+    }
+    const at = Math.cos(con.dec * r) * Math.cos(con.ra * r) * c[0] + Math.cos(con.dec * r) * Math.sin(con.ra * r) * c[1] + Math.sin(con.dec * r) * c[2] > reach ? Sky.screenOf(con.ra, con.dec) : null;
+    if (at) {
+      g.font = '600 13px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      if ('letterSpacing' in g) g.letterSpacing = '2px';
+      g.lineWidth = 4; g.strokeStyle = 'rgba(0, 0, 0, 0.7)'; g.strokeText(label, at[0], at[1]);
+      g.fillStyle = 'rgba(255, 214, 190, 0.95)'; g.fillText(label, at[0], at[1]);
+    }
+  };
+  const frame = () => {
+    conRaf = 0;
+    if (conSketch.hidden) return;
+    if ($('app').dataset.panel === 'open' || pointOn() || !$('welcome').hidden) { hideFigures(); return; }
+    const [cra, cdec] = Sky.center(), key = `${cra.toFixed(4)} ${cdec.toFixed(4)} ${Sky.fov().toFixed(4)} ${host.clientWidth}x${host.clientHeight}`;
+    if (key !== last) { last = key; paint(); }
+    conRaf = requestAnimationFrame(frame);
+  };
+  frame();
+}
 /** Find something in the sky above by its name: the phone is held up first, if it is not yet. */
 async function findInSky(text) {
   if (!pointOn()) await pointStart();

@@ -85,6 +85,42 @@ export function constellation(ra, dec, lang) {
   return '';
 }
 
+// A constellation by its name: its middle and how wide it is, from its borders (sampled once over the sphere in the
+// coordinates of 1875, where the borders run along the lines of the grid, and turned back to those of 2000).
+let middles = null;
+const foldName = s => String(s || '').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').replace(/[^a-z0-9]/g, '');
+function conMiddles() {
+  if (middles || !data) return middles;
+  const { rows, names, to1875: M } = data.cons, n = names.length, sum = Array.from({ length: n }, () => [0, 0, 0, 0]), step = 1.5;
+  for (let d = -90 + step / 2; d < 90; d += step) {
+    const cd = Math.cos(d * RAD), dh = step / 15 / Math.max(cd, 0.02);
+    for (let h = dh / 2; h < 24; h += dh) {
+      let k = -1; for (const [lo, hi, south, i] of rows) if (d >= south && h >= lo && h < hi) { k = i; break; }
+      if (k < 0) continue;
+      const a = h * 15 * RAD, s = sum[k]; s[0] += cd * Math.cos(a); s[1] += cd * Math.sin(a); s[2] += Math.sin(d * RAD); s[3]++;
+    }
+  }
+  const cell = step * step;          // square degrees a sample stands for (equal-area steps)
+  middles = sum.map(([x, y, z, c]) => {
+    // back from 1875 to 2000: the matrix turns 2000 into 1875, its transpose turns back
+    const X = M[0][0] * x + M[1][0] * y + M[2][0] * z, Y = M[0][1] * x + M[1][1] * y + M[2][1] * z, Z = M[0][2] * x + M[1][2] * y + M[2][2] * z, r = Math.hypot(X, Y, Z) || 1;
+    return { ra: ((Math.atan2(Y, X) / RAD) + 360) % 360, dec: Math.asin(Z / r) / RAD, radius: Math.sqrt(c * cell / Math.PI) };
+  });
+  return middles;
+}
+/** A constellation named in the text (its Latin name, or its name in the language's own table, with or without the word
+ *  for constellation): { latin, name, ra, dec, fov } (fov: a width of map that holds it), or null. Null before the list has come. */
+export function findConstellation(text, lang) {
+  if (!data) return null;
+  const q = foldName(text).replace(/takimyildizi|takimyildiz|constellation|sternbild|gwiazdozbior|constelacion/g, '');
+  if (q.length < 3) return null;
+  const { names } = data.cons;
+  const k = names.findIndex(n => foldName(n) === q || Object.values(CON).some(t => t[n] && foldName(t[n]) === q));
+  if (k < 0) return null;
+  const m = conMiddles()[k], latin = names[k];
+  return { latin, name: CON[lang]?.[latin] || latin, ra: m.ra, dec: m.dec, fov: Math.min(80, Math.max(14, 2.8 * m.radius)) };
+}
+
 /**
  * Everything that can carry a name, for a moment (ms since 1970) and a place on Earth (for the Moon):
  * [{ name, ra, dec, kind, rank, v, query | target, also }], `rank` the lower the more worth showing, `v` the unit vector,

@@ -164,6 +164,8 @@ export default {
   "A galaxy with an active centre: the gas around the giant black hole in its middle glows.": "Una galaxia de núcleo activo: el gas que rodea al agujero negro gigante de su centro brilla.",
   "How bright a comet is cannot be told from its orbit alone: if no dot travels along the line, it was too faint for SPHEREx then.": "El brillo de un cometa no se deduce solo de su órbita: si ningún punto recorre la línea, entonces era demasiado débil para SPHEREx.",
   "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Su brillo esperado, magnitud {0}, es mucho más débil de lo que alcanza una exposición de SPHEREx (unos 19): el anillo muestra dónde está, pero no cabe esperar ningún punto.",
+  "{0}: a constellation, one of the 88 regions the sky is divided into. Lines join its brightest stars; press any spot of the map to see how it changes over time.": "{0}: una constelación, una de las 88 regiones en que se divide el cielo. Las líneas unen sus estrellas más brillantes; toca cualquier punto del mapa para ver cómo cambia con el tiempo.",
+  "Constellation": "Constelación",
   "visible light": "luz visible",
   "infrared {0}": "infrarrojo {0}",
   "Catalogued brightness (SIMBAD)": "Brillo catalogado (SIMBAD)",

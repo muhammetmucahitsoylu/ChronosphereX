@@ -1377,6 +1377,8 @@ body.pointing .findway:not([hidden]) { display: flex; position: absolute; left: 
 /* ---------- the constellations' figures while the phone is held up to the sky (drawn by the page's code) ---------- */
 .figures { display: none; }
 body.pointing .figures { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+.figures.config { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }          /* a constellation searched for by name (app.js, showConstellation) */
+.figures.config[hidden], body.pointing .figures.config { display: none; }
 
 /* ---------- the simple card: what a press on the map opens first (app.js, applyPanelMode). Everything else stays one
    press away behind "All measurements"; the tour and embedded pages always show the full panel. ---------- */
