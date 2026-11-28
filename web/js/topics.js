@@ -44,6 +44,7 @@ const KIND = {
   browndwarf: L6('Brown dwarf', 'Kahverengi cüce', 'Brauner Zwerg', 'Naine brune', 'Enana marrón', 'Brązowy karzeł'),
   planet: L6('Planet', 'Gezegen', 'Planet', 'Planète', 'Planeta', 'Planeta'),
   comparison: L6('Comparison', 'Karşılaştırma', 'Vergleich', 'Comparaison', 'Comparación', 'Porównanie'),
+  constellation: L6('Constellation', 'Takımyıldız', 'Sternbild', 'Constellation', 'Constelación', 'Gwiazdozbiór'),
 };
 
 /**
@@ -53,6 +54,15 @@ const KIND = {
  * name: per language (one string: the same everywhere); words: more names to find it by (any language, any case).
  */
 export const ITEMS = {
+  // constellations: { con } the map goes to it and draws its figure (app.js, showConstellation)
+  conuma: { do: { con: 'Ursa Major' }, kind: 'constellation', name: L6('Ursa Major', 'Büyük Ayı', 'Ursa Major', 'Ursa Major', 'Ursa Major', 'Ursa Major'), words: [] },
+  conori: { do: { con: 'Orion' }, kind: 'constellation', name: L6('Orion', 'Orion', 'Orion', 'Orion', 'Orion', 'Orion'), words: [] },
+  concyg: { do: { con: 'Cygnus' }, kind: 'constellation', name: L6('Cygnus', 'Kuğu', 'Cygnus', 'Cygnus', 'Cygnus', 'Cygnus'), words: [] },
+  concas: { do: { con: 'Cassiopeia' }, kind: 'constellation', name: L6('Cassiopeia', 'Kassiopeia', 'Cassiopeia', 'Cassiopeia', 'Cassiopeia', 'Cassiopeia'), words: [] },
+  consco: { do: { con: 'Scorpius' }, kind: 'constellation', name: L6('Scorpius', 'Akrep', 'Scorpius', 'Scorpius', 'Scorpius', 'Scorpius'), words: [] },
+  conleo: { do: { con: 'Leo' }, kind: 'constellation', name: L6('Leo', 'Aslan', 'Leo', 'Leo', 'Leo', 'Leo'), words: [] },
+  conlyr: { do: { con: 'Lyra' }, kind: 'constellation', name: L6('Lyra', 'Çalgı', 'Lyra', 'Lyra', 'Lyra', 'Lyra'), words: [] },
+  concru: { do: { con: 'Crux' }, kind: 'constellation', name: L6('Crux', 'Güney Haçı', 'Crux', 'Crux', 'Crux', 'Crux'), words: [] },
   gc: { do: { sky: [266.4168, -29.0078, 6] }, kind: 'centre', name: L6('Centre of the Milky Way', 'Samanyolu’nun merkezi', 'Zentrum der Milchstraße', 'Centre de la Voie lactée', 'Centro de la Vía Láctea', 'Centrum Drogi Mlecznej'),
     words: ['samanyolu', 'milky way', 'galactic center', 'galactic centre', 'galaksi merkezi', 'galaksimiz', 'milchstraße', 'voie lactée', 'vía láctea', 'droga mleczna', 'galaktisches zentrum', 'centre galactique', 'centro galáctico', 'centrum galaktyki'] },
   sgra: { do: { sky: [266.4168, -29.0078, 0.8] }, kind: 'smbh', name: L6('Sagittarius A*', 'Sagittarius A*', 'Sagittarius A*', 'Sagittarius A*', 'Sagitario A*', 'Sagittarius A*'), words: ['sgr a', 'sgra', 'sagittarius a'] },
@@ -203,6 +213,12 @@ export const TOPICS = [
       'Sterne, deren Licht steigt und fällt: SPHEREx sah sie immer wieder, die Änderung zeigt sich in den Bildern.', 'Des étoiles dont la lumière monte et descend : SPHEREx les a vues encore et encore, le changement se voit dans ses images.',
       'Estrellas cuya luz sube y baja: SPHEREx las vio una y otra vez, el cambio se ve en sus imágenes.', 'Gwiazdy, których blask rośnie i maleje: SPHEREx widział je raz po raz, zmiana widać na zdjęciach.'),
     items: ['rdra', 'rwaur', 'mira', 'algol', 'betelgeuse', 'etacar'] },
+  { id: 'constellations', name: L6('Constellations', 'Takımyıldızlar', 'Sternbilder', 'Constellations', 'Constelaciones', 'Gwiazdozbiory'),
+    words: ['constellation', 'constellations', 'takımyıldız', 'takımyıldızı', 'takımyıldızlar', 'sternbild', 'sternbilder', 'constelación', 'constelaciones', 'gwiazdozbiór', 'gwiazdozbiory'],
+    say: L6('Patterns of bright stars that give the regions of the sky their names: the map goes to one and draws it.', 'Gökyüzünün bölgelerine adını veren parlak yıldız desenleri: harita birine gider ve onu çizer.',
+      'Muster heller Sterne, nach denen die Gebiete des Himmels benannt sind: Die Karte fliegt hin und zeichnet es.', 'Les figures d’étoiles brillantes qui donnent leur nom aux régions du ciel : la carte s’y rend et la dessine.',
+      'Figuras de estrellas brillantes que dan nombre a las regiones del cielo: el mapa va a una y la dibuja.', 'Układy jasnych gwiazd, od których nazwy biorą obszary nieba: mapa przenosi się do jednego i go rysuje.'),
+    items: ['conuma', 'conori', 'concyg', 'concas', 'consco', 'conleo', 'conlyr', 'concru'] },
   { id: 'compare', name: L6('Comparisons', 'Karşılaştırmalar', 'Vergleiche', 'Comparaisons', 'Comparaciones', 'Porównania'),
     words: ['compare', 'comparison', 'comparisons', 'difference', 'karşılaştır', 'karşılaştırma', 'karşılaştırmalar', 'kıyasla', 'fark', 'vergleich', 'vergleiche', 'vergleichen', 'unterschied', 'comparer', 'comparaison', 'comparaisons', 'différence', 'comparar', 'comparación', 'comparaciones', 'diferencia', 'porównaj', 'porównanie', 'porównania', 'różnica'],
     say: L6('Two spectra on one plot: what SPHEREx’s 102 colours tell apart.', 'İki spektrum tek grafikte: SPHEREx’in 102 renginin neleri birbirinden ayırdığı.', 'Zwei Spektren in einem Diagramm: was die 102 Farben von SPHEREx unterscheiden.',

@@ -3432,7 +3432,7 @@ const Finder = (() => {
       rows = found.filter(r => r.kind === 'topic' || usable(r.id));
       // a constellation by its name: first, unless something is called exactly that (Orion: the nebula, then the constellation)
       const con = Names.findConstellation(text, L());
-      if (con) rows.splice(found[0]?.score >= 100 && rows.length ? 1 : 0, 0, { kind: 'con', con });
+      if (con && !rows.some(r => Topics.ITEMS[r.id]?.do?.con === con.latin)) rows.splice(found[0]?.score >= 100 && rows.length ? 1 : 0, 0, { kind: 'con', con });          // not twice: eight are topics' items
       rows.push({ kind: 'search', text });
     }
     box.innerHTML = head + `<div class="${home ? 'fchips' : 'flist'}">${rows.map((r, i) => row(r, i, home)).join('')}</div>` + (home ? `<p class="fhint">${esc(W('hint'))}</p>` : '');
@@ -3461,6 +3461,7 @@ const Finder = (() => {
     hide(); inTopic = null; q.value = name; count('item-' + id);
     afterSearchCloses(() => {
       if (d.sky) go({ ra: d.sky[0], dec: d.sky[1], size: fovPick(), called: name, mapFov: d.sky[2] });
+      else if (d.con) { const c = Names.findConstellation(d.con, L()); if (c) { hideFigures(); showConstellation(c); } else search(d.con); }
       else if (d.name) search(d.name, name);
       else if (d.target) openTarget(targetOf(d.target));
       else if (d.body) openBody(d.body);
