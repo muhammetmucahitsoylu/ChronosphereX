@@ -217,7 +217,11 @@ function hideVeil() { if (!veil) return; stopAnims(); veil.hidden = true; veilUp
 // canvas: a square centred on the opening position that reaches `reach` (in units of the radius of
 // the sky globe) to each side, which holds the opening view of a screen of any shape.
 // phones get a 1000-pixel copy, half the weight (index.html preloads the one for the screen)
-const OPENING = { src: matchMedia('(max-width: 700px)').matches ? 'opening-s.jpg' : 'opening.jpg', ra: 266.4, dec: -29.0, fov: 100, reach: 0.8 };
+// the picture in the map's colour (scripts/tint_opening.py), so that the live map meets it without a jump; the scales
+// without a copy of their own (heat, magma) start from the grey one
+const MAP_NOW = (() => { try { return localStorage.getItem('chrono-map') || 'nightblue'; } catch { return 'nightblue'; } })();
+const TINT = { nightblue: '-night', starlight: '-star', ice: '-ice' }[MAP_NOW] || '';
+const OPENING = { src: `opening${TINT}${matchMedia('(max-width: 700px)').matches ? '-s' : ''}.jpg`, ra: 266.4, dec: -29.0, fov: 100, reach: 0.8 };
 const openingPic = new Image();
 let openingOk = false;
 const openingLoaded = new Promise(r => { openingPic.onload = () => { openingOk = true; r(true); }; openingPic.onerror = () => r(false); });
@@ -611,7 +615,7 @@ export async function init(selector, { onClick, onFov, still: wanted = true } = 
  * frame, which is blank in the SPHEREx cube, and would ask for those tiles: so a cube is sent to
  * the wanted frame in the very call in which the library adds it, before it has asked for anything.
  */
-let cmap = 'grayscale';          // the SPHEREx layer's colour scale, chosen in Settings
+let cmap = (() => { try { return localStorage.getItem('chrono-map') || 'nightblue'; } catch { return 'nightblue'; } })();          // the SPHEREx layer's colour scale, chosen in Settings (app.js); set before the first tiles, so they come in coloured
 /**
  * Colour scales of the site's own (28 Nov 2026, the user: heat and magma are red and harsh). Each starts black, so the
  * empty sky stays dark, and ends white, so the brightest stars stay white; in between one calm hue (Green's cubehelix

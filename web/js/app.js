@@ -5038,8 +5038,8 @@ const MAPS = [['grayscale', 'map.gray', 'linear-gradient(90deg, #000, #fff)'],
   ['redtemperature', 'map.heat', 'linear-gradient(90deg, #000, #8b0000, #ff4500, #ffd700, #fff)'],
   ['magma', 'map.magma', 'linear-gradient(90deg, #000004, #3b0f70, #8c2981, #de4968, #fe9f6d, #fcfdbf)']];
 const MAPKEY = 'chrono-map';
-let mapCm = 'grayscale';
-try { const m = localStorage.getItem(MAPKEY); if (MAPS.some(x => x[0] === m)) mapCm = m; } catch { /* private mode: grey */ }
+let mapCm = 'nightblue';          // the night sky's blue by default since 28 Nov 2026 (the user; blue is the hue liked most, Palmer & Schloss 2010); grey and the rest in Settings
+try { const m = localStorage.getItem(MAPKEY); if (MAPS.some(x => x[0] === m)) mapCm = m; } catch { /* private mode: the default */ }
 function renderSettings() {
   const look = window.__chronoLook?.() || 'night';
   $('langgrid').innerHTML = Object.entries(Lang.LANGS).map(([c, name]) => `<button type="button" data-lang="${c}" lang="${c}" aria-pressed="${c === Lang.lang}"><span class="flag">${FLAGS[c] || ''}</span>${esc(name)}</button>`).join('');
@@ -5057,7 +5057,8 @@ $('lookpanel').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.lang) { Lang.choose(b.dataset.lang); return; }
   if (b.dataset.look) { window.__chronoLook?.(b.dataset.look); renderSettings(); specPlot.draw(); lcPlot.draw(); return; }
-  if (b.dataset.map) { mapCm = b.dataset.map; try { if (mapCm === 'grayscale') localStorage.removeItem(MAPKEY); else localStorage.setItem(MAPKEY, mapCm); } catch { /* this visit only */ } Sky.setColormap(mapCm); renderSettings(); return; }
+  // grey is kept too: it is no longer the default
+  if (b.dataset.map) { mapCm = b.dataset.map; try { localStorage.setItem(MAPKEY, mapCm); } catch { /* this visit only */ } Sky.setColormap(mapCm); renderSettings(); return; }
   if (b.id === 'nightset') { nightFlip(); renderSettings(); }
 });
 document.addEventListener('pointerdown', e => { if (!$('lookpanel').hidden && !e.target.closest('#lookpanel, #setbtn, #langbtn')) closeSettings(); });
@@ -5084,7 +5085,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('lookpa
     try {
       await Sky.init('#map', { still: !(q.has('target') || (q.has('ra') && q.has('dec'))), onClick: openAt, onFov: f => { $('fovlabel').textContent = f >= 10 ? `${Math.round(f)}°` : f >= 1 ? `${fx(f, 1)}°` : `${Math.round(f * 60)}′`; } });
       setWave(25);
-      Sky.setColormap(mapCm);          // the colour chosen in Settings, if not grey
+      Sky.setColormap(mapCm);          // the colour chosen in Settings (the night sky's blue unless another was chosen)
       document.querySelector('#map .aladin-input-text')?.setAttribute('aria-label', T('search.label'));          // the map library's own position box has no name of its own
       // On a slow connection the first picture takes a few seconds: say so, instead of an empty map.
       const loading = T('note.loadingMap'), slow = setTimeout(() => { if ($('mapnote').hidden) note(loading); }, 1800);
