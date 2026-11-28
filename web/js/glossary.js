@@ -245,7 +245,9 @@ export function makeGlossary({ lang, title, more, close, intro, onAll }) {
             const m = rx[id].exec(n.nodeValue); if (!m) continue;
             const at = m.index + m[1].length, w = m[2];
             const rest = n.splitText(at); rest.nodeValue = rest.nodeValue.slice(w.length);
-            const b = document.createElement('button'); b.type = 'button'; b.className = 'term'; b.dataset.g = id; b.textContent = w; b.title = word(id)[0];
+            // a span that acts as a button, not a <button>: a button is a box, and the line could break between it and the
+            // bracket before it ('(' on one line, 'katalog)' on the next, 28 Nov 2026); the keys still reach it (Tab, Enter, Space)
+            const b = document.createElement('span'); b.setAttribute('role', 'button'); b.tabIndex = 0; b.className = 'term'; b.dataset.g = id; b.textContent = w; b.title = word(id)[0];
             rest.parentNode.insertBefore(b, rest);
             done.add(id);
             break;          // this text node is now two; the next pass looks at what is left
@@ -286,7 +288,11 @@ export function makeGlossary({ lang, title, more, close, intro, onAll }) {
     if (t) { e.preventDefault(); e.stopPropagation(); show(t.dataset.g, t); return; }
     if (pop && !pop.hidden && !e.target.closest?.('#gpop')) hide();
   }, true);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { hide(); return; }
+    const t = (e.key === 'Enter' || e.key === ' ') && e.target.closest?.('.term[data-g]');
+    if (t) { e.preventDefault(); show(t.dataset.g, t); }
+  });
   new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, characterData: true });
   document.addEventListener('toggle', soon, true);          // a line opened in the story: its words come into sight
   soon();
