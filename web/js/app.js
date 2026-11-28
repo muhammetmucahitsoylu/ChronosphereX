@@ -2435,9 +2435,19 @@ function renderLook() {
 }
 function renderWiki() {
   const w = S.wiki, i = S.info, el = $('wikibox');
-  const mags = i ? ['V', 'J', 'K'].filter(b => i.mags?.[b] != null).map(b => `${b} ${fx((+i.mags[b]), 1)}`) : [];
-  const others = (mags.length > 1 ? G`<p class="others" title="V is visible light; J (1.2 µm) and K (2.2 µm) are near-infrared">Catalogued brightness (SIMBAD): magnitude ${mags.join(', ')}. Lower numbers are brighter.</p>` : '')
-    + (i?.others?.length ? G`<p class="others">Also catalogued at this position: ${i.others.map(o => `${esc(o.name)} (${esc(G(o.type))})`).join(', ')}</p>` : '');
+  // the catalogue's brightness: a box per band, each saying which light it is (V the eye's, J and K infrared)
+  const BAND = { V: G`visible light`, J: G`infrared ${`${fx(1.2, 1)} µm`}`, K: G`infrared ${`${fx(2.2, 1)} µm`}` };
+  const mags = i ? ['V', 'J', 'K'].filter(b => i.mags?.[b] != null).map(b => `<span class="mag"><b>${fx(+i.mags[b], 1)} <em>${b}</em></b><i>${esc(BAND[b])}</i></span>`) : [];
+  // what else is catalogued at the spot, grouped by kind, names in order; a shared start said once (Barnard's Star b, c, d, e)
+  const groups = new Map();
+  for (const o of i?.others || []) { const k = G(o.type) || o.type; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(o.name); }
+  const namesOf = names => {
+    names = [...names].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const cut = names.length > 1 ? names[0].lastIndexOf(' ') : -1, pre = cut > 0 ? names[0].slice(0, cut + 1) : '';
+    return pre && names.every(n => n.startsWith(pre) && !n.slice(pre.length).includes(' ')) ? `${esc(names[0])}, ${names.slice(1).map(n => esc(n.slice(pre.length))).join(', ')}` : names.map(esc).join(', ');
+  };
+  const others = (mags.length > 1 ? `<div class="others mags"><b>${G`Catalogued brightness (SIMBAD)`}</b><span class="magrow">${mags.join('')}</span><small>${G`In magnitudes: the lower the number, the brighter.`}</small></div>` : '')
+    + (groups.size ? `<p class="others also"><b>${G`Also catalogued here`}</b>${[...groups].map(([k, n]) => `<span>${esc(k)}${n.length > 1 ? ` (${n.length})` : ''}: ${namesOf(n)}</span>`).join('')}</p>` : '');
   el.hidden = !w && !others;
   el.innerHTML = `${w ? `<h2>${Lang.locale !== 'en' && !w.lang ? G`From Wikipedia (in English)` : G`From Wikipedia`}</h2><div class="wiki">${w.thumb && photos.get(w.thumb) !== null ? `<img src="${esc(w.thumb)}"${photos.get(w.thumb) === false ? ' class="chart"' : ''} alt="" loading="lazy">` : ''}<div><p>${esc(w.extract)}</p><small><a href="${esc(w.url)}" target="_blank" rel="noopener">${G`Read the article: ${esc(w.title)}`}</a></small></div></div>` : ''}${others}`;
 }
