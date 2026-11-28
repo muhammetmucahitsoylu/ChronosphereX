@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- inside the Android app: the edges of the glass and the app's bar of places (does nothing in a browser) -->
+<script src="js/tabs.js"></script>
+<meta name="theme-color" content="#0a0d13">
+<script src="js/look.js"></script>
+<title>The light's fingerprint · ChronosphereX</title>
+<meta name="description" content="A game played on real NASA SPHEREx spectra: every substance swallows its own colours of light. Find the traces of water, methane, carbon dioxide and carbon monoxide, then work out what the object is.">
+<link rel="canonical" href="https://chronospherex.com/fingerprint.html">
+<meta property="og:title" content="The light's fingerprint · ChronosphereX">
+<meta property="og:description" content="Real SPHEREx spectra. Find the traces of water, methane, carbon dioxide and carbon monoxide, then work out what it is.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chronospherex.com/fingerprint.html">
+<meta property="og:image" content="https://chronospherex.com/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<style>
+  :root { --bg: #0a0d13; --surface: #121722; --line: #283246; --ink: #eef2f7; --ink-2: #a8b3c3; --ink-3: #7f8a9c; --ember: #ff7b39; --mint: #5fe0b0; --gold: #f2c14e; --red: #ff6b5e;
+    --h2o: #4cc9f0; --ch4: #ff7b39; --co2: #c9a0ff; --co: #f2c14e;
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif; --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; }
+  a { color: inherit; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 14px 16px 40px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo { font: 26px/1 var(--serif); font-style: italic; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; }
+  .logo i { width: 15px; height: 15px; border-radius: 50%; background: var(--ember); display: inline-block; }
+  select { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font: 14px var(--sans); }
+  h1 { font: 400 36px/1.08 var(--serif); margin: 18px 0 4px; }
+  .lede { color: var(--ink-2); margin: 0 0 12px; font-size: 15px; }
+  .bar { display: flex; align-items: center; gap: 10px; font: 500 12.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ember); margin: 4px 0 6px; }
+  .bar .grow { flex: 1; }
+  .bar .book { color: var(--mint); letter-spacing: .06em; }
+  .dots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0 0 10px; }
+  .dots i { height: 4px; border-radius: 2px; background: var(--line); }
+  .dots i.on { background: var(--ember); } .dots i.done { background: var(--mint); }
+  .fpcard { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 10px; }
+  .fpcard svg { flex: none; }
+  .fpcard b { display: block; font: 400 22px/1.1 var(--serif); }
+  .fpcard span { color: var(--ink-2); font-size: 14px; }
+  h2 { font: 400 28px/1.1 var(--serif); margin: 6px 0 2px; }
+  .look { color: var(--ink-2); font-size: 14.5px; margin: 0 0 8px; }
+  figure { margin: 0; padding: 10px 8px 6px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption { font-size: 12.5px; color: var(--ink-3); padding: 2px 4px 0; }
+  .chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+  .chip { min-height: 60px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font: 600 15px var(--sans); padding: 4px 2px; cursor: pointer; }
+  .chip small { font: 400 10.5px/1.15 var(--sans); color: var(--ink-2); text-align: center; max-width: 100%; overflow-wrap: anywhere; hyphens: auto; }          /* 'karbonmonoksit' on two lines in a narrow chip */
+  .chip { min-width: 0; overflow: hidden; }
+  .chip[aria-pressed=true] { border-width: 2.5px; background: #ffffff10; }
+  .chip:disabled { opacity: .45; cursor: default; }
+  .chip.right { border-color: var(--mint) !important; background: #0f2a22; }
+  .chip.wrong { border-color: var(--red) !important; background: #2a1210; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; scroll-margin-bottom: calc(var(--tabs, 0px) + 14px); }
+  .btns > * { flex: 1 1 140px; }
+  button, .btn { font: 600 16px var(--sans); border-radius: 999px; padding: 12px 18px; min-height: 52px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+  button.go, .btn.go { background: var(--ember); border-color: var(--ember); color: #1b0b02; }
+  button:disabled.go { opacity: .5; }
+  button:focus-visible, .btn:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .say { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 15px; }
+  .say li { display: flex; gap: 8px; align-items: baseline; }
+  .say li::before { content: '●'; font-size: 11px; color: var(--ink-3); }
+  .say li.ok::before { content: '✓'; color: var(--mint); font-size: 15px; font-weight: 700; }
+  .say li.no::before { content: '✗'; color: var(--red); font-size: 15px; font-weight: 700; }
+  .kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .kinds button { min-height: 76px; border-radius: 14px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; text-align: left; padding: 10px 12px; }
+  .kinds button small { font: 400 12.5px/1.3 var(--sans); color: var(--ink-2); }
+  .kinds button.right { border-color: var(--mint); background: #0f2a22; }
+  .kinds button.wrong { border-color: var(--red); background: #2a1210; }
+  .reveal { margin-top: 12px; padding: 14px; border-radius: 16px; background: #0f2a22; border: 1px solid #5fe0b066; display: grid; gap: 4px; }
+  .reveal .k { font: 500 12px var(--mono); letter-spacing: .14em; color: var(--mint); text-transform: uppercase; }
+  .reveal b { font: 400 30px/1.05 var(--serif); }
+  .reveal span { color: #d4dbe5; font-size: 15px; }
+  .reveal small { color: var(--ink-2); font-size: 13.5px; }
+  .fine { color: var(--ink-3); font-size: 13px; margin-top: 22px; }
+  .fine button { min-height: 0; padding: 0; border: 0; background: none; color: var(--ink-2); font: 500 13px var(--sans); text-decoration: underline; }
+  details.more { margin-top: 10px; color: var(--ink-2); font-size: 13.5px; }
+  details.more summary { cursor: pointer; }
+</style>
+<!-- visit counts: no cookies, no IP addresses kept (see About) -->
+<script data-goatcounter="https://chronospherex.goatcounter.com/count" async src="/js/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="./"><i></i>ChronosphereX</a>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pl">Polski</option></select>
+  </header>
+  <main>
+    <h1 id="title"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="bar"><span id="where"></span><span class="grow"></span><span class="book" id="book"></span></div>
+    <div class="dots" id="dots"><i></i><i></i><i></i></div>
+    <div class="fpcard" id="fpcard" hidden></div>
+    <h2 id="ask"></h2>
+    <p class="look" id="look"></p>
+    <figure><svg id="spec" viewBox="0 0 340 176" role="img"></svg><figcaption id="cap"></figcaption></figure>
+    <div class="chips" id="chips" hidden></div>
+    <div class="btns" id="yesno" hidden><button type="button" class="go" id="yes"></button><button type="button" id="no"></button></div>
+    <div class="btns" id="checkrow" hidden><button type="button" class="go" id="check" disabled></button></div>
+    <ul class="say" id="say"></ul>
+    <div id="kindbox" hidden><h2 id="kindask"></h2><div class="kinds" id="kinds"></div></div>
+    <div class="reveal" id="reveal" hidden></div>
+    <div class="btns" id="nextrow" hidden><a class="btn" id="open" href="./"></a><button type="button" class="go" id="next"></button></div>
+    <details class="more" id="more"><summary id="moresum"></summary><p id="moretext"></p></details>
+    <p class="fine"><span id="credit"></span> <button type="button" id="again"></button></p>
+  </main>
+</div>
+<script>
+// The light's fingerprint (28 Nov 2026). Each substance swallows its own colours of light: in an object's spectrum (its
+// brightness at SPHEREx's 102 colours) a band where the line dips is a trace of it. A short guide by doing (is there
+// water? is there methane? then all four), then real objects at random, from web/game/fp/pool.json, made by
+// scripts/build_fingerprint.py from the site's own measurements: only what the measurement settles is asked, the rest
+// is shown greyed. After the traces, what the object must be (four kinds that the traces alone tell apart), then who
+// it really is. Six languages; what has been solved is kept on this device only.
+const STR = {
+  en: { title: 'The light’s fingerprint', lede: 'Every substance swallows its own colours of light. Find their traces in real SPHEREx spectra.',
+    guide: 'Guide', mystery: 'Mystery object #{n}', book: '{n} in your notebook',
+    qh2o: 'Is there water in this light?', qch4: 'Is there methane in this light?', qall: 'Which traces are in this light?',
+    lookOne: 'Look at the coloured bands: does the line dip there?', lookAll: 'Pick every substance whose bands dip, or None. Then check.',
+    yes: 'Yes, it dips', no: 'No, it’s flat', none: 'None', check: 'Check', unmeasured: 'not measured', unsure: 'not sure',
+    names: { h2o: 'water', ch4: 'methane', co2: 'carbon dioxide', co: 'carbon monoxide' },
+    fp: { h2o: ['Water’s trace', 'Water swallows light in the blue bands.'], ch4: ['Methane’s trace', 'Methane swallows light in the orange band.'],
+      co2: ['Carbon dioxide’s trace', 'One narrow purple band.'], co: ['Carbon monoxide’s trace', 'The yellow band, far to the right.'] },
+    dip: '{name}: the light drops by {p} % in its band.', flat: '{name}: flat, no trace.', grey: '{name}: could not be settled here, so not asked.',
+    right: 'Right.', wrong: 'Not quite.',
+    kindAsk: 'So what is it?', kinds: { cold: ['Very cold', 'Methane survives only in air this cold.'], cool: ['A cool dwarf', 'Water, but no methane: far cooler than the Sun.'],
+      ice: ['Behind an icy cloud', 'Ice traces: on its way the light crosses icy dust.'], hot: ['A hotter star', 'Too hot for these molecules.'] },
+    solved: 'You worked it out', solvedNot: 'This is what it is',
+    what: { browndwarf: 'A brown dwarf: too small to be a star, too big to be a planet.', reddwarf: 'A red dwarf: a star smaller and cooler than the Sun.',
+      iceyoung: 'A young star behind a cold cloud of dust and ice.', young: 'A young star, still in the cloud it was born from.', sunlike: 'A star like the Sun.',
+      cooldwarf: 'An L dwarf: on the line between the smallest stars and brown dwarfs.' },
+    far: '{ly} light-years away', open: 'Open on the map', next: 'Next object →', guideNext: 'Next step →', guideDone: 'Guide done: now real objects, at random.',
+    again: 'Show the guide again', cap: 'Real measurement: NASA SPHEREx, 102 colours. The name comes at the end.',
+    credit: 'Spectra: NASA SPHEREx (IRSA), measured by this site. Names and distances: SIMBAD.',
+    moreSum: 'How a trace is decided', moreText: 'A band counts as a trace when the light inside it is more than 15 % fainter than just beside it, and by more than six times its own uncertainty. Bands that cannot be settled are not asked. Between 2.28 and 2.38 µm carbon monoxide and methane look alike to SPHEREx, so that band is never asked.',
+    loading: 'Loading…', failed: 'The objects could not be loaded. Check the connection and try again.', dec: '.' },
+  tr: { title: 'Işığın parmak izi', lede: 'Her madde ışıktan kendi renklerini yutar. Gerçek SPHEREx spektrumlarında izlerini bul.',
+    guide: 'Rehber', mystery: 'Gizli cisim #{n}', book: 'Defterinde {n} cisim',
+    qh2o: 'Bu ışıkta su var mı?', qch4: 'Bu ışıkta metan var mı?', qall: 'Bu ışıkta hangi izler var?',
+    lookOne: 'Renkli bantlara bak: çizgi orada çukura iniyor mu?', lookAll: 'Bantlarında çukur olan her maddeyi seç ya da Hiçbiri’ni. Sonra kontrol et.',
+    yes: 'Evet, çukur var', no: 'Hayır, düz', none: 'Hiçbiri', check: 'Kontrol et', unmeasured: 'ölçülemedi', unsure: 'belirsiz',
+    names: { h2o: 'su', ch4: 'metan', co2: 'karbondioksit', co: 'karbonmonoksit' },
+    fp: { h2o: ['Suyun izi', 'Su, ışığı mavi bantlarda yutar.'], ch4: ['Metanın izi', 'Metan, ışığı turuncu bantta yutar.'],
+      co2: ['Karbondioksitin izi', 'Tek, dar bir mor bant.'], co: ['Karbonmonoksitin izi', 'En sağdaki sarı bant.'] },
+    dip: '{name}: bandında ışık %{p} azalıyor.', flat: '{name}: düz, iz yok.', grey: '{name}: burada kesinleşmedi, sorulmadı.',
+    right: 'Doğru.', wrong: 'Tam değil.',
+    kindAsk: 'Peki bu ne?', kinds: { cold: ['Çok soğuk', 'Metan ancak bu kadar soğuk bir havada kalır.'], cool: ['Serin bir cüce', 'Su var, metan yok: Güneş’ten çok daha serin.'],
+      ice: ['Buzlu bir bulutun arkasında', 'Buz izleri: ışık yolda buzlu tozdan geçiyor.'], hot: ['Daha sıcak bir yıldız', 'Bu moleküller için fazla sıcak.'] },
+    solved: 'Bunu sen çözdün', solvedNot: 'İşte bu',
+    what: { browndwarf: 'Kahverengi cüce: yıldız olamayacak kadar küçük, gezegen olamayacak kadar büyük.', reddwarf: 'Kırmızı cüce: Güneş’ten küçük ve serin bir yıldız.',
+      iceyoung: 'Soğuk bir toz ve buz bulutunun arkasında genç bir yıldız.', young: 'Doğduğu bulutun içinde hâlâ genç bir yıldız.', sunlike: 'Güneş’e benzer bir yıldız.',
+      cooldwarf: 'L cücesi: en küçük yıldızlarla kahverengi cücelerin sınırında.' },
+    far: '{ly} ışık yılı uzakta', open: 'Haritada aç', next: 'Sıradaki cisim →', guideNext: 'Sıradaki adım →', guideDone: 'Rehber bitti: şimdi gerçek, rastgele cisimler.',
+    again: 'Rehberi yeniden göster', cap: 'Gerçek ölçüm: NASA SPHEREx, 102 renk. Adı sonda.',
+    credit: 'Spektrumlar: NASA SPHEREx (IRSA), bu sitenin ölçümü. Adlar ve uzaklıklar: SIMBAD.',
+    moreSum: 'Bir iz nasıl belirleniyor', moreText: 'Bant içindeki ışık hemen yanındakinden %15’ten fazla ve kendi belirsizliğinin altı katından fazla sönükse iz sayılır. Kesinleşmeyen bantlar sorulmaz. 2,28–2,38 µm arasında karbonmonoksit ile metan SPHEREx’e aynı görünür; o bant hiç sorulmaz.',
+    loading: 'Yükleniyor…', failed: 'Cisimler yüklenemedi. Bağlantıyı kontrol edip yeniden deneyin.', dec: ',' },
+  de: { title: 'Der Fingerabdruck des Lichts', lede: 'Jeder Stoff schluckt seine eigenen Farben des Lichts. Finde ihre Spuren in echten SPHEREx-Spektren.',
+    guide: 'Anleitung', mystery: 'Geheimes Objekt #{n}', book: '{n} in deinem Notizbuch',
+    qh2o: 'Ist Wasser in diesem Licht?', qch4: 'Ist Methan in diesem Licht?', qall: 'Welche Spuren sind in diesem Licht?',
+    lookOne: 'Schau auf die farbigen Bänder: Sinkt die Linie dort ab?', lookAll: 'Wähle jeden Stoff, dessen Bänder absinken, oder Keiner. Dann prüfen.',
+    yes: 'Ja, sie sinkt', no: 'Nein, flach', none: 'Keiner', check: 'Prüfen', unmeasured: 'nicht gemessen', unsure: 'unsicher',
+    names: { h2o: 'Wasser', ch4: 'Methan', co2: 'Kohlendioxid', co: 'Kohlenmonoxid' },
+    fp: { h2o: ['Die Spur des Wassers', 'Wasser schluckt Licht in den blauen Bändern.'], ch4: ['Die Spur des Methans', 'Methan schluckt Licht im orangen Band.'],
+      co2: ['Die Spur des Kohlendioxids', 'Ein schmales lila Band.'], co: ['Die Spur des Kohlenmonoxids', 'Das gelbe Band ganz rechts.'] },
+    dip: '{name}: Im Band sinkt das Licht um {p} %.', flat: '{name}: flach, keine Spur.', grey: '{name}: hier nicht sicher, daher nicht gefragt.',
+    right: 'Richtig.', wrong: 'Nicht ganz.',
+    kindAsk: 'Was ist es also?', kinds: { cold: ['Sehr kalt', 'Methan hält sich nur in so kalter Luft.'], cool: ['Ein kühler Zwerg', 'Wasser, aber kein Methan: viel kühler als die Sonne.'],
+      ice: ['Hinter einer eisigen Wolke', 'Eisspuren: Das Licht durchquert unterwegs eisigen Staub.'], hot: ['Ein heißerer Stern', 'Zu heiß für diese Moleküle.'] },
+    solved: 'Du hast es herausgefunden', solvedNot: 'Das ist es',
+    what: { browndwarf: 'Ein Brauner Zwerg: zu klein für einen Stern, zu groß für einen Planeten.', reddwarf: 'Ein Roter Zwerg: kleiner und kühler als die Sonne.',
+      iceyoung: 'Ein junger Stern hinter einer kalten Wolke aus Staub und Eis.', young: 'Ein junger Stern, noch in der Wolke, aus der er entstand.', sunlike: 'Ein Stern wie die Sonne.',
+      cooldwarf: 'Ein L-Zwerg: an der Grenze zwischen den kleinsten Sternen und Braunen Zwergen.' },
+    far: '{ly} Lichtjahre entfernt', open: 'Auf der Karte öffnen', next: 'Nächstes Objekt →', guideNext: 'Nächster Schritt →', guideDone: 'Anleitung fertig: jetzt echte Objekte, zufällig.',
+    again: 'Anleitung noch einmal', cap: 'Echte Messung: NASA SPHEREx, 102 Farben. Der Name kommt am Ende.',
+    credit: 'Spektren: NASA SPHEREx (IRSA), von dieser Seite gemessen. Namen und Entfernungen: SIMBAD.',
+    moreSum: 'Wie eine Spur festgestellt wird', moreText: 'Ein Band zählt als Spur, wenn das Licht darin um mehr als 15 % und um mehr als das Sechsfache seiner Unsicherheit schwächer ist als daneben. Unsichere Bänder werden nicht gefragt. Zwischen 2,28 und 2,38 µm sehen Kohlenmonoxid und Methan für SPHEREx gleich aus; dieses Band wird nie gefragt.',
+    loading: 'Wird geladen…', failed: 'Die Objekte konnten nicht geladen werden. Prüfe die Verbindung.', dec: ',' },
+  fr: { title: 'L’empreinte de la lumière', lede: 'Chaque substance avale ses propres couleurs de lumière. Trouvez leurs traces dans de vrais spectres SPHEREx.',
+    guide: 'Guide', mystery: 'Objet mystère n° {n}', book: '{n} dans votre carnet',
+    qh2o: 'Y a-t-il de l’eau dans cette lumière ?', qch4: 'Y a-t-il du méthane dans cette lumière ?', qall: 'Quelles traces sont dans cette lumière ?',
+    lookOne: 'Regardez les bandes colorées : la ligne y plonge-t-elle ?', lookAll: 'Choisissez chaque substance dont les bandes plongent, ou Aucune. Puis vérifiez.',
+    yes: 'Oui, elle plonge', no: 'Non, plate', none: 'Aucune', check: 'Vérifier', unmeasured: 'non mesuré', unsure: 'incertain',
+    names: { h2o: 'eau', ch4: 'méthane', co2: 'dioxyde de carbone', co: 'monoxyde de carbone' },
+    fp: { h2o: ['La trace de l’eau', 'L’eau avale la lumière dans les bandes bleues.'], ch4: ['La trace du méthane', 'Le méthane avale la lumière dans la bande orange.'],
+      co2: ['La trace du dioxyde de carbone', 'Une bande violette étroite.'], co: ['La trace du monoxyde de carbone', 'La bande jaune, tout à droite.'] },
+    dip: '{name} : dans sa bande, la lumière baisse de {p} %.', flat: '{name} : plat, pas de trace.', grey: '{name} : pas tranché ici, donc pas demandé.',
+    right: 'Exact.', wrong: 'Pas tout à fait.',
+    kindAsk: 'Alors, qu’est-ce que c’est ?', kinds: { cold: ['Très froid', 'Le méthane ne tient que dans un air aussi froid.'], cool: ['Une naine fraîche', 'De l’eau, mais pas de méthane : bien plus fraîche que le Soleil.'],
+      ice: ['Derrière un nuage glacé', 'Traces de glace : la lumière traverse de la poussière glacée.'], hot: ['Une étoile plus chaude', 'Trop chaude pour ces molécules.'] },
+    solved: 'Vous l’avez trouvé', solvedNot: 'Voici ce que c’est',
+    what: { browndwarf: 'Une naine brune : trop petite pour être une étoile, trop grande pour être une planète.', reddwarf: 'Une naine rouge : une étoile plus petite et plus froide que le Soleil.',
+      iceyoung: 'Une jeune étoile derrière un nuage froid de poussière et de glace.', young: 'Une jeune étoile, encore dans le nuage où elle est née.', sunlike: 'Une étoile comme le Soleil.',
+      cooldwarf: 'Une naine L : à la limite entre les plus petites étoiles et les naines brunes.' },
+    far: 'à {ly} années-lumière', open: 'Ouvrir sur la carte', next: 'Objet suivant →', guideNext: 'Étape suivante →', guideDone: 'Guide terminé : place aux vrais objets, au hasard.',
+    again: 'Revoir le guide', cap: 'Mesure réelle : NASA SPHEREx, 102 couleurs. Le nom vient à la fin.',
+    credit: 'Spectres : NASA SPHEREx (IRSA), mesurés par ce site. Noms et distances : SIMBAD.',
+    moreSum: 'Comment une trace est décidée', moreText: 'Une bande compte comme trace quand la lumière y est plus de 15 % plus faible qu’à côté, et de plus de six fois son incertitude. Les bandes incertaines ne sont pas demandées. Entre 2,28 et 2,38 µm, le monoxyde de carbone et le méthane se ressemblent pour SPHEREx : cette bande n’est jamais demandée.',
+    loading: 'Chargement…', failed: 'Les objets n’ont pas pu être chargés. Vérifiez la connexion.', dec: ',' },
+  pl: { title: 'Odcisk palca światła', lede: 'Każda substancja pochłania własne barwy światła. Znajdź ich ślady w prawdziwych widmach SPHEREx.',
+    guide: 'Przewodnik', mystery: 'Tajemniczy obiekt nr {n}', book: 'W twoim notesie: {n}',
+    qh2o: 'Czy w tym świetle jest woda?', qch4: 'Czy w tym świetle jest metan?', qall: 'Jakie ślady są w tym świetle?',
+    lookOne: 'Spójrz na kolorowe pasma: czy linia tam opada?', lookAll: 'Wybierz każdą substancję, której pasma opadają, albo Żadna. Potem sprawdź.',
+    yes: 'Tak, opada', no: 'Nie, płasko', none: 'Żadna', check: 'Sprawdź', unmeasured: 'nie zmierzono', unsure: 'niepewne',
+    names: { h2o: 'woda', ch4: 'metan', co2: 'dwutlenek węgla', co: 'tlenek węgla' },
+    fp: { h2o: ['Ślad wody', 'Woda pochłania światło w niebieskich pasmach.'], ch4: ['Ślad metanu', 'Metan pochłania światło w pomarańczowym paśmie.'],
+      co2: ['Ślad dwutlenku węgla', 'Jedno wąskie fioletowe pasmo.'], co: ['Ślad tlenku węgla', 'Żółte pasmo, na samej prawej.'] },
+    dip: '{name}: w paśmie światło spada o {p} %.', flat: '{name}: płasko, bez śladu.', grey: '{name}: tu nierozstrzygnięte, więc bez pytania.',
+    right: 'Dobrze.', wrong: 'Nie całkiem.',
+    kindAsk: 'To co to jest?', kinds: { cold: ['Bardzo zimne', 'Metan przetrwa tylko w tak zimnym powietrzu.'], cool: ['Chłodny karzeł', 'Woda, ale bez metanu: dużo chłodniejszy od Słońca.'],
+      ice: ['Za lodową chmurą', 'Ślady lodu: światło po drodze przechodzi przez lodowy pył.'], hot: ['Gorętsza gwiazda', 'Za gorąca dla tych cząsteczek.'] },
+    solved: 'Rozwiązałeś to', solvedNot: 'Oto co to jest',
+    what: { browndwarf: 'Brązowy karzeł: za mały na gwiazdę, za duży na planetę.', reddwarf: 'Czerwony karzeł: gwiazda mniejsza i chłodniejsza od Słońca.',
+      iceyoung: 'Młoda gwiazda za zimną chmurą pyłu i lodu.', young: 'Młoda gwiazda, wciąż w chmurze, z której powstała.', sunlike: 'Gwiazda podobna do Słońca.',
+      cooldwarf: 'Karzeł L: na granicy najmniejszych gwiazd i brązowych karłów.' },
+    far: '{ly} lat świetlnych stąd', open: 'Otwórz na mapie', next: 'Następny obiekt →', guideNext: 'Następny krok →', guideDone: 'Przewodnik skończony: teraz prawdziwe obiekty, losowo.',
+    again: 'Pokaż przewodnik jeszcze raz', cap: 'Prawdziwy pomiar: NASA SPHEREx, 102 barwy. Nazwa na końcu.',
+    credit: 'Widma: NASA SPHEREx (IRSA), zmierzone przez tę stronę. Nazwy i odległości: SIMBAD.',
+    moreSum: 'Jak rozstrzyga się ślad', moreText: 'Pasmo liczy się jako ślad, gdy światło w nim jest o ponad 15 % słabsze niż tuż obok i o ponad sześć razy więcej niż jego niepewność. Pasm nierozstrzygniętych się nie pyta. Między 2,28 a 2,38 µm tlenek węgla i metan wyglądają dla SPHEREx tak samo; o to pasmo nie pytamy.',
+    loading: 'Wczytywanie…', failed: 'Nie udało się wczytać obiektów. Sprawdź połączenie.', dec: ',' },
+  es: { title: 'La huella de la luz', lede: 'Cada sustancia se traga sus propios colores de luz. Encuentra sus huellas en espectros reales de SPHEREx.',
+    guide: 'Guía', mystery: 'Objeto misterioso n.º {n}', book: '{n} en tu cuaderno',
+    qh2o: '¿Hay agua en esta luz?', qch4: '¿Hay metano en esta luz?', qall: '¿Qué huellas hay en esta luz?',
+    lookOne: 'Mira las bandas de color: ¿baja ahí la línea?', lookAll: 'Elige cada sustancia cuyas bandas bajan, o Ninguna. Luego comprueba.',
+    yes: 'Sí, baja', no: 'No, plana', none: 'Ninguna', check: 'Comprobar', unmeasured: 'sin medir', unsure: 'dudoso',
+    names: { h2o: 'agua', ch4: 'metano', co2: 'dióxido de carbono', co: 'monóxido de carbono' },
+    fp: { h2o: ['La huella del agua', 'El agua se traga la luz en las bandas azules.'], ch4: ['La huella del metano', 'El metano se traga la luz en la banda naranja.'],
+      co2: ['La huella del dióxido de carbono', 'Una banda morada estrecha.'], co: ['La huella del monóxido de carbono', 'La banda amarilla, a la derecha.'] },
+    dip: '{name}: en su banda la luz baja un {p} %.', flat: '{name}: plana, sin huella.', grey: '{name}: aquí no está claro, así que no se pregunta.',
+    right: 'Correcto.', wrong: 'No del todo.',
+    kindAsk: 'Entonces, ¿qué es?', kinds: { cold: ['Muy frío', 'El metano solo aguanta en un aire así de frío.'], cool: ['Una enana fresca', 'Agua, pero sin metano: mucho más fresca que el Sol.'],
+      ice: ['Tras una nube helada', 'Huellas de hielo: la luz cruza polvo helado.'], hot: ['Una estrella más caliente', 'Demasiado caliente para estas moléculas.'] },
+    solved: 'Lo has resuelto', solvedNot: 'Esto es lo que es',
+    what: { browndwarf: 'Una enana marrón: demasiado pequeña para ser estrella, demasiado grande para ser planeta.', reddwarf: 'Una enana roja: una estrella más pequeña y fría que el Sol.',
+      iceyoung: 'Una estrella joven tras una nube fría de polvo y hielo.', young: 'Una estrella joven, aún en la nube donde nació.', sunlike: 'Una estrella como el Sol.',
+      cooldwarf: 'Una enana L: en el límite entre las estrellas más pequeñas y las enanas marrones.' },
+    far: 'a {ly} años luz', open: 'Abrir en el mapa', next: 'Siguiente objeto →', guideNext: 'Siguiente paso →', guideDone: 'Guía terminada: ahora objetos reales, al azar.',
+    again: 'Ver la guía otra vez', cap: 'Medida real: NASA SPHEREx, 102 colores. El nombre, al final.',
+    credit: 'Espectros: NASA SPHEREx (IRSA), medidos por este sitio. Nombres y distancias: SIMBAD.',
+    moreSum: 'Cómo se decide una huella', moreText: 'Una banda cuenta como huella cuando la luz en ella es más de un 15 % más débil que justo al lado, y más de seis veces su incertidumbre. Las bandas dudosas no se preguntan. Entre 2,28 y 2,38 µm el monóxido de carbono y el metano se ven iguales para SPHEREx: esa banda nunca se pregunta.',
+    loading: 'Cargando…', failed: 'No se pudieron cargar los objetos. Comprueba la conexión.', dec: ',' },
+};
+const $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
+let lang = q.get('lang');
+try { lang = lang || localStorage.getItem('chrono-lang'); } catch { /* private mode */ }
+if (!STR[lang]) lang = (navigator.languages || [navigator.language || 'en']).map(l => l.slice(0, 2).toLowerCase()).find(l => STR[l]) || 'en';
+const T = STR[lang], fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+document.documentElement.lang = lang; $('lang').value = lang;
+$('lang').onchange = () => { try { localStorage.setItem('chrono-lang', $('lang').value); } catch { /* private mode */ } q.set('lang', $('lang').value); location.search = q.toString(); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const SUBS = ['h2o', 'ch4', 'co2', 'co'], F = { h2o: 'H₂O', ch4: 'CH₄', co2: 'CO₂', co: 'CO' };
+const COL = { h2o: '#4cc9f0', ch4: '#ff7b39', co2: '#c9a0ff', co: '#f2c14e' };
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
+const book = new Set(store('chrono-fp-book') || []);          // what has been worked out, on this device
+let POOL = [], obj = null, spec = null, step = -1, n = store('chrono-fp-n') || 0, picks = new Set(), phase = 'ask';
+for (const [id, k] of [['title', 'title'], ['lede', 'lede'], ['again', 'again'], ['credit', 'credit'], ['moresum', 'moreSum'], ['moretext', 'moreText'], ['cap', 'cap']]) $(id).textContent = T[k];
+document.title = `${T.title} · ChronosphereX`;
+
+/** Which of the four kinds the traces alone tell: methane → very cold; water without methane → a cool dwarf; ice → behind a cloud; none at all → hotter. */
+function kindOf(o) {
+  const a = o.ans;
+  if (o.kind === 'iceyoung') return 'ice';
+  if (a.ch4 === 'y') return 'cold';
+  if (a.h2o === 'y' && a.ch4 === 'n') return 'cool';
+  if (SUBS.every(k => a[k] !== 'y') && SUBS.filter(k => a[k] === 'n').length >= 3) return 'hot';
+  return null;          // not told apart by its traces alone: the question is not asked
+}
+function draw(only, result) {
+  const W = 340, H = 150, x = w => 6 + (w - 0.75) / (5.0 - 0.75) * (W - 12), s = spec.spec;
+  // brightness on a log scale: a brown dwarf is a hundred times brighter at 4 microns than at 1, and on a straight scale
+  // its water dips near 1.4 microns would lie flat along the bottom where no one sees them
+  const lg = v => Math.log10(Math.max(v, 1e-3)), vs = s.map(p => lg(p[1])), lo = Math.min(...vs), hi = Math.max(...vs), span = Math.max(hi - lo, 0.3);
+  const y = v => 8 + (1 - (lg(v) - lo) / span) * (H - 16);
+  let g = '';
+  for (const b of spec.bands) {
+    if (only && b.chip !== only) continue;
+    if (!only && obj.ans[b.chip] === '?') { g += `<rect x="${x(b.band[0]).toFixed(1)}" y="0" width="${(x(b.band[1]) - x(b.band[0])).toFixed(1)}" height="${H}" fill="#7f8a9c" fill-opacity=".10"/>`; continue; }
+    const c = COL[b.chip], shown = result && b.state === 'dip';
+    g += `<rect x="${x(b.band[0]).toFixed(1)}" y="0" width="${Math.max(3, x(b.band[1]) - x(b.band[0])).toFixed(1)}" height="${H}" fill="${c}" fill-opacity="${shown ? 0.34 : 0.16}"/>`;
+    if (result && b.state === 'dip' && b.depth) g += `<text x="${((x(b.band[0]) + x(b.band[1])) / 2).toFixed(1)}" y="12" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="${c}">${Math.round(b.depth * 100)}%</text>`;
+  }
+  const path = s.map((p, i) => `${i ? 'L' : 'M'}${x(p[0]).toFixed(1)} ${y(p[1]).toFixed(1)}`).join(' ');
+  g += `<path d="${path}" fill="none" stroke="#eef2f7" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g += [1, 2, 3, 4, 5].map(v => `<text x="${x(v).toFixed(1)}" y="${H + 20}" text-anchor="${v === 5 ? 'end' : 'middle'}" font-family="IBM Plex Mono, monospace" font-size="11" fill="#7f8a9c">${v}${v === 5 ? ' µm' : ''}</text>`).join('');
+  $('spec').innerHTML = g;
+  $('spec').setAttribute('aria-label', T.cap);
+}
+function fpCard(k) {
+  const c = COL[k];
+  $('fpcard').innerHTML = `<svg aria-hidden="true" width="60" height="38" viewBox="0 0 60 38" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9h18l5 22 5-22h28"/></svg><div><b>${esc(T.fp[k][0])}</b><span>${esc(T.fp[k][1])}</span></div>`;
+  $('fpcard').style.borderColor = `${c}66`; $('fpcard').hidden = false;
+}
+function bar() {
+  $('where').textContent = step >= 0 ? `${T.guide} · ${step + 1} / 3` : fill(T.mystery, { n: n + 1 });
+  $('dots').hidden = step < 0;
+  [...$('dots').children].forEach((d, i) => { d.className = i < step ? 'done' : i === step ? 'on' : ''; });
+  $('book').textContent = book.size ? fill(T.book, { n: book.size }) : '';
+}
+const pick = list => list[Math.floor(Math.random() * list.length)];
+/** The guide's objects: a T dwarf for water; for methane, one without it (water but no methane) so that No is the answer once. */
+function choose() {
+  const fresh = o => !book.has(o.id);
+  if (step === 0) return pick(POOL.filter(o => o.ans.h2o === 'y' && o.kind === 'browndwarf')) || pick(POOL.filter(o => o.ans.h2o === 'y'));
+  if (step === 1) return pick(POOL.filter(o => o.ans.ch4 === 'n' && o.ans.h2o === 'y')) || pick(POOL.filter(o => o.ans.ch4 !== '?'));
+  // at random, but each kind as often as another, so that the answer is not always the same
+  const kinds = [...new Set(POOL.map(o => o.kind))], k = pick(kinds);
+  return pick(POOL.filter(o => o.kind === k && fresh(o))) || pick(POOL.filter(o => o.kind === k)) || pick(POOL);
+}
+async function load(o) {
+  obj = o; spec = null; picks = new Set(); phase = 'ask';
+  for (const id of ['say', 'kinds']) $(id).innerHTML = '';
+  for (const id of ['kindbox', 'reveal', 'nextrow', 'yesno', 'checkrow', 'chips', 'fpcard']) $(id).hidden = true;
+  $('ask').textContent = T.loading; $('look').textContent = '';
+  try { spec = await (await fetch(`game/fp/${o.file}`)).json(); } catch { $('ask').textContent = T.failed; return; }
+  bar();
+  if (step === 0 || step === 1) {
+    const k = step === 0 ? 'h2o' : 'ch4';
+    fpCard(k); $('ask').textContent = T[`q${k}`]; $('look').textContent = T.lookOne;
+    $('yes').textContent = T.yes; $('no').textContent = T.no; $('yesno').hidden = false;
+    $('yes').onclick = () => answerOne(k, true); $('no').onclick = () => answerOne(k, false);
+    draw(k, false);
+  } else {
+    $('ask').textContent = T.qall; $('look').textContent = T.lookAll;
+    chips(); $('check').textContent = T.check; $('check').disabled = true; $('checkrow').hidden = false; $('check').onclick = checkAll;
+    draw(null, false);
+  }
+}
+function chips() {
+  const el = $('chips'); el.hidden = false;
+  el.innerHTML = SUBS.map(k => {
+    const a = obj.ans[k], off = a === '?';
+    return `<button type="button" class="chip" data-k="${k}" aria-pressed="false" style="border-color:${COL[k]}66"${off ? ' disabled' : ''}>${F[k]}<small>${esc(off ? T.unmeasured : T.names[k])}</small></button>`;
+  }).join('') + `<button type="button" class="chip" data-k="none" aria-pressed="false">${esc(T.none)}<small>–</small></button>`;
+  el.querySelectorAll('.chip').forEach(b => { b.onclick = () => {
+    if (phase !== 'ask') return;
+    const k = b.dataset.k;
+    if (k === 'none') picks = picks.has('none') ? new Set() : new Set(['none']);
+    else { picks.delete('none'); picks.has(k) ? picks.delete(k) : picks.add(k); }
+    el.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(picks.has(c.dataset.k))));
+    $('check').disabled = !picks.size;
+  }; });
+}
+function lines() {
+  // what each band says, one line a substance, deepest dip first
+  const out = [];
+  for (const k of SUBS) {
+    const a = obj.ans[k], name = T.names[k].replace(/^./, c => c.toLocaleUpperCase(lang));
+    if (a === 'y') { const d = Math.max(...spec.bands.filter(b => b.chip === k && b.state === 'dip').map(b => b.depth || 0)); out.push(fill(T.dip, { name, p: Math.round(d * 100) })); }
+    else if (a === 'n') out.push(fill(T.flat, { name }));
+    else out.push(fill(T.grey, { name }));
+  }
+  return out;
+}
+function answerOne(k, said) {
+  if (phase !== 'ask') return; phase = 'done';
+  const truth = obj.ans[k] === 'y', ok = said === truth;
+  $('yesno').hidden = true; draw(k, true);
+  const name = T.names[k].replace(/^./, c => c.toLocaleUpperCase(lang));
+  const d = truth ? Math.max(...spec.bands.filter(b => b.chip === k && b.state === 'dip').map(b => b.depth || 0)) : 0;
+  $('say').innerHTML = `<li class="${ok ? 'ok' : 'no'}">${esc(ok ? T.right : T.wrong)} ${esc(truth ? fill(T.dip, { name, p: Math.round(d * 100) }) : fill(T.flat, { name }))}</li>`;
+  $('next').textContent = T.guideNext; $('next').onclick = () => { step++; load(choose()); };
+  $('open').hidden = true; $('nextrow').hidden = false;
+  $('nextrow').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function checkAll() {
+  if (phase !== 'ask') return; phase = 'checked';
+  $('checkrow').hidden = true; draw(null, true);
+  let good = 0, all = 0;
+  $('chips').querySelectorAll('.chip').forEach(c => {
+    const k = c.dataset.k;
+    if (k === 'none') { const truth = SUBS.every(s => obj.ans[s] !== 'y'); if (picks.has('none') || truth) c.classList.add(picks.has('none') === truth ? 'right' : 'wrong'); return; }
+    if (obj.ans[k] === '?') return;
+    const truth = obj.ans[k] === 'y', said = picks.has(k); all++; if (said === truth) good++;
+    if (said || truth) c.classList.add(said === truth ? 'right' : 'wrong');
+  });
+  const L = lines();
+  $('say').innerHTML = `<li class="${good === all ? 'ok' : 'no'}">${esc(good === all ? T.right : T.wrong)} ${good} / ${all}</li>` + L.map(l => `<li>${esc(l)}</li>`).join('');
+  const kind = kindOf(obj);
+  if (!kind) return reveal(null);
+  $('kindask').textContent = T.kindAsk; $('kindbox').hidden = false;
+  $('kinds').innerHTML = ['cold', 'cool', 'ice', 'hot'].map(k => `<button type="button" data-k="${k}"><b>${esc(T.kinds[k][0])}</b><small>${esc(T.kinds[k][1])}</small></button>`).join('');
+  $('kinds').querySelectorAll('button').forEach(b => { b.onclick = () => {
+    if (phase !== 'checked') return; phase = 'kind';
+    const ok = b.dataset.k === kind;
+    b.classList.add(ok ? 'right' : 'wrong'); if (!ok) $('kinds').querySelector(`[data-k="${kind}"]`).classList.add('right');
+    reveal(ok && good === all);
+  }; });
+  $('kindbox').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function reveal(won) {
+  const o = obj, what = o.kind === 'browndwarf' && /^L/.test(o.sp) ? 'cooldwarf' : o.kind;
+  book.add(o.id); store('chrono-fp-book', [...book]);
+  if (step < 0) { n++; store('chrono-fp-n', n); }
+  $('reveal').innerHTML = `<span class="k">${esc(won ? T.solved : T.solvedNot)}</span><b>${esc(o.name)}</b><span>${esc(T.what[what] || '')}</span>`
+    + `<small>${[o.sp, o.ly ? fill(T.far, { ly: String(o.ly).replace('.', T.dec) }) : ''].filter(Boolean).map(esc).join(' · ')}</small>`;
+  $('reveal').hidden = false; bar();
+  const pm = o.pm ? `&star=${o.ra},${o.dec},${o.pm[0]},${o.pm[1]},${o.plx || 0}&name=${encodeURIComponent(o.name)}` : '';
+  $('open').href = `./?ra=${o.at ? o.at[0] : o.ra}&dec=${o.at ? o.at[1] : o.dec}&fov=5${pm}&lang=${lang}`; $('open').textContent = T.open; $('open').hidden = false;
+  if (step === 2) { $('next').textContent = T.next; $('next').onclick = () => { step = -1; store('chrono-fp-guided', 1); load(choose()); }; $('say').insertAdjacentHTML('beforeend', `<li class="ok">${esc(T.guideDone)}</li>`); }
+  else { $('next').textContent = T.next; $('next').onclick = () => load(choose()); }
+  $('nextrow').hidden = false;
+  requestAnimationFrame(() => $('nextrow').scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+}
+$('again').onclick = () => { step = 0; load(choose()); scrollTo({ top: 0, behavior: 'smooth' }); };
+fetch('game/fp/pool.json').then(r => r.json()).then(d => {
+  POOL = d.objects || [];
+  if (!POOL.length) throw new Error('empty');
+  step = store('chrono-fp-guided') && !q.has('guide') ? -1 : 0;
+  load(choose());
+}).catch(() => { $('ask').textContent = T.failed; });
+</script>
+</body>
+</html>
