@@ -6,13 +6,13 @@
 // the browser's cache, with no limit in bytes on the tiles; now a phone that asked for nothing keeps about 5 MB.
 
 // VERSION is replaced with the commit id when the site is published, so every release is its own set.
-const VERSION = 'dev-289';
+const VERSION = 'dev-290';
 const SHELL = `chrono-shell-${VERSION}`, DATA = 'chrono-data-v2', TILES = 'chrono-tiles-v1', LOOKUP = 'chrono-lookup-v1';
 const KEPT = 'chrono-keep-v1';          // this cache holds nothing: that it exists says the visitor asked for things to be kept
 const KEEP = new Set([SHELL, DATA, TILES, LOOKUP, KEPT, 'chrono-live-v1']);
 const SHELL_FILES = ['./', 'opening-night.jpg', 'hero-barnard.webp', 'hero-barnard.jpg', 'css/style.css', 'css/icons.css', 'css/fonts.css', 'config.js', 'js/look.js', 'https://cdn.jsdelivr.net/npm/aladin-lite@3.8.2/dist/aladin.js', 'data/targets.json', 'data/years.json', 'data/spectra.json',
   'js/app.js', 'js/lang.js', 'js/lang/tr.js', 'js/lang/es.js', 'js/lang/de.js', 'js/lang/fr.js', 'js/lang/pl.js', 'js/core.js', 'js/plot.js', 'js/sky.js', 'js/info.js', 'js/tour.js', 'js/guide.js', 'js/glossary.js', 'js/pages.js', 'js/pages/tr.js', 'js/pages/es.js', 'js/pages/de.js', 'js/pages/fr.js', 'js/pages/pl.js', 'js/archive.js', 'js/movers.js', 'js/bodies.js', 'js/rice.js', 'js/healpix.js', 'js/years.js', 'js/point.js', 'js/names.js', 'js/topics.js', 'js/ephem.js', 'js/magnet.js', 'data/sky.json', 'js/tabs.js', 'star.html', 'play.html', 'tonight.html', 'data/conlines.json',
-  'studio.html', 'css/studio.css', 'js/studio/ui.js', 'js/studio/words.js', 'js/studio/guide.js', 'js/studio/guidewords.js', 'js/studio/settings.js', 'js/studio/marks.js', 'js/studio/view.js', 'js/studio/files.js', 'js/studio/recipes.js', 'js/studio/render.js', 'js/studio/process.js', 'js/studio/cube.js', 'js/studio/geom.js', 'js/studio/worker.js', 'img/studio-apod.webp',
+  'studio.html', 'css/studio.css', 'js/touchrange.js', 'js/studio/ui.js', 'js/studio/words.js', 'js/studio/guide.js', 'js/studio/guidewords.js', 'js/studio/settings.js', 'js/studio/marks.js', 'js/studio/view.js', 'js/studio/files.js', 'js/studio/recipes.js', 'js/studio/render.js', 'js/studio/process.js', 'js/studio/cube.js', 'js/studio/geom.js', 'js/studio/worker.js', 'img/studio-apod.webp',
   'planet-x.html', 'tr/planet-x.html', 'es/planet-x.html', 'de/planet-x.html', 'fr/planet-x.html', 'pl/planet-x.html', 'img/pluto-blink.gif',
   'fonts/IBMPlexMono-400-latin-ext.woff2', 'fonts/IBMPlexMono-400-latin.woff2', 'fonts/IBMPlexMono-500-latin-ext.woff2', 'fonts/IBMPlexMono-500-latin.woff2', 'fonts/IBMPlexSans-400-latin-ext.woff2', 'fonts/IBMPlexSans-400-latin.woff2', 'fonts/IBMPlexSans-500-latin-ext.woff2', 'fonts/IBMPlexSans-500-latin.woff2', 'fonts/IBMPlexSans-600-latin-ext.woff2', 'fonts/IBMPlexSans-600-latin.woff2', 'fonts/InstrumentSerif-400-latin-ext.woff2', 'fonts/InstrumentSerif-400-latin.woff2', 'fonts/InstrumentSerif-400i-latin-ext.woff2', 'fonts/InstrumentSerif-400i-latin.woff2'];
 
