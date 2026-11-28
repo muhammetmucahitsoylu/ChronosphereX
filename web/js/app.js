@@ -1367,10 +1367,10 @@ function renderCmp() {
   const key = cmpKey(), mine = cmp.some(x => x.key === key), others = cmp.filter(x => x.key !== key).length, full = !mine && cmp.length >= CMP_MAX, out = G`Take it out of the comparison`;
   const sw = i => `<svg width="24" height="8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="${CMP_STYLE[i].color}" stroke-width="2.4" stroke-dasharray="${CMP_STYLE[i].dash.join(' ')}"/></svg>`;
   const self = others ? `<span class="cmpchip self"><svg width="24" height="8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="${SELF_LINE}" stroke-width="2.8"/></svg>${esc(G`this object`)}</span>` : '';
-  el.innerHTML = self + `<button type="button" class="ghost cmpadd" aria-pressed="${mine}"${full ? ' disabled' : ''} title="${esc(mine ? out : full ? G`At most three: take one out first.` : '')}">${esc(mine ? G`✓ In the comparison` : G`Add to the comparison`)}</button>`
+  el.innerHTML = self + `<button type="button" class="ghost cmpadd" aria-pressed="${mine}"${full ? ' disabled' : ''} title="${esc(mine ? out : full ? G`At most three: take one out first.` : G`To compare spectra, add this one and open another object.`)}">${esc(mine ? G`✓ In the comparison` : G`Add to the comparison`)}</button>`
     + cmp.map((x, i) => (x.key === key ? '' : `<span class="cmpchip">${sw(i)}<button type="button" class="open" data-i="${i}">${esc(cmpName(x))}</button><button type="button" class="x" data-i="${i}" aria-label="${esc(out)}" title="${esc(out)}">×</button></span>`)).join('')
     + (cmpTip?.key === key && others ? `<p class="cmptip">${esc(cmpTip.text)}</p>` : '')
-    + `<p class="hint">${esc(others ? G`Lines: the spectra added for comparison, each scaled to this object's middle brightness, so that their shapes can be compared. Press a name to open it.` : mine ? G`Now open another object: this spectrum will be drawn over its own.` : full ? G`At most three: take one out first.` : G`To compare spectra, add this one and open another object.`)}</p>`;
+    + `<p class="hint">${esc(others ? G`Lines: the spectra added for comparison, each scaled to this object's middle brightness, so that their shapes can be compared. Press a name to open it.` : mine ? G`Now open another object: this spectrum will be drawn over its own.` : full ? G`At most three: take one out first.` : '')}</p>`.replace('<p class="hint"></p>', '');
   const b = $('cmpopen');
   if (b) { b.hidden = !others; b.textContent = G`Compare spectra (${others})`; }
 }
@@ -1478,7 +1478,7 @@ function drawPlots() {
     <details><summary>How this is measured</summary><p class="hint">${haloNote}Every exposure sees the spot at a different wavelength, so stepping through time builds a spectrum. Measured in a circle of 9″ radius, which reads roughly 10 to 15% low because some starlight falls outside it.</p></details>`);
 }
 /** Under the spectrum drawn as a line: what the line is, then the usual words without their first part (about the points). */
-const specUsual = (n, hollow, usual) => (S.showPts ? usual : G`<p class="hint">The line is the middle of the measurements at each wavelength (${n} so far, one per exposure). Tick “each measurement” to see them as points, coloured by visit, and click one to see that exposure.${hollow}</p>` + usual.replace(/^\s*<p class="hint">[\s\S]*?<\/p>/, ''));
+const specUsual = (n, hollow, usual) => (S.showPts ? usual : G`<p class="hint">The line is the middle of the measurements at each wavelength (${n} so far, one per exposure).${hollow}</p>` + usual.replace(/^\s*<p class="hint">[\s\S]*?<\/p>/, ''));
 /** Take out visit-to-visit brightness changes, detector by detector, so that a variable star's
  *  spectrum from different visits lines up before absorption bands are measured in it. */
 function steadied(pts) {
@@ -1587,7 +1587,7 @@ function renderMolecules(pts) {
     el.innerHTML = G`<p class="hint">Molecule bands cannot be measured here: ${whyNot(rowsData.find(m => m.why === 'star too bright to tell') || rowsData.find(m => m.why === 'too faint to tell') || rowsData.find(m => m.why === 'too uneven to tell') || {})}.</p>`;
     return;
   }
-  el.innerHTML = `<ul class="molchips">${rows}</ul>` + G`<p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(iced ? G` The narrow carbon dioxide ice dip at 4.27 µm is clear: on its way to us this light passes through icy dust, which also reddens it. So the ice bands are measured here, not the gases of the star's own atmosphere.` : '') + (glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (unmeasured.length ? G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).` : '')}</p>`;
+  el.innerHTML = `<ul class="molchips">${rows}</ul>` + G`<p class="hint">How much fainter the spot is inside each band than just outside it. A dip is a hint that the molecule is there, not proof.${(iced ? G` The narrow carbon dioxide ice dip at 4.27 µm is clear: on its way to us this light passes through icy dust, which also reddens it. So the ice bands are measured here, not the gases of the star's own atmosphere.` : '') + (glow ? G` Where a band is brighter instead, hot gas or dust is glowing at that wavelength.` : '') + (!unmeasured.length ? '' : S.haloDets?.length && unmeasured.every(m => m.why === 'star too bright to tell') ? G` Bands that could not be measured: ${unmeasured.length}.` : G` Bands that could not be measured: ${unmeasured.length} (${[...new Set(unmeasured.map(whyNot))].join('; ')}).`)}</p>`;
 }
 function markCurrent() {
   const cur = S.seq[S.idx]?.frame;
@@ -1741,9 +1741,11 @@ function resultBlock(to, r) {
   } else if (to === 'molecules') {
     const dips = (n.dips || []).filter(m => m.d > 0), glows = (n.dips || []).filter(m => m.d < 0);
     if (dips.length || glows.length) {
-      head = [...new Set([...dips, ...glows].map(m => m.name))].join(' · ');
-      body = `<p class="rlabel">${esc(T('res.substances'))}</p>` + dl([...dips, ...glows].map(m => [`${m.name} (${m.f}) · ${fx(m.b[0], 2)}–${fx(m.b[1], 2)} µm`,
-        esc(m.d > 0 ? T('res.dimmed', { v: pc(m.d) }) : T('res.brighter', { v: pc(-m.d) })) + ` <span class="pm">± ${pc(Math.max(0.01, m.e))}</span>`]))
+      // beyond doubt, as the sentence above has it (15 % and six times the error); the rest is only possible
+      const sure = m => Math.abs(m.d) > 0.15 && Math.abs(m.d) > 6 * m.e, all = [...dips, ...glows], sureNames = [...new Set(all.filter(sure).map(m => m.name))];
+      head = sureNames.length ? sureNames.join(' · ') : `${T('res.possible')}: ${[...new Set(all.map(m => m.name))].join(' · ')}`;
+      body = `<p class="rlabel">${esc(T('res.substances'))}</p>` + dl(all.map(m => [`${m.name} (${m.f}) · ${fx(m.b[0], 2)}–${fx(m.b[1], 2)} µm`,
+        esc(m.d > 0 ? T('res.dimmed', { v: pc(m.d) }) : T('res.brighter', { v: pc(-m.d) })) + ` <span class="pm">± ${pc(Math.max(0.01, m.e))}</span>` + (sure(m) ? '' : ` <span class="pm">· ${esc(T('res.possibleTag'))}</span>`)]))
         + `<p class="rwhy">${esc(T('res.why'))}</p>` + dl([[T('res.bandsChecked'), String(n.n ?? '–')]]);
     } else {
       head = r.cls === 'none' ? T('res.noSub') : head;
@@ -1984,6 +1986,10 @@ function realityCheck(lc) {
     : word === 'steady' ? { cls: 'none', html: G`<b>Brightness steady:</b> within ${pc(change)} between visits in D${S.det}, like the stars nearby.`, plain: G`<b>Its brightness did not change.</b> It is as steady as the stars around it.` }
     : spread >= 0.08 ? { cls: 'unsure', html: G`<b>Varies by ${pc(spread)}</b> from visit to visit in D${S.det}; there are no ordinary stars here to check it against.`, plain: G`<b>Its brightness differs from visit to visit.</b> There are no ordinary stars nearby to compare it with, so this is not certain.` } : null;
   if (S.find.change) S.find.change.viz = { bars, comps: comps.length, steady, real: word === 'real', change, up: biggest.rel > 1, det: S.det, sig };
+  if (S.find.change && cardsOn()) {          // the results card says the verdict: under the plot only what the grey band is
+    const v = el.querySelector('p.verdict');
+    if (v) { if (steady != null && sn >= 5) v.textContent = G`The grey band in the plot: how much the ordinary stars in the same images change.`; else v.remove(); }
+  }
   renderFindings();
   return { steady: sn >= 5 ? steady : null, comps: comps.length, word };
 }
@@ -2061,8 +2067,10 @@ function scanField() {
   const shifts = usableStars.filter(s => s.shift != null).map(s => s.shift), changes = usableStars.filter(s => s.change).map(s => Math.abs(s.change.ch));
   const align = shifts.length >= 3 ? Math.max(0.3, 1.5 * med(shifts)) : 0.8, steady = changes.length >= 3 ? Math.max(0.01, 1.5 * med(changes)) : 0.05;
   const flags = [];
+  const isOwn = s => !!S.track && eps.some(e => { const t = trackPos((e[0] + e[1]) / 2); return Math.hypot(t[0] - s.x, t[1] - s.y) < 4; });
+  const ownSeen = usableStars.some(isOwn);
   for (const s of usableStars) {
-    const own = S.track && eps.some(e => { const t = trackPos((e[0] + e[1]) / 2); return Math.hypot(t[0] - s.x, t[1] - s.y) < 4; });
+    const own = isOwn(s);
     if (s.shift != null && s.real && s.shift > Math.max(3.5 * Math.hypot(align, s.fuzz), 2)) {
       flags.push({ s, own, kind: 'moved', text: G`Moved ${fx(s.shift, 1)}″ ${compass(s.dE, s.dN)}`, note: G`about ${fx((s.shift / s.years), 1)}″ per year` });
     } else if (s.change && Math.abs(s.change.ch) >= Math.max(0.15, 5 * steady) && s.change.sig >= 6) {
@@ -2070,7 +2078,7 @@ function scanField() {
       flags.push({ s, own, kind: 'changed', text: G`${s.change.ch > 0 ? G`Brightened` : G`Faded`} by ${Math.round(Math.abs(s.change.ch) * 100)}%`, note: G`between ${mon(s.change.from)} and ${mon(s.change.to)}` });
     }
   }
-  return { checked: usableStars.length, flags, align, steady };
+  return { checked: usableStars.length, flags, align, steady, ownSeen };
 }
 let scanKey = '', scanResult = null;
 function renderScan() {
@@ -2084,13 +2092,17 @@ function renderScan() {
   if (key !== scanKey) { scanKey = key; try { scanResult = scanField(); } catch (e) { console.error(e); scanResult = null; } }
   const r = scanResult;
   if (!r || r.checked < 4) { el.innerHTML = r ? G`<p class="hint">Too few clear stars in this field to check them against each other.</p>` : ''; answer(null); return; }
-  const steadyN = r.checked - r.flags.length;
-  const head = G`<p class="hint verdict"><b>Every clear star in this field, checked.</b> ${r.checked} stars in D${S.det}: ${r.flags.length ? G`${steadyN} did not move or change, ${r.flags.length} stand${r.flags.length === 1 ? 's' : ''} out.` : G`none moved, none changed.`} Here, positions repeat to ${fx(r.align, 1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`;
-  const list = r.flags.length ? `<ul class="flags">${r.flags.map((f, i) => `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}${f.own ? G` · the catalogued object` : ''}</span></li>`).join('')}</ul>
-    <p class="hint">${G`Press one to circle it. A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
+  // the object itself is measured in its own right (the results above): it is not one of the stars around it that stand out
+  const others = r.flags.filter(f => !f.own), around = r.checked - (r.ownSeen ? 1 : 0), steadyN = around - others.length;
+  const mid = others.length ? G`${steadyN} did not move or change, ${others.length} stand${others.length === 1 ? 's' : ''} out.` : G`none moved, none changed.`;
+  const head = r.ownSeen
+    ? G`<p class="hint verdict"><b>Every clear star around it, checked.</b> ${around} stars in D${S.det}: ${mid} Here, positions repeat to ${fx(r.align, 1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`
+    : G`<p class="hint verdict"><b>Every clear star in this field, checked.</b> ${around} stars in D${S.det}: ${mid} Here, positions repeat to ${fx(r.align, 1)}″ and brightness to ${Math.round(r.steady * 100)}%.</p>`;
+  const list = others.length ? `<ul class="flags">${r.flags.map((f, i) => (f.own ? '' : `<li><button type="button" data-flag="${i}">${f.text}</button><span>${f.note}</span></li>`)).join('')}</ul>
+    <p class="hint">${G`A flag is a reason to look, not a finding: check it in another detector and in the tools above.`}</p>` : '';
   el.innerHTML = head + list;
-  answer(r.flags.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> The Data tab shows what.`, plain: r.flags.some(f => !f.own) ? T('story.flagged') : '' }
-    : { cls: 'none', html: G`<b>None of the ${r.checked} clear stars around it moved or changed</b> between the visits.` });
+  answer(others.length ? { cls: 'unsure', html: G`<b>Something around it stands out.</b> The Data tab shows what.`, plain: T('story.flagged') }
+    : { cls: 'none', html: G`<b>None of the ${around} clear stars around it moved or changed</b> between the visits.` });
   el.querySelectorAll('[data-flag]').forEach(b => { b.onclick = () => {
     const f = r.flags[+b.dataset.flag];
     S.sel = f.own ? { follow: true } : { x: f.s.x, y: f.s.y };
@@ -2637,6 +2649,12 @@ function renderMotion() {
     el.classList.toggle('hasline', !!brief);
     el.innerHTML = brief + G`<table class="t"><thead><tr><th>${S.head?.split ? G`Month` : G`Visit`}</th><th title="How far the catalogue says it should have moved since the first visit: proper motion and parallax">Predicted path</th><th title="Distance between the measured and the predicted position, after taking out one offset common to all visits">Measured place: off by</th></tr></thead><tbody>${body}</tbody></table>
       <p class="hint verdict"><b>This page’s estimate: ${fx(rate, 1)}″ ± ${margin}″ per year towards the ${dir}</b>${agree}. The astronomers’ value (catalogue): ${fx(catPm, 2)}″ per year towards the ${compass(S.track.pmra, S.track.pmdec)}, and it is the one to rely on. ${yard} One SPHEREx pixel is 6.15″.</p>` + `<p class="hint">${methodLink()}</p>`;
+    if (cardsOn()) {          // the results card says the estimate, the catalogue's value and the method: here only what it does not say
+      const v = el.querySelector('p.verdict');
+      const agreeShort = every && every.dets.length > 1 ? G`Measured in ${list(every.dets)} independently: they agree to ${fx(Math.max(0.1, every.spread), 1)}″ per year.` : '';
+      if (v) v.textContent = [agreeShort, yard, G`One SPHEREx pixel is 6.15″.`].filter(Boolean).join(' ');
+      el.querySelectorAll('p.hint:not(.yearsway) > .methodlink').forEach(a => a.parentElement.remove());
+    }
     const catDir = compass(S.track.pmra, S.track.pmdec);
     sum('found', G`<b>Moving ${fx(rate, 1)}″ a year</b> towards the ${dir}. The catalogue says ${fx(catPm, 1)}″${catDir === dir ? '' : G` towards the ${catDir}`}.`, plainMoving(rate, dir), { ...(every ? { e: every.e, n: every.n } : { e: oE, n: oN }), rate, margin, cat: catPm, dets: every?.dets });
     return;
@@ -2650,10 +2668,17 @@ function renderMotion() {
     const cat = S.info?.pmra != null && !tracked ? G` SIMBAD lists ${fx((Math.hypot(S.info.pmra, S.info.pmdec) / 1000), 2)}″ per year for the object catalogued here.` : G` Check the tools above: if no catalogue lists a fast mover here, it deserves a closer look.`;
     const rate = every ? every.rate : d / years, dir = every ? compass(every.e, every.n) : compass(dE, dN);
     el.innerHTML = G`<p class="hint verdict"><b>This spot moved.</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span} in D${S.det}. That is about ${fx(rate, 1)}″ per year towards the ${dir}${agree}. ${yard}${cat}</p>` + `<p class="hint">${methodLink()}</p>`;
+    if (cardsOn()) {          // the card says how far and how fast: here only what it does not
+      const v = el.querySelector('p.verdict');
+      const agreeShort = every && every.dets.length > 1 ? G`Measured in ${list(every.dets)} independently: they agree to ${fx(Math.max(0.1, every.spread), 1)}″ per year.` : '';
+      if (v) v.textContent = [agreeShort, yard, cat.trim()].filter(Boolean).join(' ');
+      el.querySelectorAll('p.hint:not(.yearsway) > .methodlink').forEach(a => a.parentElement.remove());
+    }
     sum('found', G`<b>This spot moved</b> ${fx(d, 1)}″ towards the ${compass(dE, dN)} between ${span}: about ${fx(rate, 1)}″ a year.`, G`<b>The light here moved.</b> Between the visits it shifted a little towards the ${compass(dE, dN)}.`, { e: dE, n: dN, d, rate, t0: C.fmtMonth(first.st.mjd), t1: C.fmtMonth(end.st.mjd) });
     return;
   }
   el.innerHTML = G`<p class="hint verdict"><b>No motion detected.</b> Between ${span} its position in D${S.det} is the same to within ${fx(Math.max(d, 0.1), 1)}″. ${yard} Anything slower than about ${fx((Math.max(3 * sigma, 1.5) / years), 1)}″ per year would not show here (one SPHEREx pixel is 6.15″).</p>`;
+  if (cardsOn()) { const v = el.querySelector('p.verdict'); if (v) v.textContent = G`One SPHEREx pixel is 6.15″.`; }          // the card has the figures
   sum('none', G`<b>No motion:</b> the same place to within ${fx(Math.max(d, 0.1), 1)}″ between ${span}.`, G`<b>It has not moved.</b> It stays in the same place from one visit to the next.`, { d: Math.max(d, 0.1), align: comp.length >= 3 ? align : null, limit: Math.max(3 * sigma, 1.5) / years, t0: C.fmtMonth(first.st.mjd), t1: C.fmtMonth(end.st.mjd) });
 }
 /**
@@ -2981,7 +3006,7 @@ function renderDets() {
   }
   const D = S.dets[S.det], [a, z] = C.DET_BANDS[S.det];
   const n = D ? (D.loading ? G`loading ${D.frames.length} of ${D.total || '…'} exposures` : nExp(D.frames.length)) : S.head ? nExp(S.head.avail[S.det]) : '';
-  $('detnote').textContent = G`${S.autoNote ? S.autoNote + ' ' : ''}Detector ${S.det}: ${dn(a)} to ${dn(z)} µm${n ? ` · ${n}` : ''}. Pick a wavelength band above.`;
+  $('detnote').textContent = G`${S.autoNote ? S.autoNote + ' ' : ''}Detector ${S.det}: ${dn(a)} to ${dn(z)} µm${n ? ` · ${n}` : ''}.`;
 }
 function renderReleases() {
   const el = $('releases'); el.innerHTML = '';
@@ -3587,7 +3612,7 @@ cv.addEventListener('pointermove', e => {
   const p = ptrs.get(e.pointerId);
   if (!p) {
     const [gx, gy] = c2g(e.offsetX, e.offsetY), [ra, dec] = C.gridToSky(vg(), gx, gy);
-    $('readout').textContent = `${C.fmtSex(ra, dec)}   (${ra.toFixed(5)}°, ${dec.toFixed(5)}°)`;
+    $('readout').textContent = `${C.fmtSex(ra, dec)}   (${ra.toFixed(5)}°, ${dec.toFixed(5)}°)`; $('readout').classList.add('mono');
     return;
   }
   const dx = e.offsetX - p.x, dy = e.offsetY - p.y;
