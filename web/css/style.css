@@ -107,7 +107,7 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
 .startwith a { display: inline-block; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; padding: 2px 0; margin: 0 8px 0 4px; white-space: nowrap; }
 .startwith a:hover { text-decoration-color: var(--ember); color: var(--ember); }
 .startkind { display: none; }          /* what an object is: said on phones, where it stands alone */
-.datanote { margin: 10px 0 0; font: 11.5px/1.45 var(--mono); color: var(--ink-2); pointer-events: auto; }
+
 .offline { margin: 10px 0 0; font: 11.5px var(--mono); color: var(--ink-3); min-height: 16px; }
 .offline button { font: inherit; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; padding: 4px 0; text-align: left; }
 .offline button:hover { color: var(--ember); }
@@ -453,6 +453,23 @@ html.wait-words .hero, html.wait-words .nav, html.wait-words #search, html.wait-
    ran off the right edge, the page moved sideways) */
 @media (max-width: 359px) { .doctop .brand span { display: none; } }          /* too narrow for the name and the button: the mark alone, never a cut name */
 @media (max-width: 480px) { .doctop { gap: 8px; } .doctop .brand { min-width: 0; flex: 0 1 auto; } .doctop .brand span { font-size: 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .doctop .cta { flex: none; margin-left: auto; padding: 8px 13px; font-size: 13.5px; min-height: 38px; } }
+/* The opening on a phone (28 Nov 2026): three pictured steps instead of the sentence; one button; the words below the
+   top bar whatever the text size. A desk keeps the sentence and its buttons. */
+.steps { display: none; }
+@media (max-width: 600px) {
+  .hero > .lede { display: none; }
+  .steps { display: flex; order: 2; gap: 6px; list-style: none; margin: 14px 0 0; padding: 0; align-self: stretch; }
+  .steps li { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; font: 500 13px/1.25 var(--sans); color: var(--ink); }
+  .steps svg { width: 26px; height: 26px; fill: none; stroke: var(--ember); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .steps li + li { position: relative; }
+  .steps li + li::before { content: '→'; position: absolute; left: -9px; top: 3px; color: var(--ink-3); font-size: 15px; }
+  /* the phone held to the sky and the star of a year are in the menu (the first also in the map's corner) */
+  #pointbtn2, #starlink { display: none !important; }
+  /* when the words are taller than the screen (a phone set to large text) they scroll, instead of running up under
+     the buttons at the top */
+  #welcome.hero { top: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; pointer-events: auto; padding-top: calc(var(--sat, 0px) + 104px);          /* below the top row and the map chooser under it */ }
+  .hero > h1 { margin-top: auto; }
+}
 /* the glossary (js/glossary.js): a harder word underlined with dots where it first appears; a press says what it means */
 #panel .term, #rg .term, #sheet .term, .term { display: inline !important; width: auto !important; min-height: 0; padding: 0 !important; margin: 0; border: 0; border-radius: 0; background: none; font: inherit; color: inherit; line-height: inherit; text-align: inherit; white-space: normal; text-decoration: underline dotted var(--ember) 1.5px; text-underline-offset: 3px; cursor: help; }
 .term:hover, .term:focus-visible { color: var(--ink); text-decoration-style: solid; }

@@ -147,6 +147,8 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
         <p class="eyebrow" data-t="hero.eyebrow">NASA SPHEREx · 102 infrared colours · the whole sky, twice a year</p>
         <h1 data-t="hero.title">The sky is not still.</h1>
         <p class="lede"><span class="poem" data-t="hero.lede">Stars drift. Some flicker. Cold worlds hide in colours our eyes cannot see.</span> <span data-t="hero.do">Pick any point of this map to watch that spot change over time, and find out what it is.</span></p>
+        <!-- a phone: what to do, in three pictured steps instead of the sentence above (the same three things) -->
+        <ol class="steps"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0v3.5a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L4.6 14a1.4 1.4 0 0 1 2.1-1.9L9 14"/></svg><span data-t="hero.step1">Tap a spot</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span data-t="hero.step2">Watch it change</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></svg><span data-t="hero.step3">See what it is</span></li></ol>
         <div class="herobtns">
           <button type="button" class="ic ic-sky-dark cta" id="hidewelcome" data-t="hero.explore">Explore the sky</button>
           <button type="button" class="ic ic-point ghost" id="pointbtn2" hidden data-t="point.btn">Point at the sky</button>
@@ -156,8 +158,6 @@ try { var L = new URLSearchParams(location.search).get('lang') || localStorage.g
           <!-- the picture studio has a card of its own (below); this button stands in only where no card can show: a narrow desk, a phone on its side (style.css) -->
           <a class="ic ic-image ghost" id="studiolink" href="studio.html" data-t="hero.studio">Make a picture</a>
         </div>
-        <!-- a phone on mobile data: what exploring costs, said before the first touch -->
-        <p class="datanote" id="datanote" hidden data-t="hero.data">You are on mobile data. The pictures of one star you pick on the map take 20 to 60 MB.</p>
         <p class="startwith"><span data-t="hero.start">Or start with</span> <!-- the test objects, written out so the text does not jump when data/targets.json arrives; the page's code replaces them with the same list. Links to their plain pages, for a search engine and a new tab: a plain press opens the object here. On a phone only what the tour does not visit is named, with what it is (class intour and startkind, style.css). --><span id="examples"><a href="3i-atlas.html">3I/ATLAS<span class="startkind"> · Interstellar comet</span></a><a class="intour" href="barnards-star.html">Barnard's Star</a><a class="intour" href="epsilon-indi-b.html">Epsilon Indi B</a><a class="intour" href="wise-0855.html">WISE 0855</a><a class="intour" href="rw-aurigae.html">RW Aurigae</a><a class="intour" href="r-draconis.html">R Draconis</a><a class="intour" href="pluto.html">Pluto</a></span></p>
         <!-- what the title says, shown: the tool's own "Passing body" view of Pluto at 17 stops of the telescope, saved from the viewer's canvas; a press opens Pluto -->
         <!-- the two cards; on a phone they share one row, each with a few words (style.css) -->

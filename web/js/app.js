@@ -5008,11 +5008,6 @@ async function showKept() {
   } catch { /* the browser does not say */ }
 }
 $('menubtn').addEventListener('click', showKept);
-// A phone on mobile data (or one that asked to save data): the opening says what exploring costs.
-{
-  const c = navigator.connection, tell = () => { $('datanote').hidden = !((isNarrow() || isSide()) && c && (c.type === 'cellular' || c.saveData)); };
-  tell(); c?.addEventListener?.('change', tell);
-}
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   // A newer version of the site that turns up in the first seconds, before anything has been touched,
   // is applied by reloading once. Later it simply waits for the next visit: never in the middle of a demonstration.
