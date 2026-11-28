@@ -237,7 +237,8 @@ const GLOSS = [
   [/^(SN\*|SNR)/, G`The site of an exploded star.`],
   [/^(Em\*|Be\*)/, G`A star surrounded by glowing gas.`],
   [/^(V\*|Ir\*)/, G`A variable star: its brightness changes over time.`],
-  [/^(QSO|BLL|Bla|AGN|Sy1|Sy2|SyG|LIN)/, G`An active galaxy: the surroundings of a giant black hole at its centre shine across billions of light-years.`],
+  [/^(QSO|BLL|Bla)/, G`An active galaxy: the surroundings of a giant black hole at its centre shine across billions of light-years.`],
+  [/^(AGN|Sy1|Sy2|SyG|LIN)/, G`A galaxy with an active centre: the gas around the giant black hole in its middle glows.`],          // the Andromeda Galaxy's nucleus too: 'across billions of light-years' is a quasar's
   [/^(G|GiG|GiP|GiC|BiC|IG|PaG|LSB|EmG|SBG|H2G|rG|bCG)$/, G`A galaxy: a distant island of billions of stars.`],
   [/^(ClG|GrG|CGG|SCG)/, G`A group or cluster of galaxies held together by gravity.`],
   [/^GlC/, G`A globular cluster: hundreds of thousands of ancient stars packed into a ball.`],

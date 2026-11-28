@@ -2243,27 +2243,37 @@ function fmtDistance(plx, err) {
 
 /** A famous object opened by its place (not through the search) gets the name the search gives it in the page's language
  *  (topics.js): "Andromeda Galaksisi", not the catalogue's "Andromeda Galaxy" (28 Nov 2026). Within 20″ only. */
-function topicName(ra, dec, called) {
+function topicOf(ra, dec, called) {
   if (!(ra === ra && dec === dec) || !called) return null;
   for (const it of Object.values(Topics.ITEMS)) {
     const sk = it.do?.sky;
     // the same place and the same object: a star in the middle of a nebula keeps its own name
-    if (sk && it.name && sepArcsec(ra, dec, sk[0], sk[1]) < 20 && Topics.fold(Topics.say(it.name, 'en')) === Topics.fold(called)) return Topics.say(it.name, Lang.lang) || null;
+    if (sk && it.name && sepArcsec(ra, dec, sk[0], sk[1]) < 20 && (typeof it.name === 'string' ? [it.name] : Object.values(it.name)).some(n => Topics.fold(n) === Topics.fold(called))) return it;          // its name in any of the six languages: a search carries the one typed
   }
   return null;
 }
+const topicName = (ra, dec, called) => { const it = topicOf(ra, dec, called); return it ? Topics.say(it.name, Lang.lang) || null : null; };
+// A place opened from a topic: what that kind of thing is (the sentences of the catalogue's kinds where one fits)
+// (the catalogue's kind of thing each topic is, for its sentence; the middle of the Milky Way and its companions have their own)
+const TOPIC_CODE = { smbh: 'BH', spiral: 'G', starburst: 'G', elliptical: 'G', dwarf: 'G', radio: 'AGN', quasar: 'QSO', binary: 'HXB', forming: 'HII', dark: 'HII', snr: 'SNR', pn: 'PN', open: 'OpC', globular: 'GlC' };
+const topicSay = kind => kind === 'centre' ? G`The middle of our galaxy, about 26,000 light-years away. Dust hides it from the eye; infrared light gets through.`
+  : kind === 'dwarf' ? G`A small galaxy, a companion of our Milky Way.` : TOPIC_CODE[kind] ? Info.gloss(TOPIC_CODE[kind]) : '';
 function renderAbout() {
   const t = S.target, k = S.track, i = S.info, el = $('about');
   applyPanelMode();
-  const name = t ? nameOf(t) : i ? topicName(i.ra, i.dec, i.name) || i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
+  const top = !t && i ? topicOf(i.ra, i.dec, i.name) : null;          // opened from a topic: its name, its kind, its sentence
+  const name = t ? nameOf(t) : top ? Topics.say(top.name, Lang.lang) || i.name : i ? i.name : k?.name ? k.name : S.infoState === 'failed' || S.infoState === 'loading' ? G`This spot` : G`Uncatalogued spot`;
   document.title = `${name} · ChronosphereX`;          // the tab, the history and a bookmark say which object this is
   const sp = t?.sp || i?.sptype;
   const spHtml = sp ? G` · spectral type <span class="asis">${esc(sp)}</span>` : '';
-  const kind = t?.type ? `${esc(G(t.type))}${spHtml}` : i ? `${esc(G(i.type))}${spHtml}`
+  const kind = t?.type ? `${esc(G(t.type))}${spHtml}` : top ? esc(Topics.kindWord(top.kind, Lang.lang)) : i ? `${esc(G(i.type))}${spHtml}`
     : S.infoState === 'loading' ? G`Identifying…` : S.infoState === 'failed' ? G`Not identified` : S.moved ? G`The star that was here has moved on` : G`Nothing catalogued at this spot`;
   // A star that catalogues list here, at its year-2000 place, but that has moved on since.
   const mv = !t && !i ? S.moved : null, mvPm = mv ? Math.hypot(mv.pmra, mv.pmdec) / 1000 : 0;
-  const gloss = t ? G((simpleCard() && PLAIN_BLURB[t.slug]) || t.blurb) : i ? i.gloss || Info.gloss(i.otype, i.sptype)
+  const gloss = t ? G((simpleCard() && PLAIN_BLURB[t.slug]) || t.blurb)
+    : top ? [topicSay(top.kind),          // then what is measured in the middle, unless it is the same kind of thing (the Pleiades: an open cluster)
+      i.type && !(TOPIC_CODE[top.kind] && Info.gloss(i.otype, i.sptype) === Info.gloss(TOPIC_CODE[top.kind])) ? G`Measured in the middle of the field: ${G(i.type)}.` : ''].filter(Boolean).join(' ')
+    : i ? i.gloss || Info.gloss(i.otype, i.sptype)
     : mv ? G`${mv.name} was at this spot in the year 2000, which is where catalogues still list it. It moves ${fx(mvPm, 1)}″ a year and is now ${fx((mv.dist / 60), 1)}′ away.`
       : S.infoState === 'failed' ? G`The catalogue that names objects could not be reached just now, so this spot is not identified.`
         : S.infoState === 'done' ? G`No catalogue lists an object exactly here. SPHEREx still has images of this patch: what do you see?` : '';
@@ -2322,9 +2332,9 @@ function renderAbout() {
   // The simple card: a name that is only a catalogue number gives way to what the thing is, the number said in words below.
   // Where in the sky: the constellation, for anything that keeps its place (not a body of the solar system).
   const simple = simpleCard(), con = body ? '' : Names.constellation(S.ra, S.dec, Lang.lang);
-  const coded = !t && !!i && !S.wiki && /[[\]]|\d{3,}/.test(name);
+  const coded = !t && !top && !!i && !S.wiki && /[[\]]|\d{3,}/.test(name);
   const plain = simple && coded;
-  const kindShort = simple && (t?.type || i) ? esc(G(t?.type || i.type).replace(/\s*\([^)]*\)\s*$/, '')) : kind;          // the simple card leaves the spectral type and labels like (Mira variable) to the facts
+  const kindShort = simple && top ? kind : simple && (t?.type || i) ? esc(G(t?.type || i.type).replace(/\s*\([^)]*\)\s*$/, '')) : kind;          // the simple card leaves the spectral type and labels like (Mira variable) to the facts
   const kindLine = plain ? (con ? esc(T('panel.inCon', { c: con })) : kind) : `${kindShort}${con ? ` · ${esc(T('panel.inCon', { c: con }))}` : ''}`;
   const head = plain ? G(i.type) : name;
   const say = plain ? [gloss && gloss.length > 40 ? gloss : '', T('panel.noname', { id: name })].filter(Boolean).join(' ') : gloss;
@@ -3196,6 +3206,16 @@ async function search(text, called = '', mapFov = 0) {
   // a body that is followed has one view, whatever size of field is chosen: its names open it, and only its names
   const led = followedNamed(text);
   if (led) return openTarget(led);
+  // the Moon and the Sun have no place on this map: why, instead of 'no object of that name, check the spelling'
+  if (['ay', 'moon', 'themoon', 'mond', 'dermond', 'lune', 'lalune', 'ksiezyc', 'luna', 'laluna'].includes(q)) {
+    note(G`The Moon has no fixed place on this map: it crosses the whole sky in about a month, and SPHEREx maps what stays put.`, 14000);
+    const a = document.createElement('a'); a.href = 'tonight.html'; a.textContent = T('note.tonightLink'); $('mapnote').append(' ', a);
+    return;
+  }
+  if (['gunes', 'sun', 'thesun', 'sonne', 'diesonne', 'soleil', 'lesoleil', 'slonce', 'sonce', 'sol', 'elsol'].includes(q)) {
+    note(G`The Sun is never in SPHEREx’s view: it looks at the sky roughly 70 to 110 degrees away from the Sun.`, 12000);
+    return;
+  }
   const preset = q.length > 2 && S.targets.find(t => !t.follow && [t.label, t.slug, t.query, nameOf(t)].some(s => { const v = plain(s); return v.includes(q) || q.includes(v); }));
   if (preset && size === preset.size) return openTarget(preset);
   // "asteroid Iris", "(433) Eros", "2P/Encke": a body of the solar system is asked for outright
