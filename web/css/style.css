@@ -721,7 +721,7 @@ details[open] > summary { margin-bottom: 10px; }
 @container (max-width: 420px) { .transport { flex-wrap: wrap; row-gap: 6px; } .transport #seek { order: 9; flex: 1 0 100%; } .transport #count { margin-left: auto; } }          /* a narrow panel: the slider on a line of its own */
 .transport select { min-height: 32px; font-size: 12.5px; padding: 2px 22px 2px 6px; background-position: right 7px center; }
 .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 12px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.seg button { padding: 7px 4px; font-size: 13px; color: var(--ink-2); white-space: nowrap; background: var(--bg); min-height: 34px; }
+.seg button { padding: 7px 4px; font-size: 13px; color: var(--ink-2); background: var(--bg); min-height: 34px; }          /* words may wrap (the rule above): 'hareket eden renklenir' was cut at 369 px */
 .seg button:hover { color: var(--ink); }
 .seg button[aria-pressed=true] { background: var(--ink); color: var(--bg); font-weight: 600; }
 .detwrap { margin-top: 12px; }
@@ -1417,7 +1417,8 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
   body:not(.touring):not(.embed) #panel:not(.simple) #lookbox { order: 5; margin-top: 16px; }
   body:not(.touring):not(.embed) #panel:not(.simple) .viewer > #modes { margin-top: 18px; }
   body:not(.touring):not(.embed) #panel:not(.simple) .stack { order: 7; margin-top: 22px; }
-  body:not(.touring):not(.embed) #panel:not(.simple) .more { order: 8; margin-top: 22px; }
+  body:not(.touring):not(.embed) #panel:not(.simple) :is(#years, #motion, details.display) { align-self: stretch; }          /* as wide as the panel: short lines, or a closed fold, would make them narrower */
+  body:not(.touring):not(.embed) #panel:not(.simple) .more { order: 8; margin-top: 22px; align-self: stretch; }
   body:not(.touring):not(.embed) #panel.simple .cols { display: flex; flex-direction: column; gap: 0; }
   body:not(.touring):not(.embed) #panel.simple :is(.lead, .viewer) { display: contents; }
   body:not(.touring):not(.embed) #panel.simple .viewer .blocktitle { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }          /* the date on the pictures says it; still read out */
@@ -1430,7 +1431,7 @@ body:not(.touring):not(.embed) #panel.simple .fullwrap { display: flex; flex-dir
   body:not(.touring):not(.embed) #panel.simple.haslook .loopline:not([hidden]) { display: none; }          /* this object has words of its own on what to look for */
   body:not(.touring):not(.embed) #panel.simple #findings { order: 7; margin-top: 16px; }
   body:not(.touring):not(.embed) #panel.simple .fullwrap { order: 7; margin-top: 18px; }
-  body:not(.touring):not(.embed) #panel.simple .more { order: 8; margin-top: 22px; }
+  body:not(.touring):not(.embed) #panel.simple .more { order: 8; margin-top: 22px; align-self: stretch; }          /* as wide as the panel, also when there is no encyclopedia card to make it so (R Draconis) */
 }
 /* A phone held upright: under the simple card the map is a low strip, just high enough for the square that marks the
    field and the name above it, below the row of buttons. The map itself reaches as far below the strip as that row
