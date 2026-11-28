@@ -166,6 +166,8 @@ export default {
   "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Beklenen parlaklığı {0} kadir; bu, tek bir SPHEREx pozunun görebildiğinden (yaklaşık 19) çok daha sönük: halka yerini gösterir, ama bir nokta görmeyi beklemeyin.",
   "{0}: a constellation, one of the 88 regions the sky is divided into. Lines join its brightest stars; press any spot of the map to see how it changes over time.": "{0}: bir takımyıldız, gökyüzünün bölündüğü 88 bölgeden biri. Çizgiler en parlak yıldızlarını birleştiriyor; zaman içinde nasıl değiştiğini görmek için haritada herhangi bir noktaya dokunun.",
   "Constellation": "Takımyıldız",
+  "Shooting stars are specks of dust burning up in our air, about 100 km up: SPHEREx, looking out from far above, does not map them. When the next meteor shower comes is on the Tonight page.": "Yıldız kaymaları, havamızda yaklaşık 100 km yükseklikte yanan toz tanecikleridir: çok yukarıdan dışarıya bakan SPHEREx onların haritasını çıkarmaz. Bir sonraki meteor yağmurunun ne zaman olduğu Bu gece sayfasında.",
+  "{0} is a telescope, not a thing in the sky. What this site shows comes from another one, NASA’s SPHEREx.": "{0} bir teleskop, gökyüzündeki bir nesne değil. Bu sitenin gösterdikleri başka bir teleskoptan, NASA’nın SPHEREx’inden geliyor.",
   "visible light": "görünür ışık",
   "infrared {0}": "kızılötesi {0}",
   "Catalogued brightness (SIMBAD)": "Katalogdaki parlaklık (SIMBAD)",

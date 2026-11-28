@@ -3177,6 +3177,10 @@ async function resolveName(name) {
 }
 const sepArcsec = (ra1, dec1, ra2, dec2) => Math.hypot((ra1 - ra2) * Math.cos(dec1 * Math.PI / 180), dec1 - dec2) * 3600;
 
+// Words for shooting stars and their showers in the six languages, accents and spaces folded away (search: plain)
+const METEOR = /meteor|yildizkaymasi|kayanyildiz|goktasiyagmuru|sternschnuppe|etoilefilante|spadajacagwiazd|estrellafugaz|lluviadeestrellas|perseid|geminid|leonid|quadrantid|orionid|lyrid|draconid|aquariid|taurid|ursid/;
+// Telescopes by their names
+const SCOPES = new Set(['hubble', 'hst', 'hubbleteleskobu', 'hubbleuzayteleskobu', 'hubblespacetelescope', 'jameswebb', 'webb', 'jwst', 'jameswebbteleskobu', 'jameswebbuzayteleskobu', 'jameswebbspacetelescope', 'spitzer', 'chandra', 'euclid', 'tess']);
 async function search(text, called = '', mapFov = 0) {
   text = text.trim();
   if (!text) return;
@@ -3213,6 +3217,21 @@ async function search(text, called = '', mapFov = 0) {
   if (['ay', 'moon', 'themoon', 'mond', 'dermond', 'lune', 'lalune', 'ksiezyc', 'luna', 'laluna'].includes(q)) {
     note(G`The Moon has no fixed place on this map: it crosses the whole sky in about a month, and SPHEREx maps what stays put.`, 14000);
     const a = document.createElement('a'); a.href = 'tonight.html'; a.textContent = T('note.tonightLink'); $('mapnote').append(' ', a);
+    return;
+  }
+  // shooting stars and showers: in our own air, not on this map; the next shower is on Tonight
+  const qi = text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ı/g, 'i').replace(/[^a-z0-9]/g, '');          // 'yıldız kayması': the dotless i kept as an i
+  if (METEOR.test(qi)) {
+    note(G`Shooting stars are specks of dust burning up in our air, about 100 km up: SPHEREx, looking out from far above, does not map them. When the next meteor shower comes is on the Tonight page.`, 16000);
+    const a = document.createElement('a'); a.href = 'tonight.html'; a.textContent = T('nav.tonight') || 'Tonight'; $('mapnote').append(' ', a);
+    return;
+  }
+  // another telescope by its name ('Hubble' is also an asteroid, 2069, which is not what is meant)
+  if (SCOPES.has(qi)) {
+    note(G`${text} is a telescope, not a thing in the sky. What this site shows comes from another one, NASA’s SPHEREx.`, 14000);
+    const a = document.createElement('a'); a.href = (NAV ? `${Lang.lang}/` : '') + (PAGE_FILES.spherex || 'what-is-spherex.html'); a.textContent = (NAV && NAV.spherex) || 'What is SPHEREx?';
+    a.onclick = e => { if (e.ctrlKey || e.metaKey || e.shiftKey) return; e.preventDefault(); openSheet('spherex'); };
+    $('mapnote').append(' ', a);
     return;
   }
   // a constellation: the map goes to it, wide enough to hold it, with its stick figure drawn
@@ -3408,7 +3427,8 @@ const Finder = (() => {
       rows = Topics.TOPICS.map(t => ({ kind: 'topic', id: t.id }));
       head = `<p class="ftitle">${esc(W('ask'))}</p>`;
     } else {
-      const found = Topics.find(text, L(), extra());
+      const plainT = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ı/g, 'i').replace(/[^a-z0-9]/g, '');
+      const found = METEOR.test(plainT) || SCOPES.has(plainT) ? [] : Topics.find(text, L(), extra());          // a shower or a telescope: the search below says why it is not here
       rows = found.filter(r => r.kind === 'topic' || usable(r.id));
       // a constellation by its name: first, unless something is called exactly that (Orion: the nebula, then the constellation)
       const con = Names.findConstellation(text, L());

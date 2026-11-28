@@ -166,6 +166,8 @@ export default {
   "Its expected brightness, magnitude {0}, is far fainter than one SPHEREx exposure reaches (about 19): the ring shows where it is, but no dot is to be expected.": "Jego spodziewana jasność, {0} mag, jest znacznie słabsza niż zasięg jednej ekspozycji SPHEREx (około 19): pierścień pokazuje, gdzie jest, ale punktu nie należy się spodziewać.",
   "{0}: a constellation, one of the 88 regions the sky is divided into. Lines join its brightest stars; press any spot of the map to see how it changes over time.": "{0}: gwiazdozbiór, jeden z 88 obszarów, na które podzielono niebo. Linie łączą jego najjaśniejsze gwiazdy; dotknij dowolnego miejsca mapy, aby zobaczyć, jak zmienia się w czasie.",
   "Constellation": "Gwiazdozbiór",
+  "Shooting stars are specks of dust burning up in our air, about 100 km up: SPHEREx, looking out from far above, does not map them. When the next meteor shower comes is on the Tonight page.": "Spadające gwiazdy to drobiny pyłu spalające się w naszym powietrzu, około 100 km nad ziemią: SPHEREx, patrzący w przestrzeń z dużo większej wysokości, ich nie mapuje. Kiedy będzie najbliższy rój meteorów, jest na stronie Dziś w nocy.",
+  "{0} is a telescope, not a thing in the sky. What this site shows comes from another one, NASA’s SPHEREx.": "{0} to teleskop, a nie obiekt na niebie. To, co pokazuje ta strona, pochodzi z innego: SPHEREx NASA.",
   "visible light": "światło widzialne",
   "infrared {0}": "podczerwień {0}",
   "Catalogued brightness (SIMBAD)": "Jasność z katalogu (SIMBAD)",
