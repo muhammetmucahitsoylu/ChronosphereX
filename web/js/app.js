@@ -1267,9 +1267,10 @@ function step(d) { if (S.seq.length) { S.idx = (S.idx + d + S.seq.length) % S.se
 function play() {
   if (S.seq.length < 2) return;
   S.playing = true; $('play').textContent = G`❚❚ Pause`;
+  $('caption').setAttribute('aria-live', 'off');          // a screen reader hears the caption on a step or a pause, not at every frame of a loop
   clearInterval(S.timer); S.timer = setInterval(() => step(1), 1000 / S.fps);
 }
-function stop() { S.playing = false; $('play').textContent = G`▶ Play`; clearInterval(S.timer); }
+function stop() { S.playing = false; $('play').textContent = G`▶ Play`; clearInterval(S.timer); $('caption').setAttribute('aria-live', 'polite'); }
 
 // ------------------------------------------------------------ photometry & plots
 let plotTimer = 0, plotDue = 0;
