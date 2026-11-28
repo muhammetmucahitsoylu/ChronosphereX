@@ -214,10 +214,11 @@ const M = {
   variable: ['[Vv]ariable star', '[Dd]eğişen yıldız', '[Vv]eränderliche[rn]? Stern', '[Éé]toiles? variables?', '[Gg]wiazd\\p{L}* zmienn', '[Ee]strellas? variables?'],
   nebula: ['[Nn]ebula', '[Bb]ulutsu', '[Nn]ebel', '[Nn]ébuleuse', '[Mm]gławic', '[Nn]ebulosa'],
   detector: ['[Dd]etector', '[Dd]edektör', '[Dd]etektor', '[Dd]étecteur', '[Dd]etektor', '[Dd]etector'],
-  arcsecond: ['[Aa]rcsecond', '[Yy]ay saniye', '[Bb]ogensekunde', '[Ss]econdes? d[’\']arc', '[Ss]ekund\\p{L}* łuku', '[Ss]egundos? de arco'],
+  arcsecond: ['[Aa]rcsecond|\\d+(?:[.,]\\d+)?″', '[Yy]ay saniye|\\d+(?:[.,]\\d+)?″', '[Bb]ogensekunde|\\d+(?:[.,]\\d+)?″', '[Ss]econdes? d[’\']arc|\\d+(?:[.,]\\d+)?″', '[Ss]ekund\\p{L}* łuku|\\d+(?:[.,]\\d+)?″', '[Ss]egundos? de arco|\\d+(?:[.,]\\d+)?″'],          // or the first figure with ″
+  catalogue: ['[Cc]atalog', '[Kk]atalog', '[Kk]atalog', '[Cc]atalogue', '[Kk]atalog', '[Cc]atálogo'],
 };
 // Where words are looked for, and never inside a link, a button or a word already underlined.
-const WHERE = ['#lookbox p.look', '#leadbox .leadtxt', '#findings .chkbody p', '#findings .rfacts dt', '#findings .rwhy', '#explain', '#about .gloss', '#rg_text', '#sheet article p', '#sheet article li', ':is(#sheet) > p:not(.eyebrow)'];
+const WHERE = ['#lookbox p.look', '#leadbox .leadtxt', '#motion .yearsline span', '#findings .chkbody p', '#findings .rfacts dt', '#findings .rwhy', '#explain', '#about .gloss', '#rg_text', '#sheet article p', '#sheet article li', ':is(#sheet) > p:not(.eyebrow)', '#wikibox .mags small'];
 
 export function makeGlossary({ lang, title, more, close, intro, onAll }) {
   const k = Math.max(0, L.indexOf(lang));

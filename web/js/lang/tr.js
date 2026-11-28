@@ -159,7 +159,7 @@ export default {
   "visible light": "görünür ışık",
   "infrared {0}": "kızılötesi {0}",
   "Catalogued brightness (SIMBAD)": "Katalogdaki parlaklık (SIMBAD)",
-  "In magnitudes: the lower the number, the brighter.": "Kadir cinsinden: sayı küçüldükçe daha parlak.",
+  "In magnitudes: the lower the number, the brighter.": "Değerler kadir cinsinden: sayı küçüldükçe daha parlak.",
   "Also catalogued here": "Burada ayrıca kayıtlı",
   "<p class=\"others\">Also catalogued at this position: {0}</p>": "<p class=\"others\">Bu konumda ayrıca kataloglananlar: {0}</p>",
   "From Wikipedia": "Vikipedi’den",
